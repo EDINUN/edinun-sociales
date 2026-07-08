@@ -1,0 +1,24 @@
+{
+  "name": "edinun-sociales",
+  "version": "1.0.0",
+  "description": "EDINUN GAMES — juegos de Estudios Sociales (mismo motor que edinun-games).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EDINUN/edinun-sociales.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EDINUN/edinun-sociales/issues"
+  },
+  "homepage": "https://github.com/EDINUN/edinun-sociales#readme",
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}
