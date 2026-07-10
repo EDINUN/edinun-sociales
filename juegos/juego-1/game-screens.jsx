@@ -71,7 +71,8 @@ function GameScreen({ app, setApp, go }) {
   const [matched, setMatched] = useStateG({});   // { cardKey: true } (para render)
   const [stars, setStars] = useStateG(0);
   const [elapsed, setElapsed] = useStateG(0);
-  const [banner, setBanner] = useStateG(null);
+  const [banner, setBanner] = useStateG(null);      // "ok" | "err" (estándar EDINUN)
+  const [bannerMsg, setBannerMsg] = useStateG("");   // pastilla: "+N ⭐" o frase de ánimo
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
 
@@ -130,10 +131,10 @@ function GameScreen({ app, setApp, go }) {
 
   function finishRound() {
     lock.current = true;
-    setBanner("¡LO LOGRASTE!");
+    const pairs = logRef.current.length;
+    setBanner("ok"); setBannerMsg(`+${pairs} ⭐`);
     setTimeout(() => {
-      setBanner(null);
-      const pairs = logRef.current.length;
+      setBanner(null); setBannerMsg("");
       const acc = attemptsRef.current > 0 ? Math.round((pairs / attemptsRef.current) * 100) : 100;
       setApp((s) => ({
         ...s,
@@ -183,9 +184,9 @@ function GameScreen({ app, setApp, go }) {
       {/* ── Personaje guía + bocadillo ── */}
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
-          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
             {bubbleText()}
-            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)" }} />
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>
         <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
@@ -246,16 +247,38 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Acciones ── */}
-      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 138 }}>
-        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, height: 54, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
-        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, height: 54, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
       </div>
 
-      {/* ── Banner entre rondas ── */}
+      {/* ── Overlay de feedback (estándar EDINUN: ¡EXCELENTE!/¡UPS!) ── */}
       {banner && (
         <PortalToBody>
-          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
-            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(48px,10vmin,110px)", color: "#2ecc8f", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{banner}</div>
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s",
+          }}>
+            <div style={{
+              fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
+              fontSize: "clamp(56px, 11vmin, 120px)",
+              color: banner === "ok" ? "#2ecc8f" : "#ff6b6b",
+              textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center",
+            }}>
+              {banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
+            </div>
+            {bannerMsg && (
+              <div style={{
+                fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
+                fontSize: "clamp(18px, 2.6vmin, 30px)",
+                color: banner === "ok" ? "#fce9a8" : "#fff",
+                background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999,
+                textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center",
+              }}>
+                {banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}
+              </div>
+            )}
           </div>
         </PortalToBody>
       )}
@@ -264,13 +287,13 @@ function GameScreen({ app, setApp, go }) {
       {confirmingExit && (
         <PortalToBody>
           <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
-            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center" }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
               <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
-              <h2 className="ed-h1" style={{ fontSize: 22, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
               <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder esta ronda.</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800 }}>SEGUIR JUGANDO</button>
-                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800 }}>SÍ, SALIR</button>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
               </div>
             </div>
           </div>
@@ -281,13 +304,13 @@ function GameScreen({ app, setApp, go }) {
       {confirmingRestart && (
         <PortalToBody>
           <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
-            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center" }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
               <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
-              <h2 className="ed-h1" style={{ fontSize: 22, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
               <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar con otras caritas.</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800 }}>SEGUIR JUGANDO</button>
-                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800 }}>SÍ, REINICIAR</button>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
               </div>
             </div>
           </div>
