@@ -1,17 +1,22 @@
-# CLAUDE.md — PLANTILLA (Estudios Sociales)
-
-> Esta es la **plantilla base**. Al crear un juego nuevo se copia toda la carpeta
-> `_PLANTILLA/` a `juegos/juego-N/` y se reemplazan los `{{PLACEHOLDERS}}`
-> y el contenido de `game-screens.jsx`. No publicar `_PLANTILLA` en el landing.
+# CLAUDE.md — juego-3 "Cuido mi entorno" (Estudios Sociales)
 
 ## Project
 
-**Juego: {{TÍTULO DEL JUEGO}}.** Carpeta autocontenida del repo multi-juego
-`edinun-sociales` (Estudios Sociales). {{Descripción de la mecánica y del tema
-del libro/currículo al que mapea.}} Detalle del diseño en
-`.planning/{{slug}}-design.md`.
+**Juego: Cuido mi entorno.** Carpeta autocontenida del repo multi-juego
+`edinun-sociales` (Estudios Sociales). Juego **multi-tema** sobre el cuidado del
+ambiente, con personaje guía **Sisa**. Tiene **2 temas** seleccionables desde el
+Home (chips de cambio de tema arriba en la pantalla de juego):
 
-**Audiencia {{EDAD}}** (registrar en `memory/audiencia_por_juego.md`).
+- **Tema 1 — "Clasifica la basura"** (audiencia **6**): arrastrar 6 residuos a 3
+  tachos (amarillo/azul/café) y presionar **VERIFICAR**. 1 sola ronda.
+- **Tema 2 — "Cambio climático"** (audiencia **9**): **3 rondas encadenadas con
+  mecánicas distintas** que terminan en un reporte combinado.
+
+Detalle del diseño en `.planning/juego-3-design.md`.
+
+**Audiencia 6 (Tema 1) y 9 (Tema 2)** — registrada en
+`memory/audiencia_por_juego.md`. Los libros/láminas se usaron solo para
+**entender el tema**, NO para copiar actividades 1:1.
 
 En móvil el diseño es horizontal pero el dispositivo se sostiene vertical: el
 usuario gira físicamente el teléfono (overlay bloqueante hasta rotar).
@@ -37,7 +42,8 @@ Mismo shell que los demás juegos. Los 5 `.jsx` (`logo`, `characters`, `screens`
 ```powershell
 powershell -ExecutionPolicy Bypass -File .planning\bundle.ps1
 ```
-o `python .planning/bundle.py` si hay Python real.
+o `python .planning/bundle.py` si hay Python real. Verificar que ambos HTML
+(`index.html` == `EDINUN GAMES.html`) quedan idénticos.
 
 Invariantes:
 - **No incluir `</script>` literal en ningún `.jsx`** (partir el token si hace falta).
@@ -48,31 +54,37 @@ Invariantes:
 - `app.jsx` enruta por estado: `home → character → game → results`. No tocar salvo
   cambio de shell coordinado con los demás juegos.
 - `screens.jsx`: `HomeScreen`, `CharacterScreen`, contador de visitas, `CosmosBg`.
-  Personalizar solo los textos marcados `// ← PERSONALIZAR` y los glifos.
-- `game-screens.jsx`: **aquí va la mecánica del juego.** Define `GameScreen` y
-  `ResultsScreen`. La plantilla trae el **formato EDINUN completo** ("Mira y toca",
-  clonado de `edinun-ccn-games/juego-1`): HUD (logo + RONDA con dots + ⏱ + ⭐),
-  personaje guía con bocadillo de pista, cartel central con marco dorado, 3 fichas
-  candy (emoji + texto), columna REINICIAR/SALIR, overlay "¡EXCELENTE!/¡UPS!",
-  modales de salir/reiniciar y **reporte académico imprimible**. Para un juego nuevo,
-  reemplaza `CAT_LABEL`, `RECENT_KEY` y el banco `PREGUNTAS` (ítem:
-  `{ ctx, enunciado, pista, opciones:[{e,t}], correcta }`) por el contenido real.
+  Define el array **`LEVELS_CFG`** con los 2 temas (reciclaje + cambioclimatico);
+  los chips del Home fijan `app.level` → `app.currentCategory` / `currentCatLabel`.
+- `game-screens.jsx`: **aquí va la mecánica.** `GameScreen` **despacha por
+  `app.currentCategory`**: `"cambioclimatico"` → `<Tema2Controller/>`; en otro caso
+  → `<BasuraGame/>` (Tema 1). `ResultsScreen`/`PrintableReport` están
+  generalizados (`res.cols`, `res.praise`, `res.themeEmoji`) para servir a ambos temas.
 
-### Mecánica del juego (`GameScreen`)
+### Mecánicas (`game-screens.jsx`)
 
-**"Mira y toca":** cada partida son `ROUNDS` (4) rondas elegidas al azar del banco
-`PREGUNTAS`, evitando las vistas recientemente (`localStorage`, `RECENT_KEY`) →
-recargar o cambiar de niño NO repite. El niño TOCA la ficha correcta directo (sin
-VERIFICAR/BORRAR). Acierto → ficha verde + ⭐ + "¡EXCELENTE!". Fallo → revela la
-correcta (verde) dejando ver la tocada (roja) por 2 s, luego "¡UPS!"; **no resta**
-progreso. Timer informativo (no penaliza). Al terminar, `ResultsScreen` muestra el
-reporte imprimible. {{Ajustar tema/edad al implementar un juego real.}}
+**Tema 1 — `BasuraGame` (arrastrar + VERIFICAR):** 6 residuos en la bandeja se
+arrastran a 3 tachos. Al presionar VERIFICAR se muestra una **pantalla de
+verificación limpia ~3 s** (✓ en aciertos, ✗ + círculo rojo con ➜ señalando el
+tacho correcto en los errores, sin iluminar el tacho), y **luego** el overlay
+estándar **¡EXCELENTE! / ¡UPS!**. Drag con pointer events sobre el lienzo escalado.
 
-Reglas EDINUN que la mecánica debe respetar (ver `USER.md` y
+**Tema 2 — `Tema2Controller` (3 rondas encadenadas):** monta cada ronda por turno
+(`key`) y acumula resultados en un ref; al terminar la 3.ª arma el reporte
+combinado (`cols: ["Actividad","Tu respuesta"]`, `themeEmoji:"🌍"`). Rondas:
+1. **`CausaEfectoRound`** ("¿Qué pasa si...?") — tap-quiz de causa-efecto, **1
+   pregunta**, bocadillo ESTÁTICO.
+2. **`TermometroRound`** ("El termómetro del planeta") — tocar acciones buenas para
+   enfriar la Tierra (imagen `tierra-caliente/media/feliz.png` según temperatura).
+3. **`ClimaRound`** ("¿Qué clima es?") — arrastrar 6 tarjetas de clima a
+   El Niño / Neutral / La Niña + VERIFICAR (mismo flujo verificación→overlay).
+
+Reglas EDINUN que las mecánicas respetan (ver `USER.md` y
 `memory/aprendizajes-de-diseno.md`):
 - Fallar no baja el progreso ya ganado; completar el objetivo cuenta como éxito.
 - Al fallar, revelar la respuesta correcta dejando ver lo que eligió el niño.
-- Salir/reiniciar siempre con modal.
+- Salir/reiniciar siempre con modal (con glow rojo/violeta).
+- Cambio de tema con modal de confirmación (copiado textual del juego de lengua).
 - `markFirstAttempt()` en la primera respuesta; `incrementGamesCompleted()` al terminar.
 
 ### Personajes
@@ -80,7 +92,7 @@ Reglas EDINUN que la mecánica debe respetar (ver `USER.md` y
 Catálogo compartido (elenco por regiones del Ecuador): Domi (`domi`, Costa,
 montubia), Sisa (`sisa`, Sierra, kichwa otavaleña), Yaku (`yaku`, Oriente, kichwa
 amazónico) y Andi (`andi`, cóndor tricolor del Ecuador). **Personaje destacado en
-el landing: {{charId}}** (∈ {domi, sisa, yaku, andi}). Arte en `assets/char-<charId>.png`.
+el landing: `sisa`.** Arte en `assets/char-sisa.png`.
 
 ## Contador de visitas
 
