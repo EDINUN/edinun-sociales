@@ -693,11 +693,36 @@ function shuffle(arr) {
 function has(arr, id) { return arr.some((m) => m.id === id); }
 function bothPT(arr) { return has(arr, "papa") && has(arr, "tio"); } // Papá + Tío juntos = confuso
 
-// 1 sola ronda: 4 miembros al azar del banco de 8. Al recargar/reiniciar salen otros.
+// Anti-repetición: recuerda los miembros de la última ronda para que al RECARGAR/REINICIAR
+// salgan OTROS (con banco de 8 y ronda de 4, la siguiente usa casi siempre los 4 restantes).
+const RECENT_KEY = "edinun_juego1_familia_recientes_v1";
+const RECENT_CAP = 4;
+function readRecent() {
+  try { const a = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+function writeRecent(ids) {
+  try {
+    const prev = readRecent().filter((id) => ids.indexOf(id) === -1);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(ids.concat(prev).slice(0, RECENT_CAP)));
+  } catch (e) { /* sin localStorage: sin anti-repetición, no crítico */ }
+}
+
+// 1 sola ronda: 4 miembros del banco de 8, prefiriendo los NO vistos recientemente.
 // Regla: Papá y Tío NUNCA en la misma ronda (se parecen y confunden).
 function buildRounds() {
-  let r = shuffle(FAMILIA).slice(0, 4);
-  for (let i = 0; i < 60 && bothPT(r); i++) r = shuffle(FAMILIA).slice(0, 4);
+  const recent = readRecent();
+  const fresh = shuffle(FAMILIA.filter((m) => recent.indexOf(m.id) === -1));
+  const stale = shuffle(FAMILIA.filter((m) => recent.indexOf(m.id) !== -1));
+  const ordered = fresh.concat(stale);   // frescos primero, azar dentro de cada grupo
+  const r = [];
+  for (const m of ordered) {
+    if (r.length >= 4) break;
+    if ((m.id === "tio" && has(r, "papa")) || (m.id === "papa" && has(r, "tio"))) continue; // no Papá+Tío
+    r.push(m);
+  }
+  if (r.length < 4) for (const m of ordered) { if (r.length >= 4) break; if (!has(r, m.id)) r.push(m); }
+  writeRecent(r.map((m) => m.id));
   return [r];
 }
 

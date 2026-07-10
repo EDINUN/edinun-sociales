@@ -48,6 +48,21 @@ function shuffle(arr) {
 }
 function cellIn(grid, id) { for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) if (grid[r][c] === id) return { r, c }; return { r: 0, c: 0 }; }
 
+// Anti-repetición: recuerda los últimos destinos para que al RECARGAR/REINICIAR no salga
+// el mismo lugar-meta dos partidas seguidas (además la cuadrícula ya se baraja cada vez).
+const RECENT_KEY = "edinun_juego2_camino_destinos_v1";
+const RECENT_CAP = 2;
+function readRecentDest() {
+  try { const a = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+function writeRecentDest(id) {
+  try {
+    const prev = readRecentDest().filter((d) => d !== id);
+    localStorage.setItem(RECENT_KEY, JSON.stringify([id].concat(prev).slice(0, RECENT_CAP)));
+  } catch (e) { /* sin localStorage: sin anti-repetición, no crítico */ }
+}
+
 // Baraja los 9 lugares en la cuadrícula 3x3. La escuela (inicio) y la casa (meta) nunca
 // quedan pegadas: se asegura una distancia de al menos 3 para que haya un recorrido.
 function buildBarrio() {
@@ -68,7 +83,12 @@ function buildBarrio() {
   const far = cands.filter((c) => c.d >= 3);
   const maxD = Math.max.apply(null, cands.map((x) => x.d));
   const pool = far.length ? far : cands.filter((c) => c.d === maxD);
-  const pick = pool[Math.floor(Math.random() * pool.length)];
+  // Evita repetir el destino reciente; si todos los candidatos son recientes, usa el pool completo.
+  const recent = readRecentDest();
+  let choicePool = pool.filter((c) => recent.indexOf(c.id) === -1);
+  if (!choicePool.length) choicePool = pool;
+  const pick = choicePool[Math.floor(Math.random() * choicePool.length)];
+  writeRecentDest(pick.id);
   const timeLimit = 18; // segundos fijos para llegar al destino
   const places = {};
   grid.forEach((row, r) => row.forEach((id, c) => { places[id] = Object.assign({}, META[id], { x: COLS[c], y: ROWS[r] }); }));
