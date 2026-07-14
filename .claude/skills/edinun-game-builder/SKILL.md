@@ -62,8 +62,13 @@ Flujo: **planear → aprobar → clonar → implementar → empaquetar → landi
 6. Re-empaquetar (`bundle.js` con Node, o `bundle.ps1` / `bundle.py`) —
    verificar ambos HTML idénticos y sin `</script>` literal.
 7. Registrar el juego en el array `GAMES` del landing (Tarea C).
-8. QA visual en los 6 viewports (`_PLANTILLA/.planning/qa-visual.js` o el flujo
-   de `USER.md`): sin overflow, sin solapes, personaje/acciones sin chocar.
+8. **Verificación automática antes de entregar** (ambos deben pasar; ver
+   `references/estandar-visual.md` §7):
+   - `node juegos/_PLANTILLA/.planning/format-lint.js <slug>` — valores fijos
+     (logo 300, botones, personaje, acciones, ResultsScreen).
+   - `node juegos/_PLANTILLA/.planning/qa-visual.js <slug>` — layout real en los
+     6 viewports: sin overflow y colchón mecánica↔acciones ≥ 30px (variante
+     angosta justificada permitida).
 
 Detalle completo en `references/crear-juego.md`.
 

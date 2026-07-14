@@ -151,6 +151,21 @@ acciones (der). Dos encuadres usados:
 Libertad total en QUÉ va aquí; lo fijo es que respete los márgenes del personaje
 y las acciones.
 
+### La mecánica se centra en el EJE X DEL LIENZO (x=450), no en la zona de juego
+
+El enunciado ya va simétrico (`left: 150, right: 150` → centro 450). Las
+casillas / rejilla / cartas / opciones **deben compartir ese mismo centro
+(x=450)**, no el centro de la "zona de juego" entre el personaje y las acciones
+(~500). Si la mecánica usa coordenadas absolutas, sus posiciones deben ser
+simétricas respecto a 450 (p. ej. 3 columnas en `[280, 450, 620]`, no
+`[330, 500, 670]`). Si al centrar el personaje estorba a la izquierda, córrelo
+—el juego se centra en 450—; y como centrar libera la derecha, se suele poder
+usar la columna de acciones estándar (`right: 18`) en vez de la angosta.
+
+> ⚠️ Error real cometido: en juego-4 el enunciado iba en 450 pero las casillas
+> en 500 (`SLOT_CX = [330, 500, 670]`) → el bloque se veía corrido a la derecha
+> de la línea de centro. Se corrigió a `[280, 450, 620]`.
+
 ### Colchón mínimo entre la mecánica y las acciones (≥ 30px) — REGLA CRÍTICA
 
 El elemento más a la derecha de la mecánica **—incluido su CONTENEDOR div
@@ -202,6 +217,16 @@ toque los botones.**
 
 ## 7. Cómo validar que un juego "queda igual" (checklist)
 
+> **Antes de entregar CUALQUIER juego, correr estos dos scripts** (desde la raíz
+> del repo) y que ambos pasen — así no hay que revisar a ojo cada valor:
+> ```
+> node juegos/_PLANTILLA/.planning/format-lint.js <slug>   # valores fijos (logo, botones, personaje, acciones, Results)
+> node juegos/_PLANTILLA/.planning/qa-visual.js  <slug>    # layout real: overflow + colchón mecánica↔acciones
+> ```
+
+0. **`format-lint.js`** en verde: logo Home = 300, mini-logos 60/64, rejilla de
+   botones según nº de temas, botón compacto (fontSize 15), personaje (bottom 78 /
+   char 186), acciones (right 18/12), ResultsScreen (inset / grid / char 176 / título 34).
 1. Shell idéntico: `app.jsx`, `characters.jsx`, `logo.jsx`, `styles.css` con el
    mismo hash que `_PLANTILLA` (cero drift). El elenco es domi/sisa/yaku/andi.
 2. HUD, personaje/bocadillo, acciones y ResultsScreen con los valores de §1–§5

@@ -61,16 +61,50 @@ async function measureOverflow(page) {
     if (!stage) return { err: "no stage 900x540" };
     const s = stage.getBoundingClientRect();
     const sc = s.width / 900;
+    const L = (r) => ({ x: (r.x - s.x) / sc, right: (r.right - s.x) / sc, y: (r.y - s.y) / sc, bottom: (r.bottom - s.y) / sc, w: r.width / sc, h: r.height / sc });
+
+    // (a) nada fuera del lienzo 900×540
     const out = [];
     stage.querySelectorAll("button, [style*='position: absolute']").forEach((el) => {
-      const r = el.getBoundingClientRect();
-      const x = (r.x - s.x) / sc, y = (r.y - s.y) / sc, w = r.width / sc, h = r.height / sc;
-      if (w < 1 || h < 1) return;
-      if (x < -2 || y < -2 || x + w > 902 || y + h > 542) {
-        out.push({ label: (el.textContent || "").trim().slice(0, 18), x: +x.toFixed(0), y: +y.toFixed(0), w: +w.toFixed(0), h: +h.toFixed(0) });
+      const b = L(el.getBoundingClientRect());
+      if (b.w < 1 || b.h < 1) return;
+      if (b.x < -2 || b.y < -2 || b.right > 902 || b.bottom > 542) {
+        out.push({ label: (el.textContent || "").trim().slice(0, 18), x: +b.x.toFixed(0), y: +b.y.toFixed(0), w: +b.w.toFixed(0), h: +b.h.toFixed(0) });
       }
     });
-    return { overflow: out };
+
+    // (b) COLCHÓN mecánica ↔ acciones (≥30px). Mide TODO — botones, imgs y divs
+    //     contenedores (tablero/panel) — en la franja vertical de las acciones.
+    const ACC = new Set(["REINICIAR", "SALIR", "VERIFICAR", "¡VERIFICAR!", "BORRAR"]);
+    const accBtns = [...document.querySelectorAll("button")].filter((b) => ACC.has(b.textContent.trim()));
+    let gap = null, mech = null;
+    if (accBtns.length) {
+      const boxes = accBtns.map((b) => L(b.getBoundingClientRect()));
+      const accLeft = Math.min(...boxes.map((b) => b.x));
+      const accTop = Math.min(...boxes.map((b) => b.y));
+      const accBot = Math.max(...boxes.map((b) => b.bottom));
+      let worst = null;
+      stage.querySelectorAll("button, img, [style*='position: absolute']").forEach((el) => {
+        if (el.tagName === "BUTTON" && ACC.has(el.textContent.trim())) return; // excluye las acciones
+        // Los DIV wrapper transparentes (contenedores de posición, sin fondo ni borde)
+        // no son contenido visible → ignorarlos, o dan falsos positivos.
+        if (el.tagName !== "BUTTON" && el.tagName !== "IMG") {
+          const cs = getComputedStyle(el);
+          const bg = cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" && cs.backgroundColor !== "transparent";
+          const bgImg = cs.backgroundImage && cs.backgroundImage !== "none";
+          const bord = parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0 || parseFloat(cs.borderRightWidth) > 0;
+          if (!bg && !bgImg && !bord) return; // wrapper invisible → no cuenta
+        }
+        const b = L(el.getBoundingClientRect());
+        if (b.w < 8 || b.h < 8) return;
+        if (b.right < 200) return;                       // descarta personaje/bocadillo (izquierda)
+        if (b.bottom < accTop - 10 || b.y > accBot + 10) return; // solo la franja vertical de las acciones
+        if (b.right > accLeft + 40) return;              // ignora lo que ya está bajo/dentro de las acciones
+        if (!worst || b.right > worst.right) worst = { right: b.right, label: (el.textContent || el.alt || el.tagName).trim().slice(0, 16) };
+      });
+      if (worst) { gap = +(accLeft - worst.right).toFixed(0); mech = worst.label; }
+    }
+    return { overflow: out, gap, mech };
   });
 }
 
@@ -107,7 +141,10 @@ async function run() {
         await page.screenshot({ path: path.join(OUT, `${g}-${vp.name}-game.png`) });
         const m = await measureOverflow(page);
         if (errs.length) m.pageerrors = errs;
-        if ((m.overflow && m.overflow.length) || m.err || errs.length) problems++;
+        // colchón mecánica↔acciones: <10px = pegado (error); 10–29px = revisar (warn)
+        if (m.gap != null && m.gap < 10) m.gapAlert = `PEGADO: mecánica (${m.mech}) a ${m.gap}px de las acciones`;
+        else if (m.gap != null && m.gap < 30) m.gapWarn = `apretado: mecánica (${m.mech}) a ${m.gap}px de las acciones (ideal ≥30)`;
+        if ((m.overflow && m.overflow.length) || m.err || m.gapAlert || errs.length) problems++;
         report[g][vp.name] = m;
       } catch (e) {
         report[g][vp.name] = { fail: String(e).slice(0, 160), pageerrors: errs };
