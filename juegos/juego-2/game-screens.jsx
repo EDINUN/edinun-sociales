@@ -390,7 +390,7 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Acciones ── */}
-      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
       </div>

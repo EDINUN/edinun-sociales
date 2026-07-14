@@ -849,11 +849,13 @@ function GameScreen({ app, setApp, go }) {
         </div>
       </div>
 
-      {/* ── PAREJAS (arriba y centrado, en el lugar donde antes iba "Ronda") ── */}
-      <div style={{ position: "absolute", top: 46, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 9 }}>
-        <span className="ed-label" style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, letterSpacing: "0.06em" }}>Parejas</span>
+      {/* ── PAREJAS (indicador de progreso, alineado al patrón "Ronda"+dots del
+          shell: top 20, ed-label 11, dots 11×11). Etiqueta "Parejas" porque en
+          un memory la unidad de progreso es la pareja, no la ronda. ── */}
+      <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, letterSpacing: "0.06em" }}>Parejas</span>
         {Array.from({ length: PAIRS }).map((_, i) => (
-          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: i < matchedCount ? "#fce9a8" : "rgba(255,255,255,0.22)", boxShadow: i < matchedCount ? "0 0 8px #f2c260" : "none", transition: "all 0.2s" }} />
+          <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: i < matchedCount ? "#fce9a8" : "rgba(255,255,255,0.22)", boxShadow: i < matchedCount ? "0 0 8px #f2c260" : "none", transition: "all 0.2s" }} />
         ))}
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: "#fce9a8", marginLeft: 2 }}>{matchedCount}/{PAIRS}</span>
       </div>
@@ -924,7 +926,7 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Acciones ── */}
-      <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
       </div>
