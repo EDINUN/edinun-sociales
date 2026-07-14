@@ -16,7 +16,8 @@ Lienzo lógico fijo **900×540**, centrado con `translate(-50%,-50%) scale()`.
 ## 0. Pantalla de inicio (Home) — botones de tema/nivel
 
 Layout: 2 columnas `gridTemplateColumns: "1fr 1.15fr"`, `padding: "34px 52px"`,
-`gap: 34`. Izquierda `<EdinunLogo size={280} />`; derecha: hero
+`gap: 34`. Izquierda `<EdinunLogo size={300} />` (el de la `_PLANTILLA`;
+juego-3 y juego-4 estaban en 280 por error); derecha: hero
 (`EDINUN · <tema>` + h1 `¡Bienvenido/a, Estudiante!`), label
 `Elige un tema para jugar`, **botones de tema**, pill de descripción del tema,
 `Escribe tu nombre y entra` + input `ed-input` + botón `ENTRAR →`
