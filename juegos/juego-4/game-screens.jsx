@@ -51,9 +51,9 @@ const SEQUENCES = [
 ];
 
 // Geometría (lienzo 900×540). 3 casillas arriba, bandeja (desordenada) abajo, en 3 columnas.
-const SLOT_CX = [330, 500, 670];
+const SLOT_CX = [280, 450, 620];   // centrado en el eje X del lienzo (450), no en la zona de juego
 const SLOT_CY = 220;
-const TRAY_CX = [330, 500, 670];
+const TRAY_CX = [280, 450, 620];
 const TRAY_CY = 428;
 const SLOT_W = 156, SLOT_H = 182;
 const SLOT_HIT_PAD = 26;
@@ -185,7 +185,7 @@ function OrdenarGame({ app, setApp, go }) {
     const si = slots.indexOf(id);
     if (si !== -1) return { x: SLOT_CX[si], y: SLOT_CY };
     const ti = trayIndexOf(id);
-    return { x: TRAY_CX[ti] != null ? TRAY_CX[ti] : 500, y: TRAY_CY };
+    return { x: TRAY_CX[ti] != null ? TRAY_CX[ti] : 450, y: TRAY_CY };
   }
 
   function onPointerDown(e, id) {
@@ -362,7 +362,7 @@ function OrdenarGame({ app, setApp, go }) {
       </div>
 
       {/* ── Acciones (derecha) ── */}
-      <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 10, width: 122 }}>
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
         <button className="ed-btn ed-btn-verify" onClick={onVerify} disabled={!allPlaced || !!verdict}
           style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: (allPlaced && !verdict) ? 1 : 0.5, cursor: (allPlaced && !verdict) ? "pointer" : "not-allowed" }}>
           ¡VERIFICAR!
