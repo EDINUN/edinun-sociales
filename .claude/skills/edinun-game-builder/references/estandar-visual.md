@@ -108,6 +108,10 @@ Dentro, en orden:
    `border 1.5px solid rgba(242,194,96,0.65)`, `borderRadius 16`,
    `padding "10px 14px"`, `var(--ed-font-display) fontWeight 700 fontSize 14
    lineHeight 1.3 color #fce9a8`, pico triángulo `9/9/10px` en `bottom: -10`.
+   El bocadillo es `inline-block` y se **encoge al renglón más largo**: si la
+   pista sale muy ancha o desbalanceada, córtala con un `<br />` para que la
+   línea más larga sea corta (p. ej. `Toca las flechas para<br />mover al niño.`
+   en vez de dejar el wrap automático). Pista breve, de CÓMO resolver.
 2. **Sombra** elíptica `140×16`, `blur(5px)`, `bottom: 14`.
 3. **Personaje**: `<char.Component size={186} floating />`.
 4. **Nombre**: `marginTop -2, var(--ed-font-display) fontWeight 700 fontSize 14,
