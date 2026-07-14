@@ -13,6 +13,56 @@ Lienzo lógico fijo **900×540**, centrado con `translate(-50%,-50%) scale()`.
 
 ---
 
+## 0. Pantalla de inicio (Home) — botones de tema/nivel
+
+Layout: 2 columnas `gridTemplateColumns: "1fr 1.15fr"`, `padding: "34px 52px"`,
+`gap: 34`. Izquierda `<EdinunLogo size={280} />`; derecha: hero
+(`EDINUN · <tema>` + h1 `¡Bienvenido/a, Estudiante!`), label
+`Elige un tema para jugar`, **botones de tema**, pill de descripción del tema,
+`Escribe tu nombre y entra` + input `ed-input` + botón `ENTRAR →`
+(`ed-btn-primary`, `height: 50, padding: "0 26px", fontSize: 15`). Pill de
+visitas abajo-derecha.
+
+### Rejilla de botones SEGÚN el número de temas (¡esto es fijo!)
+
+| Nº temas | `gridTemplateColumns` | `gap` |
+|---|---|---|
+| 1 (nivel único) | **sin botones** — solo nombre + ENTRAR; el catLabel va como pill estática en el HUD del juego | — |
+| 2 | `"1fr 1fr"` | 12 |
+| 3 | `"1fr 1fr 1fr"` | 10 |
+| 4 | `"1fr 1fr 1fr 1fr"` | 8 |
+
+> ⚠️ Error real cometido: juego-4 (3 temas) usaba `"1fr 1fr"` → los 3 botones
+> quedaban 2 arriba + 1 abajo. Con 3 temas SIEMPRE van los 3 en una fila.
+
+### Estilo del botón (COMPACTO — igual para cualquier nº de temas)
+
+```jsx
+padding: "14px 6px", minHeight: 60, borderRadius: 16,
+fontFamily: "var(--ed-font-display)", fontWeight: 800,
+fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
+```
+
+> ⚠️ Error real cometido: juego-3 y juego-4 usaban `fontSize: 22,
+> padding: "20px 12px"` (botones sobredimensionados). El estándar del
+> ecosistema (lengua) es `fontSize: 15, padding: "14px 6px"`. **No agrandar los
+> botones por juego.**
+
+### Gradientes por POSICIÓN (byte a byte, del estándar EDINUN)
+
+| Posición | `grad` | `ink` |
+|---|---|---|
+| 1º | `linear-gradient(180deg, #ffc06e, #e4881a)` (naranja) | `#3a2608` |
+| 2º | `linear-gradient(180deg, #ffe97a, #d7b12a)` (amarillo) | `#3a2608` |
+| 3º | `linear-gradient(180deg, #7ab8ff, #2773d8)` (azul) | `#08264d` |
+| 4º | `linear-gradient(180deg, #b48aff, #6f3fe0)` (violeta) | `#1a0a3d` |
+
+Botón activo: `boxShadow` con anillo blanco `0 0 0 3px rgba(255,255,255,0.85)` +
+`transform: translateY(-2px)`. Tema deshabilitado ("Próximamente"):
+`opacity: 0.72, filter: "grayscale(0.15)", cursor: "not-allowed"`.
+
+---
+
 ## 1. HUD superior (fijo)
 
 ```jsx
@@ -100,6 +150,23 @@ acciones (der). Dos encuadres usados:
 Libertad total en QUÉ va aquí; lo fijo es que respete los márgenes del personaje
 y las acciones.
 
+### Colchón mínimo entre la mecánica y las acciones (≥ 30px) — REGLA CRÍTICA
+
+El elemento más a la derecha de la mecánica **—incluido su CONTENEDOR div
+(tablero, panel, rejilla), no solo imágenes o botones—** debe terminar al menos
+**~30px antes** del borde izquierdo de la columna de acciones (x≈732 en la
+variante estándar de 150px, x≈766 en la angosta). Si la mecánica es más ancha:
+achícala —escala el contenedor con `transform: "scale(k)"` + `transformOrigin`,
+o reduce su tamaño— o córrela a la izquierda. **Nunca dejar que la mecánica
+toque los botones.**
+
+> ⚠️ Errores reales cometidos: en juego-1 el tablero de cartas terminaba en
+> x≈730 (pegado a los botones en 732) → se achicó la carta y se corrió el
+> tablero (colchón 36px). En juego-2 el panel del mapa (`width: 494` desde
+> `left: 236` → x=730) tocaba los botones → se escaló el tablero a `0.92`
+> (colchón 42px). **El QA visual debe medir divs contenedores, no solo
+> imágenes/botones**, o este defecto pasa desapercibido (así se me escapó).
+
 ---
 
 ## 5. ResultsScreen (fija — no personalizar por juego salvo el contenido de `lastResult`)
@@ -142,3 +209,35 @@ y las acciones.
 4. QA visual: `_PLANTILLA/.planning/qa-visual.js` (o el flujo de `USER.md`) en
    los 6 viewports — sin overflow del lienzo, sin solapes, personaje/acciones sin
    chocar con la mecánica.
+5. Home según §0: rejilla correcta para el nº de temas, botón compacto
+   (`fontSize 15`), gradientes por posición.
+6. Colchón mecánica ↔ acciones ≥ 30px (§4).
+
+---
+
+## 8. Juego multi-botón = mecánicas DISTINTAS (una por botón)
+
+**N botones de tema en el Home ⇒ N mini-juegos, uno por botón.** El patrón de
+referencia es `edinun-language/juego-2`: `GameScreen` despacha por
+`app.currentCategory` a sub-componentes SEPARADOS y completos
+(`LetraRGame` / `NoticiaGame` / `BlogGame`), cada uno con su propia mecánica:
+
+```jsx
+function GameScreen({ app, setApp, go }) {
+  const cat = app.currentCategory || "<tema1>";
+  if (cat === "<tema2>") return <Tema2Game ... />;
+  if (cat === "<tema3>") return <Tema3Game ... />;
+  return <Tema1Game ... />;   // por defecto
+}
+```
+
+- Las mecánicas deben ser **DISTINTAS entre sí** (ordenar / clasificar / elegir /
+  emparejar / atrapar…), no la misma repetida. A 6 años se permite repetir, pero
+  variar es lo ideal y lo esperado en este ecosistema.
+- **Nunca publicar botones "Próximamente" (`enabled:false`) como estado final**
+  sin acordarlo con la autora: un juego de N botones se entrega con las N
+  mecánicas hechas.
+
+> ⚠️ Error real cometido: en juego-4 se propuso repetir la MISMA mecánica
+> ORDENAR en los 3 temas y se dejaron 2 como "Próximamente". Lo correcto es
+> 3 mecánicas distintas (como lengua juego-2), cada una completa.
