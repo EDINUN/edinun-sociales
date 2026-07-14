@@ -51,10 +51,11 @@ Cada juego tiene 5 `.jsx` editables (`logo`, `characters`, `screens`, `game-scre
 
 ```bash
 # Re-empaquetar tras editar cualquier .jsx (desde la carpeta del juego):
-python .planning/bundle.py
+node .planning/bundle.js       # Node (recomendado; esta máquina no tiene Python)
+# o:  python .planning/bundle.py
 ```
 
-Si Python no está disponible (caso del autor: el `python` del PATH son stubs del Microsoft Store), usar el equivalente PowerShell:
+Los tres scripts (`bundle.js`, `bundle.py`, `bundle.ps1`) son equivalentes. Si Python no está disponible (caso del autor: el `python` del PATH son stubs del Microsoft Store), usar `bundle.js` (Node) o el equivalente PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .planning\bundle.ps1

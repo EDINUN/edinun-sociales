@@ -34,7 +34,9 @@ Crear `juegos/<slug>/.planning/<slug>-design.md` con **estas secciones fijas**
    explícito o validación al tocar, cuántas rondas, cómo se genera cada ejercicio,
    anti-repetición (`RECENT_KEY` / FIFO en localStorage).
 4. **Layout (lienzo 900×540)** — **diagrama ASCII** de las zonas + mapeo
-   `zona → elemento` con coordenadas aproximadas. Zonas EDINUN estándar:
+   `zona → elemento`. Las coordenadas de abajo son **aproximadas, para el
+   boceto**; los valores fijos EXACTOS (HUD, personaje, acciones, ResultsScreen)
+   están en `references/estandar-visual.md` — no reinventarlos. Zonas EDINUN estándar:
    - HUD (logo izq · RONDA+dots o pill catLabel centro · ⏱+⭐ der): `0..900 × 0..60`
    - Personaje guía + bocadillo: margen izquierdo `~0..230 × 280..530`
    - Zona central (cartel/rejilla/casillas): `~260..720`

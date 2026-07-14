@@ -53,14 +53,17 @@ Flujo: **planear → aprobar → clonar → implementar → empaquetar → landi
 3. **Clonar** `juegos/_PLANTILLA/` → `juegos/juego-N/` (slug kebab-case, coincide
    byte a byte con la entrada del landing) y limpiar lo específico del origen.
 4. **Implementar** la mecánica en `game-screens.jsx` respetando el contrato del
-   shell y los estándares inamovibles (ver `planificacion-inicial.md`).
+   shell, los estándares inamovibles (`planificacion-inicial.md`) y la **matriz
+   de posicionamiento exacta** de `references/estandar-visual.md` (HUD,
+   personaje/bocadillo, acciones, ResultsScreen — no tocar los valores fijos).
    Personalizar los textos `// ← PERSONALIZAR` de `screens.jsx`.
 5. Rellenar `CLAUDE.md`, `MEMORY.md` del juego y registrar la edad en
    `memory/audiencia_por_juego.md`. Guardar `game-rules.md` si cambió rondas/estrellas.
-6. Re-empaquetar (`bundle.ps1` / `bundle.py`) — verificar ambos HTML idénticos y
-   sin `</script>` literal.
+6. Re-empaquetar (`bundle.js` con Node, o `bundle.ps1` / `bundle.py`) —
+   verificar ambos HTML idénticos y sin `</script>` literal.
 7. Registrar el juego en el array `GAMES` del landing (Tarea C).
-8. QA responsive en los 6 viewports (ver `USER.md`).
+8. QA visual en los 6 viewports (`_PLANTILLA/.planning/qa-visual.js` o el flujo
+   de `USER.md`): sin overflow, sin solapes, personaje/acciones sin chocar.
 
 Detalle completo en `references/crear-juego.md`.
 
@@ -87,6 +90,27 @@ Tras añadir/quitar/renombrar un juego, actualizar el array verificando:
   en `GAMES`),
 - `charId` ∈ {`domi`, `sisa`, `yaku`, `andi`} y matchea al personaje destacado,
 - el código inline de `logo`/`characters` coincide con el de los juegos.
+
+## Tarea D — Validar un juego existente ("que quede igual")
+
+Para auditar que uno o varios juegos siguen el estándar de la `_PLANTILLA` (útil
+al heredar juegos o antes de publicar). Ver `references/estandar-visual.md` §7.
+
+1. **Shell sin drift**: comparar hash de `app.jsx`, `characters.jsx`, `logo.jsx`,
+   `styles.css` de cada juego contra `_PLANTILLA` — deben ser idénticos (el
+   elenco es domi/sisa/yaku/andi). Difieren, como se espera, `screens.jsx` y
+   `game-screens.jsx` (la mecánica).
+2. **Literales fijos**: verificar HUD, personaje/bocadillo, acciones y
+   ResultsScreen contra los valores de `estandar-visual.md` §1–§5. Distinguir
+   **desviación** (corregir) de **variante justificada** (p. ej. columna de
+   acciones angosta cuando la mecánica es ancha — §3 variante C: documentarla).
+3. **Invariantes** de gamificación (§6) presentes en `game-screens.jsx`.
+4. **QA visual** en los 6 viewports (`_PLANTILLA/.planning/qa-visual.js`): sin
+   overflow del lienzo, sin solapes.
+5. **Reportar primero, corregir después**: presentar las desviaciones a la
+   autora y **pedir OK del alcance** de normalización antes de editar (algunas
+   diferencias son decisiones por-mecánica que no se deben uniformar a ciegas).
+   Tras corregir, re-empaquetar y re-QA para confirmar que no hay regresión.
 
 ## Después de cualquier tarea
 
