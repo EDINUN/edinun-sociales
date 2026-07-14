@@ -26,8 +26,8 @@ const LEVELS_CFG = [
   {
     id: "tema2",
     label: "Tema 2",
-    grad: "linear-gradient(180deg, #9ad0c0, #3f9b83)",
-    ink: "#08281f",
+    grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
+    ink: "#3a2608",
     description: "Próximamente.",
     catLabel: "Tema 2",
     enabled: false,
@@ -35,8 +35,8 @@ const LEVELS_CFG = [
   {
     id: "tema3",
     label: "Tema 3",
-    grad: "linear-gradient(180deg, #c9b3f0, #7d5bd0)",
-    ink: "#1f1140",
+    grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
+    ink: "#08264d",
     description: "Próximamente.",
     catLabel: "Tema 3",
     enabled: false,
@@ -250,7 +250,7 @@ function HomeScreen({ app, setApp, go }) {
           {/* Botones de tema (chips) */}
           <div>
             <div className="ed-label" style={{ marginBottom: 8 }}>Elige un tema para jugar</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
               {LEVELS_CFG.map((lv) => {
                 const active = level === lv.id && lv.enabled;
                 return (
@@ -260,12 +260,12 @@ function HomeScreen({ app, setApp, go }) {
                     disabled={!lv.enabled}
                     title={lv.enabled ? lv.label : "Próximamente"}
                     style={{
-                      padding: "20px 12px",
+                      padding: "14px 6px", minHeight: 60,
                       borderRadius: 16,
                       background: lv.grad,
                       color: lv.ink,
                       fontFamily: "var(--ed-font-display)", fontWeight: 800,
-                      fontSize: 22, letterSpacing: "0.02em", lineHeight: 1.1,
+                      fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
                       textShadow: "0 1px 0 rgba(255,255,255,0.35)",
                       border: "none",
                       cursor: lv.enabled ? "pointer" : "not-allowed",

@@ -224,7 +224,10 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Centro: tablero de memoria ── */}
-      <div style={{ position: "absolute", top: 64, left: 236, right: 160, bottom: 12, display: "flex", flexDirection: "column", justifyContent: "space-evenly", alignItems: "center" }}>
+      {/* right:196 deja un colchón de ~40px entre la 4ª carta y la columna de
+          acciones (que empieza en x=732); antes right:160 hacía que la carta
+          tocara los botones. */}
+      <div style={{ position: "absolute", top: 64, left: 236, right: 196, bottom: 12, display: "flex", flexDirection: "column", justifyContent: "space-evenly", alignItems: "center" }}>
         {/* Enunciado = QUÉ hacer (el objetivo) */}
         <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 19, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
           Encuentra las 4 parejas de la familia.
@@ -239,7 +242,7 @@ function GameScreen({ app, setApp, go }) {
                 key={card.key}
                 onClick={() => tapCard(i)}
                 style={{
-                  width: 112, height: 132, borderRadius: 16, cursor: isUp ? "default" : "pointer",
+                  width: 104, height: 124, borderRadius: 16, cursor: isUp ? "default" : "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", padding: 6,
                   border: `3px solid ${isMatched ? "#2ecc8f" : (isUp ? "rgba(242,194,96,0.7)" : "rgba(242,194,96,0.5)")}`,
                   background: isUp

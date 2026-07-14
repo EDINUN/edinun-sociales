@@ -304,7 +304,7 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Enunciado (QUÉ hacer) ── */}
-      <div style={{ position: "absolute", left: 236, right: 170, top: 26, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", left: 236, right: 210, top: 26, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
         Lleva al niño {META[destId].d}.
       </div>
 
@@ -324,7 +324,7 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Croquis del barrio (cuadrícula barajada) ── */}
-      <div style={{ position: "absolute", top: 64, left: 236, width: MAP_W, height: MAP_H, borderRadius: 20, overflow: "hidden", backgroundColor: "#4d9c58", backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1.5px, transparent 1.6px), radial-gradient(rgba(20,80,35,0.10) 1.5px, transparent 1.6px), radial-gradient(circle at 50% 35%, #86cc80, #4d9c58 82%)", backgroundSize: "22px 22px, 22px 22px, 100% 100%", backgroundPosition: "0 0, 11px 11px, 0 0", boxShadow: "inset 0 0 0 3px rgba(255,255,255,0.15), 0 10px 26px rgba(0,0,0,0.35)" }}>
+      <div style={{ position: "absolute", top: 64, left: 236, width: MAP_W, height: MAP_H, transform: "scale(0.92)", transformOrigin: "top left", borderRadius: 20, overflow: "hidden", backgroundColor: "#4d9c58", backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1.5px, transparent 1.6px), radial-gradient(rgba(20,80,35,0.10) 1.5px, transparent 1.6px), radial-gradient(circle at 50% 35%, #86cc80, #4d9c58 82%)", backgroundSize: "22px 22px, 22px 22px, 100% 100%", backgroundPosition: "0 0, 11px 11px, 0 0", boxShadow: "inset 0 0 0 3px rgba(255,255,255,0.15), 0 10px 26px rgba(0,0,0,0.35)" }}>
         {/* calles + rastro */}
         <svg width={MAP_W} height={MAP_H} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
           {/* arbustos decorativos en el pasto (dan aire de barrio) */}
@@ -369,7 +369,7 @@ function GameScreen({ app, setApp, go }) {
       </div>
 
       {/* ── Flechas ── */}
-      <div style={{ position: "absolute", left: 236, right: 170, top: 448, display: "flex", justifyContent: "center", gap: 18 }}>
+      <div style={{ position: "absolute", left: 236, right: 210, top: 448, display: "flex", justifyContent: "center", gap: 18 }}>
         {arrows.map((d) => (
           <button key={d} onClick={() => onArrow(d)} disabled={done} aria-label={d}
             style={{

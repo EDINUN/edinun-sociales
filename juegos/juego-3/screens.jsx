@@ -251,12 +251,12 @@ function HomeScreen({ app, setApp, go }) {
                     disabled={!lv.enabled}
                     title={lv.enabled ? lv.label : "Próximamente"}
                     style={{
-                      padding: "20px 12px",
+                      padding: "14px 6px", minHeight: 60,
                       borderRadius: 16,
                       background: lv.grad,
                       color: lv.ink,
                       fontFamily: "var(--ed-font-display)", fontWeight: 800,
-                      fontSize: 22, letterSpacing: "0.02em", lineHeight: 1.1,
+                      fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
                       textShadow: "0 1px 0 rgba(255,255,255,0.35)",
                       border: "none",
                       cursor: lv.enabled ? "pointer" : "not-allowed",
