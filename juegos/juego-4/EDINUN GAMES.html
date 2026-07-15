@@ -828,8 +828,6 @@ function OrdenarGame({ app, setApp, go }) {
   const [dragId, setDragId] = useStateG(null);
   const [dragXY, setDragXY] = useStateG({ x: 0, y: 0 });
   const [verdict, setVerdict] = useStateG(null);   // slotIndex -> 'ok' | 'wrong'
-  const [banner, setBanner] = useStateG(null);
-  const [bannerMsg, setBannerMsg] = useStateG("");
   const [done, setDone] = useStateG(false);
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
@@ -914,8 +912,7 @@ function OrdenarGame({ app, setApp, go }) {
       else { setBanner("err"); setBannerMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }
     }, revealMs);
     setTimeout(() => {
-      setBanner(null); setBannerMsg("");
-      setApp((s) => ({
+        setApp((s) => ({
         ...s,
         lastResult: {
           category: seq.titulo, cols: ["Acción", "Lo pusiste en"], themeEmoji: seq.themeEmoji,
@@ -1045,35 +1042,6 @@ function OrdenarGame({ app, setApp, go }) {
       </div>
 
       {/* ── Banner ── */}
-      {banner && (
-        <PortalToBody>
-          <div style={{
-            position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
-            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s",
-          }}>
-            <div style={{
-              fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
-              fontSize: "clamp(56px, 11vmin, 120px)",
-              color: banner === "ok" ? "#2ecc8f" : "#ff6b6b",
-              textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center",
-            }}>
-              {banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
-            </div>
-            {bannerMsg && (
-              <div style={{
-                fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
-                fontSize: "clamp(18px, 2.6vmin, 30px)",
-                color: banner === "ok" ? "#fce9a8" : "#fff",
-                background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999,
-                textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center",
-              }}>
-                {banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}
-              </div>
-            )}
-          </div>
-        </PortalToBody>
-      )}
 
       {/* ── Modal SALIR ── */}
       {confirmingExit && (
@@ -1587,7 +1555,7 @@ function sePickRecent(pool, n, key, cap) {
 // `overlay` = capa suelta HIJA DEL ROOT (fuera de la banda). Necesaria para lo que se
 // posiciona en coords del LIENZO (p. ej. la palabra que se arrastra): dentro de la banda
 // esas coords quedarían desplazadas 215/78 px.
-function SEShell({ app, setApp, go, ronda, startedAt, enunciado, enunciadoG, bocadillo, actions, onRestart, rootRef, overlay, children }) {
+function SEShell({ app, setApp, go, ronda, startedAt, enunciado, enunciadoG, bocadillo, actions, onRestart, rootRef, overlay, feedback, feedbackMsg, children }) {
   const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
@@ -1659,6 +1627,23 @@ function SEShell({ app, setApp, go, ronda, startedAt, enunciado, enunciadoG, boc
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: actions ? 14 : 15, height: actions ? 48 : 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
       </div>
 
+      {/* Overlay ¡EXCELENTE! / ¡UPS! — estándar EDINUN: va en CADA ronda (como los Temas
+          1 y 2 de este juego y las rondas del Tema 2 de juego-3). Copiado textual. */}
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center" }}>
+              {feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
+            </div>
+            {feedbackMsg && (
+              <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>
+                {feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}
+              </div>
+            )}
+          </div>
+        </PortalToBody>
+      )}
+
       {confirmingExit && (
         <PortalToBody>
           <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
@@ -1702,6 +1687,8 @@ function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart
   const d = datos[0];   // 1 sola actividad por ronda
   const [val, setVal] = useStateG(() => Math.round(((d.min + d.max) / 2) / d.step) * d.step);
   const [shown, setShown] = useStateG(false);   // ya confirmó → se revela
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
   const logRef = useRefG([]);
   const firstDone = useRefG(false);
 
@@ -1717,9 +1704,14 @@ function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart
       ok,
     });
     setShown(true);
-    // Avanza SOLA tras el reveal (invariante §6: "en quiz, avanzar automático").
-    // No lleva botón SIGUIENTE: eso no existe en el estándar.
-    setTimeout(() => onDone(logRef.current.slice()), 3200);
+    // reveal (deja leer el dato real) → overlay ¡EXCELENTE!/¡UPS! → avanza SOLA
+    // (§6: "en quiz, avanzar automático"; no hay botón SIGUIENTE en el estándar).
+    const revealMs = ok ? 1800 : 2600;
+    setTimeout(() => {
+      if (ok) { setFeedback("ok"); setFeedbackMsg("+1 ⭐"); }
+      else { setFeedback("err"); setFeedbackMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }
+    }, revealMs);
+    setTimeout(() => { setFeedback(null); setFeedbackMsg(""); onDone(logRef.current.slice()); }, revealMs + 1700);
   }
 
   const pct = ((val - d.min) / (d.max - d.min)) * 100;
@@ -1729,6 +1721,7 @@ function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart
     <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart}
       enunciado={d.q} enunciadoG=""
       bocadillo="Mueve el deslizador."
+      feedback={feedback} feedbackMsg={feedbackMsg}
       actions={
         <button className="ed-btn ed-btn-verify" onClick={confirmar} disabled={shown}
           style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: shown ? 0.5 : 1, cursor: shown ? "not-allowed" : "pointer" }}>
@@ -1809,7 +1802,11 @@ function MitosDatosRound({ app, setApp, go, ronda, startedAt, onDone, onRestart 
 
   const [i, setI] = useStateG(0);
   const [answered, setAnswered] = useStateG(null);   // null · true(V) · false(F) · "timeout"
-  const [left, setLeft] = useStateG(SE_MITO_SEGS);
+  // Se guardan MILISEGUNDOS, no segundos: la barra necesita valor continuo para moverse
+  // fluida. El número de la etiqueta se redondea aparte.
+  const [msLeft, setMsLeft] = useStateG(SE_MITO_SEGS * 1000);
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
   const logRef = useRefG([]);
   const firstDone = useRefG(false);
   const m = mitos[i];
@@ -1830,34 +1827,53 @@ function MitosDatosRound({ app, setApp, go, ronda, startedAt, onDone, onRestart 
     else onDone(logRef.current.slice());
   }
 
-  // Cuenta atrás: sólo corre mientras no haya respondido.
+  // Cuenta atrás: sólo corre mientras no haya respondido. Va por requestAnimationFrame
+  // (~60 fps) para que la barra baje CONTINUA; con un setInterval de 1 s daba saltos
+  // de ~8 % del ancho.
   useEffectG(() => {
     if (answered !== null) return undefined;
-    setLeft(SE_MITO_SEGS);
+    const total = SE_MITO_SEGS * 1000;
+    setMsLeft(total);
     const t0 = Date.now();
-    const id = setInterval(() => {
-      const rest = SE_MITO_SEGS - Math.floor((Date.now() - t0) / 1000);
-      if (rest <= 0) { clearInterval(id); setLeft(0); responder(null); }
-      else setLeft(rest);
-    }, 200);
-    return () => clearInterval(id);
+    let raf = 0;
+    const tick = () => {
+      const rest = total - (Date.now() - t0);
+      if (rest <= 0) { setMsLeft(0); responder(null); return; }
+      setMsLeft(rest);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [i, answered]);
 
-  // Tras responder, avanza solo (más tiempo si falló: hay que leer el dato real).
+  // Tras responder: overlay ¡EXCELENTE!/¡UPS! y avance automático. Tiempos COPIADOS de
+  // juego-3 (CausaEfectoRound): acierto → overlay ya, avanza a 1050 ms; fallo → 2000 ms
+  // de reveal para leer el dato real, luego ¡UPS! y avanza a 2700 ms.
   useEffectG(() => {
     if (answered === null) return undefined;
-    const last = logRef.current[logRef.current.length - 1];
-    const t = setTimeout(siguiente, last && last.ok ? 1300 : 2600);
-    return () => clearTimeout(t);
+    const l = logRef.current[logRef.current.length - 1];
+    const acerto = !!(l && l.ok);
+    const ts = [];
+    if (acerto) {
+      setFeedback("ok"); setFeedbackMsg("+1 ⭐");
+      ts.push(setTimeout(() => { setFeedback(null); siguiente(); }, 1050));
+    } else {
+      ts.push(setTimeout(() => { setFeedback("err"); setFeedbackMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }, 2000));
+      ts.push(setTimeout(() => { setFeedback(null); siguiente(); }, 2700));
+    }
+    return () => ts.forEach(clearTimeout);
   }, [answered]);
 
   const last = logRef.current[logRef.current.length - 1];
   const ok = !!(answered !== null && last && last.ok);
-  const urgente = left <= 3 && answered === null;
+  const left = Math.ceil(msLeft / 1000);                 // etiqueta: segundos enteros
+  const pct = (msLeft / (SE_MITO_SEGS * 1000)) * 100;    // barra: continua
+  const urgente = msLeft <= 3000 && answered === null;
 
   return (
     <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart}
       enunciado="Mito o dato" enunciadoG="¿Verdadero o falso?"
+      feedback={feedback} feedbackMsg={feedbackMsg}
       // §2: el bocadillo se encoge al renglón más largo → se corta con <br /> a mano,
       // si no se estira hasta 210 y se monta sobre la tarjeta de la mecánica.
       bocadillo={<>Toca antes de que<br />acabe el tiempo.</>}
@@ -1876,7 +1892,9 @@ function MitosDatosRound({ app, setApp, go, ronda, startedAt, onDone, onRestart 
       {/* Cuenta atrás de la ronda */}
       <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(0,0,0,0.4)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.15)" }}>
-          <div style={{ height: "100%", width: `${(left / SE_MITO_SEGS) * 100}%`, background: urgente ? "linear-gradient(90deg,#ff9b9b,#e74c3c)" : "linear-gradient(90deg,#7ec8ff,#2a7fd7)", transition: "width 0.2s linear" }} />
+          {/* Sin `transition`: la anchura ya se recalcula cada frame; una transición
+              encima haría que la barra "persiga" al valor y se vería con lag. */}
+          <div style={{ height: "100%", width: `${pct}%`, background: urgente ? "linear-gradient(90deg,#ff9b9b,#e74c3c)" : "linear-gradient(90deg,#7ec8ff,#2a7fd7)" }} />
         </div>
         <span style={{ fontFamily: "var(--ed-font-mono)", fontSize: 13, color: urgente ? "#ff9b9b" : "#bfe4ff", minWidth: 30, textAlign: "right" }}>{left}s</span>
       </div>
@@ -1979,6 +1997,8 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
   const [dragId, setDragId] = useStateG(null);
   const [dragXY, setDragXY] = useStateG({ x: 0, y: 0 });
   const [verdict, setVerdict] = useStateG(null); // hueco -> 'ok' | 'wrong'
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
   const dragRef = useRefG(null);
   const firstDone = useRefG(false);
 
@@ -2041,12 +2061,20 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
         binLabel: `pusiste “${w ? w.txt : "—"}” · va “${f.sol[k]}”`, ok });
     }
     setVerdict(vd);
-    setTimeout(() => onDone(entries), 3200);   // deja leer el reveal
+    // reveal (deja leer las correctas) → overlay ¡EXCELENTE!/¡UPS! → reporte.
+    const todas = entries.every((e) => e.ok);
+    const revealMs = todas ? 1800 : 2600;
+    setTimeout(() => {
+      if (todas) { setFeedback("ok"); setFeedbackMsg(`+${entries.length} ⭐`); }
+      else { setFeedback("err"); setFeedbackMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }
+    }, revealMs);
+    setTimeout(() => { setFeedback(null); setFeedbackMsg(""); onDone(entries); }, revealMs + 1700);
   }
 
   return (
     <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart} rootRef={rootRef}
       enunciado="Completa el titular." enunciadoG=""
+      feedback={feedback} feedbackMsg={feedbackMsg}
       bocadillo={<>Arrastra las palabras<br />a los huecos.</>}
       overlay={dragId ? (() => {
         const w = wordById(dragId); if (!w) return null;
@@ -2123,11 +2151,8 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
 const SE_ROUNDS = [AdivinaDatoRound, MitosDatosRound, CompletaTitularRound];
 
 function Tema3Controller({ app, setApp, go }) {
-  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
   const [ronda, setRonda] = useStateG(0);
   const [nonce, setNonce] = useStateG(0);   // fuerza remontaje al reiniciar
-  const [banner, setBanner] = useStateG(null);
-  const [bannerMsg, setBannerMsg] = useStateG("");
   const accRef = useRefG([]);
   const started = useRefG(Date.now());
 
@@ -2145,46 +2170,26 @@ function Tema3Controller({ app, setApp, go }) {
 
     const log = accRef.current.map((e, k) => Object.assign({}, e, { idx: k + 1 }));
     const aciertos = log.filter((e) => e.ok).length;
-    // Completar el tema cuenta como éxito aunque haya errores (invariante EDINUN):
-    // el cartel celebra si sacó al menos la mitad; si no, anima sin quitar lo ganado.
-    const bien = aciertos * 2 >= log.length;
-    setBanner(bien ? "ok" : "err");
-    setBannerMsg(bien ? `+${aciertos} ⭐` : ANIMOS[Math.floor(Math.random() * ANIMOS.length)]);
-    setTimeout(() => {
-      setBanner(null); setBannerMsg("");
-      setApp((s) => ({
-        ...s,
-        lastResult: {
-          category: "Sistema educativo", cols: ["Actividad", "Tu respuesta"], themeEmoji: "🎓",
-          praise: "¡ahora conoces el sistema educativo que te toca defender!",
-          solved: aciertos, total: log.length,
-          time: Math.floor((Date.now() - started.current) / 1000),
-          starsEarned: aciertos, log, success: true,
-        },
-      }));
-      if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
-      go("results");
-    }, 1800);
+    // El overlay ¡EXCELENTE!/¡UPS! lo muestra CADA ronda (incluida la última) antes de
+    // llamar aquí; si el controlador pusiera otro, se verían dos seguidos.
+    setApp((s) => ({
+      ...s,
+      lastResult: {
+        category: "Sistema educativo", cols: ["Actividad", "Tu respuesta"], themeEmoji: "🎓",
+        praise: "¡ahora conoces el sistema educativo que te toca defender!",
+        solved: aciertos, total: log.length,
+        time: Math.floor((Date.now() - started.current) / 1000),
+        starsEarned: aciertos, log, success: true,
+      },
+    }));
+    if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+    go("results");
   }
 
   const Comp = SE_ROUNDS[ronda] || SE_ROUNDS[0];
   return (
     <>
       <Comp key={`r${ronda}-${nonce}`} app={app} setApp={setApp} go={go} ronda={ronda} startedAt={started.current} onDone={finish} onRestart={restart} />
-      {banner && (
-        <PortalToBody>
-          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
-            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: banner === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center" }}>
-              {banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
-            </div>
-            {bannerMsg && (
-              <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: banner === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>
-                {banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}
-              </div>
-            )}
-          </div>
-        </PortalToBody>
-      )}
     </>
   );
 }
