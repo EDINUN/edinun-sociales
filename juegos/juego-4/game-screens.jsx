@@ -1406,9 +1406,10 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
     >
       {/* La banda y el enunciado los pone SEShell. */}
       <>
-      {/* Frase con huecos */}
-      <div style={{ width: "100%" }}>
-        <div style={{ background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "16px 22px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#1a1030", lineHeight: 2.0 }}>
+      {/* Frase con huecos. Ancho acotado (la banda da 470 y quedaba muy ancho): el
+          texto cae a más renglones, que es lo que pidió la autora. */}
+      <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+        <div style={{ maxWidth: 380, background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "16px 20px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#1a1030", lineHeight: 2.0 }}>
           {f.partes.map((p, k) => (
             <React.Fragment key={k}>
               <span>{p}</span>
