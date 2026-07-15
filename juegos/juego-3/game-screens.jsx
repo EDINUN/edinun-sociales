@@ -1,7 +1,8 @@
-// game-screens.jsx — JUEGO-3 · "Cuido mi entorno" (Estudios Sociales · TEMA 3 · 2º EGB · 6 años).
+// game-screens.jsx — JUEGO-3 · "Cuido mi planeta" (Estudios Sociales · TEMA 3 · 2º EGB · 6 años).
+// Tema 1 = "Cuido mi entorno" (BasuraGame, reciclaje) · Tema 2 = "Cambio climático" (Tema2Controller).
 // Juego MULTI-TEMA (2 botones en Home). Este archivo implementa el TEMA 1.
 //
-// TEMA 1 · "Clasifica la basura" (categoría "reciclaje"):
+// TEMA 1 · "Cuido mi entorno" (clasificar la basura; categoría "reciclaje"):
 //   Mecánica ARRASTRAR + VERIFICAR: se muestran TODOS los objetos de la ronda a la vez;
 //   el niño ARRASTRA cada uno hasta el tacho del color correcto (azul = papel/cartón ·
 //   amarillo = plástico/latas · café = orgánico) y al final toca VERIFICAR. Cada objeto
@@ -24,7 +25,7 @@ function PortalToBody({ children }) {
   return ReactDOM.createPortal(children, document.body);
 }
 
-const CAT_LABEL = "Clasifica la basura";
+const CAT_LABEL = "Cuido mi entorno";
 const RECENT_KEY = "edinun_juego3_reciclaje_recientes_v1";
 const ROUND = 6;        // objetos por partida (todos a la vez)
 const RECENT_CAP = 6;   // memoria FIFO → dos partidas seguidas casi no comparten objetos

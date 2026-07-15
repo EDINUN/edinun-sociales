@@ -35,6 +35,38 @@ function countTemas(screens) { return (screens.match(/catLabel:\s*"/g) || []).le
 
 const GRID_BY_TEMAS = { 2: '"1fr 1fr"', 3: '"1fr 1fr 1fr"', 4: '"1fr 1fr 1fr 1fr"' };
 
+// §0 — Gradientes de los botones de tema POR POSICIÓN (tabla del estándar).
+const GRAD_BY_POS = [
+  "linear-gradient(180deg, #ffc06e, #e4881a)",   // 1º naranja
+  "linear-gradient(180deg, #ffe97a, #d7b12a)",   // 2º amarillo
+  "linear-gradient(180deg, #7ab8ff, #2773d8)",   // 3º azul
+  "linear-gradient(180deg, #b48aff, #6f3fe0)",   // 4º violeta
+];
+function gradsOf(screens) {
+  const re = /grad:\s*"([^"]+)"/g, out = []; let m;
+  while ((m = re.exec(screens))) out.push(m[1]);
+  return out;
+}
+
+// §3 — Rótulos de acción INVENTADOS. El estándar solo admite ¡VERIFICAR! / REINICIAR /
+// SALIR en la columna de acciones; el avance entre rondas es AUTOMÁTICO (§6), así que
+// un "SIGUIENTE"/"CONTINUAR" es señal de que alguien se inventó un botón.
+const ROTULOS_PROHIBIDOS = ["CONFIRMAR", "SIGUIENTE", "CONTINUAR", "ACEPTAR", "EMPEZAR", "ENVIAR", "COMPROBAR", "REVISAR"];
+// OJO: NO cortar en el primer ">" — las funciones flecha (`() =>`) de los props traen
+// un ">" y el texto saldría con código pegado ("setX(true)} style={}>REINICIAR"), con lo
+// que la comparación nunca casa y el lint no caza nada. El texto del botón es lo que va
+// tras el ÚLTIMO ">" del bloque.
+function buttonTexts(src) {
+  const re = /<button\b([\s\S]*?)<\/button>/g, out = []; let m;
+  while ((m = re.exec(src))) {
+    const i = m[1].lastIndexOf(">");
+    if (i === -1) continue;
+    const t = m[1].slice(i + 1).replace(/\{[^{}]*\}/g, "").replace(/\s+/g, " ").trim();
+    if (t) out.push(t);
+  }
+  return out;
+}
+
 function lintGame(g) {
   const screens = read(g, "screens.jsx");
   const game = read(g, "game-screens.jsx");
@@ -60,6 +92,29 @@ function lintGame(g) {
       "el botón de tema debe ser `fontSize: 15` (no 22)");
     check(has(screens, 'padding: "14px 6px"'), "Botón de tema padding 14px 6px",
       "se esperaba `padding: \"14px 6px\"` en el botón de tema");
+
+    // §0 — gradiente por posición (byte a byte)
+    const grads = gradsOf(screens);
+    const malos = [];
+    grads.slice(0, 4).forEach((gr, i) => {
+      if (GRAD_BY_POS[i] && gr !== GRAD_BY_POS[i]) malos.push(`${i + 1}º usa "${gr}" y toca "${GRAD_BY_POS[i]}"`);
+    });
+    check(malos.length === 0, "Gradientes de tema por posición",
+      malos.join(" · "));
+  }
+
+  // ── §3/§6 — rótulos de acción inventados (el avance entre rondas es automático) ──
+  const rotMalos = buttonTexts(game).filter((t) =>
+    ROTULOS_PROHIBIDOS.some((p) => t.toUpperCase().replace(/[^A-ZÁÉÍÓÚÑ ]/g, "").trim() === p));
+  check(rotMalos.length === 0, "Sin rótulos de botón inventados",
+    `botón(es) no permitidos: ${rotMalos.map((t) => `"${t}"`).join(", ")} — el estándar admite ¡VERIFICAR! · REINICIAR · SALIR (y el avance entre rondas es AUTOMÁTICO, §6)`);
+
+  // ── §1.1 — indicador de Ronda (solo si el juego lo usa) ──
+  if (/>\s*Ronda\s*</.test(game)) {
+    check(has(game, "top: 52,"), "Ronda en top: 52",
+      "el bloque `Ronda` va en `top: 52` (§1.1)");
+    check(has(game, "width: 11, height: 11"), "Ronda con dots 11×11",
+      "los dots de ronda son `width: 11, height: 11` (§1.1)");
   }
 
   // ── Mini-logos ──

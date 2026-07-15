@@ -1,4 +1,5 @@
-// screens.jsx — JUEGO-3 · "Cuido mi entorno" (Estudios Sociales · TEMA 3).
+// screens.jsx — JUEGO-3 · "Cuido mi planeta" (Estudios Sociales · TEMA 3).
+// Tema 1 = "Cuido mi entorno" (reciclaje, edad 6) · Tema 2 = "Cambio climático" (edad 9).
 // Juego MULTI-TEMA: el Home muestra N BOTONES = N temas del libro (patrón EDINUN).
 // El niño elige un tema (chip) + su nombre → CharacterScreen (Sisa preseleccionada) →
 // GameScreen lee app.currentCategory para saber qué mini-juego montar.
@@ -10,25 +11,28 @@ const { useState, useEffect, useRef, useMemo } = React;
 // ─────────────────────────────────────────────────────────────
 // Config de TEMAS (un botón por entrada). Cada tema define su chip y el
 // catLabel que GameScreen/ResultsScreen leen. `enabled:false` = "Próximamente".
-//   · reciclaje → TEMA 1 "Clasifica la basura" (implementado).
+//   · reciclaje → TEMA 1 "Cuido mi entorno" (clasificar la basura; implementado).
 //   · tema2     → placeholder; se activará cuando la autora mande su lámina.
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "reciclaje",
-    label: "Clasifica la basura",
-    grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
+    label: "Cuido mi entorno",
+    // Gradiente por POSICIÓN (estandar-visual.md §0): 1º = naranja. No se elige por tema.
+    grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
     ink: "#3a2608",
     description: "Guarda cada cosa en su tacho de color.",
-    catLabel: "Clasifica la basura",
+    catLabel: "Cuido mi entorno",
     enabled: true,
   },
   {
     id: "cambioclimatico",
     label: "Cambio climático",
-    grad: "linear-gradient(180deg, #7ec8ff, #2a7fd7)",
-    ink: "#08213a",
-    description: "Aprende a cuidar el planeta.",
+    // 2º = amarillo (§0). El azul de antes "pegaba" con el clima, pero el color va por
+    // posición en todo el ecosistema EDINUN, no por temática.
+    grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
+    ink: "#3a2608",
+    description: "Descubre tu relación con el cambio climático.",
     catLabel: "Cambio climático",
     enabled: true,
   },
@@ -228,7 +232,7 @@ function HomeScreen({ app, setApp, go }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 520 }}>
           <div>
             <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>
-              EDINUN · Cuido mi entorno
+              EDINUN · Cuido mi planeta
             </div>
             <h1 className="ed-h1" style={{ fontSize: 38, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}

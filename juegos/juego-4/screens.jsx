@@ -11,35 +11,36 @@ const { useState, useEffect, useRef, useMemo } = React;
 // Config de TEMAS (un botón por entrada). Cada tema define su chip y el
 // catLabel que GameScreen/ResultsScreen leen. `enabled:false` = "Próximamente".
 //   · emergencias → TEMA 1 "Estar preparados" (mecánica ORDENAR, implementado).
-//   · tema2/tema3 → placeholders; se activarán cuando la autora mande sus láminas.
+//   · convivencia → TEMA 2 "Amigos y compañeros" (mecánica CLASIFICAR, implementado).
+//   · sistemaeducativo → TEMA 3 "Sistema educativo" (13 años, 3 rondas encadenadas).
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "emergencias",
     label: "Estar preparados",
-    grad: "linear-gradient(180deg, #ffd27a, #e0842a)",
-    ink: "#3a2205",
+    grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
+    ink: "#3a2608",
     description: "Ordena qué hacer en una emergencia.",
     catLabel: "Estar preparados",
     enabled: true,
   },
   {
-    id: "tema2",
-    label: "Tema 2",
+    id: "convivencia",
+    label: "Amigos y compañeros",
     grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
     ink: "#3a2608",
-    description: "Próximamente.",
-    catLabel: "Tema 2",
-    enabled: false,
+    description: "Separa lo que está bien de lo que no.",
+    catLabel: "Amigos y compañeros",
+    enabled: true,
   },
   {
-    id: "tema3",
-    label: "Tema 3",
+    id: "sistemaeducativo",
+    label: "Sistema educativo",
     grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
     ink: "#08264d",
-    description: "Próximamente.",
-    catLabel: "Tema 3",
-    enabled: false,
+    description: "Datos, mitos y decisiones sobre tu educación.",
+    catLabel: "Sistema educativo",
+    enabled: true,
   },
 ];
 

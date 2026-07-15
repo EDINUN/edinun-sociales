@@ -1,10 +1,20 @@
 # Estándar visual — matriz de posicionamiento (capa fija)
 
 > **Normativo.** Estos son los valores **exactos** implementados en
-> `juegos/_PLANTILLA/` (la fuente canónica) y verificados en juego-1..4
-> (medición con Playwright, 2026-07). La `_PLANTILLA` YA los cumple: si clonas
-> desde ella y no tocas lo que aquí se lista, el juego queda "igual" a los
+> `juegos/_PLANTILLA/` (la fuente canónica). La `_PLANTILLA` YA los cumple: si
+> clonas desde ella y no tocas lo que aquí se lista, el juego queda "igual" a los
 > demás. **Desviarse de un valor fijo requiere preguntarle a la autora.**
+>
+> ⚠️ **LEE ESTE ARCHIVO ANTES DE ESCRIBIR UNA SOLA PANTALLA.** No es contexto
+> opcional: es la especificación. Si algo no está aquí (un rótulo, un contador, un
+> botón), **no te lo inventes** — búscalo en el último juego terminado o pregúntale
+> a la autora. (2026-07-15: por saltarse este archivo, el Tema 3 de juego-4 salió con
+> "CONFIRMAR", "SIGUIENTE", contadores "0/3", racha, dots 7×7 y un tema en verde;
+> la autora tuvo que cazarlo todo a mano.)
+>
+> **Lo verificable ya está automatizado** en `format-lint.js` (§7) — que ahora sí
+> revisa gradientes por posición, rótulos de botón, el bloque Ronda y los valores
+> fijos. Que dé verde no exime de leer lo que el lint no puede medir.
 >
 > Las coordenadas aproximadas de `planificacion-inicial.md` §4 son para el
 > boceto del plan; **este archivo manda para los valores reales.**
@@ -61,6 +71,13 @@ fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
 Botón activo: `boxShadow` con anillo blanco `0 0 0 3px rgba(255,255,255,0.85)` +
 `transform: translateY(-2px)`. Tema deshabilitado ("Próximamente"):
 `opacity: 0.72, filter: "grayscale(0.15)", cursor: "not-allowed"`.
+
+> El color va **por posición, NUNCA por temática**. Tienta elegirlo "que pegue con
+> el tema" (azul para clima, verde para convivencia) — eso rompe la coherencia del
+> ecosistema.
+> ⚠️ Errores reales cometidos: juego-3 usaba amarillo/azul (1º/2º) y juego-4 puso el
+> 2º en **verde** porque "pegaba con Amigos y compañeros". Ambos corregidos
+> (2026-07-15). **Lo verifica `format-lint.js`** — ya no depende de acordarse.
 
 ---
 
@@ -229,8 +246,10 @@ toque los botones.**
 > ```
 
 0. **`format-lint.js`** en verde: logo Home = 300, mini-logos 60/64, rejilla de
-   botones según nº de temas, botón compacto (fontSize 15), personaje (bottom 78 /
-   char 186), acciones (right 18/12), ResultsScreen (inset / grid / char 176 / título 34).
+   botones según nº de temas, botón compacto (fontSize 15), **gradientes de tema por
+   posición**, **rótulos de botón** (sin CONFIRMAR/SIGUIENTE/CONTINUAR… inventados),
+   **bloque Ronda** (top 52 + dots 11×11), personaje (bottom 78 / char 186),
+   acciones (right 18/12), ResultsScreen (inset / grid / char 176 / título 34).
 1. Shell idéntico: `app.jsx`, `characters.jsx`, `logo.jsx`, `styles.css` con el
    mismo hash que `_PLANTILLA` (cero drift). El elenco es domi/sisa/yaku/andi.
 2. HUD, personaje/bocadillo, acciones y ResultsScreen con los valores de §1–§5

@@ -57,3 +57,21 @@
   juego-1/juego-2 re-subidos con la estandarización + landing actualizado.
 - Gemelos idénticos (`index.html` == `EDINUN GAMES.html`, 150068 bytes), sin
   `</script>` literal.
+
+## 2026-07-15 — Renombrado a "Cuido mi planeta" + gradientes al estándar
+
+- La autora pidió un **título paraguas** que uniera los 2 temas: el juego pasó de
+  **"Cuido mi entorno"** a **"Cuido mi planeta"**, y "Cuido mi entorno" bajó a ser el
+  **Tema 1** (antes "Clasifica la basura"). Tema 2 sigue "Cambio climático".
+  Cambiado en: header del Home, `LEVELS_CFG` (label + catLabel), `CAT_LABEL` de
+  respaldo, la tarjeta del landing y `memory/audiencia_por_juego.md`.
+  Los `id` (`reciclaje`, `cambioclimatico`) **no** se tocaron → las mecánicas intactas.
+- **Gradientes corregidos al estándar** (`estandar-visual.md` §0): el color del botón
+  de tema va **por POSICIÓN, no por temática**. Llevaba amarillo (1º) y azul (2º) desde
+  antes; ahora **naranja** (1º) y **amarillo** (2º). Se perdió el azul que "pegaba" con
+  el clima — es justo la tentación que el estándar prohíbe.
+- Lo destapó el `format-lint.js` al ampliarlo: nadie lo había visto porque el lint no
+  miraba los gradientes.
+
+⚠️ **Pendiente:** juego-3 está **publicado** — hay que **re-subirlo** para que el nombre
+y los colores nuevos se vean online.

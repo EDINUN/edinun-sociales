@@ -252,35 +252,36 @@ const { useState, useEffect, useRef, useMemo } = React;
 // Config de TEMAS (un botón por entrada). Cada tema define su chip y el
 // catLabel que GameScreen/ResultsScreen leen. `enabled:false` = "Próximamente".
 //   · emergencias → TEMA 1 "Estar preparados" (mecánica ORDENAR, implementado).
-//   · tema2/tema3 → placeholders; se activarán cuando la autora mande sus láminas.
+//   · convivencia → TEMA 2 "Amigos y compañeros" (mecánica CLASIFICAR, implementado).
+//   · sistemaeducativo → TEMA 3 "Sistema educativo" (13 años, 3 rondas encadenadas).
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "emergencias",
     label: "Estar preparados",
-    grad: "linear-gradient(180deg, #ffd27a, #e0842a)",
-    ink: "#3a2205",
+    grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
+    ink: "#3a2608",
     description: "Ordena qué hacer en una emergencia.",
     catLabel: "Estar preparados",
     enabled: true,
   },
   {
-    id: "tema2",
-    label: "Tema 2",
+    id: "convivencia",
+    label: "Amigos y compañeros",
     grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
     ink: "#3a2608",
-    description: "Próximamente.",
-    catLabel: "Tema 2",
-    enabled: false,
+    description: "Separa lo que está bien de lo que no.",
+    catLabel: "Amigos y compañeros",
+    enabled: true,
   },
   {
-    id: "tema3",
-    label: "Tema 3",
+    id: "sistemaeducativo",
+    label: "Sistema educativo",
     grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
     ink: "#08264d",
-    description: "Próximamente.",
-    catLabel: "Tema 3",
-    enabled: false,
+    description: "Datos, mitos y decisiones sobre tu educación.",
+    catLabel: "Sistema educativo",
+    enabled: true,
   },
 ];
 
@@ -964,11 +965,20 @@ function OrdenarGame({ app, setApp, go }) {
               border: v === "ok" ? "3px solid #2ecc71" : v === "wrong" ? "3px solid #e74c3c" : "3px dashed rgba(255,255,255,0.42)",
               background: "rgba(10,6,35,0.32)", zIndex: 2, pointerEvents: "none",
               boxShadow: v === "ok" ? "0 0 0 3px rgba(46,204,113,0.22)" : "none" }}>
-            <div style={{ position: "absolute", top: -17, left: "50%", transform: "translateX(-50%)", width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(180deg,#fce9a8,#d9a441)", color: "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 5px rgba(0,0,0,0.4)", zIndex: 4 }}>{i + 1}</div>
             {v === "wrong" && (
-              <div className="ed-checkPop" style={{ position: "absolute", left: "50%", bottom: -15, transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 4, background: "rgba(10,6,35,0.92)", border: "1.5px solid #ffd27a", borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap", zIndex: 5 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#ffd27a" }}>Va:</span>
-                <span style={{ fontSize: 17 }}>{correctStep.emoji}</span>
+              // El div de fuera POSICIONA y el de dentro ANIMA: si se juntan, el keyframe
+              // de ed-checkPop (transform:scale) pisa al translateX y el reveal da un salto.
+              <div style={{ position: "absolute", left: "50%", top: "calc(100% + 12px)", transform: "translateX(-50%)", zIndex: 5 }}>
+                <div className="ed-checkPop" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, letterSpacing: "0.03em", color: "#8affcf", textShadow: "0 1px 3px rgba(0,0,0,0.7)" }}>
+                    <span style={{ width: 17, height: 17, borderRadius: "50%", background: "#2ecc71", color: "#fff", fontSize: 12, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>✓</span>
+                    Aquí va
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, width: 150, background: "linear-gradient(180deg,#eafff4,#c6f3dd)", border: "2px solid #2ecc71", borderRadius: 13, padding: "5px 8px", boxShadow: "0 5px 12px rgba(0,0,0,0.32)" }}>
+                    <img src={`assets/${correctStep.img}`} alt={correctStep.label} draggable="false" style={{ width: 46, height: 46, objectFit: "contain", flexShrink: 0, pointerEvents: "none" }} />
+                    <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: "#0b3a2d", lineHeight: 1.08, textAlign: "left" }}>{correctStep.label}</div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -1003,6 +1013,11 @@ function OrdenarGame({ app, setApp, go }) {
           </div>
         );
       })}
+
+      {/* ── Números de casilla (1·2·3) — capa POR ENCIMA de las tarjetas ── */}
+      {[0, 1, 2].map((i) => (
+        <div key={`num-${i}`} style={{ position: "absolute", left: SLOT_CX[i], top: SLOT_CY - SLOT_H / 2, transform: "translate(-50%,-50%)", width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(180deg,#fce9a8,#d9a441)", color: "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 5px rgba(0,0,0,0.4)", zIndex: 40, pointerEvents: "none" }}>{i + 1}</div>
+      ))}
 
       {/* ── Personaje guía + bocadillo (izquierda, tamaño estándar EDINUN) ── */}
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
@@ -1094,6 +1109,1069 @@ function OrdenarGame({ app, setApp, go }) {
         </PortalToBody>
       )}
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEMA 2 · "Amigos y compañeros" (categoría "convivencia", 6 años).
+// Mecánica CLASIFICAR: 4 tarjetas de acciones (de un banco de 8 con anti-repetición FIFO
+// → al reiniciar salen otras) se arrastran desde la bandeja (2×2, arriba) a 2 cajas:
+// 😊 Está bien / 😞 No está bien (abajo). El reparto NO es fijo: puede ser 1+3, 2+2 o 3+1
+// (garantizando ≥1 de cada tipo para que ninguna caja quede vacía).
+// Con las 4 puestas se habilita ¡VERIFICAR!: ✓ en aciertos; en los errores ✗ + flecha
+// hacia la caja correcta, dejando la tarjeta DONDE la puso el niño (invariante EDINUN:
+// revelar el correcto sin ocultar lo que eligió). Geometría heredada del juego de basura.
+// ─────────────────────────────────────────────────────────────
+const CONV_RECENT_KEY = "edinun_juego4_convivencia_recientes_v1";
+const CONV_RECENT_CAP = 4;
+const CONV_PER_ROUND = 4;  // 4 tarjetas por partida; el reparto NO es fijo (1+3, 2+2 o 3+1)
+
+const CONV_CARDS = [
+  { id: "compartir", label: "Compartir",        img: "conviv-compartir.png", emoji: "🖍️", bien: true },
+  { id: "ayudar",    label: "Ayudar",           img: "conviv-ayudar.png",    emoji: "🤝", bien: true },
+  { id: "turno",     label: "Esperar mi turno", img: "conviv-turno.png",     emoji: "🧍", bien: true },
+  { id: "saludar",   label: "Saludar",          img: "conviv-saludar.png",   emoji: "👋", bien: true },
+  { id: "burla",     label: "Burlarse",         img: "conviv-burla.png",     emoji: "😢", bien: false },
+  { id: "empujar",   label: "Empujar",          img: "conviv-empujar.png",   emoji: "💢", bien: false },
+  { id: "gritar",    label: "Gritar",           img: "conviv-gritar.png",    emoji: "😠", bien: false },
+  { id: "quitar",    label: "Quitar las cosas", img: "conviv-quitar.png",    emoji: "✋", bien: false },
+];
+
+// Caja 0 = "Está bien" (izquierda) · Caja 1 = "No está bien" (derecha).
+const CONV_BOXES = [
+  { id: "bien", titulo: "Está bien",    emoji: "😊", color: "#2ecc71" },
+  { id: "mal",  titulo: "No está bien", emoji: "😞", color: "#e74c3c" },
+];
+
+// Geometría (lienzo 900×540). Bandeja arriba (2×3) · cajas abajo, centradas en x=450.
+// Bandeja 2×2 arriba (4 tarjetas GRANDES) · cajas abajo, bajitas (caben las 4 en
+// una sola fila de miniaturas, así que no hacen falta 2 filas → sobra alto arriba).
+const CONV_CARD_W = 142, CONV_CARD_IMG = 130;
+const CONV_GRID_X = [375, 525];
+const CONV_GRID_Y = [165, 330];
+const CONV_BOX_CX = [335, 565];
+const CONV_BOX_TOP = 420;
+const CONV_BOX_W = 210, CONV_BOX_H = 90;
+const CONV_BOX_HIT_PAD = 24;
+const CONV_THUMB = 46;
+
+// Posición de una tarjeta ya soltada: miniatura dentro de la caja, 1 fila de hasta 4.
+// La fila se CENTRA según cuántas haya en esa caja (n): con 1 va al medio, con 3
+// reparte -50/0/+50, etc. Al añadir/quitar, las demás se re-centran solas (hay
+// transition en left/top). El +62 deja libre el rótulo (😊 Está bien) de arriba.
+function convThumbPos(bi, k, n) {
+  return { x: CONV_BOX_CX[bi] + (k - (n - 1) / 2) * 50, y: CONV_BOX_TOP + 62 };
+}
+
+function convReadRecent() {
+  try { const a = JSON.parse(localStorage.getItem(CONV_RECENT_KEY) || "[]"); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+function convWriteRecent(ids) {
+  try {
+    const prev = convReadRecent().filter((id) => ids.indexOf(id) === -1);
+    localStorage.setItem(CONV_RECENT_KEY, JSON.stringify(ids.concat(prev).slice(0, CONV_RECENT_CAP)));
+  } catch (e) { /* sin localStorage: sin anti-repetición, no crítico */ }
+}
+// Toma n de un grupo priorizando las que NO salieron la partida pasada.
+function convPick(pool, n, recent) {
+  const fresh = shuffle(pool.filter((c) => recent.indexOf(c.id) === -1));
+  const stale = shuffle(pool.filter((c) => recent.indexOf(c.id) !== -1));
+  return fresh.concat(stale).slice(0, n);
+}
+// Reparto al azar y NO fijo: puede salir 1+3, 2+2 o 3+1. Se garantiza al menos
+// 1 de cada tipo para que ninguna caja quede vacía (seguiría siendo clasificar).
+function convBuildRound() {
+  const recent = convReadRecent();
+  const nBuenas = 1 + Math.floor(Math.random() * (CONV_PER_ROUND - 1)); // 1..3
+  const buenas = convPick(CONV_CARDS.filter((c) => c.bien), nBuenas, recent);
+  const malas  = convPick(CONV_CARDS.filter((c) => !c.bien), CONV_PER_ROUND - nBuenas, recent);
+  const picked = buenas.concat(malas);
+  convWriteRecent(picked.map((c) => c.id));
+  const byId = {};
+  picked.forEach((c) => { byId[c.id] = c; });
+  return { byId, cards: shuffle(picked.map((c) => c.id)) };
+}
+
+function ClasificaGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+
+  const rootRef = useRefG(null);
+  const boxRefs = useRefG([null, null]);
+
+  const initRef = useRefG(null);
+  if (!initRef.current) initRef.current = convBuildRound();
+  const { byId, cards } = initRef.current;
+
+  const [placed, setPlaced] = useStateG({});   // cardId -> 0 | 1 (índice de caja)
+  const [dragId, setDragId] = useStateG(null);
+  const [dragXY, setDragXY] = useStateG({ x: 0, y: 0 });
+  const [verdict, setVerdict] = useStateG(null);   // cardId -> 'ok' | 'wrong'
+  const [banner, setBanner] = useStateG(null);
+  const [bannerMsg, setBannerMsg] = useStateG("");
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+
+  const started = useRefG(Date.now());
+  const firstDone = useRefG(false);
+  const logRef = useRefG([]);
+  const dragRef = useRefG(null);
+
+  function restPos(id) {
+    const bi = placed[id];
+    // En la CORRECCIÓN las tarjetas vuelven a la bandeja a tamaño GRANDE (aprovechando
+    // el hueco) para poder mirar bien la escena; el chip de cada una dice en qué caja
+    // la puso el niño y, si falló, a cuál iba.
+    if (bi != null && !verdict) {
+      // Las que están en ESA caja, en el orden estable de la bandeja → hueco + centrado.
+      const inBox = cards.filter((c) => placed[c] === bi);
+      return convThumbPos(bi, Math.max(0, inBox.indexOf(id)), inBox.length);
+    }
+    const ti = cards.indexOf(id);
+    const col = ti % 2, row = Math.floor(ti / 2);
+    return { x: CONV_GRID_X[col] != null ? CONV_GRID_X[col] : 450, y: CONV_GRID_Y[row] != null ? CONV_GRID_Y[row] : 165 };
+  }
+
+  function onPointerDown(e, id) {
+    if (verdict) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+    const rect = rootRef.current ? rootRef.current.getBoundingClientRect() : { width: 900 };
+    const scale = rect.width / 900 || 1;
+    const cur = restPos(id);
+    dragRef.current = { id, sx: e.clientX, sy: e.clientY, cx: cur.x, cy: cur.y, scale, moved: false };
+    setDragId(id); setDragXY(cur);
+    if (!firstDone.current) { firstDone.current = true; if (typeof markFirstAttempt === "function") markFirstAttempt(); }
+  }
+  function onPointerMove(e) {
+    const d = dragRef.current; if (!d) return;
+    if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) > 4) d.moved = true;
+    setDragXY({ x: d.cx + (e.clientX - d.sx) / d.scale, y: d.cy + (e.clientY - d.sy) / d.scale });
+  }
+  function onPointerUp(e) {
+    const d = dragRef.current; if (!d) return;
+    dragRef.current = null; setDragId(null);
+    const id = d.id;
+    let hit = -1;
+    for (let i = 0; i < 2; i++) {
+      const el = boxRefs.current[i]; if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (e.clientX >= r.left - CONV_BOX_HIT_PAD && e.clientX <= r.right + CONV_BOX_HIT_PAD &&
+          e.clientY >= r.top - CONV_BOX_HIT_PAD && e.clientY <= r.bottom + CONV_BOX_HIT_PAD) { hit = i; break; }
+    }
+    if (hit !== -1) setPlaced((prev) => Object.assign({}, prev, { [id]: hit }));
+    else if (d.moved) setPlaced((prev) => { const n = Object.assign({}, prev); delete n[id]; return n; });
+  }
+
+  const placedCount = cards.filter((id) => placed[id] != null).length;
+  const allPlaced = placedCount === cards.length;
+
+  function onVerify() {
+    if (!allPlaced || verdict) return;
+    const vd = {};
+    logRef.current = [];
+    cards.forEach((id, i) => {
+      const c = byId[id];
+      const ok = (placed[id] === 0) === !!c.bien;
+      vd[id] = ok ? "ok" : "wrong";
+      logRef.current.push({ idx: i + 1, id, label: c.label, emoji: c.emoji, binLabel: CONV_BOXES[placed[id]].titulo, ok });
+    });
+    const aciertos = cards.filter((id) => vd[id] === "ok").length;
+    const perfecto = aciertos === cards.length;
+    setVerdict(vd);
+    setApp((s) => ({ ...s, stars: aciertos }));
+    // Verificación limpia (✓/✗ + flecha al correcto) → cartel → reporte. Patrón EDINUN.
+    const revealMs = perfecto ? 700 : 3000;
+    const bannerMs = 1700;
+    setTimeout(() => {
+      if (perfecto) { setBanner("ok"); setBannerMsg(`+${aciertos} ⭐`); }
+      else { setBanner("err"); setBannerMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }
+    }, revealMs);
+    setTimeout(() => {
+      setBanner(null); setBannerMsg("");
+      setApp((s) => ({
+        ...s,
+        lastResult: {
+          category: "Amigos y compañeros", cols: ["Acción", "Lo pusiste en"], themeEmoji: "🤝",
+          praise: "¡aprendiste a tratar bien a tus amigos!",
+          solved: aciertos, total: cards.length,
+          time: Math.floor((Date.now() - started.current) / 1000),
+          starsEarned: aciertos, log: logRef.current.slice(), success: true,
+        },
+      }));
+      if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+      go("results");
+    }, revealMs + bannerMs);
+  }
+
+  function confirmRestart() {
+    setConfirmingRestart(false);
+    initRef.current = convBuildRound();
+    setPlaced({}); setDragId(null); setVerdict(null); setBanner(null); setBannerMsg("");
+    firstDone.current = false; dragRef.current = null; logRef.current = []; started.current = Date.now();
+  }
+
+  return (
+    <div ref={rootRef} className="ed-noselect" style={{ position: "absolute", inset: 0, overflow: "hidden", WebkitTapHighlightColor: "transparent" }}>
+      <style>{GAME_CSS}</style>
+      <TemaChipsBar app={app} setApp={setApp} />
+
+      {/* ── HUD ── */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={60} />
+        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(242,194,96,0.45)", borderRadius: 999, padding: "6px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em" }}>
+          📋 {placedCount} / {cards.length}
+        </div>
+      </div>
+
+      {/* ── Enunciado (QUÉ) ── */}
+      <div style={{ position: "absolute", left: 150, right: 150, top: 46, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
+        Las siguientes acciones <span style={{ color: "#fce9a8" }}>¿están bien o no?</span>
+      </div>
+
+      {/* ── 2 cajas ── */}
+      {[0, 1].map((i) => {
+        const box = CONV_BOXES[i];
+        // Durante el reveal, la caja se ilumina si le faltaban tarjetas que van aquí.
+        const missing = verdict && cards.some((id) => verdict[id] === "wrong" && ((byId[id].bien ? 0 : 1) === i));
+        return (
+          <div key={box.id} ref={(el) => { boxRefs.current[i] = el; }}
+            style={{ position: "absolute", left: CONV_BOX_CX[i], top: CONV_BOX_TOP, transform: "translateX(-50%)", width: CONV_BOX_W, height: CONV_BOX_H, borderRadius: 18,
+              border: `3px solid ${box.color}`, background: "rgba(10,6,35,0.42)", zIndex: 2, pointerEvents: "none",
+              boxShadow: missing ? `0 0 0 4px ${box.color}55, 0 0 22px ${box.color}88` : "none",
+              transition: "box-shadow 0.25s ease" }}>
+            <div style={{ position: "absolute", top: 6, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: box.color, letterSpacing: "0.02em", textShadow: "0 1px 3px rgba(0,0,0,0.7)" }}>
+              <span style={{ fontSize: 15 }}>{box.emoji}</span> {box.titulo}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ── Tarjetas (bandeja arriba / miniatura dentro de la caja) ── */}
+      {cards.map((id) => {
+        const c = byId[id];
+        const dragging = dragId === id;
+        const isPlaced = placed[id] != null;
+        const pos = dragging ? dragXY : restPos(id);
+        const v = verdict ? verdict[id] : null;
+        const mini = isPlaced && !dragging && !verdict;   // en la caja → miniatura; al corregir vuelve grande
+        const correctBox = c.bien ? 0 : 1;
+        return (
+          <div key={id}
+            onPointerDown={(e) => onPointerDown(e, id)}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onDragStart={(e) => e.preventDefault()}
+            style={{ position: "absolute", left: pos.x, top: pos.y, transform: "translate(-50%,-50%)",
+              width: mini ? CONV_THUMB : CONV_CARD_W, zIndex: dragging ? 60 : (mini ? 12 : 15), touchAction: "none",
+              cursor: verdict ? "default" : (dragging ? "grabbing" : "grab"),
+              transition: dragging ? "none" : "left 0.18s ease, top 0.18s ease, width 0.18s ease",
+              filter: dragging ? "drop-shadow(0 10px 12px rgba(0,0,0,0.4))" : "drop-shadow(0 5px 7px rgba(0,0,0,0.3))" }}>
+            <div style={{ position: "relative", background: "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(224,231,242,0.97))", borderRadius: mini ? 9 : 14, border: v === "ok" ? "2px solid #2ecc71" : v === "wrong" ? "2px solid #e74c3c" : "2px solid rgba(255,255,255,0.9)", padding: mini ? 2 : "6px 6px 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <img src={`assets/${c.img}`} alt={c.label} draggable="false" style={{ width: mini ? 40 : CONV_CARD_IMG, height: mini ? 40 : CONV_CARD_IMG, objectFit: "cover", borderRadius: mini ? 7 : 10, display: "block", pointerEvents: "none" }} />
+              {!mini && (<div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: "#1a1030", textAlign: "center", lineHeight: 1.05 }}>{c.label}</div>)}
+              {v === "ok" && (<div className="ed-checkPop" style={{ position: "absolute", top: -7, right: -7, width: 21, height: 21, borderRadius: "50%", background: "#2ecc71", color: "#fff", fontWeight: 900, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", boxShadow: "0 2px 5px rgba(0,0,0,0.4)" }}>✓</div>)}
+              {v === "wrong" && (<div className="ed-checkPop" style={{ position: "absolute", top: -7, right: -7, width: 21, height: 21, borderRadius: "50%", background: "#e74c3c", color: "#fff", fontWeight: 900, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", boxShadow: "0 2px 5px rgba(0,0,0,0.4)" }}>✗</div>)}
+              {/* Reveal: chip al pie de la tarjeta GRANDE. Si acertó, confirma la caja;
+                  si falló, muestra la que eligió (apagada) ➜ la correcta (invariante:
+                  revelar el correcto SIN ocultar lo que eligió el niño). */}
+              {v && !mini && (
+                // top:112 = apoyado sobre el borde inferior de la imagen (que va de 6 a 136),
+                // así NO tapa el nombre de la acción que va debajo.
+                <div style={{ position: "absolute", top: 112, left: "50%", transform: "translateX(-50%)", zIndex: 6 }}>
+                  <div className="ed-checkPop" style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(10,6,35,0.96)", border: `1.5px solid ${v === "ok" ? "#2ecc71" : "#e74c3c"}`, borderRadius: 999, padding: "2px 7px", whiteSpace: "nowrap", boxShadow: "0 3px 8px rgba(0,0,0,0.4)" }}>
+                    {v === "ok" ? (
+                      <>
+                        <span style={{ fontSize: 13 }}>{CONV_BOXES[correctBox].emoji}</span>
+                        <span style={{ fontFamily: "var(--ed-font-display)", fontSize: 10, fontWeight: 800, color: "#8affcf" }}>{CONV_BOXES[correctBox].titulo}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: 12, filter: "grayscale(1)", opacity: 0.5 }}>{CONV_BOXES[placed[id]].emoji}</span>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: "#ffd27a" }}>➜</span>
+                        <span style={{ fontSize: 13 }}>{CONV_BOXES[correctBox].emoji}</span>
+                        <span style={{ fontFamily: "var(--ed-font-display)", fontSize: 10, fontWeight: 800, color: "#8affcf" }}>{CONV_BOXES[correctBox].titulo}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ── Al colocar las 4: aviso en el hueco de la bandeja (si no, queda un vacío
+             raro y no se entiende que ya solo falta tocar ¡VERIFICAR!). ── */}
+      {allPlaced && !verdict && (
+        // OJO: el div de fuera POSICIONA (translate) y el de dentro ANIMA. Si se juntan,
+        // el keyframe de ed-checkPop (transform:scale) pisa al translate y el aviso
+        // aparece descentrado hasta que acaba la animación.
+        <div style={{ position: "absolute", left: 450, top: 245, transform: "translate(-50%,-50%)", pointerEvents: "none", zIndex: 8 }}>
+          <div className="ed-checkPop" style={{ background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "12px 20px", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 16px rgba(0,0,0,0.35)" }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fce9a8", lineHeight: 1.2 }}>¡Ya están todas!</div>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fff", marginTop: 3 }}>Ahora toca ¡VERIFICAR!</div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Personaje guía + bocadillo (izquierda, tamaño estándar EDINUN) ── */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 176, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            Arrastra las acciones según corresponda.
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* ── Acciones (derecha) ── */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        <button className="ed-btn ed-btn-verify" onClick={onVerify} disabled={!allPlaced || !!verdict}
+          style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: (allPlaced && !verdict) ? 1 : 0.5, cursor: (allPlaced && !verdict) ? "pointer" : "not-allowed" }}>
+          ¡VERIFICAR!
+        </button>
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 14, height: 48, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 14, height: 48, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {/* ── Banner ── */}
+      {banner && (
+        <PortalToBody>
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+            background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s",
+          }}>
+            <div style={{
+              fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
+              fontSize: "clamp(56px, 11vmin, 120px)",
+              color: banner === "ok" ? "#2ecc8f" : "#ff6b6b",
+              textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center",
+            }}>
+              {banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
+            </div>
+            {bannerMsg && (
+              <div style={{
+                fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700,
+                fontSize: "clamp(18px, 2.6vmin, 30px)",
+                color: banner === "ok" ? "#fce9a8" : "#fff",
+                background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999,
+                textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center",
+              }}>
+                {banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}
+              </div>
+            )}
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* ── Modal SALIR ── */}
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder tu avance.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* ── Modal REINICIAR ── */}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Salen otras acciones para clasificar.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEMA 3 · "Sistema educativo ecuatoriano" (categoría "sistemaeducativo", 13 años).
+// 3 RONDAS ENCADENADAS con mecánicas distintas (patrón de juego-3 · Tema 2):
+//   R1 AdivinaDatoRound     — deslizador: adivina la cifra. Puntúa por CERCANÍA.
+//   R2 MitosDatosRound      — V/F contrarreloj con racha.
+//   R3 CompletaTitularRound — arrastrar palabras a los huecos (con trampas).
+// `Tema3Controller` monta cada ronda por turno (key) y acumula el log → reporte combinado.
+//
+// ⚠ TODAS las cifras y afirmaciones salen TEXTUALES del libro (láminas de la autora).
+//   NO se inventa ningún dato: es material escolar. Para ampliar los bancos hay que
+//   pedirle más datos a la autora, no deducirlos.
+// ─────────────────────────────────────────────────────────────
+const SE_CSS = `
+.se-range{ -webkit-appearance:none; appearance:none; width:100%; height:16px; border-radius:999px;
+  background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.22); outline:none; }
+.se-range::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:34px; height:34px;
+  border-radius:50%; background:linear-gradient(180deg,#ffffff,#cfe4f7); border:3px solid #2a7fd7;
+  box-shadow:0 4px 10px rgba(0,0,0,0.45); cursor:grab; }
+.se-range:active::-webkit-slider-thumb{ cursor:grabbing; }
+.se-range::-moz-range-thumb{ width:30px; height:30px; border-radius:50%;
+  background:#ffffff; border:3px solid #2a7fd7; box-shadow:0 4px 10px rgba(0,0,0,0.45); cursor:grab; }
+.se-range:disabled{ opacity:0.75; }
+`;
+
+// Formatea con coma decimal (es-EC).
+function seFmt(v, dec) { return Number(v).toFixed(dec).replace(".", ","); }
+// mm:ss para la pill ⏱ del HUD (igual que juego-3).
+function seTime(s) { const m = Math.floor(s / 60), r = s % 60; return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`; }
+
+// ── RONDA 1 · banco de datos (todos salen del libro) ──
+// ⚠ Cada pregunta debe entenderse SOLA: el banco se baraja, así que no puede referirse
+//   a otro dato ("ese máximo…") porque puede salir primera y quedar sin sentido.
+const SE_DATOS = [
+  { id: "pib_actual", q: "¿Qué % del PIB invierte Ecuador en educación?",
+    min: 0, max: 10, step: 0.02, dec: 2, unit: " %", ans: 3.98, tol: 1,
+    nota: "Llegó a 5,3 % en 2014 y cayó a 3,98 % en 2021." },
+  { id: "pib_minimo", q: "¿Qué mínimo del PIB para educación manda la Constitución?",
+    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 6, tol: 0.8,
+    nota: "La Constitución fija ese mínimo… y todavía no se alcanza." },
+  { id: "pib_crece", q: "¿Cuánto debe crecer cada año el gasto en educación?",
+    min: 0, max: 2, step: 0.05, dec: 2, unit: " % del PIB", ans: 0.5, tol: 0.25,
+    nota: "Es un mandato de la Constitución (disposición transitoria)." },
+  { id: "pib_max", q: "¿Cuál fue la máxima inversión en educación que alcanzó Ecuador?",
+    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 5.3, tol: 0.8,
+    nota: "Fue en 2014; desde ahí bajó hasta 3,98 % en 2021." },
+  { id: "anio_max", q: "¿En qué año Ecuador alcanzó su máxima inversión en educación?",
+    min: 2000, max: 2024, step: 1, dec: 0, unit: "", ans: 2014, tol: 2,
+    nota: "En 2014 el gasto llegó a 5,3 % del PIB." },
+  { id: "horas", q: "En la zona rural de Azuay, ¿cuántas horas caminan los niños hasta su escuela?",
+    min: 0, max: 4, step: 0.5, dec: 1, unit: " h", ans: 2, tol: 0.5,
+    nota: "Ese camino afecta su aprendizaje y su permanencia en la escuela." },
+  { id: "decada", q: "¿En qué década empezaron las luchas por el derecho a la educación?",
+    min: 1950, max: 2010, step: 10, dec: 0, unit: "", ans: 1970, tol: 10,
+    nota: "Fueron las luchas de 1970-1990; el acceso era limitado, sobre todo en el sector rural." },
+];
+const SE_DATOS_KEY = "edinun_juego4_se_datos_recientes_v1";
+// 1 SOLA actividad por ronda (pedido de la autora): la ronda es una jugada, no una
+// tanda. La variedad la da el banco + la anti-repetición (recuerda los últimos 4).
+const SE_DATOS_POR_PARTIDA = 1;
+const SE_DATOS_CAP = 4;
+
+function sePickRecent(pool, n, key, cap) {
+  let recent = [];
+  try { const a = JSON.parse(localStorage.getItem(key) || "[]"); if (Array.isArray(a)) recent = a; } catch (e) { /* noop */ }
+  const fresh = shuffle(pool.filter((x) => recent.indexOf(x.id) === -1));
+  const stale = shuffle(pool.filter((x) => recent.indexOf(x.id) !== -1));
+  const picked = fresh.concat(stale).slice(0, n);
+  try {
+    const prev = recent.filter((id) => picked.every((p) => p.id !== id));
+    localStorage.setItem(key, JSON.stringify(picked.map((p) => p.id).concat(prev).slice(0, cap)));
+  } catch (e) { /* sin localStorage: sin anti-repetición, no crítico */ }
+  return picked;
+}
+
+// Chrome común de las 3 rondas. NO se inventa nada: copia la matriz fija de
+// `.claude/skills/edinun-game-builder/references/estandar-visual.md` §1–§3, tal como
+// la implementan las rondas del Tema 2 de juego-3 (chips 14 → Ronda 52 → enunciado 88).
+// `overlay` = capa suelta HIJA DEL ROOT (fuera de la banda). Necesaria para lo que se
+// posiciona en coords del LIENZO (p. ej. la palabra que se arrastra): dentro de la banda
+// esas coords quedarían desplazadas 215/78 px.
+function SEShell({ app, setApp, go, ronda, startedAt, enunciado, enunciadoG, bocadillo, actions, onRestart, rootRef, overlay, children }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [elapsed, setElapsed] = useStateG(0);
+
+  useEffectG(() => {
+    const t0 = startedAt || Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - t0) / 1000)), 500);
+    return () => clearInterval(id);
+  }, [startedAt]);
+
+  return (
+    <div ref={rootRef} className="ed-noselect" style={{ position: "absolute", inset: 0, overflow: "hidden", WebkitTapHighlightColor: "transparent" }}>
+      <style>{GAME_CSS + SE_CSS}</style>
+      <TemaChipsBar app={app} setApp={setApp} />
+
+      {/* ── HUD (§1): logo 60 · pills ⏱ y ⭐ con el estilo fijo ── */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={60} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {seTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {app.stars || 0}</div>
+        </div>
+      </div>
+
+      {/* ── RONDA con dots (§1.1): top 52, ed-label, dots 11×11 ── */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", color: "#fce9a8",
+            background: i < ronda ? "#fce9a8" : (i === ronda ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"),
+            boxShadow: i < ronda ? "0 0 8px currentColor" : "none" }} />
+        ))}
+      </div>
+
+      {/* ── Banda central (§4): top 78 → bottom 22, left/right 215, space-evenly.
+             El ENUNCIADO (QUÉ hacer) va DENTRO como primer hijo — así el reparto
+             cubre toda la altura y no quedan huecos muertos (patrón de juego-3).
+             El CÓMO va en el bocadillo. ── */}
+      <div style={{ position: "absolute", top: 78, bottom: 22, left: 215, right: 215, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly" }}>
+        <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
+          {enunciado}{enunciadoG ? <span style={{ color: "#fce9a8" }}> {enunciadoG}</span> : null}
+        </div>
+        {children}
+      </div>
+
+      {overlay}
+
+      {/* Personaje guía + bocadillo (CÓMO hacerlo) */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {bocadillo}
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* Acciones (§3). Sin botón primario → variante A (2 botones, 56/15);
+          con ¡VERIFICAR! → variante B (56/16 + 48/14). */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        {actions}
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: actions ? 14 : 15, height: actions ? 48 : 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: actions ? 14 : 15, height: actions ? 48 : 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder tu avance.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar tema</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vuelves a la Ronda 1 y salen otras preguntas.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingRestart(false); onRestart(); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
+// ── RONDA 1 · "¿Cuánto crees que…?" (deslizador, puntúa por cercanía) ──
+function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart }) {
+  const initRef = useRefG(null);
+  if (!initRef.current) initRef.current = sePickRecent(SE_DATOS, SE_DATOS_POR_PARTIDA, SE_DATOS_KEY, SE_DATOS_CAP);
+  const datos = initRef.current;
+
+  const d = datos[0];   // 1 sola actividad por ronda
+  const [val, setVal] = useStateG(() => Math.round(((d.min + d.max) / 2) / d.step) * d.step);
+  const [shown, setShown] = useStateG(false);   // ya confirmó → se revela
+  const logRef = useRefG([]);
+  const firstDone = useRefG(false);
+
+  const diff = Math.abs(val - d.ans);
+  const ok = diff <= d.tol;
+
+  function confirmar() {
+    if (shown) return;
+    if (!firstDone.current) { firstDone.current = true; if (typeof markFirstAttempt === "function") markFirstAttempt(); }
+    logRef.current.push({
+      id: d.id, label: d.q, emoji: "🎯",
+      binLabel: `dijiste ${seFmt(val, d.dec)}${d.unit} · real ${seFmt(d.ans, d.dec)}${d.unit}`,
+      ok,
+    });
+    setShown(true);
+    // Avanza SOLA tras el reveal (invariante §6: "en quiz, avanzar automático").
+    // No lleva botón SIGUIENTE: eso no existe en el estándar.
+    setTimeout(() => onDone(logRef.current.slice()), 3200);
+  }
+
+  const pct = ((val - d.min) / (d.max - d.min)) * 100;
+  const ansPct = ((d.ans - d.min) / (d.max - d.min)) * 100;
+
+  return (
+    <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart}
+      enunciado={d.q} enunciadoG=""
+      bocadillo="Mueve el deslizador."
+      actions={
+        <button className="ed-btn ed-btn-verify" onClick={confirmar} disabled={shown}
+          style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: shown ? 0.5 : 1, cursor: shown ? "not-allowed" : "pointer" }}>
+          ¡VERIFICAR!
+        </button>
+      }
+    >
+      {/* Sin imágenes (decisión de la autora). La banda y el enunciado los pone SEShell. */}
+      <>
+        {/* Marcador: "Tu respuesta: N" */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, background: "rgba(0,0,0,0.42)", border: `2px solid ${shown ? (ok ? "#2ecc71" : "#e74c3c") : "rgba(126,200,255,0.6)"}`, borderRadius: 999, padding: "12px 34px", boxShadow: "0 5px 14px rgba(0,0,0,0.35)" }}>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 17, color: "#bfe4ff" }}>Tu respuesta:</span>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 42, lineHeight: 1, color: shown ? (ok ? "#6ef0a8" : "#ff9b9b") : "#fff" }}>{seFmt(val, d.dec)}</span>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 19, color: "#bfe4ff" }}>{d.unit.trim()}</span>
+        </div>
+
+        {/* Deslizador */}
+        <div style={{ width: "100%" }}>
+          <div style={{ position: "relative" }}>
+            <input className="se-range" type="range" min={d.min} max={d.max} step={d.step} value={val}
+              disabled={shown}
+              onChange={(e) => setVal(parseFloat(e.target.value))} />
+            {shown && (
+              <div style={{ position: "absolute", left: `${ansPct}%`, top: -9, transform: "translateX(-50%)", pointerEvents: "none" }}>
+                <div style={{ width: 4, height: 34, borderRadius: 2, background: "#2ecc71", boxShadow: "0 0 10px rgba(46,204,113,0.9)" }} />
+              </div>
+            )}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontFamily: "var(--ed-font-mono)", fontSize: 11, color: "#bfe4ff" }}>
+            <span>{seFmt(d.min, d.dec)}{d.unit}</span>
+            <span>{seFmt(d.max, d.dec)}{d.unit}</span>
+          </div>
+        </div>
+
+        {/* Reveal (solo tras verificar) */}
+        {shown && (
+          <div className="ed-checkPop" style={{ width: "100%", background: "rgba(10,6,35,0.9)", border: `2px solid ${ok ? "#2ecc71" : "#e74c3c"}`, borderRadius: 14, padding: "11px 14px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: ok ? "#6ef0a8" : "#ff9b9b", marginBottom: 3 }}>
+              {ok ? "¡Muy cerca! Es" : "El dato real es"} <span style={{ color: "#fff" }}>{seFmt(d.ans, d.dec)}{d.unit}</span>
+            </div>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, color: "#bfe4ff", lineHeight: 1.35 }}>{d.nota}</div>
+          </div>
+        )}
+      </>
+    </SEShell>
+  );
+}
+
+// ── RONDA 2 · "Mitos y datos" (V/F contrarreloj con racha) ──
+// Banco TEXTUAL de la actividad 3 del libro (ya viene con su V/F resuelto).
+const SE_MITOS = [
+  { id: "m1", txt: "Trabajar por la calidad del sistema educativo en el Ecuador es un objetivo prioritario.", v: true,
+    nota: "Es un objetivo prioritario y una política de Estado." },
+  { id: "m2", txt: "Las instituciones educativas no están llamadas a mejorar la educación que ofrecen.", v: false,
+    nota: "Sí lo están: se les ha hecho un llamado a crear los cambios oportunos." },
+  { id: "m3", txt: "El gasto público en educación debe crecer un 0,5 % del PIB anualmente.", v: true,
+    nota: "Lo manda la Constitución, hasta llegar a un mínimo del 6 %." },
+  { id: "m4", txt: "Constitucionalmente, el gasto público en educación no tiene un objetivo mínimo.", v: false,
+    nota: "Sí lo tiene: un mínimo del 6 % del PIB." },
+  { id: "m5", txt: "Ecuador es considerado un país con una baja inversión por estudiante.", v: true,
+    nota: "Así se lo considera en el ámbito internacional." },
+  { id: "m6", txt: "Las obligaciones burocráticas y administrativas son prioritarias en la educación.", v: false,
+    nota: "Se debe priorizar el aprendizaje por sobre las obligaciones burocráticas." },
+  { id: "m7", txt: "Es necesario financiar la entrega de mayores recursos al sistema educativo.", v: true,
+    nota: "Es una de las necesidades que se deben atender." },
+  { id: "m8", txt: "Se debe adaptar el currículo nacional a las distintas realidades de todo el país.", v: true,
+    nota: "El país tiene realidades muy distintas; el currículo debe adaptarse." },
+];
+const SE_MITOS_KEY = "edinun_juego4_se_mitos_recientes_v1";
+const SE_MITOS_POR_PARTIDA = 1;   // 1 sola afirmación por ronda
+const SE_MITOS_CAP = 4;
+const SE_MITO_SEGS = 12;
+
+function MitosDatosRound({ app, setApp, go, ronda, startedAt, onDone, onRestart }) {
+  const initRef = useRefG(null);
+  if (!initRef.current) initRef.current = sePickRecent(SE_MITOS, SE_MITOS_POR_PARTIDA, SE_MITOS_KEY, SE_MITOS_CAP);
+  const mitos = initRef.current;
+
+  const [i, setI] = useStateG(0);
+  const [answered, setAnswered] = useStateG(null);   // null · true(V) · false(F) · "timeout"
+  const [left, setLeft] = useStateG(SE_MITO_SEGS);
+  const logRef = useRefG([]);
+  const firstDone = useRefG(false);
+  const m = mitos[i];
+
+  function responder(elige) {   // true=VERDADERO · false=FALSO · null=se acabó el tiempo
+    if (answered !== null) return;
+    if (!firstDone.current) { firstDone.current = true; if (typeof markFirstAttempt === "function") markFirstAttempt(); }
+    const ok = elige !== null && elige === m.v;
+    logRef.current.push({
+      id: m.id, label: m.txt, emoji: "⏱️",
+      binLabel: elige === null ? "se acabó el tiempo" : (elige ? "Verdadero" : "Falso"),
+      ok,
+    });
+    setAnswered(elige === null ? "timeout" : elige);
+  }
+  function siguiente() {
+    if (i + 1 < mitos.length) { setI(i + 1); setAnswered(null); }
+    else onDone(logRef.current.slice());
+  }
+
+  // Cuenta atrás: sólo corre mientras no haya respondido.
+  useEffectG(() => {
+    if (answered !== null) return undefined;
+    setLeft(SE_MITO_SEGS);
+    const t0 = Date.now();
+    const id = setInterval(() => {
+      const rest = SE_MITO_SEGS - Math.floor((Date.now() - t0) / 1000);
+      if (rest <= 0) { clearInterval(id); setLeft(0); responder(null); }
+      else setLeft(rest);
+    }, 200);
+    return () => clearInterval(id);
+  }, [i, answered]);
+
+  // Tras responder, avanza solo (más tiempo si falló: hay que leer el dato real).
+  useEffectG(() => {
+    if (answered === null) return undefined;
+    const last = logRef.current[logRef.current.length - 1];
+    const t = setTimeout(siguiente, last && last.ok ? 1300 : 2600);
+    return () => clearTimeout(t);
+  }, [answered]);
+
+  const last = logRef.current[logRef.current.length - 1];
+  const ok = !!(answered !== null && last && last.ok);
+  const urgente = left <= 3 && answered === null;
+
+  return (
+    <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart}
+      enunciado="Mito o dato" enunciadoG="¿Verdadero o falso?"
+      // §2: el bocadillo se encoge al renglón más largo → se corta con <br /> a mano,
+      // si no se estira hasta 210 y se monta sobre la tarjeta de la mecánica.
+      bocadillo={<>Toca antes de que<br />acabe el tiempo.</>}
+      actions={null}
+    >
+      {/* La banda y el enunciado los pone SEShell. La cuenta atrás es de la MECÁNICA
+          y va aquí; el HUD lleva las pills fijas ⏱ (tiempo total) y ⭐ del estándar. */}
+      <>
+      {/* Afirmación */}
+      <div style={{ width: "100%" }}>
+        <div style={{ background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "20px 22px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)" }}>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#1a1030", lineHeight: 1.32 }}>“{m.txt}”</div>
+        </div>
+      </div>
+
+      {/* Cuenta atrás de la ronda */}
+      <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(0,0,0,0.4)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.15)" }}>
+          <div style={{ height: "100%", width: `${(left / SE_MITO_SEGS) * 100}%`, background: urgente ? "linear-gradient(90deg,#ff9b9b,#e74c3c)" : "linear-gradient(90deg,#7ec8ff,#2a7fd7)", transition: "width 0.2s linear" }} />
+        </div>
+        <span style={{ fontFamily: "var(--ed-font-mono)", fontSize: 13, color: urgente ? "#ff9b9b" : "#bfe4ff", minWidth: 30, textAlign: "right" }}>{left}s</span>
+      </div>
+
+      {/* Botones V / F */}
+      <div style={{ width: "100%", display: "flex", gap: 16, justifyContent: "center" }}>
+        <button onClick={() => responder(true)} disabled={answered !== null}
+          style={{ flex: 1, maxWidth: 185, height: 66, borderRadius: 16, border: "none", cursor: answered === null ? "pointer" : "default",
+            background: "linear-gradient(180deg,#7ff0b0,#25a35f)", color: "#05341c",
+            fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, letterSpacing: "0.04em",
+            opacity: answered === null || answered === true ? 1 : 0.45,
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -3px 0 rgba(0,0,0,0.2), 0 7px 16px -4px rgba(0,0,0,0.5)" }}>
+          VERDADERO
+        </button>
+        <button onClick={() => responder(false)} disabled={answered !== null}
+          style={{ flex: 1, maxWidth: 185, height: 66, borderRadius: 16, border: "none", cursor: answered === null ? "pointer" : "default",
+            background: "linear-gradient(180deg,#ff9d9d,#d63c3c)", color: "#3d0505",
+            fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, letterSpacing: "0.04em",
+            opacity: answered === null || answered === false ? 1 : 0.45,
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -3px 0 rgba(0,0,0,0.2), 0 7px 16px -4px rgba(0,0,0,0.5)" }}>
+          FALSO
+        </button>
+      </div>
+
+      {/* Resultado + dato real */}
+      {answered !== null && (
+        <div className="ed-checkPop" style={{ width: "100%", background: "rgba(10,6,35,0.92)", border: `2px solid ${ok ? "#2ecc71" : "#e74c3c"}`, borderRadius: 14, padding: "10px 14px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: ok ? "#6ef0a8" : "#ff9b9b", marginBottom: 3 }}>
+            {ok ? "✓ ¡Correcto!" : answered === "timeout" ? "✗ Se acabó el tiempo" : "✗ No era así"}
+            <span style={{ color: "#fff", marginLeft: 6 }}>Es {m.v ? "VERDADERO" : "FALSO"}.</span>
+          </div>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, color: "#bfe4ff", lineHeight: 1.35 }}>{m.nota}</div>
+        </div>
+      )}
+      </>
+    </SEShell>
+  );
+}
+
+// ── RONDA 3 · "Completa el titular" (arrastrar palabras, con trampas) ──
+// Frases TEXTUALES del libro (actividad 1 + párrafos de "Construcción del aprendizaje").
+// `partes` tiene siempre un elemento MÁS que `sol`: el hueco k va tras la parte k.
+const SE_FRASES = [
+  { id: "f1",
+    partes: ["La educación es un ", ", esto es resultado de ", " que se dieron durante las décadas 1970-1990, en que el acceso a la educación era ", "."],
+    sol: ["derecho", "luchas sociales", "limitado"],
+    trampas: ["privilegio", "acuerdos", "accesible"] },
+  { id: "f2",
+    partes: ["El gasto público en educación debe crecer un ", " del PIB anualmente, hasta llegar a un mínimo del ", "."],
+    sol: ["0,5 %", "6 %"],
+    trampas: ["5,3 %", "3,98 %"] },
+  { id: "f3",
+    partes: ["Ecuador es considerado un país con una ", " inversión por estudiante."],
+    sol: ["baja"],
+    trampas: ["alta", "media"] },
+  { id: "f4",
+    partes: ["Se debe adaptar el ", " nacional a las distintas ", " de todo el país."],
+    sol: ["currículo", "realidades"],
+    trampas: ["presupuesto", "obligaciones"] },
+  { id: "f5",
+    partes: ["Según la UNESCO, la educación hace posible sacar a las personas de la ", " y superar las ", "."],
+    sol: ["pobreza", "desigualdades"],
+    trampas: ["burocracia", "competencias"] },
+];
+const SE_FRASES_KEY = "edinun_juego4_se_frases_recientes_v1";
+const SE_HUECO_PAD = 22;
+
+function SEWord({ txt, onPointerDown, dim, ghost }) {
+  return (
+    <span onPointerDown={onPointerDown}
+      style={{ display: "inline-block", background: "linear-gradient(180deg,#ffffff,#e0e7f2)",
+        border: "2px solid rgba(255,255,255,0.9)", borderRadius: 10, padding: "5px 11px",
+        fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#1a1030",
+        boxShadow: ghost ? "0 10px 18px rgba(0,0,0,0.45)" : "0 4px 9px rgba(0,0,0,0.3)",
+        cursor: onPointerDown ? "grab" : "default", touchAction: "none", whiteSpace: "nowrap",
+        opacity: dim ? 0.28 : 1, userSelect: "none" }}>
+      {txt}
+    </span>
+  );
+}
+
+function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRestart }) {
+  const rootRef = useRefG(null);
+  const blankRefs = useRefG([]);
+
+  const initRef = useRefG(null);
+  if (!initRef.current) {
+    const f = sePickRecent(SE_FRASES, 1, SE_FRASES_KEY, 3)[0];
+    initRef.current = { f, words: shuffle(f.sol.concat(f.trampas).map((w, k) => ({ id: "w" + k, txt: w }))) };
+  }
+  const { f, words } = initRef.current;
+  const nHuecos = f.sol.length;
+
+  const [filled, setFilled] = useStateG({});     // hueco -> wordId
+  const [dragId, setDragId] = useStateG(null);
+  const [dragXY, setDragXY] = useStateG({ x: 0, y: 0 });
+  const [verdict, setVerdict] = useStateG(null); // hueco -> 'ok' | 'wrong'
+  const dragRef = useRefG(null);
+  const firstDone = useRefG(false);
+
+  function wordById(id) { for (let k = 0; k < words.length; k++) if (words[k].id === id) return words[k]; return null; }
+  const usados = Object.keys(filled).map((k) => filled[k]);
+
+  function startDrag(e, id, fromHueco) {
+    if (verdict) return;
+    if (!firstDone.current) { firstDone.current = true; if (typeof markFirstAttempt === "function") markFirstAttempt(); }
+    if (fromHueco != null) setFilled((prev) => { const n = Object.assign({}, prev); delete n[fromHueco]; return n; });
+    const root = rootRef.current; if (!root) return;
+    const rr = root.getBoundingClientRect();
+    const scale = rr.width / 900 || 1;
+    dragRef.current = { id, rr, scale };
+    setDragId(id);
+    setDragXY({ x: (e.clientX - rr.left) / scale, y: (e.clientY - rr.top) / scale });
+  }
+
+  // Los listeners van en window (no en la palabra): al sacarla de un hueco su nodo se
+  // desmonta y se perdería el pointer capture a media arrastrada.
+  useEffectG(() => {
+    if (!dragId) return undefined;
+    function mv(e) {
+      const d = dragRef.current; if (!d) return;
+      setDragXY({ x: (e.clientX - d.rr.left) / d.scale, y: (e.clientY - d.rr.top) / d.scale });
+    }
+    function up(e) {
+      const d = dragRef.current; if (!d) { setDragId(null); return; }
+      dragRef.current = null; setDragId(null);
+      let hit = -1;
+      for (let k = 0; k < nHuecos; k++) {
+        const el = blankRefs.current[k]; if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (e.clientX >= r.left - SE_HUECO_PAD && e.clientX <= r.right + SE_HUECO_PAD &&
+            e.clientY >= r.top - SE_HUECO_PAD && e.clientY <= r.bottom + SE_HUECO_PAD) { hit = k; break; }
+      }
+      // Si el hueco ya tenía palabra, esa vuelve sola a la bandeja (deja de estar en `filled`).
+      if (hit !== -1) setFilled((prev) => Object.assign({}, prev, { [hit]: d.id }));
+    }
+    window.addEventListener("pointermove", mv);
+    window.addEventListener("pointerup", up);
+    return () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); };
+  }, [dragId]);
+
+  const completo = Object.keys(filled).length === nHuecos;
+
+  function verificar() {
+    if (!completo || verdict) return;
+    const vd = {}; const entries = [];
+    for (let k = 0; k < nHuecos; k++) {
+      const w = wordById(filled[k]);
+      const ok = !!(w && w.txt === f.sol[k]);
+      vd[k] = ok ? "ok" : "wrong";
+      entries.push({ id: f.id + "-" + k, label: `Hueco ${k + 1} del titular`, emoji: "🧩",
+        binLabel: `pusiste “${w ? w.txt : "—"}” · va “${f.sol[k]}”`, ok });
+    }
+    setVerdict(vd);
+    setTimeout(() => onDone(entries), 3200);   // deja leer el reveal
+  }
+
+  return (
+    <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart} rootRef={rootRef}
+      enunciado="Completa el titular." enunciadoG=""
+      bocadillo={<>Arrastra las palabras<br />a los huecos.</>}
+      overlay={dragId ? (() => {
+        const w = wordById(dragId); if (!w) return null;
+        return (
+          <div style={{ position: "absolute", left: dragXY.x, top: dragXY.y, transform: "translate(-50%,-50%) scale(1.06)", zIndex: 60, pointerEvents: "none" }}>
+            <SEWord txt={w.txt} ghost />
+          </div>
+        );
+      })() : null}
+      actions={
+        <button className="ed-btn ed-btn-verify" onClick={verificar} disabled={!completo || !!verdict}
+          style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: (completo && !verdict) ? 1 : 0.5, cursor: (completo && !verdict) ? "pointer" : "not-allowed" }}>
+          ¡VERIFICAR!
+        </button>
+      }
+    >
+      {/* La banda y el enunciado los pone SEShell. */}
+      <>
+      {/* Frase con huecos */}
+      <div style={{ width: "100%" }}>
+        <div style={{ background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "20px 22px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#1a1030", lineHeight: 2.1 }}>
+          {f.partes.map((p, k) => (
+            <React.Fragment key={k}>
+              <span>{p}</span>
+              {k < nHuecos && (
+                <span ref={(el) => { blankRefs.current[k] = el; }}
+                  style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    minWidth: 128, height: 34, margin: "0 4px", verticalAlign: "middle", borderRadius: 9,
+                    border: verdict ? `2px solid ${verdict[k] === "ok" ? "#2ecc71" : "#e74c3c"}` : "2px dashed #9b7be8",
+                    background: filled[k] ? "transparent" : "rgba(155,123,232,0.10)" }}>
+                  {filled[k] ? (
+                    <SEWord txt={(wordById(filled[k]) || {}).txt}
+                      onPointerDown={verdict ? null : (e) => startDrag(e, filled[k], k)}
+                      dim={dragId === filled[k]} />
+                  ) : null}
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Bandeja de palabras */}
+      <div style={{ width: "100%", display: "flex", flexWrap: "wrap", gap: 9, justifyContent: "center" }}>
+        {words.map((w) => (
+          usados.indexOf(w.id) !== -1 ? null : (
+            <SEWord key={w.id} txt={w.txt} dim={dragId === w.id}
+              onPointerDown={verdict ? null : (e) => startDrag(e, w.id, null)} />
+          )
+        ))}
+      </div>
+
+      {/* Reveal: se dejan las palabras que puso el niño y se muestran las correctas */}
+      {verdict && (
+        <div className="ed-checkPop" style={{ width: "100%", background: "rgba(10,6,35,0.92)", border: "2px solid #2ecc71", borderRadius: 14, padding: "10px 14px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#8affcf", letterSpacing: "0.04em", marginBottom: 4 }}>✓ LAS CORRECTAS ERAN</div>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: "#fff", lineHeight: 1.4 }}>
+            {f.sol.join("  ·  ")}
+          </div>
+        </div>
+      )}
+      </>
+    </SEShell>
+  );
+}
+
+// ── Controlador: encadena las rondas y arma el reporte combinado ──
+// Añadir una ronda = sumar su componente a SE_ROUNDS (recibe {app,setApp,go,ronda,onDone,onRestart}
+// y llama onDone(entries) al terminar). La `key` incluye la ronda → cada una remonta limpia.
+const SE_ROUNDS = [AdivinaDatoRound, MitosDatosRound, CompletaTitularRound];
+
+function Tema3Controller({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const [ronda, setRonda] = useStateG(0);
+  const [nonce, setNonce] = useStateG(0);   // fuerza remontaje al reiniciar
+  const [banner, setBanner] = useStateG(null);
+  const [bannerMsg, setBannerMsg] = useStateG("");
+  const accRef = useRefG([]);
+  const started = useRefG(Date.now());
+
+  function restart() {
+    accRef.current = []; started.current = Date.now();
+    setBanner(null); setBannerMsg("");
+    setApp((s) => ({ ...s, stars: 0 }));
+    setRonda(0); setNonce((n) => n + 1);
+  }
+  function finish(entries) {
+    accRef.current = accRef.current.concat(entries || []);
+    // La pill ⭐ del HUD lee app.stars → se actualiza al cerrar cada ronda.
+    setApp((s) => ({ ...s, stars: accRef.current.filter((e) => e.ok).length }));
+    if (ronda < SE_ROUNDS.length - 1) { setRonda(ronda + 1); return; }
+
+    const log = accRef.current.map((e, k) => Object.assign({}, e, { idx: k + 1 }));
+    const aciertos = log.filter((e) => e.ok).length;
+    // Completar el tema cuenta como éxito aunque haya errores (invariante EDINUN):
+    // el cartel celebra si sacó al menos la mitad; si no, anima sin quitar lo ganado.
+    const bien = aciertos * 2 >= log.length;
+    setBanner(bien ? "ok" : "err");
+    setBannerMsg(bien ? `+${aciertos} ⭐` : ANIMOS[Math.floor(Math.random() * ANIMOS.length)]);
+    setTimeout(() => {
+      setBanner(null); setBannerMsg("");
+      setApp((s) => ({
+        ...s,
+        lastResult: {
+          category: "Sistema educativo", cols: ["Actividad", "Tu respuesta"], themeEmoji: "🎓",
+          praise: "¡ahora conoces el sistema educativo que te toca defender!",
+          solved: aciertos, total: log.length,
+          time: Math.floor((Date.now() - started.current) / 1000),
+          starsEarned: aciertos, log, success: true,
+        },
+      }));
+      if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+      go("results");
+    }, 1800);
+  }
+
+  const Comp = SE_ROUNDS[ronda] || SE_ROUNDS[0];
+  return (
+    <>
+      <Comp key={`r${ronda}-${nonce}`} app={app} setApp={setApp} go={go} ronda={ronda} startedAt={started.current} onDone={finish} onRestart={restart} />
+      {banner && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: banner === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor", textAlign: "center" }}>
+              {banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}
+            </div>
+            {bannerMsg && (
+              <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: banner === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>
+                {banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}
+              </div>
+            )}
+          </div>
+        </PortalToBody>
+      )}
+    </>
   );
 }
 
@@ -1282,9 +2360,13 @@ function ResultsScreen({ app, setApp, go }) {
   );
 }
 
-// GameScreen: por ahora el juego tiene un solo tema activo (Tema 1 = ORDENAR).
-// Cuando se agreguen los temas 2 y 3, este dispatcher elegirá por app.currentCategory.
+// GameScreen: despacha la mecánica según el tema elegido (app.currentCategory).
+//   "convivencia"      → Tema 2 (CLASIFICAR)
+//   "sistemaeducativo" → Tema 3 (3 rondas encadenadas, 13 años)
+//   resto              → Tema 1 (ORDENAR)
 function GameScreen(props) {
+  if (props.app.currentCategory === "convivencia") return <ClasificaGame {...props} />;
+  if (props.app.currentCategory === "sistemaeducativo") return <Tema3Controller {...props} />;
   return <OrdenarGame {...props} />;
 }
 

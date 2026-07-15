@@ -13,6 +13,18 @@ description: >-
 
 # edinun-game-builder
 
+> ## 🛑 ANTES DE GENERAR NADA
+>
+> 1. **Lee `## Errores aprendidos`** (al final de este archivo) y respeta TODAS las
+>    reglas acumuladas. No es opcional: son errores ya cometidos y ya pagados por la
+>    autora.
+> 2. **Lee `references/estandar-visual.md`** — es la especificación normativa, no
+>    contexto de apoyo.
+> 3. **Si algo no está especificado, NO lo inventes**: búscalo en el último juego
+>    terminado o pregúntale a la autora.
+> 4. Antes de entregar: `format-lint.js` y `qa-visual.js` en verde — y recuerda que
+>    **verde ≠ conforme** (el lint solo mide lo medible).
+
 Skill de orquestación para `edinun-sociales`. Garantiza tres cosas que es fácil
 romper trabajando juego por juego:
 
@@ -122,3 +134,61 @@ al heredar juegos o antes de publicar). Ver `references/estandar-visual.md` §7.
 - Recordar borrar `visits.txt` antes de subir a producción (`.gitignore` ya lo
   excluye de git).
 - Actualizar `CHECK-JUEGOS.md` y `MEMORY.md` si corresponde.
+
+---
+
+## Errores aprendidos
+
+> **Lectura OBLIGATORIA antes de generar o editar cualquier juego.** Cada regla nació
+> de un error real que la autora tuvo que cazar a mano. Respetarlas todas, siempre.
+
+### Protocolo de aprendizaje (acordado con la autora, 2026-07-15)
+
+Cuando la autora escriba la frase exacta **«te equivocaste en esto:»** seguida de la
+descripción del error, hay que:
+
+1. **Identificar la causa RAÍZ** del error, no el síntoma. Si algo no queda claro,
+   **preguntarle**.
+2. **Formular una regla correctiva** en lenguaje imperativo y **verificable**
+   ("SIEMPRE validar X antes de generar Y" / "NUNCA usar Z en el caso W").
+3. **Registrarla en esta sección**, con **fecha** y un **ejemplo del error** que dé
+   contexto.
+4. **Confirmarle qué regla se añadió y dónde**, para que pueda validarla.
+
+A partir de ese momento, **cada vez que se use la skill hay que revisar esta sección y
+respetar todas las reglas acumuladas antes de generar cualquier juego.**
+
+> **Cláusula añadida (validar con la autora):** si la regla es **verificable por
+> código**, añadir además el check a `juegos/_PLANTILLA/.planning/format-lint.js` —
+> y **probarlo rompiendo el juego a propósito** hasta verlo fallar. Una regla que solo
+> vive en un documento depende de que alguien la recuerde; una en el lint, no.
+
+### 2026-07-15 — Tanda inicial (juego-4, Temas 1-3)
+
+Causa raíz común de casi todas: **se construyó "razonando" cada pantalla en vez de
+leer `references/estandar-visual.md`**, y los huecos de especificación se rellenaron
+inventando UI que "parecía razonable".
+
+| # | Regla (imperativa y verificable) | Error real que la originó |
+|:-:|---|---|
+| 1 | **SIEMPRE leer `references/estandar-visual.md` ANTES de escribir la primera pantalla.** Es normativo. | Se hizo el Tema 3 entero sin abrirlo → 6 desviaciones seguidas. |
+| 2 | **NUNCA inventar UI que no esté en el estándar** (contadores, marcadores, rótulos, botones). Si falta especificación: buscar en el último juego terminado o **preguntar**. | Se inventaron "Dato 1 de 3", "0 / 3", "1/5" y una "racha". La autora: *"¿de dónde sacas eso? no te inventes"*. |
+| 3 | **El ENUNCIADO dice QUÉ hacer; el BOCADILLO dice CÓMO hacerlo. NUNCA invertirlos.** Si el verbo de manipulación (arrastra/toca/une) está en el enunciado, está mal. | Enunciado: *"…Arrastra cada acción a su caja"* (el CÓMO) + bocadillo: *"¿Cómo tratas a tus amigos?"* (temático). Ver `memory/aprendizajes-de-diseno.md` §11. |
+| 4 | **NUNCA poner un botón para avanzar de ronda: el avance es AUTOMÁTICO (§6).** El único botón primario permitido es **¡VERIFICAR!**. | Se inventaron "CONFIRMAR" y "SIGUIENTE →". → Chequeado por `format-lint.js`. |
+| 5 | **El gradiente del botón de tema va por POSICIÓN, NUNCA por temática** (1º naranja · 2º amarillo · 3º azul · 4º violeta). | Tema 2 en **verde** "porque pegaba con Amigos y compañeros"; juego-3 en amarillo/azul. → Chequeado por `format-lint.js`. |
+| 6 | **El bloque "Ronda" va SIEMPRE en `top:52`, `ed-label` fontSize 11, dots 11×11** (§1.1). No inventar formato propio. | Se puso en `top:74` con dots 7×7. → Chequeado por `format-lint.js`. |
+| 7 | **SIEMPRE cortar el bocadillo con `<br />`** para que el renglón más largo sea corto (§2). | *"Toca antes de que acabe el tiempo."* se estiraba a 210px y se montaba sobre la tarjeta. |
+| 8 | **Una ronda = UNA jugada.** NUNCA repetir la actividad N veces dentro de la ronda; la variedad la da el **banco + anti-repetición**. | R1 con 3 datos y R2 con 5 afirmaciones. La autora: *"es solo 1 juego, no 3 veces"*. |
+| 9 | **SIEMPRE ajustar el registro visual a la EDAD.** Lo de 6 años (3D cartoon, estrellitas) no sirve para 13. Mirar cómo lo resuelve el libro. | Se propusieron dibujos 3D infantiles para el tema de 13 años. El libro usa fotos ahí. |
+| 10 | **NUNCA inventar cifras ni datos.** Es material escolar. Los bancos salen **textuales del libro**; para ampliarlos, pedirle material a la autora. | (Regla preventiva: se respetó, pero es la de mayor riesgo del repo.) |
+| 11 | **Cada ítem de un banco debe entenderse SOLO.** El banco se baraja: no puede referirse a otro ítem. | *"¿En qué año se alcanzó **ese máximo**?"* salió primera, sin antecedente. |
+| 12 | **Al fallar, revelar la correcta en el MISMO lenguaje visual de la mecánica.** Un emoji suelto no comunica si las fichas son ilustraciones. | Reveal *"Va: 🧘"* bajo tarjetas con dibujos. Se cambió a mini-tarjeta con la ilustración real + nombre. |
+| 13 | **NUNCA declarar "verificado" sin cubrir las RAMAS del banco** (ítems de forma distinta: 1/2/3 huecos, etc.). Forzar cada variante sembrando la clave de anti-repetición en `localStorage`. | Se dijo "verificado" tras probar por azar solo la frase de 1 hueco. La autora: *"¿estás seguro?"*. |
+| 14 | **Al escribir un lint/guard, probarlo ROMPIENDO el código a propósito hasta verlo fallar.** | El primer check de rótulos no cazaba nada (cortaba en el primer `>`, y las arrow `() =>` metían basura), y el test era un `sed` que no cambiaba nada. |
+
+#### Prompts de imagen (aprendido con la autora)
+
+| # | Regla | Error real |
+|:-:|---|---|
+| 15 | **NUNCA usar marcas en los prompts** ("Pixar", "Disney"): el generador de la autora **da error**. Usar descripción genérica del estilo. | `Pixar / Disney-Pixar animation style` → error. |
+| 16 | **Para acciones/valores, pedir MINI-ESCENA con fondo y 2 personajes interactuando**, no figura suelta. **SIEMPRE** añadir `no text, no letters, no numbers`. | *"A single young child standing patiently…"* → la autora: *"no me dice nada"*. Con escena y contexto sí se entendió. |

@@ -1,14 +1,17 @@
-# CLAUDE.md — juego-3 "Cuido mi entorno" (Estudios Sociales)
+# CLAUDE.md — juego-3 "Cuido mi planeta" (Estudios Sociales)
 
 ## Project
 
-**Juego: Cuido mi entorno.** Carpeta autocontenida del repo multi-juego
+**Juego: Cuido mi planeta.** Carpeta autocontenida del repo multi-juego
 `edinun-sociales` (Estudios Sociales). Juego **multi-tema** sobre el cuidado del
 ambiente, con personaje guía **Sisa**. Tiene **2 temas** seleccionables desde el
 Home (chips de cambio de tema arriba en la pantalla de juego):
 
-- **Tema 1 — "Clasifica la basura"** (audiencia **6**): arrastrar 6 residuos a 3
-  tachos (amarillo/azul/café) y presionar **VERIFICAR**. 1 sola ronda.
+> **Renombrado el 2026-07-15:** el juego se llamaba "Cuido mi entorno"; ese nombre
+> pasó a ser el **Tema 1** y el juego tomó un título paraguas que cubre los 2 temas.
+
+- **Tema 1 — "Cuido mi entorno"** (`id: reciclaje`, audiencia **6**): arrastrar 6
+  residuos a 3 tachos (amarillo/azul/café) y presionar **VERIFICAR**. 1 sola ronda.
 - **Tema 2 — "Cambio climático"** (audiencia **9**): **3 rondas encadenadas con
   mecánicas distintas** que terminan en un reporte combinado.
 
@@ -63,7 +66,7 @@ Invariantes:
 
 ### Mecánicas (`game-screens.jsx`)
 
-**Tema 1 — `BasuraGame` (arrastrar + VERIFICAR):** 6 residuos en la bandeja se
+**Tema 1 "Cuido mi entorno" — `BasuraGame` (arrastrar + VERIFICAR):** 6 residuos en la bandeja se
 arrastran a 3 tachos. Al presionar VERIFICAR se muestra una **pantalla de
 verificación limpia ~3 s** (✓ en aciertos, ✗ + círculo rojo con ➜ señalando el
 tacho correcto en los errores, sin iluminar el tacho), y **luego** el overlay

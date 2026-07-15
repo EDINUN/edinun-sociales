@@ -111,14 +111,47 @@ con glow; dot actual = blanco translúcido; pendiente = gris tenue. (Si la mecá
 marca aciertos/fallos por ronda, el dot puede ir rojo al fallar como en J1; en
 juegos donde toda ronda lograda es éxito, todos los completados van dorados.)
 
-## 11. El enunciado dice la META, no un título genérico de la mecánica
+## 11. El enunciado dice QUÉ hacer · el bocadillo dice CÓMO hacerlo
 
-El texto grande y principal de la zona central es **lo que el niño debe hacer en
-ESTA ronda** (la meta concreta), no un título genérico de la mecánica. En J3 la
-autora quitó "Calienta y enfría el agua" (título genérico) y dejó solo
+**Regla dura, la autora la ha repetido varias veces. Reparto de roles:**
+
+| Elemento | Rol | Ejemplo (J4·T1) |
+|---|---|---|
+| **Enunciado** (texto grande, centro) | **QUÉ** hacer / la meta de ESTA ronda | "¿Qué hago en un sismo? **Ordena del 1 al 3.**" |
+| **Bocadillo** del guía | **CÓMO** hacerlo (la manipulación) | "Arrastra las tarjetas." |
+
+El enunciado NO es un título genérico de la mecánica y **NO lleva el "cómo"**. En
+J3 la autora quitó "Calienta y enfría el agua" (título genérico) y dejó solo
 **"Convierte el agua en 🧊 Sólido"** (meta clara, con el estado destacado en
-dorado, cambiando por ronda). El "cómo" (la mecánica) ya lo comunican el bocadillo
-del guía y los botones; el enunciado es el "qué lograr".
+dorado, cambiando por ronda).
+
+**Error cometido en J4·T2 (2026-07-15):** se escribió el enunciado
+"¿Está bien o no está bien? *Arrastra cada acción a su caja*" (metía el CÓMO) y el
+bocadillo "¿Cómo tratas a tus amigos?" (una pregunta temática, no el CÓMO) →
+**invertidos**. Corregido a: enunciado "¿Está bien o no está bien? **Separa cada
+acción.**" + bocadillo "Arrastra las tarjetas a su caja."
+
+→ **Checklist al crear/editar una mecánica:** leer el enunciado y preguntarse "¿esto
+dice QUÉ lograr?"; leer el bocadillo y preguntarse "¿esto dice CÓMO se juega?".
+Si el verbo de manipulación (arrastra/toca/une) está en el enunciado, está mal.
+
+## 11-bis. `ed-checkPop` + `transform:translate()` en el MISMO div = descentrado
+
+Un elemento que se posiciona con `transform: translate(-50%,-50%)` **no puede**
+llevar además `className="ed-checkPop"`: el keyframe `edCheckPop` anima
+`transform: scale(...)` y **pisa** al translate durante los 0.34 s de la animación
+→ el elemento aparece **corrido** y luego salta a su sitio. Pasa igual con
+cualquier clase de animación que toque `transform`.
+
+**Patrón correcto — separar responsabilidades:**
+```jsx
+<div style={{ position:"absolute", left:450, top:245, transform:"translate(-50%,-50%)" }}>
+  <div className="ed-checkPop"> …contenido… </div>
+</div>
+```
+(Detectado en J4·T2 2026-07-15 gracias a una **captura de Playwright**; estaba
+latente en 3 sitios. Los badges ✓/✗ que se posicionan con `top/right` **sin**
+transform no sufren el bug.)
 
 ## 12. El orden/selección se baraja en cada carga (anti-repetición)
 
