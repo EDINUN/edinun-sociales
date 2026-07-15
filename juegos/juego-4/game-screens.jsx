@@ -1285,13 +1285,18 @@ const SE_FRASES = [
 const SE_FRASES_KEY = "edinun_juego4_se_frases_recientes_v1";
 const SE_HUECO_PAD = 22;
 
-function SEWord({ txt, onPointerDown, dim, ghost }) {
+// Paleta de opciones YA EXISTENTE en el repo (juego-3 · OPTION_COLORS). El patrón del
+// ecosistema es: el color distingue por el BORDE, con fondo crema y tinta oscura.
+// NO inventar colores nuevos: si hacen falta más, se acuerdan con la autora.
+const SE_OPT_COLORS = ["#ef5a5a", "#4fa0ff", "#2ecc8f"];
+
+function SEWord({ txt, onPointerDown, dim, ghost, color }) {
   return (
     <span onPointerDown={onPointerDown}
-      style={{ display: "inline-block", background: "linear-gradient(180deg,#ffffff,#e0e7f2)",
-        border: "2px solid rgba(255,255,255,0.9)", borderRadius: 10, padding: "5px 11px",
-        fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#1a1030",
-        boxShadow: ghost ? "0 10px 18px rgba(0,0,0,0.45)" : "0 4px 9px rgba(0,0,0,0.3)",
+      style={{ display: "inline-block", background: "linear-gradient(180deg, #fff8e6 0%, #f7e3a8 100%)",
+        border: `2px solid ${color || "#d9a441"}`, borderRadius: 10, padding: "5px 11px",
+        fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#3a2608",
+        boxShadow: ghost ? "0 10px 18px rgba(0,0,0,0.45)" : "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 9px rgba(0,0,0,0.3)",
         cursor: onPointerDown ? "grab" : "default", touchAction: "none", whiteSpace: "nowrap",
         opacity: dim ? 0.28 : 1, userSelect: "none" }}>
       {txt}
@@ -1319,6 +1324,11 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
   const firstDone = useRefG(false);
 
   function wordById(id) { for (let k = 0; k < words.length; k++) if (words[k].id === id) return words[k]; return null; }
+  // Color por posición en la bandeja (rota la paleta del repo, igual que juego-3).
+  function wordColor(id) {
+    for (let k = 0; k < words.length; k++) if (words[k].id === id) return SE_OPT_COLORS[k % SE_OPT_COLORS.length];
+    return SE_OPT_COLORS[0];
+  }
   const usados = Object.keys(filled).map((k) => filled[k]);
 
   function startDrag(e, id, fromHueco) {
@@ -1383,7 +1393,7 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
         const w = wordById(dragId); if (!w) return null;
         return (
           <div style={{ position: "absolute", left: dragXY.x, top: dragXY.y, transform: "translate(-50%,-50%) scale(1.06)", zIndex: 60, pointerEvents: "none" }}>
-            <SEWord txt={w.txt} ghost />
+            <SEWord txt={w.txt} color={wordColor(w.id)} ghost />
           </div>
         );
       })() : null}
@@ -1403,13 +1413,15 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
             <React.Fragment key={k}>
               <span>{p}</span>
               {k < nHuecos && (
+                // Sin alto fijo: el cajón CRECE para contener la palabra (con `height:34`
+                // la ficha se le salía por arriba/abajo y por los lados).
                 <span ref={(el) => { blankRefs.current[k] = el; }}
                   style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    minWidth: 128, height: 34, margin: "0 4px", verticalAlign: "middle", borderRadius: 9,
+                    minWidth: 128, minHeight: 36, padding: 3, margin: "0 4px", verticalAlign: "middle", borderRadius: 11,
                     border: verdict ? `2px solid ${verdict[k] === "ok" ? "#2ecc71" : "#e74c3c"}` : "2px dashed #9b7be8",
                     background: filled[k] ? "transparent" : "rgba(155,123,232,0.10)" }}>
                   {filled[k] ? (
-                    <SEWord txt={(wordById(filled[k]) || {}).txt}
+                    <SEWord txt={(wordById(filled[k]) || {}).txt} color={wordColor(filled[k])}
                       onPointerDown={verdict ? null : (e) => startDrag(e, filled[k], k)}
                       dim={dragId === filled[k]} />
                   ) : null}
@@ -1424,7 +1436,7 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
       <div style={{ width: "100%", display: "flex", flexWrap: "wrap", gap: 9, justifyContent: "center" }}>
         {words.map((w) => (
           usados.indexOf(w.id) !== -1 ? null : (
-            <SEWord key={w.id} txt={w.txt} dim={dragId === w.id}
+            <SEWord key={w.id} txt={w.txt} color={wordColor(w.id)} dim={dragId === w.id}
               onPointerDown={verdict ? null : (e) => startDrag(e, w.id, null)} />
           )
         ))}
