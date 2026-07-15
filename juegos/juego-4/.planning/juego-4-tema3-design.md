@@ -33,7 +33,7 @@ Mismo criterio que el Reto 1 de juego-3 · Tema 2 (1 pregunta). La variedad la d
 
 | Ronda | Mecánica | Banco | Sale por partida |
 |:-:|---|---|:-:|
-| **1** | 🎯 **Adivina el dato** — deslizador, puntúa por **cercanía** (tolerancia por dato) | 7 datos | **1** |
+| **1** | 🎯 **Adivina el dato** — deslizador, puntuación **EXACTA** (hay que clavar la muesca) | 6 datos | **1** |
 | **2** | ⏱️ **Mitos y datos** — V/F contrarreloj (12 s); timeout = fallo | 8 afirmaciones | **1** |
 | **3** | 🧩 **Completa el titular** — arrastrar palabras a los huecos, con trampas | 5 frases | **1** |
 

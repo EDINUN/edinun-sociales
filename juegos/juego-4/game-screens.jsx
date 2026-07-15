@@ -848,27 +848,29 @@ function seTime(s) { const m = Math.floor(s / 60), r = s % 60; return `${String(
 // ── RONDA 1 · banco de datos (todos salen del libro) ──
 // ⚠ Cada pregunta debe entenderse SOLA: el banco se baraja, así que no puede referirse
 //   a otro dato ("ese máximo…") porque puede salir primera y quedar sin sentido.
+//
+// PUNTUACIÓN EXACTA (decisión de la autora): 2013 NO es acierto de 2014. Por eso todo
+// `ans` tiene que ser CLAVABLE con el `step` del deslizador. Se quitó del banco el
+// "3,98 % del PIB": con step 0,02 en un rango 0-10 son 500 posiciones y clavarlo
+// arrastrando es imposible → habría sido siempre fallo.
 const SE_DATOS = [
-  { id: "pib_actual", q: "¿Qué % del PIB invierte Ecuador en educación?",
-    min: 0, max: 10, step: 0.02, dec: 2, unit: " %", ans: 3.98, tol: 1,
-    nota: "Llegó a 5,3 % en 2014 y cayó a 3,98 % en 2021." },
   { id: "pib_minimo", q: "¿Qué mínimo del PIB para educación manda la Constitución?",
-    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 6, tol: 0.8,
+    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 6,
     nota: "La Constitución fija ese mínimo… y todavía no se alcanza." },
   { id: "pib_crece", q: "¿Cuánto debe crecer cada año el gasto en educación?",
-    min: 0, max: 2, step: 0.05, dec: 2, unit: " % del PIB", ans: 0.5, tol: 0.25,
+    min: 0, max: 2, step: 0.05, dec: 2, unit: " % del PIB", ans: 0.5,
     nota: "Es un mandato de la Constitución (disposición transitoria)." },
   { id: "pib_max", q: "¿Cuál fue la máxima inversión en educación que alcanzó Ecuador?",
-    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 5.3, tol: 0.8,
+    min: 0, max: 10, step: 0.1, dec: 1, unit: " %", ans: 5.3,
     nota: "Fue en 2014; desde ahí bajó hasta 3,98 % en 2021." },
   { id: "anio_max", q: "¿En qué año Ecuador alcanzó su máxima inversión en educación?",
-    min: 2000, max: 2024, step: 1, dec: 0, unit: "", ans: 2014, tol: 2,
+    min: 2000, max: 2024, step: 1, dec: 0, unit: "", ans: 2014,
     nota: "En 2014 el gasto llegó a 5,3 % del PIB." },
   { id: "horas", q: "En la zona rural de Azuay, ¿cuántas horas caminan los niños hasta su escuela?",
-    min: 0, max: 4, step: 0.5, dec: 1, unit: " h", ans: 2, tol: 0.5,
+    min: 0, max: 4, step: 0.5, dec: 1, unit: " h", ans: 2,
     nota: "Ese camino afecta su aprendizaje y su permanencia en la escuela." },
   { id: "decada", q: "¿En qué década empezaron las luchas por el derecho a la educación?",
-    min: 1950, max: 2010, step: 10, dec: 0, unit: "", ans: 1970, tol: 10,
+    min: 1950, max: 2010, step: 10, dec: 0, unit: "", ans: 1970,
     nota: "Fueron las luchas de 1970-1990; el acceso era limitado, sobre todo en el sector rural." },
 ];
 const SE_DATOS_KEY = "edinun_juego4_se_datos_recientes_v1";
@@ -1033,8 +1035,10 @@ function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart
   const logRef = useRefG([]);
   const firstDone = useRefG(false);
 
-  const diff = Math.abs(val - d.ans);
-  const ok = diff <= d.tol;
+  // EXACTO: hay que caer en la muesca correcta. Se compara con medio `step` y no con
+  // `=== 0` porque el deslizador calcula el valor como min + n*step y la coma flotante
+  // devuelve cosas como 5.300000000000001 → un `=== 0` fallaría siempre.
+  const ok = Math.abs(val - d.ans) < d.step / 2;
 
   function confirmar() {
     if (shown) return;
@@ -1101,7 +1105,7 @@ function AdivinaDatoRound({ app, setApp, go, ronda, startedAt, onDone, onRestart
         {shown && (
           <div className="ed-checkPop" style={{ width: "100%", background: "rgba(10,6,35,0.9)", border: `2px solid ${ok ? "#2ecc71" : "#e74c3c"}`, borderRadius: 14, padding: "11px 14px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
             <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: ok ? "#6ef0a8" : "#ff9b9b", marginBottom: 3 }}>
-              {ok ? "¡Muy cerca! Es" : "El dato real es"} <span style={{ color: "#fff" }}>{seFmt(d.ans, d.dec)}{d.unit}</span>
+              {ok ? "¡Exacto! Es" : "El dato real es"} <span style={{ color: "#fff" }}>{seFmt(d.ans, d.dec)}{d.unit}</span>
             </div>
             <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, color: "#bfe4ff", lineHeight: 1.35 }}>{d.nota}</div>
           </div>
@@ -1264,8 +1268,8 @@ function MitosDatosRound({ app, setApp, go, ronda, startedAt, onDone, onRestart 
       {answered !== null && (
         <div className="ed-checkPop" style={{ width: "100%", background: "rgba(10,6,35,0.92)", border: `2px solid ${ok ? "#2ecc71" : "#e74c3c"}`, borderRadius: 14, padding: "10px 14px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
           <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: ok ? "#6ef0a8" : "#ff9b9b", marginBottom: 3 }}>
-            {ok ? "✓ ¡Correcto!" : answered === "timeout" ? "✗ Se acabó el tiempo" : "✗ No era así"}
-            <span style={{ color: "#fff", marginLeft: 6 }}>Es {m.v ? "VERDADERO" : "FALSO"}.</span>
+            {ok ? "✓ ¡Correcto! " : answered === "timeout" ? "✗ Se acabó el tiempo. " : "✗ "}
+            <span style={{ color: "#fff" }}>Es {m.v ? "VERDADERO" : "FALSO"}.</span>
           </div>
           <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, color: "#bfe4ff", lineHeight: 1.35 }}>{m.nota}</div>
         </div>

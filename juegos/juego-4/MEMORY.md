@@ -232,3 +232,20 @@ El protocolo de aprendizaje quedó en `## Errores aprendidos` del `SKILL.md`.
 - **Sin imágenes**: se evaluaron (7 escenas, una por dato) y la autora las descartó.
   Si algún día se retoman, el registro visual para 13 años **no** es el 3D cartoon de
   los temas de 6 (el libro usa fotos ahí).
+
+## 2026-07-15 — Tema 3 · R1: puntuación EXACTA (no por cercanía)
+
+- La autora: *"si la respuesta es 2014 y yo selecciono 2013, entonces debería estar
+  mal, ¿no crees?"*. Tenía razón: un año es un dato discreto, no una estimación.
+- **Causa raíz:** yo puse "puntúa por cercanía" como **decisión por defecto** y ella
+  nunca la aprobó. Con `tol: 2` en el año, 2013 y 2012 contaban como acierto.
+  → Otra vez el mismo patrón: rellenar un hueco de especificación por mi cuenta.
+- **Ahora:** sin `tol`. Acierto = **caer en la muesca correcta**. Se compara con
+  `< step/2` y NO con `=== 0`: el deslizador calcula `min + n*step` y la coma flotante
+  devuelve 5.300000000000001, así que un `=== 0` fallaría siempre.
+- **Se sacó del banco el "3,98 % del PIB"** (decisión de la autora): con step 0,02 en
+  un rango 0-10 son 500 posiciones; clavarlo arrastrando es imposible → sería siempre
+  fallo. El banco queda en **6 datos, todos clavables** (verificado: 6/6).
+- Copy: "¡Muy cerca!" → **"¡Exacto!"**. Y fuera el **"No era así"** de la R2
+  (a la autora no le gustó): el fallo muestra solo ✗ + "Es VERDADERO/FALSO."
+- Verificado con Playwright forzando el dato del año: **2013 → FALLO ✓ · 2014 → ¡Exacto! ✓**
