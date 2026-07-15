@@ -1294,8 +1294,8 @@ function SEWord({ txt, onPointerDown, dim, ghost, color }) {
   return (
     <span onPointerDown={onPointerDown}
       style={{ display: "inline-block", background: "linear-gradient(180deg, #fff8e6 0%, #f7e3a8 100%)",
-        border: `2px solid ${color || "#d9a441"}`, borderRadius: 10, padding: "5px 11px",
-        fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#3a2608",
+        border: `2px solid ${color || "#d9a441"}`, borderRadius: 9, padding: "2px 10px",
+        fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, lineHeight: 1.5, color: "#3a2608",
         boxShadow: ghost ? "0 10px 18px rgba(0,0,0,0.45)" : "inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 9px rgba(0,0,0,0.3)",
         cursor: onPointerDown ? "grab" : "default", touchAction: "none", whiteSpace: "nowrap",
         opacity: dim ? 0.28 : 1, userSelect: "none" }}>
@@ -1408,16 +1408,17 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
       <>
       {/* Frase con huecos */}
       <div style={{ width: "100%" }}>
-        <div style={{ background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "20px 22px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#1a1030", lineHeight: 2.1 }}>
+        <div style={{ background: "linear-gradient(180deg,#ffffff,#e3e9f4)", borderRadius: 18, border: "3px solid rgba(255,255,255,0.9)", padding: "16px 22px", textAlign: "center", boxShadow: "0 10px 22px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#1a1030", lineHeight: 2.0 }}>
           {f.partes.map((p, k) => (
             <React.Fragment key={k}>
               <span>{p}</span>
               {k < nHuecos && (
-                // Sin alto fijo: el cajón CRECE para contener la palabra (con `height:34`
-                // la ficha se le salía por arriba/abajo y por los lados).
+                // El cajón mide IGUAL vacío que lleno (alto fijo 32 + la ficha, ya compacta,
+                // cabe dentro). Si el cajón crece al soltar, el renglón se estira y la
+                // tarjeta entera pega un salto — que es justo lo que la autora rechazó.
                 <span ref={(el) => { blankRefs.current[k] = el; }}
                   style={{ display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    minWidth: 128, minHeight: 36, padding: 3, margin: "0 4px", verticalAlign: "middle", borderRadius: 11,
+                    minWidth: 128, height: 32, padding: "0 3px", margin: "0 4px", verticalAlign: "middle", borderRadius: 10,
                     border: verdict ? `2px solid ${verdict[k] === "ok" ? "#2ecc71" : "#e74c3c"}` : "2px dashed #9b7be8",
                     background: filled[k] ? "transparent" : "rgba(155,123,232,0.10)" }}>
                   {filled[k] ? (
