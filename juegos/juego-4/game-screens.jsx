@@ -1499,7 +1499,6 @@ function Tema3Controller({ app, setApp, go }) {
 
   function restart() {
     accRef.current = []; started.current = Date.now();
-    setBanner(null); setBannerMsg("");
     setApp((s) => ({ ...s, stars: 0 }));
     setRonda(0); setNonce((n) => n + 1);
   }
