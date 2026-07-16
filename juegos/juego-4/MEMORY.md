@@ -249,3 +249,31 @@ El protocolo de aprendizaje quedó en `## Errores aprendidos` del `SKILL.md`.
 - Copy: "¡Muy cerca!" → **"¡Exacto!"**. Y fuera el **"No era así"** de la R2
   (a la autora no le gustó): el fallo muestra solo ✗ + "Es VERDADERO/FALSO."
 - Verificado con Playwright forzando el dato del año: **2013 → FALLO ✓ · 2014 → ¡Exacto! ✓**
+
+## 2026-07-16 — Renombres (decisión de la autora)
+
+- **Bocadillo R3:** "Arrastra las palabras a los huecos." → "…a los **espacios**."
+- **Chip Tema 1:** "Estar preparados" → **"Mi escuela y mi barrio"** (tomó el nombre
+  que era del juego). **Chip Tema 3:** "Sistema educativo" → **"Sistema educativo
+  ecuatoriano"** (como el tema del libro). Cambian `label` + `catLabel` (el campo
+  "Tema" del reporte) y `CAT_LABEL`.
+- **Título global del juego:** "Mi escuela y mi barrio" → **"Ciudadanos en acción"**
+  (elegido por la autora entre 4 propuestas; debía ser un paraguas para los 3 temas).
+  Tocó: rótulo del Home (`EDINUN · …`), `<title>` de ambos HTML (estaba quedado de la
+  PLANTILLA), card del landing raíz (`GAMES`), CLAUDE.md y `memory/audiencia_por_juego.md`.
+- QA: format-lint 18/18 + qa-visual sin overflow (los 3 chips largos caben).
+- **Glifos del fondo** (pedido de la autora): antes eran solo de escuela/emergencias
+  (T1); ahora mezclan los 3 temas — 🏫🚸🧯⛑️🚦 (T1) · 🤝😊 (T2) · 🎓📚✏️📊 (T3) —
+  en las dos variantes de `CosmosBg` (cosmic del Home y chalkboard del juego),
+  manteniendo posiciones/tamaños. Fuera 🎒🗺️🛡️📋🧭 (utilería genérica).
+
+## 2026-07-16 — Mini-logo alineado con edinun-language (cambio de ESTÁNDAR, todos los juegos)
+
+- La autora notó que el logo del HUD se veía más chico que en los juegos de lenguaje.
+  Cierto: sociales usaba **60** (HUD) y **52** (reporte); lenguaje usa **64/56** en
+  sus 25 juegos (`logo.jsx` es idéntico entre repos — era solo el `size`).
+- Con su OK se cambió el **estándar del repo**: HUD 60→**64**, reporte 52→**56**, en
+  los 4 juegos + `_PLANTILLA` (re-empaquetados los 5). CharacterScreen ya estaba en 64.
+- `estandar-visual.md` §1/§5/§7 actualizados y `format-lint.js` ajustado (HUD=64) +
+  **check nuevo** "Mini-logo reporte = 56" — ambos probados rompiendo juego-1 a
+  propósito hasta verlos fallar. Lint: 13/13 · 13/13 · 19/19 · 19/19. qa-visual: verde.

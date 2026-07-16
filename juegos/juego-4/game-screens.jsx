@@ -1,7 +1,7 @@
-// game-screens.jsx — JUEGO-4 · "Mi escuela y mi barrio" (Estudios Sociales · 6 años).
+// game-screens.jsx — JUEGO-4 · "Ciudadanos en acción" (Estudios Sociales · 6-13 años).
 // Juego MULTI-TEMA (3 botones en Home). Este archivo implementa el TEMA 1.
 //
-// TEMA 1 · "Estar preparados" (categoría "emergencias"):
+// TEMA 1 · "Mi escuela y mi barrio" (categoría "emergencias"):
 //   Mecánica ORDENAR/SECUENCIA: salen 3 tarjetas (dibujos de acciones) DESORDENADAS en una
 //   bandeja; el niño las ARRASTRA a las 3 casillas numeradas 1·2·3 en el orden correcto y
 //   toca VERIFICAR. Cada casilla correcta sale con ✓; las incorrectas con ✗ y se REVELA la
@@ -22,7 +22,7 @@ function PortalToBody({ children }) {
   return ReactDOM.createPortal(children, document.body);
 }
 
-const CAT_LABEL = "Estar preparados";
+const CAT_LABEL = "Mi escuela y mi barrio";
 const ROUND = 3;        // 3 tarjetas por secuencia (compat. con el reporte)
 const RECENT_KEY = "edinun_juego4_emergencias_recientes_v1";
 const RECENT_CAP = 2;   // no repetir la misma secuencia en partidas seguidas
@@ -282,14 +282,15 @@ function OrdenarGame({ app, setApp, go }) {
 
       {/* ── HUD ── */}
       <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <EdinunLogoMini size={60} />
+        <EdinunLogoMini size={64} />
         <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(242,194,96,0.45)", borderRadius: 999, padding: "6px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em" }}>
           📋 {placedCount} / 3
         </div>
       </div>
 
-      {/* ── Enunciado (QUÉ) ── */}
-      <div style={{ position: "absolute", left: 150, right: 150, top: 46, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
+      {/* ── Enunciado (QUÉ) — más abajo que el estándar (top 44-46) a pedido de la
+           autora: las casillas empiezan en y≈112 y quedaba un hueco arriba ── */}
+      <div style={{ position: "absolute", left: 150, right: 150, top: 76, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
         {seq.titulo} <span style={{ color: "#fce9a8" }}>Ordena del 1 al 3.</span>
       </div>
 
@@ -626,7 +627,7 @@ function ClasificaGame({ app, setApp, go }) {
 
       {/* ── HUD ── */}
       <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <EdinunLogoMini size={60} />
+        <EdinunLogoMini size={64} />
         <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(242,194,96,0.45)", borderRadius: 999, padding: "6px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em" }}>
           📋 {placedCount} / {cards.length}
         </div>
@@ -917,7 +918,7 @@ function SEShell({ app, setApp, go, ronda, startedAt, enunciado, enunciadoG, boc
 
       {/* ── HUD (§1): logo 60 · pills ⏱ y ⭐ con el estilo fijo ── */}
       <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <EdinunLogoMini size={60} />
+        <EdinunLogoMini size={64} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {seTime(elapsed)}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {app.stars || 0}</div>
@@ -1420,7 +1421,7 @@ function CompletaTitularRound({ app, setApp, go, ronda, startedAt, onDone, onRes
     <SEShell app={app} setApp={setApp} go={go} ronda={ronda || 0} startedAt={startedAt} onRestart={onRestart} rootRef={rootRef}
       enunciado="Completa el titular." enunciadoG=""
       feedback={feedback} feedbackMsg={feedbackMsg}
-      bocadillo={<>Arrastra las palabras<br />a los huecos.</>}
+      bocadillo={<>Arrastra las palabras<br />a los espacios.</>}
       overlay={dragId ? (() => {
         const w = wordById(dragId); if (!w) return null;
         return (
@@ -1519,7 +1520,7 @@ function Tema3Controller({ app, setApp, go }) {
     setApp((s) => ({
       ...s,
       lastResult: {
-        category: "Sistema educativo", cols: ["Actividad", "Tu respuesta"], themeEmoji: "🎓",
+        category: "Sistema educativo ecuatoriano", cols: ["Actividad", "Tu respuesta"], themeEmoji: "🎓",
         praise: "¡ahora conoces el sistema educativo que te toca defender!",
         solved: aciertos, total: log.length,
         time: Math.floor((Date.now() - started.current) / 1000),
@@ -1666,7 +1667,7 @@ function ResultsScreen({ app, setApp, go }) {
 
         <div className="ed-card" style={{ padding: 16, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, borderBottom: "2px solid rgba(242,194,96,0.45)", paddingBottom: 10, marginBottom: 12 }}>
-            <EdinunLogoMini size={52} />
+            <EdinunLogoMini size={56} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 17, letterSpacing: "0.04em", lineHeight: 1.1 }}>EDINUN — Ediciones Nacionales Unidas</div>
               <div style={{ fontFamily: "var(--ed-font-ui)", fontSize: 11, color: "var(--ed-ink-soft)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 2 }}>Reporte académico · Estudios Sociales</div>

@@ -1,4 +1,4 @@
-// screens.jsx — JUEGO-4 · "Mi escuela y mi barrio" (Estudios Sociales · 6 años).
+// screens.jsx — JUEGO-4 · "Ciudadanos en acción" (Estudios Sociales · 6-13 años).
 // Juego MULTI-TEMA: el Home muestra N BOTONES = N temas del libro (patrón EDINUN).
 // El niño elige un tema (chip) + su nombre → CharacterScreen (Andi preseleccionado) →
 // GameScreen lee app.currentCategory para saber qué mini-juego montar.
@@ -10,18 +10,18 @@ const { useState, useEffect, useRef, useMemo } = React;
 // ─────────────────────────────────────────────────────────────
 // Config de TEMAS (un botón por entrada). Cada tema define su chip y el
 // catLabel que GameScreen/ResultsScreen leen. `enabled:false` = "Próximamente".
-//   · emergencias → TEMA 1 "Estar preparados" (mecánica ORDENAR, implementado).
+//   · emergencias → TEMA 1 "Mi escuela y mi barrio" (mecánica ORDENAR, implementado).
 //   · convivencia → TEMA 2 "Amigos y compañeros" (mecánica CLASIFICAR, implementado).
-//   · sistemaeducativo → TEMA 3 "Sistema educativo" (13 años, 3 rondas encadenadas).
+//   · sistemaeducativo → TEMA 3 "Sistema educativo ecuatoriano" (13 años, 3 rondas encadenadas).
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "emergencias",
-    label: "Estar preparados",
+    label: "Mi escuela y mi barrio",
     grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
     ink: "#3a2608",
     description: "Ordena qué hacer en una emergencia.",
-    catLabel: "Estar preparados",
+    catLabel: "Mi escuela y mi barrio",
     enabled: true,
   },
   {
@@ -35,17 +35,18 @@ const LEVELS_CFG = [
   },
   {
     id: "sistemaeducativo",
-    label: "Sistema educativo",
+    label: "Sistema educativo ecuatoriano",
     grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
     ink: "#08264d",
     description: "Datos, mitos y decisiones sobre tu educación.",
-    catLabel: "Sistema educativo",
+    catLabel: "Sistema educativo ecuatoriano",
     enabled: true,
   },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Fondo cósmico + glifos flotantes — temática "cuido mi entorno" (reciclaje/naturaleza).
+// Fondo cósmico + glifos flotantes — mezcla de los 3 temas: escuela/seguridad (T1),
+// convivencia (T2) y sistema educativo (T3).
 // ─────────────────────────────────────────────────────────────
 function CosmosBg({ variant = "cosmic", glyphSize }) {
   const glyphsStyle = glyphSize ? { fontSize: glyphSize + "px" } : undefined;
@@ -62,14 +63,14 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
       >
         <div className="ed-glyphs" style={{ color: "rgba(255,255,255,0.10)", ...glyphsStyle }}>
           <span style={{ left: "6%", top: "12%", "--rot": "-8deg", fontSize: "0.62em" }}>🏫</span>
-          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.6em" }}>🚸</span>
-          <span style={{ left: "10%", top: "78%", "--rot": "12deg", fontSize: "0.6em" }}>🧯</span>
-          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.6em" }}>🎒</span>
+          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.6em" }}>🤝</span>
+          <span style={{ left: "10%", top: "78%", "--rot": "12deg", fontSize: "0.6em" }}>🎓</span>
+          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.6em" }}>🚸</span>
           <span style={{ left: "45%", top: "8%", "--rot": "4deg", fontSize: "0.5em" }}>★</span>
-          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.6em" }}>🗺️</span>
-          <span style={{ left: "92%", top: "45%", "--rot": "8deg", fontSize: "0.6em" }}>🛡️</span>
-          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>⛑️</span>
-          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>📋</span>
+          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.6em" }}>📚</span>
+          <span style={{ left: "92%", top: "45%", "--rot": "8deg", fontSize: "0.6em" }}>😊</span>
+          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>🧯</span>
+          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>📊</span>
           <span style={{ left: "55%", top: "30%", "--rot": "-4deg", fontSize: "0.5em" }}>🚦</span>
         </div>
       </div>
@@ -80,20 +81,20 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
       <div className="ed-cosmos" />
       <div className="ed-glyphs" style={glyphsStyle}>
         <span style={{ left: "5%", top: "10%", "--rot": "-8deg", fontSize: "0.72em" }}>🏫</span>
-        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.66em" }}>🚸</span>
-        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.64em" }}>🧯</span>
-        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.66em" }}>🎒</span>
+        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.66em" }}>🤝</span>
+        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.64em" }}>🎓</span>
+        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.66em" }}>🚸</span>
         <span style={{ left: "46%", top: "4%", "--rot": "-4deg", fontSize: "0.5em" }}>★</span>
-        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.6em" }}>🗺️</span>
-        <span style={{ left: "88%", top: "40%", "--rot": "8deg", fontSize: "0.56em" }}>🛡️</span>
+        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.6em" }}>📚</span>
+        <span style={{ left: "88%", top: "40%", "--rot": "8deg", fontSize: "0.56em" }}>😊</span>
         <span style={{ left: "22%", top: "22%", "--rot": "10deg", fontSize: "0.52em" }}>⛑️</span>
-        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.58em" }}>📋</span>
+        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.58em" }}>📊</span>
         <span style={{ left: "32%", top: "70%", "--rot": "8deg", fontSize: "0.56em" }}>🚦</span>
-        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.52em" }}>🧭</span>
+        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.52em" }}>✏️</span>
         <span style={{ left: "18%", top: "58%", "--rot": "14deg", fontSize: "0.5em" }}>★</span>
-        <span style={{ left: "78%", top: "56%", "--rot": "-8deg", fontSize: "0.5em" }}>🎒</span>
-        <span style={{ left: "50%", top: "88%", "--rot": "4deg", fontSize: "0.52em" }}>🚸</span>
-        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>🏫</span>
+        <span style={{ left: "78%", top: "56%", "--rot": "-8deg", fontSize: "0.5em" }}>🤝</span>
+        <span style={{ left: "50%", top: "88%", "--rot": "4deg", fontSize: "0.52em" }}>🧯</span>
+        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>🎓</span>
       </div>
     </>
   );
@@ -238,7 +239,7 @@ function HomeScreen({ app, setApp, go }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 520 }}>
           <div>
             <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>
-              EDINUN · Mi escuela y mi barrio
+              EDINUN · Ciudadanos en acción
             </div>
             <h1 className="ed-h1" style={{ fontSize: 38, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}

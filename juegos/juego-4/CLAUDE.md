@@ -1,13 +1,14 @@
-# CLAUDE.md — juego-4 "Mi escuela y mi barrio" (Estudios Sociales)
+# CLAUDE.md — juego-4 "Ciudadanos en acción" (Estudios Sociales)
 
 ## Project
 
-**Juego: Mi escuela y mi barrio.** Carpeta autocontenida del repo multi-juego
-`edinun-sociales` (Estudios Sociales). Juego **multi-tema** sobre la vida en la
-escuela y el barrio, con personaje guía **Andi**. Tiene **3 temas** seleccionables
+**Juego: Ciudadanos en acción** (renombrado 2026-07-16; antes "Mi escuela y mi
+barrio", nombre que pasó a ser el del Tema 1). Carpeta autocontenida del repo
+multi-juego `edinun-sociales` (Estudios Sociales). Juego **multi-tema** sobre la
+vida en comunidad, con personaje guía **Andi**. Tiene **3 temas** seleccionables
 desde el Home (chips de cambio de tema arriba en la pantalla de juego):
 
-- **Tema 1 — "Estar preparados"** (`id: emergencias`, audiencia **6**): mecánica
+- **Tema 1 — "Mi escuela y mi barrio"** (`id: emergencias`, audiencia **6**): mecánica
   **ORDENAR**. Salen 3 tarjetas desordenadas; el niño las arrastra a las casillas
   **1·2·3** en el orden correcto y toca **VERIFICAR**. Banco de secuencias de
   seguridad (sismo · ceniza · evacuar) con anti-repetición FIFO. 1 ronda.
@@ -16,7 +17,7 @@ desde el Home (chips de cambio de tema arriba en la pantalla de juego):
   arrastran a 2 cajas **😊 Está bien / 😞 No está bien** + **VERIFICAR**. El reparto
   **no es fijo**: 1+3, 2+2 o 3+1 (≥1 de cada tipo). 1 ronda. Diseño en
   `.planning/juego-4-tema2-design.md`.
-- **Tema 3 — "Sistema educativo"** (`id: sistemaeducativo`, audiencia **13**):
+- **Tema 3 — "Sistema educativo ecuatoriano"** (`id: sistemaeducativo`, audiencia **13**):
   **3 rondas encadenadas con mecánicas distintas** (patrón de juego-3 · Tema 2) que
   terminan en un reporte combinado. Diseño en `.planning/juego-4-tema3-design.md`.
 
