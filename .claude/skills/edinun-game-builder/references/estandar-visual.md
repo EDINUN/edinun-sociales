@@ -88,7 +88,7 @@ Botón activo: `boxShadow` con anillo blanco `0 0 0 3px rgba(255,255,255,0.85)` 
   display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
 ```
 
-- **Izquierda**: `<EdinunLogoMini size={60} />`.
+- **Izquierda**: `<EdinunLogoMini size={64} />` (alineado con edinun-language, 2026-07-16; antes 60).
 - **Derecha** (grupo `gap: 8`): pill ⏱ (`fontFamily var(--ed-font-mono), fontSize 13`) y pill ⭐ (`var(--ed-font-display), fontWeight 600`). Ambas: `background rgba(0,0,0,0.35), borderRadius 999, padding "6px 12px", border 1px solid rgba(242,194,96,0.4), color #fce9a8`.
 - **Centro** — según nº de niveles:
   - **1 nivel con rondas**: indicador RONDA en bloque propio (§1.1).
@@ -213,7 +213,8 @@ toque los botones.**
 - **Izquierda**: título `¡Ronda completa!` (o `Sesión terminada`) `fontSize 34`
   degradado `#fce9a8→#d9a441`; `<char.Component size={176} />`; frase de cierre
   `fontSize 13 maxWidth 240` con atribución al personaje.
-- **Derecha**: `ed-card` con reporte — `EdinunLogoMini size={52}`, encabezado
+- **Derecha**: `ed-card` con reporte — `EdinunLogoMini size={56}` (alineado con
+  edinun-language, 2026-07-16; antes 52), encabezado
   "EDINUN — Ediciones Nacionales Unidas" + "Reporte académico · Estudios
   Sociales", tabla de la sesión, 4 celdas resumen (Preguntas / Correctas /
   Estrellas / Precisión), botones IMPRIMIR REPORTE + JUGAR OTRA RONDA (`height 44`).
@@ -245,7 +246,8 @@ toque los botones.**
 > node juegos/_PLANTILLA/.planning/qa-visual.js  <slug>    # layout real: overflow + colchón mecánica↔acciones
 > ```
 
-0. **`format-lint.js`** en verde: logo Home = 300, mini-logos 60/64, rejilla de
+0. **`format-lint.js`** en verde: logo Home = 300, mini-logos 64 (HUD) / 64
+   (CharacterScreen) / 56 (reporte), rejilla de
    botones según nº de temas, botón compacto (fontSize 15), **gradientes de tema por
    posición**, **rótulos de botón** (sin CONFIRMAR/SIGUIENTE/CONTINUAR… inventados),
    **bloque Ronda** (top 52 + dots 11×11), personaje (bottom 78 / char 186),

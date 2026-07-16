@@ -864,7 +864,7 @@ function GameScreen({ app, setApp, go }) {
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       {/* ── HUD: logo izq, tiempo + estrellas der ── */}
       <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <EdinunLogoMini size={60} />
+        <EdinunLogoMini size={64} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>
             ⏱ {formatTime(elapsed)}
@@ -1193,7 +1193,7 @@ function ResultsScreen({ app, setApp, go }) {
 
         <div className="ed-card" style={{ padding: 16, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, borderBottom: "2px solid rgba(242,194,96,0.45)", paddingBottom: 10, marginBottom: 12 }}>
-            <EdinunLogoMini size={52} />
+            <EdinunLogoMini size={56} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 17, letterSpacing: "0.04em", lineHeight: 1.1 }}>EDINUN — Ediciones Nacionales Unidas</div>
               <div style={{ fontFamily: "var(--ed-font-ui)", fontSize: 11, color: "var(--ed-ink-soft)", letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 2 }}>Reporte académico · Estudios Sociales</div>

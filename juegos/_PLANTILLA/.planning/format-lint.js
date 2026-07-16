@@ -4,7 +4,8 @@
  * documentado en `.claude/skills/edinun-game-builder/references/estandar-visual.md`.
  *
  * Revisa los `.jsx` FUENTE (no el HTML) buscando los valores literales fijos:
- * logo del Home (300), mini-logos (60/64), rejilla de botones según nº de temas,
+ * logo del Home (300), mini-logos (HUD 64 / CharacterScreen 64 / reporte 56),
+ * rejilla de botones según nº de temas,
  * botón compacto (fontSize 15 / padding 14px 6px), personaje (bottom 78 / char 186),
  * acciones (right 18/12) y ResultsScreen (inset / grid / char 176 / título 34).
  *
@@ -117,11 +118,13 @@ function lintGame(g) {
       "los dots de ronda son `width: 11, height: 11` (§1.1)");
   }
 
-  // ── Mini-logos ──
-  check(has(game, "EdinunLogoMini size={60}"), "Mini-logo HUD juego = 60",
-    "se esperaba `EdinunLogoMini size={60}` en game-screens");
+  // ── Mini-logos (64/64/56, alineado con edinun-language 2026-07-16) ──
+  check(has(game, "EdinunLogoMini size={64}"), "Mini-logo HUD juego = 64",
+    "se esperaba `EdinunLogoMini size={64}` en game-screens (igual que edinun-language)");
   check(has(screens, "EdinunLogoMini size={64}"), "Mini-logo CharacterScreen = 64",
     "se esperaba `EdinunLogoMini size={64}` en screens");
+  check(has(game, "EdinunLogoMini size={56}"), "Mini-logo reporte = 56",
+    "se esperaba `EdinunLogoMini size={56}` en el reporte imprimible (igual que edinun-language)");
 
   // ── Personaje ──
   check(has(game, "left: 8, bottom: 78, width: 220"), "Personaje left:8 bottom:78 width:220",
