@@ -1396,12 +1396,13 @@ const TMAP = {}; TRANSPORTES.forEach((t) => { TMAP[t.id] = t; });
 function viaIndex(id) { return VIAS.findIndex((v) => v.id === id); }
 
 // Geometría (lienzo 900×540) — bandeja arriba (fila de 4) · 3 vías abajo.
+// Bandeja y cajones acercados (antes sobraba una banda vacía entre ambos).
 const T_BIN_CX = [290, 450, 610];
-const T_BIN_TOP = 322;
-const T_BIN_W = 150, T_BIN_H = 150;
+const T_BIN_TOP = 286;
+const T_BIN_W = 150, T_BIN_H = 170;
 const T_HIT_PAD = 24;
 const T_TRAY_X = [255, 385, 515, 645];   // 4 tarjetas en fila, centradas en x=450
-const T_TRAY_Y = 172;
+const T_TRAY_Y = 202;
 
 const GAME_CSS_T = `
 .ed-noselect, .ed-noselect *{ -webkit-user-select:none; -moz-user-select:none; user-select:none; -webkit-user-drag:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
