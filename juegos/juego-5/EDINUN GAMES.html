@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0826">
 <meta name="description" content="EDINUN GAMES — Juegos de Estudios Sociales para estudiantes.">
-<title>EDINUN GAMES — Estudios Sociales (PLANTILLA)</title>
+<title>EDINUN GAMES — Aprendiendo</title>
 
 <link rel="icon" type="image/png" href="assets/edinun-logo.png">
 <link rel="apple-touch-icon" href="assets/edinun-logo.png">
@@ -249,9 +249,7 @@ Object.assign(window, {
 const { useState, useEffect, useRef, useMemo } = React;
 
 // ─────────────────────────────────────────────────────────────
-// Fondo cósmico + glifos flotantes.
-// Los glifos son decorativos (baja opacidad). Cámbialos por símbolos
-// afines al tema del juego (aquí: decorativo genérico).  // ← PERSONALIZAR
+// Fondo cósmico + glifos flotantes — temática comunidad escolar (juego-5).
 // ─────────────────────────────────────────────────────────────
 function CosmosBg({ variant = "cosmic", glyphSize }) {
   const glyphsStyle = glyphSize ? { fontSize: glyphSize + "px" } : undefined;
@@ -267,16 +265,16 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
         }}
       >
         <div className="ed-glyphs" style={{ color: "rgba(255,255,255,0.10)", ...glyphsStyle }}>
-          <span style={{ left: "6%", top: "12%", "--rot": "-8deg", fontSize: "0.7em" }}>✦</span>
-          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.65em" }}>✿</span>
-          <span style={{ left: "10%", top: "78%", "--rot": "12deg", fontSize: "0.7em" }}>☀</span>
-          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.7em" }}>❄</span>
-          <span style={{ left: "45%", top: "8%", "--rot": "4deg", fontSize: "0.55em" }}>~</span>
-          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.7em" }}>✧</span>
-          <span style={{ left: "92%", top: "45%", "--rot": "8deg", fontSize: "0.65em" }}>△</span>
-          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>○</span>
-          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>∿</span>
-          <span style={{ left: "55%", top: "30%", "--rot": "-4deg", fontSize: "0.55em" }}>✦</span>
+          <span style={{ left: "6%", top: "12%", "--rot": "-8deg", fontSize: "0.62em" }}>🏫</span>
+          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.6em" }}>🍎</span>
+          <span style={{ left: "10%", top: "78%", "--rot": "12deg", fontSize: "0.6em" }}>📚</span>
+          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.6em" }}>✏️</span>
+          <span style={{ left: "45%", top: "8%", "--rot": "4deg", fontSize: "0.5em" }}>★</span>
+          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.6em" }}>🔔</span>
+          <span style={{ left: "92%", top: "45%", "--rot": "8deg", fontSize: "0.6em" }}>🤝</span>
+          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>🎒</span>
+          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>🍲</span>
+          <span style={{ left: "55%", top: "30%", "--rot": "-4deg", fontSize: "0.5em" }}>🧹</span>
         </div>
       </div>
     );
@@ -285,21 +283,21 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
     <>
       <div className="ed-cosmos" />
       <div className="ed-glyphs" style={glyphsStyle}>
-        <span style={{ left: "5%", top: "10%", "--rot": "-8deg", fontSize: "0.85em" }}>✦</span>
-        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.78em" }}>✿</span>
-        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.74em" }}>☀</span>
-        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.78em" }}>❄</span>
-        <span style={{ left: "46%", top: "4%", "--rot": "-4deg", fontSize: "0.59em" }}>~</span>
-        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.7em" }}>✧</span>
-        <span style={{ left: "88%", top: "40%", "--rot": "8deg", fontSize: "0.62em" }}>△</span>
-        <span style={{ left: "22%", top: "22%", "--rot": "10deg", fontSize: "0.55em" }}>∿</span>
-        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.65em" }}>○</span>
-        <span style={{ left: "32%", top: "70%", "--rot": "8deg", fontSize: "0.6em" }}>✦</span>
-        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.55em" }}>☁</span>
-        <span style={{ left: "18%", top: "58%", "--rot": "14deg", fontSize: "0.52em" }}>∞</span>
-        <span style={{ left: "78%", top: "56%", "--rot": "-8deg", fontSize: "0.5em" }}>○</span>
-        <span style={{ left: "50%", top: "88%", "--rot": "4deg", fontSize: "0.55em" }}>✦</span>
-        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>✿</span>
+        <span style={{ left: "5%", top: "10%", "--rot": "-8deg", fontSize: "0.72em" }}>🏫</span>
+        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.66em" }}>🍎</span>
+        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.64em" }}>📚</span>
+        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.66em" }}>✏️</span>
+        <span style={{ left: "46%", top: "4%", "--rot": "-4deg", fontSize: "0.5em" }}>★</span>
+        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.6em" }}>🔔</span>
+        <span style={{ left: "88%", top: "40%", "--rot": "8deg", fontSize: "0.56em" }}>🤝</span>
+        <span style={{ left: "22%", top: "22%", "--rot": "10deg", fontSize: "0.52em" }}>🎒</span>
+        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.58em" }}>🍲</span>
+        <span style={{ left: "32%", top: "70%", "--rot": "8deg", fontSize: "0.56em" }}>🧹</span>
+        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.52em" }}>🌻</span>
+        <span style={{ left: "18%", top: "58%", "--rot": "14deg", fontSize: "0.5em" }}>★</span>
+        <span style={{ left: "78%", top: "56%", "--rot": "-8deg", fontSize: "0.5em" }}>🚌</span>
+        <span style={{ left: "50%", top: "88%", "--rot": "4deg", fontSize: "0.52em" }}>🍎</span>
+        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>🏫</span>
       </div>
     </>
   );
@@ -470,7 +468,7 @@ function HomeScreen({ app, setApp, go }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 520 }}>
           <div>
             <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 8 }}>
-              EDINUN · Estudios Sociales {/* ← PERSONALIZAR: tema del juego */}
+              EDINUN · Aprendiendo {/* título global elegido por la autora (2026-07-16) */}
             </div>
             <h1 className="ed-h1" style={{ fontSize: 44, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}
@@ -495,7 +493,7 @@ function HomeScreen({ app, setApp, go }) {
             color: "#fce9a8",
             textAlign: "center",
           }}>
-            Explora los estudios sociales jugando. {/* ← PERSONALIZAR: subtítulo corto */}
+            Aprendiendo con mis compañeros y compañeras de clase.
           </div>
 
           <div>
@@ -533,12 +531,13 @@ function CharacterScreen({ app, setApp, go }) {
   const current = CHARACTERS.find((c) => c.id === sel) || CHARACTERS[0];
 
   function choose() {
-    // Juego de nivel único.  // ← PERSONALIZAR: categoría/etiqueta del tema
+    // Por ahora 1 solo tema ("Aprendiendo"); cuando la autora mande los otros 3
+    // temas del libro, el Home pasa a chips tipo juego-4 (LEVELS_CFG).
     setApp((s) => ({
       ...s,
       character: sel,
-      currentCategory: "demo",
-      currentCatLabel: "Estudios Sociales",
+      currentCategory: "aprendiendo",
+      currentCatLabel: "Aprendiendo",
     }));
     go("game");
   }
@@ -633,24 +632,26 @@ function CharacterScreen({ app, setApp, go }) {
 
 Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCompleted, useVisitorCount, markFirstAttempt });
 
-// game-screens.jsx — PLANTILLA (Estudios Sociales) · FORMATO EDINUN completo.
-// Mecánica "Mira y toca" (ref: edinun-ccn-games/juego-1):
-// HUD (logo + RONDA con dots + tiempo + estrellas), personaje guía con bocadillo
-// de pista, cartel central con emoji, opciones tipo ficha candy, overlay de
-// feedback "¡EXCELENTE!/¡UPS!" y ResultsScreen tipo reporte académico imprimible.
+// game-screens.jsx — JUEGO-5 · Tema "Aprendiendo" (Estudios Sociales · 6 años).
+// Mecánica "Mira y toca" con TARJETAS DE DIBUJO (patrón 5 de la biblioteca):
+// sale una pregunta "¿Quién…?" del banco PERSONAS y 3 tarjetas (dibujo + nombre);
+// el niño TOCA a la persona correcta directamente (no hay VERIFICAR/BORRAR).
+// HUD (logo + RONDA con dots + tiempo + estrellas), personaje guía (Domi) con
+// bocadillo (CÓMO), overlay "¡EXCELENTE!/¡UPS!" y reporte académico imprimible.
 //
-// El niño TOCA la opción correcta directamente (no hay VERIFICAR/BORRAR).
-// Cada partida son ROUNDS rondas elegidas al azar de un banco, evitando las
-// vistas recientemente (localStorage) → recargar o cambiar de niño NO repite.
+// Cada partida son ROUNDS (3, pedido de la autora) preguntas elegidas al azar,
+// evitando las vistas recientemente (localStorage) → recargar NO repite.
+// Los 2 distractores de cada pregunta se sortean del mismo banco (todas las
+// opciones son personas, así el sorteo siempre es coherente).
+//
+// IMÁGENES: assets/persona-<id>.png (las genera la autora; prompts en
+// .planning/juego-5-design.md). Mientras el PNG no exista, la tarjeta cae al
+// emoji placeholder (onError) — se enchufan con solo copiar los archivos.
 //
 // CONTRATO: GameScreen/ResultsScreen({app,setApp,go}) expuestos en window;
 // markFirstAttempt() en la 1ª respuesta; incrementGamesCompleted() al fin.
 // Invariantes EDINUN: fallar NO baja progreso; al fallar se revela la correcta
 // (verde) dejando ver lo que tocó el niño (rojo); salir/reiniciar con modal.
-//
-// PARA CREAR UN JUEGO: reemplaza CAT_LABEL, RECENT_KEY y el banco PREGUNTAS por
-// el contenido real. Formato de ítem:
-//   { ctx: "emoji", enunciado, pista, opciones:[{e:"emoji",t:"texto"}], correcta }
 
 const { useState: useStateG, useEffect: useEffectG, useRef: useRefG } = React;
 
@@ -658,44 +659,34 @@ function PortalToBody({ children }) {
   return ReactDOM.createPortal(children, document.body);
 }
 
-const CAT_LABEL = "Estudios Sociales";   // ← PERSONALIZAR: tema del juego
-const ROUNDS = 4;
+const CAT_LABEL = "Aprendiendo";   // chip del tema (elegido por la autora)
+const ROUNDS = 3;                  // 3 rondas por sesión (pedido de la autora)
 
 // ─────────────────────────────────────────────────────────────
-// Banco de preguntas DEMO — Estudios Sociales. REEMPLAZAR por el contenido real.
-// { ctx: emoji de contexto, enunciado, pista (bocadillo, sin emoji),
-//   opciones:[{e,t}], correcta: idx }. Posición de la correcta variada.
+// Banco: 12 personas que trabajan en la escuela — 6 del libro (TEMA 3
+// "Aprendiendo con mis compañeros…") + 6 aprobadas por la autora (2026-07-16).
+// ⚠ NO INVENTAR ítems nuevos: para ampliar, pedir material a la autora.
+// El emoji es el PLACEHOLDER de la tarjeta hasta que llegue su PNG, y el icono
+// de la fila en el reporte.
 // ─────────────────────────────────────────────────────────────
-const PREGUNTAS = [
-  { ctx: "🧭", enunciado: "¿Qué usamos para orientarnos y hallar el Norte?", pista: "Su aguja siempre señala el Norte.",
-    opciones: [{ e: "🕐", t: "Reloj" }, { e: "🧭", t: "Brújula" }, { e: "📏", t: "Regla" }], correcta: 1 },
-  { ctx: "🗺️", enunciado: "¿Cómo se llama el dibujo de un lugar visto desde arriba?", pista: "Sirve para ubicar ciudades, ríos y montañas.",
-    opciones: [{ e: "🗺️", t: "Mapa" }, { e: "📷", t: "Foto" }, { e: "🖼️", t: "Cuadro" }], correcta: 0 },
-  { ctx: "👪", enunciado: "¿Cuál es nuestro primer grupo social?", pista: "Es tu grupo más cercano, en casa.",
-    opciones: [{ e: "🏫", t: "Escuela" }, { e: "🏭", t: "Trabajo" }, { e: "👪", t: "Familia" }], correcta: 2 },
-  { ctx: "🏛️", enunciado: "¿Quién dirige el gobierno de una ciudad?", pista: "Trabaja en el municipio.",
-    opciones: [{ e: "👨‍🏫", t: "Maestro" }, { e: "👨‍⚕️", t: "Médico" }, { e: "🧑‍💼", t: "Alcalde" }], correcta: 2 },
-  { ctx: "🌅", enunciado: "La línea donde el cielo se junta con la tierra es el…", pista: "La ves a lo lejos, muy recta.",
-    opciones: [{ e: "🌅", t: "Horizonte" }, { e: "🧱", t: "Frontera" }, { e: "🌊", t: "Orilla" }], correcta: 0 },
-  { ctx: "⏳", enunciado: "Lo que ocurrió hace mucho tiempo es el…", pista: "Lo estudiamos para saber de dónde venimos.",
-    opciones: [{ e: "⏳", t: "Pasado" }, { e: "🔮", t: "Futuro" }, { e: "🎁", t: "Regalo" }], correcta: 0 },
-  { ctx: "🤝", enunciado: "Para vivir bien con los demás debemos…", pista: "Tratar a todos con respeto.",
-    opciones: [{ e: "😡", t: "Pelear" }, { e: "🤝", t: "Respetar" }, { e: "🙈", t: "Ignorar" }], correcta: 1 },
-  { ctx: "🌎", enunciado: "El planeta donde vivimos se llama…", pista: "Es azul y redondo.",
-    opciones: [{ e: "🌙", t: "Luna" }, { e: "☀️", t: "Sol" }, { e: "🌎", t: "Tierra" }], correcta: 2 },
-  { ctx: "🚦", enunciado: "¿Qué debemos respetar para cruzar la calle?", pista: "Rojo detiene, verde deja pasar.",
-    opciones: [{ e: "🚦", t: "Semáforo" }, { e: "🎈", t: "Globo" }, { e: "📺", t: "Tele" }], correcta: 0 },
-  { ctx: "👮", enunciado: "¿Quién cuida el orden en la ciudad?", pista: "Usa uniforme y nos protege.",
-    opciones: [{ e: "👮", t: "Policía" }, { e: "🤡", t: "Payaso" }, { e: "🧑‍🍳", t: "Cocinero" }], correcta: 0 },
-  { ctx: "🏞️", enunciado: "Ríos, montañas y bosques son parte de la…", pista: "Todo lo natural que nos rodea.",
-    opciones: [{ e: "📱", t: "Pantalla" }, { e: "🏞️", t: "Naturaleza" }, { e: "🎮", t: "Consola" }], correcta: 1 },
-  { ctx: "🏫", enunciado: "El lugar donde aprendemos con maestros es la…", pista: "Vas cada día con tu mochila.",
-    opciones: [{ e: "🏥", t: "Hospital" }, { e: "🏪", t: "Tienda" }, { e: "🏫", t: "Escuela" }], correcta: 2 },
+const PERSONAS = [
+  { id: "directora",     nombre: "Directora",     emoji: "👩‍💼", pregunta: "¿Quién dirige y organiza la escuela?" },
+  { id: "docente",       nombre: "Docente",       emoji: "👨‍🏫", pregunta: "¿Quién enseña a los niños y niñas en el aula?" },
+  { id: "conserje",      nombre: "Conserje",      emoji: "🧹", pregunta: "¿Quién mantiene limpia la escuela?" },
+  { id: "guardian",      nombre: "Guardián",      emoji: "🛡️", pregunta: "¿Quién cuida la entrada de la escuela?" },
+  { id: "cocinera",      nombre: "Cocinera",      emoji: "👩‍🍳", pregunta: "¿Quién prepara los alimentos en la escuela?" },
+  { id: "secretaria",    nombre: "Secretaria",    emoji: "🗂️", pregunta: "¿Quién organiza los documentos de la escuela?" },
+  { id: "bibliotecario", nombre: "Bibliotecario", emoji: "📚", pregunta: "¿Quién cuida los libros de la biblioteca?" },
+  { id: "inspectora",    nombre: "Inspectora",    emoji: "🔔", pregunta: "¿Quién cuida el orden en los recreos?" },
+  { id: "enfermero",     nombre: "Enfermero",     emoji: "🩹", pregunta: "¿Quién te atiende cuando te sientes mal?" },
+  { id: "psicologa",     nombre: "Psicóloga",     emoji: "💬", pregunta: "¿Quién te escucha y ayuda con tus emociones?" },
+  { id: "chofer",        nombre: "Chofer",        emoji: "🚌", pregunta: "¿Quién te lleva a la escuela en la buseta?" },
+  { id: "jardinera",     nombre: "Jardinera",     emoji: "🌻", pregunta: "¿Quién cuida las plantas del patio?" },
 ];
 
 // Memoria de preguntas recientes (localStorage) para no repetir entre cargas/
-// niños en el mismo navegador. Recuerda los últimos 8 índices vistos.
-const RECENT_KEY = "edinun_soc_demo_recientes_v1";   // ← PERSONALIZAR por juego
+// niños en el mismo navegador. FIFO de 6 = ⌊12/2⌋ → 4 partidas sin repetir.
+const RECENT_KEY = "edinun_juego5_aprendiendo_recientes_v1";
 
 function getRecent() {
   try {
@@ -706,7 +697,7 @@ function getRecent() {
 
 function pushRecent(ids) {
   const prev = getRecent().filter((id) => ids.indexOf(id) === -1);
-  const next = ids.concat(prev).slice(0, 8);
+  const next = ids.concat(prev).slice(0, 6);
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch (e) {}
 }
 
@@ -723,10 +714,21 @@ function shuffle(arr) {
 // completando con los vistos si hiciera falta. Garantiza variación al recargar.
 function pickRounds(n) {
   const recent = new Set(getRecent());
-  const all = PREGUNTAS.map((_, i) => i);
+  const all = PERSONAS.map((_, i) => i);
   const fresh = shuffle(all.filter((i) => !recent.has(i)));
   const stale = shuffle(all.filter((i) => recent.has(i)));
   return fresh.concat(stale).slice(0, n);
+}
+
+// Arma las rondas de la partida: para cada persona sorteada, 2 distractores al
+// azar del mismo banco y las 3 opciones barajadas (la posición de la correcta
+// varía sola). Se construye UNA vez por partida para que no cambie al re-render.
+function buildRounds(n) {
+  return pickRounds(n).map((pi) => {
+    const others = shuffle(PERSONAS.map((_, i) => i).filter((i) => i !== pi)).slice(0, 2);
+    const opciones = shuffle([pi].concat(others));
+    return { p: pi, opciones, correcta: opciones.indexOf(pi) };
+  });
 }
 
 const ANIMOS = [
@@ -739,10 +741,34 @@ const ANIMOS = [
 // Colores de borde para las fichas de opción.
 const OPTION_COLORS = ["#ef5a5a", "#4fa0ff", "#2ecc8f"];
 
+// Dibujo de la persona dentro de la tarjeta. Usa assets/persona-<id>.png; si el
+// PNG todavía no existe (la autora los está generando), cae al emoji placeholder
+// vía onError. Va con key={persona.id} en el llamador para que el estado
+// `broken` no se arrastre entre rondas.
+function PersonaImg({ persona }) {
+  const [broken, setBroken] = useStateG(false);
+  if (broken) {
+    return (
+      <span style={{ fontSize: 58, lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.3))" }}>
+        {persona.emoji}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={"assets/persona-" + persona.id + ".jpg"}
+      alt=""
+      draggable={false}
+      onError={() => setBroken(true)}
+      style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
+    />
+  );
+}
+
 function GameScreen({ app, setApp, go }) {
   const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
 
-  const [rounds, setRounds] = useStateG(() => pickRounds(ROUNDS));
+  const [rounds, setRounds] = useStateG(() => buildRounds(ROUNDS));
   const [idx, setIdx] = useStateG(0);
   const [picked, setPicked] = useStateG(null);
   const [feedback, setFeedback] = useStateG(null);
@@ -759,7 +785,7 @@ function GameScreen({ app, setApp, go }) {
   const advancing = useRefG(false);
 
   // Registrar las preguntas de esta partida como recientes (una sola vez).
-  useEffectG(() => { pushRecent(rounds); }, []);
+  useEffectG(() => { pushRecent(rounds.map((r) => r.p)); }, []);
 
   useEffectG(() => {
     const id = setInterval(() => {
@@ -768,9 +794,9 @@ function GameScreen({ app, setApp, go }) {
     return () => clearInterval(id);
   }, []);
 
-  const q = PREGUNTAS[rounds[idx]];
+  const q = rounds[idx];                       // { p, opciones, correcta }
+  const persona = PERSONAS[q.p];               // la persona correcta (y su pregunta)
   const answered = picked !== null;
-  const correcta = q.opciones[q.correcta];
 
   function formatTime(s) {
     const m = Math.floor(s / 60), ss = s % 60;
@@ -780,8 +806,8 @@ function GameScreen({ app, setApp, go }) {
   function confirmRestart() {
     setConfirmingRestart(false);
     advancing.current = false;
-    const nuevas = pickRounds(ROUNDS);
-    pushRecent(nuevas);
+    const nuevas = buildRounds(ROUNDS);
+    pushRecent(nuevas.map((r) => r.p));
     setRounds(nuevas);
     setIdx(0); setPicked(null); setFeedback(null); setFeedbackMsg("");
     setAciertos(0); setStars(0); setLog([]);
@@ -797,10 +823,10 @@ function GameScreen({ app, setApp, go }) {
     const exSec = Math.max(0, Math.floor((Date.now() - exerciseStart.current) / 1000));
     const entry = {
       idx: idx + 1,
-      emoji: q.ctx,
-      a: q.enunciado,
-      userAnswer: `${q.opciones[i].e} ${q.opciones[i].t}`,
-      correctAnswer: `${correcta.e} ${correcta.t}`,
+      emoji: persona.emoji,
+      a: persona.pregunta,
+      userAnswer: PERSONAS[q.opciones[i]].nombre,
+      correctAnswer: persona.nombre,
       isCorrect,
       time: exSec,
     };
@@ -875,7 +901,7 @@ function GameScreen({ app, setApp, go }) {
         </div>
       </div>
 
-      {/* ── RONDA con dots (sin chip de tema: juego de 1 solo nivel) — top:52 (§1.1) ── */}
+      {/* ── RONDA con dots (sin chip de tema: aún 1 solo tema) — top:52 (§1.1) ── */}
       <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
         <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
         {Array.from({ length: ROUNDS }).map((_, i) => {
@@ -903,7 +929,7 @@ function GameScreen({ app, setApp, go }) {
             color: "#fce9a8", textAlign: "center",
             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
           }}>
-            {answered ? (picked === q.correcta ? "¡Muy bien!" : "¡Casi! Mira la respuesta.") : (q.pista || "Toca al correcto.")}
+            {answered ? (picked === q.correcta ? "¡Muy bien!" : "¡Casi! Mira la respuesta.") : (<>Toca a la<br />persona correcta.</>)}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>
@@ -919,25 +945,18 @@ function GameScreen({ app, setApp, go }) {
           lienzo (900): el personaje vive en el margen izquierdo y los botones
           en el derecho. */}
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly" }}>
-        {/* Enunciado */}
+        {/* Enunciado (QUÉ): la pregunta del banco ES el enunciado */}
         <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 23, lineHeight: 1.15, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none", maxWidth: 470 }}>
-          {q.enunciado}
+          {persona.pregunta}
         </div>
 
-        {/* Cartel del emoji de contexto */}
-        <div style={{
-          width: 130, height: 116, borderRadius: 20,
-          background: "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(240,235,225,0.9))",
-          border: "3px solid #f2c260",
-          boxShadow: "0 12px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(242,194,96,0.35), inset 0 -4px 0 rgba(0,0,0,0.08)",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 82, lineHeight: 1,
-        }}>
-          {q.ctx}
-        </div>
-
-        {/* Opciones — fichas grandes tocables */}
-        <div style={{ display: "flex", gap: 18, justifyContent: "center", flexWrap: "nowrap" }}>
-          {q.opciones.map((op, i) => {
+        {/* Opciones — 3 tarjetas grandes con dibujo + nombre (sin cartel de
+            contexto: el dibujo de cada tarjeta ES el contenido visual).
+            Las escenas de la autora son CUADRADAS (2048×2048 → jpg 640): el área
+            de imagen va cuadrada y muestra la escena completa sin recortar. */}
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "nowrap" }}>
+          {q.opciones.map((oi, i) => {
+            const op = PERSONAS[oi];
             const correctOne = i === q.correcta;
             const baseColor = OPTION_COLORS[i % OPTION_COLORS.length];
             let borderColor = baseColor;
@@ -962,10 +981,11 @@ function GameScreen({ app, setApp, go }) {
                 onClick={() => answerTap(i)}
                 disabled={answered}
                 style={{
-                  width: 128, height: 128, borderRadius: 18,
+                  width: 156, height: 194, borderRadius: 18,
                   border: `3px solid ${borderColor}`,
                   background: bg,
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 6,
+                  padding: 8,
                   cursor: answered ? "default" : "pointer",
                   boxShadow: answered && correctOne
                     ? "0 0 22px rgba(46,204,143,0.6), inset 0 1px 0 rgba(255,255,255,0.4)"
@@ -975,8 +995,10 @@ function GameScreen({ app, setApp, go }) {
                 }}
                 title="Toca para responder"
               >
-                <span style={{ fontSize: 62, lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.3))" }}>{op.e}</span>
-                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 16, color: nameColor }}>{op.t}</span>
+                <div style={{ width: "100%", flex: 1, minHeight: 0, borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <PersonaImg key={op.id} persona={op} />
+                </div>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 16, color: nameColor, whiteSpace: "nowrap" }}>{op.nombre}</span>
               </button>
             );
           })}

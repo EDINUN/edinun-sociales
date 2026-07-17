@@ -875,8 +875,8 @@ function GameScreen({ app, setApp, go }) {
         </div>
       </div>
 
-      {/* ── RONDA con dots (sin chip de tema: juego de 1 solo nivel) ── */}
-      <div style={{ position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+      {/* ── RONDA con dots (sin chip de tema: juego de 1 solo nivel) — top:52 (§1.1) ── */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
         <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
         {Array.from({ length: ROUNDS }).map((_, i) => {
           const done = i < log.length;
