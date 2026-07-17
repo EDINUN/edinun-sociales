@@ -249,7 +249,36 @@ Object.assign(window, {
 const { useState, useEffect, useRef, useMemo } = React;
 
 // ─────────────────────────────────────────────────────────────
-// Fondo cósmico + glifos flotantes — temática comunidad escolar (juego-5).
+// Config de TEMAS (un botón por entrada). El juego "Aprendiendo" crecerá a 4
+// temas del libro; hoy hay 2. El gradiente va por POSICIÓN (1º naranja · 2º
+// amarillo · 3º azul · 4º violeta). Los chips del Home fijan app.level →
+// app.currentCategory / currentCatLabel que lee GameScreen.
+//   · aprendiendo → Tema 1 "Mi escuela" (mecánica ¿QUIÉN? tocar, implementado).
+//   · transporte  → Tema 2 "Medios de transporte" (clasificar tierra/agua/aire).
+// ─────────────────────────────────────────────────────────────
+const LEVELS_CFG = [
+  {
+    id: "aprendiendo",
+    label: "Mi escuela",
+    grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
+    ink: "#3a2608",
+    description: "Aprendiendo con mis compañeros y compañeras de clase.",
+    catLabel: "Mi escuela",
+    enabled: true,
+  },
+  {
+    id: "transporte",
+    label: "Medios de transporte",
+    grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
+    ink: "#3a2608",
+    description: "Nuestros medios de transporte: cooperamos y estamos seguros.",
+    catLabel: "Medios de transporte",
+    enabled: true,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+// Fondo cósmico + glifos flotantes — temática comunidad escolar + transporte (juego-5).
 // ─────────────────────────────────────────────────────────────
 function CosmosBg({ variant = "cosmic", glyphSize }) {
   const glyphsStyle = glyphSize ? { fontSize: glyphSize + "px" } : undefined;
@@ -414,36 +443,22 @@ function incrementGamesCompleted() {
 function HomeScreen({ app, setApp, go }) {
   const visitors = useVisitorCount();
   const [name, setName] = useState(app.studentName || "");
-  const [level, setLevel] = useState(app.level || "basic");
+  const initial = app.level && LEVELS_CFG.some((l) => l.id === app.level && l.enabled) ? app.level : "aprendiendo";
+  const [level, setLevel] = useState(initial);
+
+  const currentCfg = LEVELS_CFG.find((l) => l.id === level) || null;
+  const canStart = !!name.trim() && !!currentCfg && currentCfg.enabled;
 
   function start() {
-    if (!name.trim()) return;
-    setApp((s) => ({
-      ...s,
-      studentName: name.trim(),
-      level,
-      sessionStart: Date.now(),
-    }));
+    if (!canStart) return;
+    setApp((s) => ({ ...s, studentName: name.trim(), level, sessionStart: Date.now() }));
     go("character");
   }
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 18,
-          right: 22,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          background: "rgba(10,6,35,0.55)",
-          border: "1px solid rgba(242,194,96,0.3)",
-          borderRadius: 999,
-          padding: "6px 12px",
-          backdropFilter: "blur(8px)",
-        }}
-      >
+      {/* Contador de visitantes */}
+      <div style={{ position: "absolute", bottom: 18, right: 22, display: "flex", alignItems: "center", gap: 8, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(242,194,96,0.3)", borderRadius: 999, padding: "6px 12px", backdropFilter: "blur(8px)" }}>
         <PeopleIcon size={16} color="#fce9a8" />
         <div style={{ fontFamily: "var(--ed-font-mono)", fontSize: 11, color: "#f2c260", letterSpacing: "0.06em" }}>
           {visitors.toLocaleString("es-CO")}
@@ -451,55 +466,70 @@ function HomeScreen({ app, setApp, go }) {
         </div>
       </div>
 
-      <div
-        style={{
-          position: "absolute", inset: 0,
-          display: "grid",
-          gridTemplateColumns: "1fr 1.15fr",
-          alignItems: "center",
-          padding: "40px 56px",
-          gap: 40,
-        }}
-      >
+      <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1.15fr", alignItems: "center", padding: "34px 52px", gap: 34 }}>
+        {/* Izquierda — logo */}
         <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
           <EdinunLogo size={300} />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 520 }}>
+        {/* Derecha — saludo + temas + descripción + nombre */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 520 }}>
           <div>
-            <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 8 }}>
-              EDINUN · Aprendiendo {/* título global elegido por la autora (2026-07-16) */}
+            <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>
+              EDINUN · Aprendiendo
             </div>
-            <h1 className="ed-h1" style={{ fontSize: 44, lineHeight: 1.05 }}>
+            <h1 className="ed-h1" style={{ fontSize: 38, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}
-              <span style={{
-                background: "linear-gradient(180deg,#fce9a8,#d9a441)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: 600,
-              }}>
+              <span style={{ background: "linear-gradient(180deg,#fce9a8,#d9a441)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 600 }}>
                 Estudiante!
               </span>
             </h1>
           </div>
 
-          <div style={{
-            padding: "14px 18px",
-            borderRadius: 14,
-            background: "rgba(10,6,35,0.55)",
-            border: "1px solid rgba(148,120,255,0.3)",
-            fontFamily: "var(--ed-font-display)", fontWeight: 600,
-            fontSize: 15, lineHeight: 1.4,
-            color: "#fce9a8",
-            textAlign: "center",
-          }}>
-            Aprendiendo con mis compañeros y compañeras de clase.
+          {/* Botones de tema (chips) */}
+          <div>
+            <div className="ed-label" style={{ marginBottom: 8 }}>Elige un tema para jugar</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {LEVELS_CFG.map((lv) => {
+                const active = level === lv.id && lv.enabled;
+                return (
+                  <button
+                    key={lv.id}
+                    onClick={() => { if (lv.enabled) setLevel(lv.id); }}
+                    disabled={!lv.enabled}
+                    title={lv.enabled ? lv.label : "Próximamente"}
+                    style={{
+                      padding: "14px 6px", minHeight: 60,
+                      borderRadius: 16,
+                      background: lv.grad,
+                      color: lv.ink,
+                      fontFamily: "var(--ed-font-display)", fontWeight: 800,
+                      fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
+                      textShadow: "0 1px 0 rgba(255,255,255,0.35)",
+                      border: "none",
+                      cursor: lv.enabled ? "pointer" : "not-allowed",
+                      opacity: lv.enabled ? 1 : 0.72,
+                      filter: lv.enabled ? "none" : "grayscale(0.15)",
+                      boxShadow: active
+                        ? "inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -3px 0 rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.85), 0 0 26px rgba(255,255,255,0.35)"
+                        : "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.18), 0 6px 14px -4px rgba(0,0,0,0.45)",
+                      transform: active ? "translateY(-2px)" : "none",
+                      transition: "all 0.18s ease",
+                    }}
+                  >
+                    {lv.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 12, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(148,120,255,0.3)", fontFamily: "var(--ed-font-display)", fontWeight: 600, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center" }}>
+              {currentCfg ? currentCfg.description : "Elige un tema para empezar."}
+            </div>
           </div>
 
+          {/* Nombre + ENTRAR */}
           <div>
-            <div className="ed-label" style={{ marginBottom: 10 }}>
-              Escribe tu nombre y entra
-            </div>
+            <div className="ed-label" style={{ marginBottom: 8 }}>Escribe tu nombre y entra</div>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <div style={{ flex: 1, position: "relative" }}>
                 <input
@@ -510,13 +540,13 @@ function HomeScreen({ app, setApp, go }) {
                   onKeyDown={(e) => e.key === "Enter" && start()}
                 />
               </div>
-              <button className="ed-btn ed-btn-primary" onClick={start} disabled={!name.trim()}
-                style={{ height: 52, padding: "0 28px", fontSize: 16, opacity: name.trim() ? 1 : 0.5 }}>
+              <button className="ed-btn ed-btn-primary" onClick={start} disabled={!canStart}
+                title={!name.trim() ? "Escribe tu nombre" : "Elige un tema"}
+                style={{ height: 50, padding: "0 26px", fontSize: 15, opacity: canStart ? 1 : 0.5, cursor: canStart ? "pointer" : "not-allowed" }}>
                 ENTRAR →
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -531,13 +561,14 @@ function CharacterScreen({ app, setApp, go }) {
   const current = CHARACTERS.find((c) => c.id === sel) || CHARACTERS[0];
 
   function choose() {
-    // Por ahora 1 solo tema ("Aprendiendo"); cuando la autora mande los otros 3
-    // temas del libro, el Home pasa a chips tipo juego-4 (LEVELS_CFG).
+    // Mapea el tema elegido en el Home (app.level) a currentCategory/currentCatLabel
+    // que lee GameScreen para montar la mecánica correcta.
+    const lvCfg = LEVELS_CFG.find((l) => l.id === app.level) || LEVELS_CFG[0];
     setApp((s) => ({
       ...s,
       character: sel,
-      currentCategory: "aprendiendo",
-      currentCatLabel: "Aprendiendo",
+      currentCategory: lvCfg.id,
+      currentCatLabel: lvCfg.catLabel,
     }));
     go("game");
   }
@@ -630,7 +661,7 @@ function CharacterScreen({ app, setApp, go }) {
   );
 }
 
-Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCompleted, useVisitorCount, markFirstAttempt });
+Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCompleted, useVisitorCount, markFirstAttempt, LEVELS_CFG });
 
 // game-screens.jsx — JUEGO-5 · Tema "Aprendiendo" (Estudios Sociales · 6 años).
 // Mecánica "Mira y toca" con TARJETAS DE DIBUJO (patrón 5 de la biblioteca):
@@ -765,7 +796,8 @@ function PersonaImg({ persona }) {
   );
 }
 
-function GameScreen({ app, setApp, go }) {
+// ═══════════════ TEMA 1 · "Mi escuela" — ¿Quién? (tocar) ═══════════════
+function PersonasGame({ app, setApp, go }) {
   const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
 
   const [rounds, setRounds] = useStateG(() => buildRounds(ROUNDS));
@@ -873,7 +905,7 @@ function GameScreen({ app, setApp, go }) {
         ...s,
         stars: newStars,
         lastResult: {
-          category: CAT_LABEL,
+          category: app.currentCatLabel || CAT_LABEL,
           solved: newAciertos,
           total: ROUNDS,
           time: Math.floor((Date.now() - started.current) / 1000),
@@ -888,6 +920,8 @@ function GameScreen({ app, setApp, go }) {
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      <TemaChipsBar app={app} setApp={setApp} />
+
       {/* ── HUD: logo izq, tiempo + estrellas der ── */}
       <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <EdinunLogoMini size={64} />
@@ -1272,6 +1306,446 @@ function ResultsScreen({ app, setApp, go }) {
       <PrintableReport studentName={app.studentName} res={res} dateStr={dateStr} mm={mm} ss={ss} attemptedCount={attemptedCount} accuracy={accuracy} />
     </div>
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Barra de chips de tema (arriba, centrada) — cambiar de tema SIN volver al
+// Home. Es destructivo (se pierde el avance) → modal de confirmación.
+// ═══════════════════════════════════════════════════════════════════════
+function TemaChipsBar({ app, setApp }) {
+  const current = app.currentCategory;
+  const levels = (typeof LEVELS_CFG !== "undefined" && LEVELS_CFG) || (window.LEVELS_CFG || []);
+  const [pending, setPending] = useStateG(null);
+  function confirmSwitch() {
+    const cfg = levels.find((l) => l.id === pending);
+    setPending(null);
+    if (cfg) setApp((s) => ({ ...s, level: cfg.id, currentCategory: cfg.id, currentCatLabel: cfg.catLabel }));
+  }
+  return (
+    <>
+      <div style={{ position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 6, zIndex: 6 }}>
+        {levels.map((lv) => {
+          const active = lv.id === current;
+          return (
+            <button key={lv.id} onClick={() => { if (lv.enabled && !active) setPending(lv.id); }} disabled={!lv.enabled}
+              title={active ? "Tema actual" : `Cambiar a "${lv.label}"`}
+              style={{ padding: "5px 12px", borderRadius: 999, background: active ? lv.grad : "rgba(0,0,0,0.35)", color: active ? lv.ink : "rgba(252,233,168,0.85)", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 11, letterSpacing: "0.02em", border: active ? "1px solid rgba(255,255,255,0.55)" : "1px solid rgba(242,194,96,0.35)", boxShadow: active ? "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(255,255,255,0.18)" : "none", cursor: (lv.enabled && !active) ? "pointer" : "default", whiteSpace: "nowrap" }}>
+              {lv.label}
+            </button>
+          );
+        })}
+      </div>
+      {pending && (() => {
+        const cfg = levels.find((l) => l.id === pending);
+        if (!cfg) return null;
+        return (
+          <PortalToBody>
+            <div onClick={() => setPending(null)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+              <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 460, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(148,120,255,0.3)" }}>
+                <div className="ed-label" style={{ color: "#a78bfa", marginBottom: 6 }}>Cambiar de tema</div>
+                <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Ir a "{cfg.label}"?</h2>
+                <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder tu avance en este tema. No habrá reporte de esta sesión.</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <button className="ed-btn ed-btn-ghost" onClick={() => setPending(null)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                  <button className="ed-btn ed-btn-primary" onClick={confirmSwitch} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, CAMBIAR</button>
+                </div>
+              </div>
+            </div>
+          </PortalToBody>
+        );
+      })()}
+    </>
+  );
+}
+
+// ═══════════════ TEMA 2 · "Medios de transporte" — clasificar ═══════════════
+// Arrastrar transportes (emoji) a su vía: tierra / agua / aire + ¡VERIFICAR!
+// 3 rondas (pedido de la autora); 4 transportes por ronda (1 por vía + 1 extra).
+// Emojis: los medios de transporte se leen clarísimo → NO hacen falta imágenes.
+const ROUNDS_T = 3;
+const T_PER_ROUND = 4;
+const RECENT_KEY_T = "edinun_juego5_transporte_recientes_v1";
+const T_RECENT_CAP = 8;
+
+const VIAS = [
+  { id: "tierra", label: "Tierra", e: "🛣️", ring: "#e4a03a", tint: "rgba(228,160,58,0.18)" },
+  { id: "agua",   label: "Agua",   e: "🌊", ring: "#5aa9f5", tint: "rgba(90,169,245,0.18)" },
+  { id: "aire",   label: "Aire",   e: "☁️", ring: "#8fd0e8", tint: "rgba(143,208,232,0.18)" },
+];
+// Banco de transportes (emoji + vía). Los del libro: bus, camión, taxi, moto,
+// tren, avión, helicóptero, canoa, barco… Clasificar por vía NO es dato inventado.
+const TRANSPORTES = [
+  { id: "auto",        e: "🚗",  via: "tierra", label: "Auto" },
+  { id: "bus",         e: "🚌",  via: "tierra", label: "Bus" },
+  { id: "taxi",        e: "🚕",  via: "tierra", label: "Taxi" },
+  { id: "bomberos",    e: "🚒",  via: "tierra", label: "Bomberos" },
+  { id: "ambulancia",  e: "🚑",  via: "tierra", label: "Ambulancia" },
+  { id: "moto",        e: "🏍️", via: "tierra", label: "Moto" },
+  { id: "camion",      e: "🚚",  via: "tierra", label: "Camión" },
+  { id: "tren",        e: "🚂",  via: "tierra", label: "Tren" },
+  { id: "bici",        e: "🚲",  via: "tierra", label: "Bicicleta" },
+  { id: "velero",      e: "⛵",  via: "agua",   label: "Velero" },
+  { id: "barco",       e: "🚢",  via: "agua",   label: "Barco" },
+  { id: "canoa",       e: "🛶",  via: "agua",   label: "Canoa" },
+  { id: "lancha",      e: "🚤",  via: "agua",   label: "Lancha" },
+  { id: "avion",       e: "✈️", via: "aire",   label: "Avión" },
+  { id: "helicoptero", e: "🚁",  via: "aire",   label: "Helicóptero" },
+  { id: "globo",       e: "🎈",  via: "aire",   label: "Globo" },
+];
+const TMAP = {}; TRANSPORTES.forEach((t) => { TMAP[t.id] = t; });
+function viaIndex(id) { return VIAS.findIndex((v) => v.id === id); }
+
+// Geometría (lienzo 900×540) — bandeja arriba (fila de 4) · 3 vías abajo.
+const T_BIN_CX = [290, 450, 610];
+const T_BIN_TOP = 322;
+const T_BIN_W = 150, T_BIN_H = 150;
+const T_HIT_PAD = 24;
+const T_TRAY_X = [255, 385, 515, 645];   // 4 tarjetas en fila, centradas en x=450
+const T_TRAY_Y = 172;
+
+const GAME_CSS_T = `
+.ed-noselect, .ed-noselect *{ -webkit-user-select:none; -moz-user-select:none; user-select:none; -webkit-user-drag:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
+@keyframes edCheckPopT{ 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.ed-checkPopT{ animation:edCheckPopT .34s cubic-bezier(.2,.9,.3,1.4); }
+`;
+
+function tReadRecent() { try { const a = JSON.parse(localStorage.getItem(RECENT_KEY_T) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function tWriteRecent(ids) {
+  try {
+    const prev = tReadRecent(); const merged = [];
+    ids.concat(prev).forEach((x) => { if (merged.indexOf(x) === -1) merged.push(x); });
+    localStorage.setItem(RECENT_KEY_T, JSON.stringify(merged.slice(0, T_RECENT_CAP)));
+  } catch (e) { /* sin localStorage: sin anti-repetición, no crítico */ }
+}
+function tPickFresh(ids, recent, n, exclude) {
+  const avail = ids.filter((id) => exclude.indexOf(id) === -1);
+  const fresh = shuffle(avail.filter((id) => recent.indexOf(id) === -1));
+  const stale = shuffle(avail.filter((id) => recent.indexOf(id) !== -1));
+  return fresh.concat(stale).slice(0, n);
+}
+// Un tablero: 1 transporte garantizado por vía + 1 extra, evitando recientes y ya usados.
+function tBuildBoard(recent, used) {
+  const chosen = [];
+  VIAS.forEach((v) => {
+    const ofVia = TRANSPORTES.filter((t) => t.via === v.id).map((t) => t.id);
+    const pick = tPickFresh(ofVia, recent, 1, chosen.concat(used));
+    if (pick.length) chosen.push(pick[0]);
+  });
+  const rest = tPickFresh(TRANSPORTES.map((t) => t.id), recent, T_PER_ROUND - chosen.length, chosen.concat(used));
+  rest.forEach((id) => chosen.push(id));
+  return shuffle(chosen).slice(0, T_PER_ROUND);
+}
+// Los 3 tableros de la partida (sin repetir transporte entre ellos).
+function tBuildPartida() {
+  const recent = tReadRecent(); const used = []; const boards = [];
+  for (let r = 0; r < ROUNDS_T; r++) { const b = tBuildBoard(recent, used); b.forEach((id) => used.push(id)); boards.push(b); }
+  tWriteRecent(used);
+  return boards;
+}
+function tPlacedGrid(n) {
+  const cols = n <= 2 ? Math.max(1, n) : Math.ceil(n / 2);
+  const rows = Math.ceil(n / cols) || 1;
+  let size, cell;
+  if (cols <= 1) { size = 54; cell = 80; } else if (cols === 2) { size = 46; cell = 68; } else { size = 34; cell = 50; }
+  return { cols, rows, cell, rowStep: size + 18, size };
+}
+function tVerifyCol(n) {
+  let step = n <= 2 ? 66 : (n === 3 ? 58 : 50);
+  step = Math.min(step, 240 / Math.max(1, n - 1));
+  return { size: Math.max(30, step - 16), step };
+}
+
+function TransporteGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const rootRef = useRefG(null);
+  const binRefs = useRefG([null, null, null]);
+  const boardsRef = useRefG(null);
+  if (!boardsRef.current) boardsRef.current = tBuildPartida();
+
+  const [roundIdx, setRoundIdx] = useStateG(0);
+  const [placement, setPlacement] = useStateG({});
+  const [dragId, setDragId] = useStateG(null);
+  const [dragXY, setDragXY] = useStateG({ x: 0, y: 0 });
+  const [verdict, setVerdict] = useStateG(null);
+  const [revealBin, setRevealBin] = useStateG({});
+  const [banner, setBanner] = useStateG(null);
+  const [bannerMsg, setBannerMsg] = useStateG("");
+  const [stars, setStars] = useStateG(0);
+  const [elapsed, setElapsed] = useStateG(0);
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+
+  const started = useRefG(Date.now());
+  const firstDone = useRefG(false);
+  const advancing = useRefG(false);
+  const logRef = useRefG([]);
+  const dragRef = useRefG(null);
+
+  const round = boardsRef.current[roundIdx];
+
+  useEffectG(() => {
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500);
+    return () => clearInterval(id);
+  }, []);
+
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function restPos(id) {
+    const bin = placement[id];
+    if (bin) {
+      const bi = viaIndex(bin);
+      const inBin = round.filter((x) => placement[x] === bin);
+      const k = inBin.indexOf(id); const n = inBin.length;
+      if (verdict) { const c = tVerifyCol(n); return { x: T_BIN_CX[bi], y: (T_BIN_TOP + 16) - k * c.step }; }
+      const g = tPlacedGrid(n);
+      const row = Math.floor(k / g.cols);
+      const inRow = Math.min(g.cols, n - row * g.cols);
+      const col = k - row * g.cols;
+      const cx = T_BIN_CX[bi] - ((inRow - 1) * g.cell) / 2 + col * g.cell;
+      const cy = (T_BIN_TOP + 58) - ((g.rows - 1) * g.rowStep) / 2 + row * g.rowStep;
+      return { x: cx, y: cy };
+    }
+    const ti = round.indexOf(id);
+    return { x: T_TRAY_X[ti] != null ? T_TRAY_X[ti] : 450, y: T_TRAY_Y };
+  }
+
+  function onPointerDown(e, id) {
+    if (verdict || advancing.current) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+    const rect = rootRef.current ? rootRef.current.getBoundingClientRect() : { width: 900 };
+    const scale = rect.width / 900 || 1;
+    const cur = restPos(id);
+    dragRef.current = { id, sx: e.clientX, sy: e.clientY, cx: cur.x, cy: cur.y, scale, moved: false };
+    setDragId(id); setDragXY(cur);
+    if (!firstDone.current) { firstDone.current = true; if (typeof markFirstAttempt === "function") markFirstAttempt(); }
+  }
+  function onPointerMove(e) {
+    const d = dragRef.current; if (!d) return;
+    if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) > 4) d.moved = true;
+    setDragXY({ x: d.cx + (e.clientX - d.sx) / d.scale, y: d.cy + (e.clientY - d.sy) / d.scale });
+  }
+  function onPointerUp(e) {
+    const d = dragRef.current; if (!d) return;
+    dragRef.current = null; setDragId(null);
+    const id = d.id; let hit = null;
+    for (let i = 0; i < 3; i++) {
+      const el = binRefs.current[i]; if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (e.clientX >= r.left - T_HIT_PAD && e.clientX <= r.right + T_HIT_PAD &&
+          e.clientY >= r.top - T_HIT_PAD && e.clientY <= r.bottom + T_HIT_PAD) { hit = VIAS[i].id; break; }
+    }
+    if (hit) setPlacement((p) => ({ ...p, [id]: hit }));
+    else if (d.moved) setPlacement((p) => { const n = { ...p }; delete n[id]; return n; });
+  }
+
+  const allPlaced = round.every((id) => placement[id]);
+  const placedCount = round.filter((id) => placement[id]).length;
+
+  function confirmRestart() {
+    setConfirmingRestart(false);
+    advancing.current = false;
+    boardsRef.current = tBuildPartida();
+    logRef.current = [];
+    setRoundIdx(0); setPlacement({}); setVerdict(null); setRevealBin({});
+    setBanner(null); setBannerMsg(""); setStars(0);
+    started.current = Date.now();
+  }
+
+  function finalize(finalStars) {
+    const solved = logRef.current.filter((e) => e.isCorrect).length;
+    setApp((s) => ({
+      ...s,
+      stars: (s.stars || 0) + finalStars,
+      lastResult: {
+        category: app.currentCatLabel || "Medios de transporte",
+        solved,
+        total: logRef.current.length,
+        time: Math.floor((Date.now() - started.current) / 1000),
+        starsEarned: finalStars,
+        log: logRef.current.slice(),
+      },
+    }));
+    if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+    go("results");
+  }
+
+  function onVerify() {
+    if (!allPlaced || verdict || advancing.current) return;
+    const vd = {}, rb = {}; let ac = 0;
+    round.forEach((id) => {
+      const ok = placement[id] === TMAP[id].via;
+      vd[id] = ok ? "ok" : "wrong";
+      if (ok) ac++; else rb[TMAP[id].via] = true;
+      const okVia = VIAS[viaIndex(TMAP[id].via)];
+      const chosen = VIAS[viaIndex(placement[id])];
+      logRef.current.push({
+        idx: logRef.current.length + 1, emoji: TMAP[id].e, a: TMAP[id].label,
+        userAnswer: chosen ? `${chosen.e} ${chosen.label}` : "—",
+        correctAnswer: `${okVia.e} ${okVia.label}`, isCorrect: ok, time: 0,
+      });
+    });
+    const perfecto = ac === round.length;
+    const newStars = stars + ac;
+    setVerdict(vd); setRevealBin(rb); setStars(newStars);
+    advancing.current = true;
+    const isLast = roundIdx + 1 >= ROUNDS_T;
+    const revealMs = perfecto ? 950 : 3600;
+    setTimeout(() => {
+      if (perfecto) { setBanner("ok"); setBannerMsg(`+${ac} ⭐`); }
+      else { setBanner("err"); setBannerMsg(ANIMOS[Math.floor(Math.random() * ANIMOS.length)]); }
+    }, revealMs);
+    setTimeout(() => {
+      setBanner(null); setBannerMsg("");
+      if (isLast) { finalize(newStars); }
+      else { setRoundIdx((i) => i + 1); setPlacement({}); setVerdict(null); setRevealBin({}); advancing.current = false; }
+    }, revealMs + 1600);
+  }
+
+  return (
+    <div ref={rootRef} className="ed-noselect" style={{ position: "absolute", inset: 0, overflow: "hidden", WebkitTapHighlightColor: "transparent" }}>
+      <style>{GAME_CSS_T}</style>
+      <TemaChipsBar app={app} setApp={setApp} />
+
+      {/* ── HUD: logo izq, tiempo + estrellas der ── */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      {/* ── RONDA con dots — top:52 (§1.1) ── */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8, zIndex: 4 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: ROUNDS_T }).map((_, i) => (
+          <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: i < roundIdx ? "#fce9a8" : (i === roundIdx ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: i < roundIdx ? "0 0 8px currentColor" : "none", color: "#fce9a8" }} />
+        ))}
+      </div>
+
+      {/* ── Enunciado (QUÉ) ── */}
+      <div style={{ position: "absolute", left: 150, right: 150, top: 88, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)", pointerEvents: "none" }}>
+        Lleva cada transporte a su camino.
+      </div>
+
+      {/* ── Los 3 paneles de vía ── */}
+      {VIAS.map((b, i) => (
+        <div key={b.id} style={{ position: "absolute", left: T_BIN_CX[i], top: T_BIN_TOP, transform: "translateX(-50%)", width: T_BIN_W, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, zIndex: 3, pointerEvents: "none" }}>
+          <div ref={(el) => { binRefs.current[i] = el; }} style={{ position: "relative", width: T_BIN_W, height: T_BIN_H, borderRadius: 18, background: b.tint, border: `3px solid ${b.ring}`, boxShadow: "inset 0 2px 12px rgba(0,0,0,0.25), 0 6px 14px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <span style={{ fontSize: 74, opacity: 0.22, lineHeight: 1 }}>{b.e}</span>
+          </div>
+          <div style={{ background: "rgba(10,6,35,0.72)", border: `2px solid ${b.ring}`, borderRadius: 999, padding: "3px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#fff", whiteSpace: "nowrap" }}>{b.e} {b.label}</div>
+        </div>
+      ))}
+
+      {/* ── Tarjetas de transporte (bandeja / colocadas) ── */}
+      {round.map((id) => {
+        const t = TMAP[id];
+        const dragging = dragId === id;
+        const placed = !!placement[id] && !dragging;
+        const pos = dragging ? dragXY : restPos(id);
+        const nBin = placed ? round.filter((x) => placement[x] === placement[id]).length : 0;
+        const inVerify = placed && !!verdict;
+        const ps = !placed ? 86 : (inVerify ? tVerifyCol(nBin).size : tPlacedGrid(nBin).size);
+        const v = verdict && verdict[id];
+        const okVia = VIAS[viaIndex(t.via)];
+        const locked = !!verdict;
+        return (
+          <div key={id} onPointerDown={(e) => onPointerDown(e, id)} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onDragStart={(e) => e.preventDefault()}
+            style={{ position: "absolute", left: pos.x, top: pos.y, transform: "translate(-50%,-50%)", zIndex: dragging ? 60 : (v === "wrong" ? 20 : (placed ? 12 : 15)), touchAction: "none", cursor: locked ? "default" : (dragging ? "grabbing" : "grab"), transition: dragging ? "none" : "left 0.18s ease, top 0.18s ease", filter: dragging ? "drop-shadow(0 10px 12px rgba(0,0,0,0.4))" : "drop-shadow(0 5px 7px rgba(0,0,0,0.3))" }}>
+            <div style={{ position: "relative", width: ps, height: ps, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {v === "wrong" && (<div style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "rgba(231,76,60,0.12)", boxShadow: "0 0 0 3px #e74c3c", zIndex: 0, pointerEvents: "none" }} />)}
+              <div style={{ position: "relative", zIndex: 1, width: ps, height: ps, borderRadius: 14, background: "linear-gradient(180deg, #fff8e6, #f7e3a8)", border: "2px solid #f2c260", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 5px 12px rgba(0,0,0,0.3)", overflow: "hidden", padding: 2 }}>
+                <span style={{ fontSize: Math.round(ps * (placed ? 0.62 : 0.44)), lineHeight: 1 }}>{t.e}</span>
+                {!placed && (<span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 11, color: "#3a2608", marginTop: 2, textAlign: "center", lineHeight: 1.05 }}>{t.label}</span>)}
+              </div>
+              {v === "ok" && (<div className="ed-checkPopT" style={{ position: "absolute", top: -8, right: -8, width: 24, height: 24, borderRadius: "50%", background: "#2ecc71", color: "#fff", fontWeight: 900, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 5px rgba(0,0,0,0.45)", border: "2px solid rgba(255,255,255,0.9)", zIndex: 2 }}>✓</div>)}
+              {v === "wrong" && (
+                <div className="ed-checkPopT" title={`Va en: ${okVia.label}`} style={{ position: "absolute", left: "100%", top: "50%", transform: "translateY(-50%)", marginLeft: 2, display: "flex", alignItems: "center", gap: 1, pointerEvents: "none", whiteSpace: "nowrap", zIndex: 3 }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: "#ffd27a", textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>➜</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: "50%", background: "#fff", border: `3px solid ${okVia.ring}`, boxShadow: "0 2px 5px rgba(0,0,0,0.45)" }}>
+                    <span style={{ fontSize: 18, lineHeight: 1 }}>{okVia.e}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ── Personaje guía + bocadillo ── */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 176, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            Arrastra y suelta<br />en su vía.
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* ── Acciones (derecha) ── */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        <button className="ed-btn ed-btn-verify" onClick={onVerify} disabled={!allPlaced || !!verdict} style={{ height: 56, fontSize: 16, fontWeight: 800, letterSpacing: "0.04em", opacity: (allPlaced && !verdict) ? 1 : 0.5, cursor: (allPlaced && !verdict) ? "pointer" : "not-allowed" }}>¡VERIFICAR!</button>
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {/* ── Overlay de feedback ── */}
+      {banner && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: banner === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{banner === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {bannerMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: banner === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{banner === "err" ? `${bannerMsg} — ${char.name}` : bannerMsg}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* ── Modal SALIR ── */}
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* ── Modal REINICIAR ── */}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar con transportes nuevos.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════ Despachador por tema ═══════════════
+function GameScreen({ app, setApp, go }) {
+  if (app.currentCategory === "transporte") return <TransporteGame app={app} setApp={setApp} go={go} />;
+  return <PersonasGame app={app} setApp={setApp} go={go} />;
 }
 
 Object.assign(window, { GameScreen, ResultsScreen });

@@ -133,6 +133,27 @@ los rótulos.
   `no text, no letters, no numbers`), guardar como PNG/JPG horizontal y repetir
   la optimización a 512 px.
 
+## Tema 2 — "Medios de transporte" (añadido 2026-07-16, aprobado por la autora)
+
+Del TEMA 3 del libro "Nuestros medios de transporte: cooperamos y estamos seguros"
+(6 años). Al añadirlo, el juego pasó a **multi-tema con chips** (patrón juego-4) y
+el chip del Tema 1 se renombró "Aprendiendo" → **"Mi escuela"**.
+
+- **Mecánica:** CLASIFICAR arrastrando (patrón 8). 4 transportes (emoji) por ronda
+  → 3 cajones **🛣️ Tierra / 🌊 Agua / ☁️ Aire** + ¡VERIFICAR! **3 rondas.**
+  Elegida por la autora entre 3 opciones (descartó tap-quiz y "el semáforo").
+- **Banco:** `TRANSPORTES` (16), emoji + vía. Tierra: auto, bus, taxi, bomberos,
+  ambulancia, moto, camión, tren, bici. Agua: velero, barco, canoa, lancha. Aire:
+  avión, helicóptero, globo. 1 garantizado por vía + 1 extra por ronda; los 3
+  tableros no repiten; anti-repetición FIFO (`RECENT_KEY_T`).
+- **Sin imágenes:** los transportes se leen claros como **emoji** (decisión: ahorra
+  generar 16 imágenes y quedan consistentes). Clasificar por vía no es dato inventado.
+- **Copy:** enunciado "Lleva cada transporte a su camino." · bocadillo "Arrastra y
+  suelta en su vía." · chip "Medios de transporte" · descripción "Nuestros medios de
+  transporte: cooperamos y estamos seguros."
+- **Reporte:** log por tarjeta (12 = 4×3): `a`=nombre del transporte, `userAnswer`=
+  vía elegida, `correctAnswer`=vía correcta. `category`=currentCatLabel.
+
 ## Decisiones abiertas / riesgos
 
 1. **Título global del juego** y **nombre corto del chip** — decide la autora (arriba).

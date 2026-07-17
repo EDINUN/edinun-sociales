@@ -8,7 +8,36 @@
 const { useState, useEffect, useRef, useMemo } = React;
 
 // ─────────────────────────────────────────────────────────────
-// Fondo cósmico + glifos flotantes — temática comunidad escolar (juego-5).
+// Config de TEMAS (un botón por entrada). El juego "Aprendiendo" crecerá a 4
+// temas del libro; hoy hay 2. El gradiente va por POSICIÓN (1º naranja · 2º
+// amarillo · 3º azul · 4º violeta). Los chips del Home fijan app.level →
+// app.currentCategory / currentCatLabel que lee GameScreen.
+//   · aprendiendo → Tema 1 "Mi escuela" (mecánica ¿QUIÉN? tocar, implementado).
+//   · transporte  → Tema 2 "Medios de transporte" (clasificar tierra/agua/aire).
+// ─────────────────────────────────────────────────────────────
+const LEVELS_CFG = [
+  {
+    id: "aprendiendo",
+    label: "Mi escuela",
+    grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
+    ink: "#3a2608",
+    description: "Aprendiendo con mis compañeros y compañeras de clase.",
+    catLabel: "Mi escuela",
+    enabled: true,
+  },
+  {
+    id: "transporte",
+    label: "Medios de transporte",
+    grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
+    ink: "#3a2608",
+    description: "Nuestros medios de transporte: cooperamos y estamos seguros.",
+    catLabel: "Medios de transporte",
+    enabled: true,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+// Fondo cósmico + glifos flotantes — temática comunidad escolar + transporte (juego-5).
 // ─────────────────────────────────────────────────────────────
 function CosmosBg({ variant = "cosmic", glyphSize }) {
   const glyphsStyle = glyphSize ? { fontSize: glyphSize + "px" } : undefined;
@@ -173,36 +202,22 @@ function incrementGamesCompleted() {
 function HomeScreen({ app, setApp, go }) {
   const visitors = useVisitorCount();
   const [name, setName] = useState(app.studentName || "");
-  const [level, setLevel] = useState(app.level || "basic");
+  const initial = app.level && LEVELS_CFG.some((l) => l.id === app.level && l.enabled) ? app.level : "aprendiendo";
+  const [level, setLevel] = useState(initial);
+
+  const currentCfg = LEVELS_CFG.find((l) => l.id === level) || null;
+  const canStart = !!name.trim() && !!currentCfg && currentCfg.enabled;
 
   function start() {
-    if (!name.trim()) return;
-    setApp((s) => ({
-      ...s,
-      studentName: name.trim(),
-      level,
-      sessionStart: Date.now(),
-    }));
+    if (!canStart) return;
+    setApp((s) => ({ ...s, studentName: name.trim(), level, sessionStart: Date.now() }));
     go("character");
   }
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 18,
-          right: 22,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          background: "rgba(10,6,35,0.55)",
-          border: "1px solid rgba(242,194,96,0.3)",
-          borderRadius: 999,
-          padding: "6px 12px",
-          backdropFilter: "blur(8px)",
-        }}
-      >
+      {/* Contador de visitantes */}
+      <div style={{ position: "absolute", bottom: 18, right: 22, display: "flex", alignItems: "center", gap: 8, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(242,194,96,0.3)", borderRadius: 999, padding: "6px 12px", backdropFilter: "blur(8px)" }}>
         <PeopleIcon size={16} color="#fce9a8" />
         <div style={{ fontFamily: "var(--ed-font-mono)", fontSize: 11, color: "#f2c260", letterSpacing: "0.06em" }}>
           {visitors.toLocaleString("es-CO")}
@@ -210,55 +225,70 @@ function HomeScreen({ app, setApp, go }) {
         </div>
       </div>
 
-      <div
-        style={{
-          position: "absolute", inset: 0,
-          display: "grid",
-          gridTemplateColumns: "1fr 1.15fr",
-          alignItems: "center",
-          padding: "40px 56px",
-          gap: 40,
-        }}
-      >
+      <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1.15fr", alignItems: "center", padding: "34px 52px", gap: 34 }}>
+        {/* Izquierda — logo */}
         <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
           <EdinunLogo size={300} />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 520 }}>
+        {/* Derecha — saludo + temas + descripción + nombre */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 520 }}>
           <div>
-            <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 8 }}>
-              EDINUN · Aprendiendo {/* título global elegido por la autora (2026-07-16) */}
+            <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>
+              EDINUN · Aprendiendo
             </div>
-            <h1 className="ed-h1" style={{ fontSize: 44, lineHeight: 1.05 }}>
+            <h1 className="ed-h1" style={{ fontSize: 38, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}
-              <span style={{
-                background: "linear-gradient(180deg,#fce9a8,#d9a441)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: 600,
-              }}>
+              <span style={{ background: "linear-gradient(180deg,#fce9a8,#d9a441)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 600 }}>
                 Estudiante!
               </span>
             </h1>
           </div>
 
-          <div style={{
-            padding: "14px 18px",
-            borderRadius: 14,
-            background: "rgba(10,6,35,0.55)",
-            border: "1px solid rgba(148,120,255,0.3)",
-            fontFamily: "var(--ed-font-display)", fontWeight: 600,
-            fontSize: 15, lineHeight: 1.4,
-            color: "#fce9a8",
-            textAlign: "center",
-          }}>
-            Aprendiendo con mis compañeros y compañeras de clase.
+          {/* Botones de tema (chips) */}
+          <div>
+            <div className="ed-label" style={{ marginBottom: 8 }}>Elige un tema para jugar</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {LEVELS_CFG.map((lv) => {
+                const active = level === lv.id && lv.enabled;
+                return (
+                  <button
+                    key={lv.id}
+                    onClick={() => { if (lv.enabled) setLevel(lv.id); }}
+                    disabled={!lv.enabled}
+                    title={lv.enabled ? lv.label : "Próximamente"}
+                    style={{
+                      padding: "14px 6px", minHeight: 60,
+                      borderRadius: 16,
+                      background: lv.grad,
+                      color: lv.ink,
+                      fontFamily: "var(--ed-font-display)", fontWeight: 800,
+                      fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
+                      textShadow: "0 1px 0 rgba(255,255,255,0.35)",
+                      border: "none",
+                      cursor: lv.enabled ? "pointer" : "not-allowed",
+                      opacity: lv.enabled ? 1 : 0.72,
+                      filter: lv.enabled ? "none" : "grayscale(0.15)",
+                      boxShadow: active
+                        ? "inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -3px 0 rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.85), 0 0 26px rgba(255,255,255,0.35)"
+                        : "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.18), 0 6px 14px -4px rgba(0,0,0,0.45)",
+                      transform: active ? "translateY(-2px)" : "none",
+                      transition: "all 0.18s ease",
+                    }}
+                  >
+                    {lv.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 12, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(148,120,255,0.3)", fontFamily: "var(--ed-font-display)", fontWeight: 600, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center" }}>
+              {currentCfg ? currentCfg.description : "Elige un tema para empezar."}
+            </div>
           </div>
 
+          {/* Nombre + ENTRAR */}
           <div>
-            <div className="ed-label" style={{ marginBottom: 10 }}>
-              Escribe tu nombre y entra
-            </div>
+            <div className="ed-label" style={{ marginBottom: 8 }}>Escribe tu nombre y entra</div>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <div style={{ flex: 1, position: "relative" }}>
                 <input
@@ -269,13 +299,13 @@ function HomeScreen({ app, setApp, go }) {
                   onKeyDown={(e) => e.key === "Enter" && start()}
                 />
               </div>
-              <button className="ed-btn ed-btn-primary" onClick={start} disabled={!name.trim()}
-                style={{ height: 52, padding: "0 28px", fontSize: 16, opacity: name.trim() ? 1 : 0.5 }}>
+              <button className="ed-btn ed-btn-primary" onClick={start} disabled={!canStart}
+                title={!name.trim() ? "Escribe tu nombre" : "Elige un tema"}
+                style={{ height: 50, padding: "0 26px", fontSize: 15, opacity: canStart ? 1 : 0.5, cursor: canStart ? "pointer" : "not-allowed" }}>
                 ENTRAR →
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -290,13 +320,14 @@ function CharacterScreen({ app, setApp, go }) {
   const current = CHARACTERS.find((c) => c.id === sel) || CHARACTERS[0];
 
   function choose() {
-    // Por ahora 1 solo tema ("Aprendiendo"); cuando la autora mande los otros 3
-    // temas del libro, el Home pasa a chips tipo juego-4 (LEVELS_CFG).
+    // Mapea el tema elegido en el Home (app.level) a currentCategory/currentCatLabel
+    // que lee GameScreen para montar la mecánica correcta.
+    const lvCfg = LEVELS_CFG.find((l) => l.id === app.level) || LEVELS_CFG[0];
     setApp((s) => ({
       ...s,
       character: sel,
-      currentCategory: "aprendiendo",
-      currentCatLabel: "Aprendiendo",
+      currentCategory: lvCfg.id,
+      currentCatLabel: lvCfg.catLabel,
     }));
     go("game");
   }
@@ -389,4 +420,4 @@ function CharacterScreen({ app, setApp, go }) {
   );
 }
 
-Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCompleted, useVisitorCount, markFirstAttempt });
+Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCompleted, useVisitorCount, markFirstAttempt, LEVELS_CFG });

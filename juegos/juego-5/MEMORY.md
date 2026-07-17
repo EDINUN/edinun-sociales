@@ -53,13 +53,29 @@
 - `<title>` de ambos HTML → "EDINUN GAMES — Aprendiendo".
 - **Registrado en el landing** (`GAMES` del index.html raíz): 5ª card, Domi.
 
+## 2026-07-16 — Tema 2 "Medios de transporte" + migración a multi-tema
+
+- El juego pasó de 1 tema a **chips (2 temas)**, patrón juego-4. `LEVELS_CFG` en
+  `screens.jsx`; Home con chips; `CharacterScreen` mapea `app.level`→category;
+  `game-screens.jsx` gana `TemaChipsBar` + `GameScreen` despachador.
+- **Chip del Tema 1 renombrado: "Aprendiendo" → "Mi escuela"** (porque el JUEGO ya
+  se llama "Aprendiendo"). Su `catLabel` (campo Tema del reporte) también.
+- **Tema 2 "Medios de transporte"** (TEMA 3 del libro de transporte, 6 años):
+  elegido por la autora entre 3 mecánicas (descartó tap-quiz y semáforo). Mecánica
+  **clasificar arrastrando** 4 transportes a 🛣️/🌊/☁️, **3 rondas**, banco 16.
+  Chip "Medios de transporte", descripción "Nuestros medios de transporte:
+  cooperamos y estamos seguros." (título del libro).
+- **Sin imágenes generadas**: los transportes usan **emojis** (🚗🚌🚂✈️🚁⛵🛶…),
+  que se leen claros y quedan consistentes → la autora no generó nada. (A diferencia
+  del Tema 1, donde las personas como emoji se veían pobres y sí valió generarlas.)
+- Verificado con Playwright: arrastrar las 4 tarjetas + VERIFICAR + revelación ➜ ✓,
+  cambio entre chips ✓, Tema 1 intacto ✓. Lint 19/19 (2 temas), qa-visual sin overflow.
+
 ## Pendiente
 
-- **Tema 2**: la autora manda capturas del libro (mismo TEMA 3). Al llegar, migrar
-  el Home a chips (`LEVELS_CFG`, patrón juego-4) — y como el juego ya se llama
-  "Aprendiendo", **el chip del Tema 1 necesita un nombre propio** (ya no puede ser
-  "Aprendiendo"): p. ej. "Las personas de mi escuela" / "La comunidad escolar"
-  (confirmar con la autora). Gradiente por posición (1º naranja · 2º amarillo · …).
+- **Temas 3 y 4**: el juego tendrá 4 botones. Al llegar el material, añadir entrada
+  a `LEVELS_CFG` (gradiente 3º azul · 4º violeta) e implementar su mecánica en
+  `game-screens.jsx` (nuevo componente + rama en el despachador `GameScreen`).
 - **3 temas más**: el juego tendrá 4 botones (4 temas del libro). Al llegar el
   material del 2º tema, migrar el Home a chips (`LEVELS_CFG`, patrón juego-4) y
   el gradiente por posición (1º naranja · 2º amarillo · 3º azul · 4º violeta).
