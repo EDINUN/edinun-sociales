@@ -12,17 +12,17 @@ const { useState, useEffect, useRef, useMemo } = React;
 // temas del libro; hoy hay 2. El gradiente va por POSICIÓN (1º naranja · 2º
 // amarillo · 3º azul · 4º violeta). Los chips del Home fijan app.level →
 // app.currentCategory / currentCatLabel que lee GameScreen.
-//   · aprendiendo → Tema 1 "Mi escuela" (mecánica ¿QUIÉN? tocar, implementado).
+//   · aprendiendo → Tema 1 "Aprendiendo" (mecánica ¿QUIÉN? tocar, implementado).
 //   · transporte  → Tema 2 "Medios de transporte" (clasificar tierra/agua/aire).
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "aprendiendo",
-    label: "Mi escuela",
+    label: "Aprendiendo",
     grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
     ink: "#3a2608",
     description: "Aprendiendo con mis compañeros y compañeras de clase.",
-    catLabel: "Mi escuela",
+    catLabel: "Aprendiendo",
     enabled: true,
   },
   {

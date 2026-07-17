@@ -58,8 +58,11 @@
 - El juego pasó de 1 tema a **chips (2 temas)**, patrón juego-4. `LEVELS_CFG` en
   `screens.jsx`; Home con chips; `CharacterScreen` mapea `app.level`→category;
   `game-screens.jsx` gana `TemaChipsBar` + `GameScreen` despachador.
-- **Chip del Tema 1 renombrado: "Aprendiendo" → "Mi escuela"** (porque el JUEGO ya
-  se llama "Aprendiendo"). Su `catLabel` (campo Tema del reporte) también.
+- **Chip del Tema 1: "Aprendiendo"** (decisión de la autora). Nota: primero se probó
+  "Mi escuela" para no chocar con el título del juego, pero la autora prefirió que el
+  chip diga "Aprendiendo". El **título global** queda pendiente: se pondrá **al final**,
+  cuando estén configurados todos los temas/juegos (hoy el Home usa "Aprendiendo" como
+  placeholder). `catLabel` (campo Tema del reporte) = "Aprendiendo".
 - **Tema 2 "Medios de transporte"** (TEMA 3 del libro de transporte, 6 años):
   elegido por la autora entre 3 mecánicas (descartó tap-quiz y semáforo). Mecánica
   **clasificar arrastrando** 4 transportes a 🛣️/🌊/☁️, **3 rondas**, banco 16.

@@ -6,7 +6,7 @@
 `edinun-sociales` (Estudios Sociales). Juego **multi-tema** con personaje guía
 **Domi**. Diseño en `.planning/juego-5-design.md`. Bitácora en `MEMORY.md`.
 
-- **Tema 1 — "Mi escuela"** (`id: aprendiendo`, audiencia **6**): las personas que
+- **Tema 1 — "Aprendiendo"** (`id: aprendiendo`, audiencia **6**): las personas que
   trabajan en la escuela. Mecánica **¿QUIÉN? (tocar)** — pregunta + 3 tarjetas
   (imagen + nombre), el niño toca a la persona. 3 rondas · banco de 12 personas.
 - **Tema 2 — "Medios de transporte"** (`id: transporte`, audiencia **6**):

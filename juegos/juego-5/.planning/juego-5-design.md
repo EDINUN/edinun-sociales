@@ -137,7 +137,8 @@ los rótulos.
 
 Del TEMA 3 del libro "Nuestros medios de transporte: cooperamos y estamos seguros"
 (6 años). Al añadirlo, el juego pasó a **multi-tema con chips** (patrón juego-4) y
-el chip del Tema 1 se renombró "Aprendiendo" → **"Mi escuela"**.
+el chip del Tema 1 quedó **"Aprendiendo"** (decisión de la autora; el título global
+se define al final, cuando estén todos los temas).
 
 - **Mecánica:** CLASIFICAR arrastrando (patrón 8). 4 transportes (emoji) por ronda
   → 3 cajones **🛣️ Tierra / 🌊 Agua / ☁️ Aire** + ¡VERIFICAR! **3 rondas.**
