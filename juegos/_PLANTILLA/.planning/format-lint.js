@@ -34,7 +34,9 @@ function read(g, f) {
 // nº de temas = entradas con catLabel en LEVELS_CFG (0 = juego de 1 nivel)
 function countTemas(screens) { return (screens.match(/catLabel:\s*"/g) || []).length; }
 
-const GRID_BY_TEMAS = { 2: '"1fr 1fr"', 3: '"1fr 1fr 1fr"', 4: '"1fr 1fr 1fr 1fr"' };
+// Grid de los botones de tema en el Home. 4 temas → 2×2 ("1fr 1fr", 2 filas),
+// igual que la referencia visual edinun-language/juego-4 (no una fila de 4).
+const GRID_BY_TEMAS = { 2: '"1fr 1fr"', 3: '"1fr 1fr 1fr"', 4: '"1fr 1fr"' };
 
 // §0 — Gradientes de los botones de tema POR POSICIÓN (tabla del estándar).
 const GRAD_BY_POS = [
@@ -86,7 +88,7 @@ function lintGame(g) {
   if (nT >= 2) {
     const expGrid = GRID_BY_TEMAS[nT];
     check(expGrid && has(screens, `gridTemplateColumns: ${expGrid}`),
-      `Botones de tema en fila (${nT} → ${expGrid || "?"})`,
+      `Botones de tema (${nT} → ${expGrid || "?"})`,
       `${nT} temas requieren \`gridTemplateColumns: ${expGrid}\``);
     check(has(screens, 'fontSize: 15, letterSpacing: "0.02em"') || has(screens, "fontSize: 15,"),
       "Botón de tema compacto (fontSize 15)",

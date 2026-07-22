@@ -8,12 +8,14 @@
 const { useState, useEffect, useRef, useMemo } = React;
 
 // ─────────────────────────────────────────────────────────────
-// Config de TEMAS (un botón por entrada). El juego "Aprendiendo" crecerá a 4
-// temas del libro; hoy hay 2. El gradiente va por POSICIÓN (1º naranja · 2º
-// amarillo · 3º azul · 4º violeta). Los chips del Home fijan app.level →
+// Config de TEMAS (un botón por entrada). El juego "Aprendiendo" tiene 4 temas
+// del libro (completo). El gradiente va por POSICIÓN (1º naranja · 2º amarillo ·
+// 3º azul · 4º violeta). Los chips del Home fijan app.level →
 // app.currentCategory / currentCatLabel que lee GameScreen.
-//   · aprendiendo → Tema 1 "Aprendiendo" (mecánica ¿QUIÉN? tocar, implementado).
+//   · aprendiendo → Tema 1 "Aprendiendo" (mecánica ¿QUIÉN? tocar).
 //   · transporte  → Tema 2 "Medios de transporte" (clasificar tierra/agua/aire).
+//   · economia    → Tema 3 "Economía" (3 rondas: sectores · servicios · cadena).
+//   · movilidad   → Tema 4 "Transporte y movilidad" (Trivia Rush · opción múltiple, 13 años).
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
@@ -32,6 +34,24 @@ const LEVELS_CFG = [
     ink: "#3a2608",
     description: "Nuestros medios de transporte: cooperamos y estamos seguros.",
     catLabel: "Medios de transporte",
+    enabled: true,
+  },
+  {
+    id: "economia",
+    label: "Economía",
+    grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
+    ink: "#04203f",
+    description: "Economía y transporte en nuestro país.",
+    catLabel: "Economía",
+    enabled: true,
+  },
+  {
+    id: "movilidad",
+    label: "Movilidad",
+    grad: "linear-gradient(180deg, #b48aff, #6f3fe0)",
+    ink: "#2a0f52",
+    description: "Transporte y movilidad en Ecuador.",
+    catLabel: "Transporte y movilidad",
     enabled: true,
   },
 ];
@@ -54,15 +74,15 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
       >
         <div className="ed-glyphs" style={{ color: "rgba(255,255,255,0.10)", ...glyphsStyle }}>
           <span style={{ left: "6%", top: "12%", "--rot": "-8deg", fontSize: "0.62em" }}>🏫</span>
-          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.6em" }}>🍎</span>
+          <span style={{ left: "82%", top: "16%", "--rot": "6deg", fontSize: "0.6em" }}>💰</span>
           <span style={{ left: "10%", top: "78%", "--rot": "12deg", fontSize: "0.6em" }}>📚</span>
-          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.6em" }}>✏️</span>
-          <span style={{ left: "45%", top: "8%", "--rot": "4deg", fontSize: "0.5em" }}>★</span>
-          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.6em" }}>🔔</span>
+          <span style={{ left: "88%", top: "72%", "--rot": "-10deg", fontSize: "0.6em" }}>🚗</span>
+          <span style={{ left: "45%", top: "8%", "--rot": "4deg", fontSize: "0.5em" }}>⭐</span>
+          <span style={{ left: "3%", top: "45%", "--rot": "-4deg", fontSize: "0.6em" }}>✈️</span>
           <span style={{ left: "92%", top: "45%", "--rot": "8deg", fontSize: "0.6em" }}>🤝</span>
-          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>🎒</span>
-          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>🍲</span>
-          <span style={{ left: "55%", top: "30%", "--rot": "-4deg", fontSize: "0.5em" }}>🧹</span>
+          <span style={{ left: "30%", top: "55%", "--rot": "-6deg", fontSize: "0.5em" }}>🚦</span>
+          <span style={{ left: "70%", top: "62%", "--rot": "8deg", fontSize: "0.5em" }}>🛒</span>
+          <span style={{ left: "55%", top: "30%", "--rot": "-4deg", fontSize: "0.5em" }}>🚌</span>
         </div>
       </div>
     );
@@ -72,20 +92,20 @@ function CosmosBg({ variant = "cosmic", glyphSize }) {
       <div className="ed-cosmos" />
       <div className="ed-glyphs" style={glyphsStyle}>
         <span style={{ left: "5%", top: "10%", "--rot": "-8deg", fontSize: "0.72em" }}>🏫</span>
-        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.66em" }}>🍎</span>
-        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.64em" }}>📚</span>
-        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.66em" }}>✏️</span>
-        <span style={{ left: "46%", top: "4%", "--rot": "-4deg", fontSize: "0.5em" }}>★</span>
-        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.6em" }}>🔔</span>
+        <span style={{ left: "84%", top: "6%", "--rot": "6deg", fontSize: "0.66em" }}>💰</span>
+        <span style={{ left: "92%", top: "72%", "--rot": "-12deg", fontSize: "0.64em" }}>🏦</span>
+        <span style={{ left: "3%", top: "82%", "--rot": "12deg", fontSize: "0.66em" }}>🚗</span>
+        <span style={{ left: "46%", top: "4%", "--rot": "-4deg", fontSize: "0.5em" }}>⭐</span>
+        <span style={{ left: "7%", top: "46%", "--rot": "-4deg", fontSize: "0.6em" }}>✈️</span>
         <span style={{ left: "88%", top: "40%", "--rot": "8deg", fontSize: "0.56em" }}>🤝</span>
-        <span style={{ left: "22%", top: "22%", "--rot": "10deg", fontSize: "0.52em" }}>🎒</span>
-        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.58em" }}>🍲</span>
-        <span style={{ left: "32%", top: "70%", "--rot": "8deg", fontSize: "0.56em" }}>🧹</span>
-        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.52em" }}>🌻</span>
-        <span style={{ left: "18%", top: "58%", "--rot": "14deg", fontSize: "0.5em" }}>★</span>
+        <span style={{ left: "22%", top: "22%", "--rot": "10deg", fontSize: "0.52em" }}>📚</span>
+        <span style={{ left: "70%", top: "24%", "--rot": "-6deg", fontSize: "0.58em" }}>🛒</span>
+        <span style={{ left: "32%", top: "70%", "--rot": "8deg", fontSize: "0.56em" }}>🚦</span>
+        <span style={{ left: "62%", top: "78%", "--rot": "-10deg", fontSize: "0.52em" }}>⛵</span>
+        <span style={{ left: "18%", top: "58%", "--rot": "14deg", fontSize: "0.5em" }}>🌎</span>
         <span style={{ left: "78%", top: "56%", "--rot": "-8deg", fontSize: "0.5em" }}>🚌</span>
         <span style={{ left: "50%", top: "88%", "--rot": "4deg", fontSize: "0.52em" }}>🍎</span>
-        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>🏫</span>
+        <span style={{ left: "40%", top: "38%", "--rot": "-6deg", fontSize: "0.5em" }}>✏️</span>
       </div>
     </>
   );
@@ -235,7 +255,7 @@ function HomeScreen({ app, setApp, go }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 520 }}>
           <div>
             <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>
-              EDINUN · Aprendiendo
+              EDINUN · Nuestra sociedad en movimiento
             </div>
             <h1 className="ed-h1" style={{ fontSize: 38, lineHeight: 1.05 }}>
               ¡Bienvenido/a,{" "}

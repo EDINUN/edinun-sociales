@@ -166,3 +166,48 @@ se define al final, cuando estén todos los temas).
 5. Nombres en la tarjeta a 1 línea (fontSize según el más largo: "Secretaria").
 6. Mientras no estén los PNG, se implementa con un placeholder de color + nombre
    para poder maquetar; las imágenes se enchufan al recibirlas.
+
+## Tema 3 — "Economía" (añadido 2026-07-22, aprobado por la autora · edad 8)
+
+Del **TEMA 2 del libro** "Economía y transporte en nuestro país". Como el transporte
+ya es el Tema 2, el Tema 3 se centró en la **economía**. **3 RONDAS ENCADENADAS, cada
+una mecánica distinta** (pedido de la autora: "cada ronda debe ser diferente"; patrón
+juego-4 Tema 3). Cada mecánica la eligió la autora de entre 3 opciones con bosquejo.
+
+- **R1 · Sectores** (`SectoresRound`, mecánica **B** elegida): quiz "¿a qué sector
+  pertenece?" — 1 actividad (emoji) + **4 botones** de sector (autora eligió 4, no 3).
+  Tocar 1, validación al tocar. **5 preguntas** (1 por sector + 1 extra). Banco
+  `ACTIVIDADES` (15): primario 🌾🐄🎣⛏️ · secundario 🏭🏗️⚡🏺 · terciario 🚚📡🏖️🏫🏦 ·
+  cuaternario 🔬🎨. Enunciado "¿A qué sector pertenece? (n/5)" · bocadillo "Toca el
+  sector correcto."
+- **R2 · Servicios** (`ServiciosRound`, mecánica **C** elegida): **multi-selección** —
+  vitrina de **6** cosas, toca **todos los servicios** + ¡LISTO!. Enunciado dice cuántos
+  hay (2–4). Banco `COSAS` (16 = 8 servicios 👮💡🚰🚌🏫🩺🏦📱 / 8 bienes 🍞👕🧸🍎🏠👟🥛⚽).
+  Feedback: ✓ servicio bien tocado · 🛎️ servicio no tocado (revelado) · ✗ bien tocado
+  por error. ⭐ = servicios cazados. Bocadillo "Toca los que ayudan a las personas."
+- **R3 · Cadena** (`CadenaRound`, mecánica **A** elegida): **ordenar arrastrando**
+  (molde `TransporteGame`) — 3 cartas a huecos **1·2·3** = primario→secundario→terciario
+  + ¡VERIFICAR!. Al fallar: ✗ + **➜ nº de su lugar**. **CON IMÁGENES** (decisión de la
+  autora): `assets/cadena-<slug>-<n>.jpg` (n = paso 1/2/3) vía `CadenaImg` + **emoji de
+  respaldo** (`onError`). Banco `CADENAS` (6 productos): café ☕ · queso 🧀 · ropa 👕 ·
+  pan 🍞 · mueble 🪑 · jugo de naranja 🧃 (la autora descartó chocolate por ser
+  "gemelo" del café: mismo cultivo→fábrica→tienda). Bocadillo "Arrastra a su lugar: 1 · 2 · 3."
+  (El cuaternario no entra en la cadena: no fabrica cosas físicas — coherente con el libro.)
+
+**Arquitectura:** `EconomiaGame` orquesta `phase` 0/1/2, acumula ⭐ + `log`, y hace
+`go("results")` tras la R3. `EcoFrame` centraliza el chrome (HUD RONDA 3 etapas,
+personaje, acciones, overlay, modales). REINICIAR reinicia el tema desde R1. Reporte
+único: 14 filas (5+6+3). Anti-repetición FIFO por ronda (3 keys `localStorage`).
+
+**Copy visible (elegido por la autora):** chip **"Economía"** · descripción del Home
+**"Economía y transporte en nuestro país."** · gradiente 3º **azul** (`#7ab8ff→#2773d8`).
+
+**Imágenes R3 (PENDIENTE de la autora):** 18 = 6 productos × 3 pasos. Prompts cuadrados
+(2048×2048, `square image, 1:1` + estilo 3D cartoon + `no text/logos`) entregados en el
+chat. Guardar como `cadena-<slug>-<n>.jpg`; al llegar, **optimizar a ~640px JPEG q85**
+(como las personas del Tema 1). Sin ellas, la R3 corre con emoji.
+
+## Decisiones pendientes del juego (global)
+
+- **Tema 4** (4º botón): pendiente de material de la autora. Gradiente 4º **violeta**.
+- **Título global del juego**: se define **al final** (hoy placeholder "Aprendiendo").
