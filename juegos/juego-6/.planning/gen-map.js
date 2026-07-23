@@ -20,8 +20,10 @@ const NAME_BY_SOURCE = {
   "Napo": "Napo", "Orellana": "Orellana", "Galápagos": "Galápagos",
 };
 
-// Coloreo de mapa asignado a mano: 6 colores, ninguna vecina comparte color.
-const COLOR = { A: "#F09E1F", B: "#57A83E", C: "#3B93D8", D: "#BE6FC9", E: "#E67C36", F: "#2FA79A" };
+// Coloreo de mapa: cada provincia un color ÚNICO (24 distintos). Se conserva la
+// asignación por familias (6 grupos donde ninguna vecina comparte grupo) y dentro
+// de cada familia se generan tonos distintos → las 24 son únicas y, como las
+// vecinas caen en familias diferentes, siempre quedan bien diferenciadas.
 const COLOR_BY_SLUG = {
   esmeraldas: "A", manabi: "C", santaelena: "B", guayas: "E", losrios: "D", eloro: "F",
   santodomingo: "B",
@@ -30,6 +32,24 @@ const COLOR_BY_SLUG = {
   sucumbios: "C", napo: "B", orellana: "A", pastaza: "D", moronasantiago: "C", zamorachinchipe: "E",
   galapagos: "F",
 };
+function hsl2hex(h, s, l) {
+  s /= 100; l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => { const k = (n + h / 30) % 12; const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(255 * c).toString(16).padStart(2, "0"); };
+  return "#" + f(0) + f(8) + f(4);
+}
+// Hue base por familia (bien separadas en la rueda) + variación por miembro.
+const FAM_HUE = { A: 35, B: 125, C: 215, D: 278, E: 335, F: 172 };
+const SH_HUE = [0, -15, 16, -8, 22];   // desplazamiento de tono por miembro
+const SH_SAT = [66, 72, 60, 69, 62];
+const SH_LIG = [60, 51, 67, 56, 63];
+const groups = {};
+Object.keys(COLOR_BY_SLUG).forEach((slug) => { const g = COLOR_BY_SLUG[slug]; (groups[g] = groups[g] || []).push(slug); });
+const COLOR_OF = {};
+Object.keys(groups).forEach((g) => groups[g].forEach((slug, i) => {
+  const h = (FAM_HUE[g] + SH_HUE[i % SH_HUE.length] + 360) % 360;
+  COLOR_OF[slug] = hsl2hex(h, SH_SAT[i % SH_SAT.length], SH_LIG[i % SH_LIG.length]);
+}));
 
 const isGala = (name) => /gal/i.test(name);
 const walk = (c, f) => { if (typeof c[0] === "number") f(c); else c.forEach((k) => walk(k, f)); };
@@ -86,7 +106,7 @@ const provincias = gj.features.map((ft) => {
   const id = slug(name);
   const g = isGala(src);
   const { d, area } = geomToPath(ft.geometry, g ? galaProj : mainProj);
-  return { id, name, d, fill: COLOR[COLOR_BY_SLUG[id]] || "#cccccc", gala: g, area: +area.toFixed(0) };
+  return { id, name, d, fill: COLOR_OF[id] || "#cccccc", gala: g, area: +area.toFixed(0) };
 }).sort((a, b) => a.name.localeCompare(b.name, "es"));
 
 // ── Regiones vecinas (Océano / Colombia / Perú) + líneas fronterizas ──

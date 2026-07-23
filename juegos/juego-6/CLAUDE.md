@@ -84,9 +84,11 @@ Perú de colores distintos) + una **base opaca** de Ecuador para que no se trans
 bajo las provincias atenuadas.
 - El **resalte pinta el propio `<path>`** (no un punto/círculo) → siempre cae dentro
   de la provincia, incluso en las cóncavas (Guayas, Esmeraldas).
-- **Colores:** paleta de 6, asignada a mano en `COLOR_BY_SLUG` para que **ninguna
-  vecina comparta color**. **NO representan regiones** (evita afirmar contenido no
-  verificado).
+- **Colores:** **24 colores únicos** (uno por provincia). Se conserva la agrupación en
+  6 familias (`COLOR_BY_SLUG`, ninguna vecina en la misma familia) y dentro de cada
+  familia se generan tonos distintos (`hsl2hex` + variación por miembro) → las 24 son
+  únicas y las vecinas quedan bien diferenciadas. **NO representan regiones** (evita
+  afirmar contenido no verificado).
 - Cada `<path>` lleva `data-prov={id}` y `aria-label={name}` (tests + accesibilidad).
 
 ### Anti-repetición

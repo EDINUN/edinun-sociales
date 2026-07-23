@@ -38,8 +38,10 @@ audiencia **7-10**. La autora eligió las mecánicas A + C de los bosquejos:
   queda por el cambio de color.)
 - **Resalte = pintar el propio path** (no un círculo), así cae dentro de la provincia
   aunque sea cóncava (Guayas/Esmeraldas).
-- **6 colores asignados a mano** (`COLOR_BY_SLUG`) sin choques entre vecinas; NO son
-  regiones (para no meter contenido no verificado).
+- **24 colores únicos** (uno por provincia; la autora los pidió sin repetir). Se
+  mantiene la agrupación en 6 familias (`COLOR_BY_SLUG`, vecinas en familias distintas)
+  y dentro de cada familia se generan tonos únicos (`hsl2hex`) → 24 distintos y vecinas
+  bien diferenciadas. NO son regiones (para no meter contenido no verificado).
 - Verificado visualmente con Playwright (se ve como Ecuador: costa, Amazonía, golfo).
 
 ## Estándar / QA
