@@ -237,8 +237,8 @@ function HomeScreen({ app, setApp, go }) {
 
               <div style={{ padding: "10px 16px", borderRadius: 14, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(148,120,255,0.3)", fontFamily: "var(--ed-font-display)", fontWeight: 600, fontSize: 14, lineHeight: 1.4, color: "#fce9a8", textAlign: "center" }}>
                 {libro.temas.length === 1
-                  ? libro.temas[0].label
-                  : (temaId ? libro.temas.find((t) => t.id === temaId).label : `Este libro tiene ${libro.temas.length} temas. Elige uno arriba.`)}
+                  ? `${libro.temas[0].label}.`
+                  : (temaId ? `${libro.temas.find((t) => t.id === temaId).label}.` : `Este libro tiene ${libro.temas.length} temas. Elige uno arriba.`)}
               </div>
 
               <div>
