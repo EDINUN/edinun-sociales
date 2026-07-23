@@ -1,130 +1,85 @@
-# CLAUDE.md — juego-6 "Explora el Ecuador" (Estudios Sociales)
+# CLAUDE.md — juego-6 (Estudios Sociales) · HUB DE 4 LIBROS
 
 ## Project
 
-**Juego: "Explora el Ecuador"** (título global elegido por la autora, 2026-07-23).
-El **tema** que se estudia sigue siendo *"Provincias del Ecuador"* (así aparece en el
-reporte y en `CAT_LABEL`). Carpeta autocontenida del repo multi-juego
-`edinun-sociales`. **Reconstrucción del
-juego viejo de `edinun.com/juegos/ProvinciasEcuador`** (Construct 2, mecánica "Simón
-dice" de memoria) en el motor EDINUN: en vez de memorizar una secuencia de colores,
-el niño **aprende a ubicar e identificar** las 24 provincias. Diseño en
-`.planning/juego-6-design.md`. Bitácora en `MEMORY.md`.
+**juego-6 es un HUB de 4 libros** de Estudios Sociales, con un **menú de 2 niveles**:
+Home muestra 4 botones de **LIBRO** (Libro 2 · Libro 3 · Libro 5 · Libro 6) y, al
+tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número de temas:
 
-**Nivel único** (una sola temática) → Home **sin botones de tema** (solo nombre +
-ENTRAR); el HUD del juego usa el indicador de **RONDA con 5 dots**. Personaje guía:
-**Yaku** (Oriente). **Audiencia 7-10** (registrada en `memory/audiencia_por_juego.md`).
+| Libro | Temas | Estado |
+|-------|-------|--------|
+| Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
+| Libro 3 | **3 temas** | ⏳ placeholder |
+| Libro 5 | **2 temas** | ⏳ placeholder |
+| Libro 6 | **1 tema** | ⏳ placeholder |
 
-La sesión son **5 rondas encadenadas en 2 fases** (`ProvinciasGame` orquesta), con un
-único reporte al final:
+> Historial: juego-6 fue antes "Explora el Ecuador" (provincias del Ecuador). La autora
+> pidió descartarlo y reconstruir juego-6 como este hub de libros (2026-07-23). El juego
+> de provincias sigue en el historial de git.
 
-- **Fase 1 — "Ubica en el mapa"** (rondas 1-2): el enunciado nombra una provincia
-  (`¿Dónde está X?`) y el niño la **TOCA** en el mapa SVG. **Validación al tocar**
-  (sin VERIFICAR). Sesgo a provincias **grandes** (top-14 por área, sin Galápagos)
-  para que sea justo a los 7. Acierto → provincia verde + ✓ + **+1 ⭐**; fallo →
-  resalta la correcta (verde) dejando ver la que tocó (roja) ~2 s, avanza; no resta.
-- **Fase 2 — "Trivia del mapa"** (rondas 3-5): el mapa **ilumina** una provincia
-  (fill amarillo + glow) y el niño toca su nombre entre **4 opciones A/B/C/D**
-  (correcta + 3 distractores reales al azar). **Racha 🔥 + puntos 🏆**
-  (`pts = 100 + (racha-1)*20`), **sin cronómetro** de presión. Acierto → +1 ⭐;
-  fallo → corta la racha, resalta la correcta, avanza.
+En móvil el diseño es horizontal pero el dispositivo se sostiene vertical (overlay
+bloqueante hasta rotar). **Preferencias del usuario:** `USER.md`.
 
-En móvil el diseño es horizontal pero el dispositivo se sostiene vertical: el usuario
-gira físicamente el teléfono (overlay bloqueante hasta rotar).
+## Arquitectura del menú (propio de juego-6, NO toca el shell)
 
-- **Preferencias del usuario** (usabilidad, QA responsive, invariantes): `USER.md`.
+El 2º nivel (Libro → temas) vive **dentro del route `home`** (estado interno de
+`HomeScreen`), sin modificar `app.jsx` (que sigue enrutando `home → character → game →
+results`). En `screens.jsx`:
+- **`LIBROS`** = array `[{ id, label, temas:[{id,label}] }]`. Gradiente del botón por
+  **posición** (1º naranja · 2º amarillo · 3º azul · 4º violeta).
+- `HomeScreen` con estado `libroId`: nivel 1 = 4 botones de libro; nivel 2 = temas del
+  libro (con "← Libros"). 1 tema → sin botones (nombre + ENTRAR directo); N temas →
+  N botones + nombre + ENTRAR. Al entrar fija `currentCategory` (id del tema, p. ej.
+  `l2-t1`) y `currentCatLabel` (`"Libro 2 · Reconociendo mi país"`).
+- **`format-lint` ve 0 temas** (no hay literal `catLabel:` en `screens.jsx`; se usa
+  `label`/`currentCatLabel`) → no exige la rejilla de un menú plano; los botones de
+  libro/tema siguen el estándar a mano.
 
-## Running / deploying
+## game-screens.jsx
 
-No build system, no package manager. HTML estático que carga React 18 + Babel
-Standalone desde unpkg.
+`GameScreen` **despacha por `app.currentCategory`**:
+- `"l2-t1"` → **`ReconoceGame`** (Libro 2).
+- cualquier otro (l3-t1, l3-t2, l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
+  ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
+- `ResultsScreen`/`PrintableReport` sirven a ambos (log vacío en placeholder).
 
-- **Abrir local:** doble clic en `index.html`.
-- **Servir local:** servidor estático desde la raíz del repo (esta máquina no tiene
-  Python real ni PHP; usar Node).
-- **Contador PHP real:** requiere PHP (`php -S localhost:8000`); sin PHP cae a
-  `localStorage` (lo normal en local; el error `counter.php` en `file://` es esperado).
+Al implementar un tema nuevo: crear su componente y añadir `if (currentCategory ===
+"<id>") return <SuJuego/>;` en `GameScreen`. Guardar su design-doc en
+`.planning/libro-N-design.md` y renombrar su `label` en `LIBROS`.
 
-## Architecture
+### Libro 2 · "Reconociendo mi país" (`ReconoceGame`, 6 años)
 
-Mismo shell que los demás juegos. Los 5 `.jsx` (`logo`, `characters`, `screens`,
-`game-screens`, `app`) son la fuente editable. Tras editar, re-empaquetar:
+**Mira y toca** (patrón 5, molde del DEMO de la `_PLANTILLA`): 4 rondas del banco
+`PREGUNTAS_L2` (10, del libro), 3 tarjetas (emoji + palabra), el niño **TOCA** la
+correcta (sin VERIFICAR). Bocadillo **fijo** = CÓMO ("Toca la respuesta correcta."); no
+cambia al responder. Acierto → verde + ⭐ + ¡EXCELENTE!; fallo → revela la correcta
+(verde) dejando ver la tocada (roja) ~2 s, luego ¡UPS!, no resta. Anti-repetición FIFO
+(`L2_RECENT_KEY`, cap 6) → recargar da preguntas nuevas (2+ partidas sin repetir).
+**Emojis, sin imágenes** (decisión de la autora); las opciones se barajan por ronda.
+Diseño en `.planning/libro-2-design.md`.
 
-```bash
-node .planning/bundle.js        # (o bundle.ps1 / bundle.py)
-```
-Verificar que ambos HTML (`index.html` == `EDINUN GAMES.html`) quedan idénticos.
+⚠ **Contenido del libro:** las respuestas correctas salen del TEMA 2 "Reconociendo mi
+país" (país=Ecuador, capital=Quito, servicios básicos, quién ayuda). Los distractores
+son contrastes obvios (no datos del libro). No añadir ítems sin material del libro.
 
-Invariantes:
-- **No incluir `</script>` literal en ningún `.jsx`** (partir el token si hace falta).
-- **El bundle reescribe desde `<script type="text/babel">` hasta `</html>`**.
+## Personajes
 
-### Contrato del shell
-
-- `app.jsx` enruta por estado: `home → character → game → results`. No tocar (shell
-  compartido). Su estado inicial fija `character: "domi"`; la CharacterScreen de este
-  juego **preselecciona Yaku** (`screens.jsx`) por ser el guía destacado.
-- `screens.jsx`: `HomeScreen` (sin chips — nivel único), `CharacterScreen` (categoría
-  fija `provincias` / catLabel `Provincias del Ecuador`), contador, `CosmosBg` con
-  **glifos de geografía** (🗺️ 🧭 📍 ⛰️ 🌊 🌴 🐢 🏔️ 🌎 🌋 🏞️). **No hay `LEVELS_CFG`**
-  (0 temas → format-lint no exige rejilla de botones).
-- `game-screens.jsx`: **la mecánica.** `GameScreen` → `<ProvinciasGame/>` (única).
-  `ResultsScreen`/`PrintableReport` (con badges 🏆 puntos / 🔥 racha máx, como juego-5).
-
-### El mapa (`const ECU_MAP`)
-
-24 provincias como **paths SVG embebidos inline** (~50 KB) — geoBoundaries ADM1
-simplificado (**CC BY 4.0**, atribución en `assets/MAPA-FUENTE.txt`). Se genera con
-`.planning/gen-map.js` (proyección equirectangular del continente + **Galápagos en
-recuadro/inset**; fuente `.planning/ecu-adm1.geojson`) y se inyecta con
-`.planning/inject-map.js` entre los marcadores `/*__MAP__*/ … /*__MAP_END__*/`
-(`node .planning/gen-map.js && node .planning/inject-map.js` → re-empaquetar). Cada
-provincia: `{ id, name, d, fill, gala, area }`. **Regiones vecinas** (océano/Colombia/
-Perú de colores distintos) + una **base opaca** de Ecuador para que no se transparenten
-bajo las provincias atenuadas.
-- El **resalte pinta el propio `<path>`** (no un punto/círculo) → siempre cae dentro
-  de la provincia, incluso en las cóncavas (Guayas, Esmeraldas).
-- **Colores:** **24 colores únicos** (uno por provincia). Se conserva la agrupación en
-  6 familias (`COLOR_BY_SLUG`, ninguna vecina en la misma familia) y dentro de cada
-  familia se generan tonos distintos (`hsl2hex` + variación por miembro) → las 24 son
-  únicas y las vecinas quedan bien diferenciadas. **NO representan regiones** (evita
-  afirmar contenido no verificado).
-- Cada `<path>` lleva `data-prov={id}` y `aria-label={name}` (tests + accesibilidad).
-
-### Anti-repetición
-
-FIFO en `localStorage` (`RECENT_KEY = edinun_juego6_provincias_recientes_v1`, cap 12):
-las 5 provincias de la partida (2 ubicar + 3 trivia) **no se repiten al recargar**.
-`buildSession()` usa `pickFresh` (fresh-first).
-
-### Personajes
-
-Catálogo compartido (regiones del Ecuador): Domi (Costa), Sisa (Sierra), Yaku
-(Oriente), Andi (cóndor tricolor). **Destacado: `yaku`.** Arte en `assets/char-yaku.png`.
-
-Reglas EDINUN que la mecánica respeta:
-- **Enunciado = QUÉ** (`¿Dónde está X?` / `¿Qué provincia está iluminada?`);
-  **bocadillo de Yaku = CÓMO** (`Toca la provincia en el mapa.` / `Toca la respuesta
-  correcta.`) — **fijos**, no cambian al responder (el feedback va en el overlay).
-- Fallar no baja el progreso; al fallar se revela la correcta dejando ver lo del niño.
-- Salir/reiniciar siempre con modal. `markFirstAttempt()` en la 1ª respuesta;
-  `incrementGamesCompleted()` + `go("results")` al terminar.
-
-⚠ **Contenido:** los nombres y contornos de las 24 provincias son datos reales
-(geoBoundaries + libro). No se inventa nada. La trivia toma la correcta del mapa y 3
-distractores = otras provincias reales.
+Elenco compartido (domi/sisa/yaku/andi). El jugador elige guía en CharacterScreen
+(default del shell: domi). Sugerencia temática por libro/tema al implementarlos.
 
 ## Contador de visitas
 
-`counter.php` (idéntico en todos los juegos) cuenta visitas globales; cae a
-`localStorage` sin PHP. No personalizar. `visits.txt` gitignoreado — borrarlo antes
-de subir a producción.
+`counter.php` idéntico a los demás; cae a `localStorage` sin PHP. `visits.txt`
+gitignoreado — borrarlo antes de subir a producción.
 
 ## QA
 
 ```bash
-node juegos/_PLANTILLA/.planning/format-lint.js juego-6   # valores fijos (15/15 OK)
+node juegos/_PLANTILLA/.planning/format-lint.js juego-6   # 15/15 OK (con un juego real)
 node juegos/_PLANTILLA/.planning/qa-visual.js  juego-6    # 6 viewports, sin overflow
 ```
-Smoke/e2e con Playwright: entra → 2 ubica + 3 trivia → `reachedResults`; anti-
-repetición al recargar (0 solapes).
+Empaquetar tras editar `.jsx`: `node .planning/bundle.js` (ambos HTML idénticos).
+Cada juego con banco: probar anti-repetición recargando (0 solapes).
+
+> **Landing:** el card de juego-6 muestra un título/charId placeholder hasta definir el
+> título global del hub con la autora.

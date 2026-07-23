@@ -1,67 +1,60 @@
-# MEMORY.md — juego-6 "Explora el Ecuador"
+# MEMORY.md — juego-6 · Hub de 4 libros (Estudios Sociales)
 
-Bitácora del juego. (Diseño completo en `.planning/juego-6-design.md`.)
-Título global **"Explora el Ecuador"** (elegido por la autora, 2026-07-23). El *tema*
-que se estudia sigue siendo "Provincias del Ecuador" (así sale en el reporte).
+Bitácora del juego.
 
-## Qué es
+## Qué es (pivote 2026-07-23)
 
-Reconstrucción del juego viejo de `edinun.com/juegos/ProvinciasEcuador` (Construct 2,
-"Simón dice" de memoria) en el motor EDINUN. **Nivel único**, personaje **Yaku**,
-audiencia **7-10**. La autora eligió las mecánicas A + C de los bosquejos:
-- **Fase 1 · Ubica en el mapa** (rondas 1-2): tocar la provincia nombrada.
-- **Fase 2 · Trivia del mapa** (rondas 3-5): identificar la provincia iluminada entre
-  4 opciones, con racha 🔥 + puntos 🏆.
-5 rondas encadenadas, 1 reporte al final.
+juego-6 fue primero **"Explora el Ecuador"** (provincias del Ecuador: ubica + trivia
+del mapa). La autora dijo *"hay cambio de planes… vamos a cambiar todo"* y decidió
+**descartar** ese juego y reconstruir juego-6 como un **HUB de 4 libros** con menú de
+2 niveles:
 
-## Decisiones de la autora (esta sesión, 2026-07-23)
+```
+Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → reporte
+  Libro 2 → 1 tema   ("Reconociendo mi país", 6 años)   ✅ hecho
+  Libro 3 → 3 temas                                       ⏳ placeholder
+  Libro 5 → 2 temas                                       ⏳ placeholder
+  Libro 6 → 1 tema                                        ⏳ placeholder
+```
 
-- Analizamos el juego original (era Construct 2, mecánica de memoria pura). La autora:
-  *"el juego era una referencia… ¿tienes alguna mecánica mejor?"* → se propusieron 3
-  bosquejos visuales (artifact `bosquejos-provincias.html`). Eligió **A (ubica) + C
-  (trivia)** encadenadas.
-- Edad: **7-10** (más peques que el rango típico de geografía) → por partida **pocas
-  provincias** (2 ubicar + 3 trivia), no las 24 de golpe; Fase 1 sesgada a provincias
-  grandes.
-- Personaje: **Yaku**. Estructura: **Ubica ×2 → Trivia ×3**.
+(El juego de provincias sigue en el historial de git: commits `a2b2e03`, `1d6e46a`,
+`3b4686e`.)
 
-## Mapa (lo importante)
+## Decisiones de la autora
 
-- 24 provincias como **paths SVG inline** (~50 KB), de **geoBoundaries ADM1** (CC BY
-  4.0). Generado con `.planning/gen-map.js`, inyectado con `.planning/inject-map.js`
-  entre `/*__MAP__*/ … /*__MAP_END__*/`. Atribución en `assets/MAPA-FUENTE.txt`.
-- **Galápagos** va en **recuadro (inset)** aparte (está a lon −92, lejísimos).
-- **Regiones vecinas** (océano azul / Colombia tan / Perú rosado) como cuñas desde el
-  centro a través de los vértices frontera; **base opaca** de Ecuador para que no se
-  transparenten al atenuar provincias. (Se probaron líneas fronterizas punteadas pero
-  la autora pidió quitarlas: se veían como una hélice al transparentarse; el límite
-  queda por el cambio de color.)
-- **Resalte = pintar el propio path** (no un círculo), así cae dentro de la provincia
-  aunque sea cóncava (Guayas/Esmeraldas).
-- **24 colores únicos** (uno por provincia; la autora los pidió sin repetir). Se
-  mantiene la agrupación en 6 familias (`COLOR_BY_SLUG`, vecinas en familias distintas)
-  y dentro de cada familia se generan tonos únicos (`hsl2hex`) → 24 distintos y vecinas
-  bien diferenciadas. NO son regiones (para no meter contenido no verificado).
-- Verificado visualmente con Playwright (se ve como Ecuador: costa, Amazonía, golfo).
+- **Estructura:** 4 botones de libro en Home (2/3/5/6) → cada uno abre otra pantalla
+  con sus temas (1/3/2/1 botones). Confirmó el esqueleto: *"perfecto"*.
+- **Menú de 2 niveles** dentro de juego-6, sin tocar el shell (`app.jsx`). El nivel
+  "libro" vive en el estado interno de `HomeScreen`.
+- Se armó primero el **esqueleto navegable** (placeholders "en construcción") para que
+  la autora viera "cómo quedaría", y luego se llenan los libros uno por uno.
 
-## Estándar / QA
+## Libro 2 · "Reconociendo mi país" (6 años)
 
-- Nivel único → Home sin chips, RONDA con **5 dots** (top:52, 11×11). format-lint
-  **15/15 OK** (0 temas). qa-visual: sin overflow en los 6 viewports.
-- Acciones estándar `right:18, top:"50%"` (el mapa se centra en x=450 y deja colchón
-  amplio con las acciones).
-- e2e Playwright: `reachedResults: true`; anti-repetición al recargar verificada.
+- Del **TEMA 2 del libro** (fotos que mandó la autora): país=Ecuador, capital=Quito
+  (Pichincha), **servicios básicos**, **quién ayuda** (ECU 911/bomberos/policía/Cruz
+  Roja), población (censo 2022). Se dejó fuera lo abstracto (prefecto/gobernador) por la
+  edad.
+- Se propusieron 3 mecánicas **como bosquejo ASCII en el chat** (la autora las prefiere
+  ahí, no como enlace de artifact). Eligió **A "Mira y toca"** (tras notar que A puede
+  absorber los servicios de la B en preguntas de tocar).
+- **Sin imágenes:** emojis (la autora preguntó y se decidió emojis; código con respaldo
+  para imágenes si se quisieran luego).
+- Mecánica: **Mira y toca** (patrón 5), 4 rondas, banco 10 (`PREGUNTAS_L2`), opciones
+  barajadas, bocadillo fijo, anti-repetición cap 6.
+- **Verificado:** e2e `reachedResults: true`; anti-repetición al recargar **0 solapes**
+  (p1=[3,9,5,1] vs p2=[4,7,6,8]); format-lint 15/15.
 
-## Ajustes durante el build
+## Aprendizajes
 
-- El default de personaje venía de `app.jsx` (=domi, shell compartido) → la
-  CharacterScreen de este juego **preselecciona Yaku** sin tocar el shell.
-- El enunciado de Fase 1 se encimaba con la fila RONDA → bajado a `top:78`; mapa a
-  `top:106` height 370.
+- La autora prefiere ver los **bosquejos de mecánica dibujados en el propio chat**
+  (ASCII), no como enlace a un artifact. (Lo pidió 3 veces.)
+- Regla recordada por la autora: *"al recargar la página me debe salir variado"* →
+  anti-repetición FIFO en cada juego con banco, verificado por test de recarga.
 
-## Pendiente / abierto
+## Pendiente
 
-- **Título global**: "Provincias del Ecuador" es de trabajo; confirmar con la autora
-  (propuestas: "Explora el Ecuador", "Mapa del Ecuador", "Viaje por las provincias").
-- **Colores del mapa**: paleta amable actual; ajustable si la autora prefiere otra.
-- Deploy: subir la carpeta `juegos/juego-6/` a producción (borrar `visits.txt` antes).
+- **Libro 3** (3 temas), **Libro 5** (2 temas), **Libro 6** (1 tema): contenido +
+  mecánica de cada uno (la autora los pasa uno por uno).
+- **Título global** del hub + card del landing (placeholder por ahora).
+- Personaje guía por defecto por libro/tema (hoy: domi, elegible).
