@@ -74,10 +74,14 @@ Invariantes:
 ### El mapa (`const ECU_MAP`)
 
 24 provincias como **paths SVG embebidos inline** (~50 KB) — geoBoundaries ADM1
-simplificado (**CC BY 4.0**, atribución en `assets/MAPA-FUENTE.txt`). Se generó con
-`scratchpad/gen-map.js` (proyección equirectangular del continente + **Galápagos en
-recuadro/inset**) y se inyectó con `scratchpad/inject-map.js` entre los marcadores
-`/*__MAP__*/ … /*__MAP_END__*/`. Cada provincia: `{ id, name, d, fill, gala, area }`.
+simplificado (**CC BY 4.0**, atribución en `assets/MAPA-FUENTE.txt`). Se genera con
+`.planning/gen-map.js` (proyección equirectangular del continente + **Galápagos en
+recuadro/inset**; fuente `.planning/ecu-adm1.geojson`) y se inyecta con
+`.planning/inject-map.js` entre los marcadores `/*__MAP__*/ … /*__MAP_END__*/`
+(`node .planning/gen-map.js && node .planning/inject-map.js` → re-empaquetar). Cada
+provincia: `{ id, name, d, fill, gala, area }`. **Regiones vecinas** (océano/Colombia/
+Perú de colores distintos) + una **base opaca** de Ecuador para que no se transparenten
+bajo las provincias atenuadas.
 - El **resalte pinta el propio `<path>`** (no un punto/círculo) → siempre cae dentro
   de la provincia, incluso en las cóncavas (Guayas, Esmeraldas).
 - **Colores:** paleta de 6, asignada a mano en `COLOR_BY_SLUG` para que **ninguna

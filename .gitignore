@@ -11,6 +11,10 @@ node_modules/
 package-lock.json
 juegos/*/.planning/qa-screenshots/
 juegos/*/.planning/qa-results.json
+# Intermedios regenerables del mapa (juego-6): la fuente es gen-map.js + el .geojson,
+# y el SVG final ya vive inline en game-screens.jsx.
+juegos/*/.planning/ecu-map.json
+juegos/*/.planning/ecu-map-preview.html
 juegos/*/counts/
 juegos/*/visits.txt
 # Láminas fuente del Mundial (~21 MB c/u); el juego usa mundial/equipos/*.jpg (livianas)

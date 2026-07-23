@@ -28,9 +28,14 @@ audiencia **7-10**. La autora eligió las mecánicas A + C de los bosquejos:
 ## Mapa (lo importante)
 
 - 24 provincias como **paths SVG inline** (~50 KB), de **geoBoundaries ADM1** (CC BY
-  4.0). Generado con `scratchpad/gen-map.js`, inyectado con `inject-map.js` entre
-  `/*__MAP__*/ … /*__MAP_END__*/`. Atribución en `assets/MAPA-FUENTE.txt`.
+  4.0). Generado con `.planning/gen-map.js`, inyectado con `.planning/inject-map.js`
+  entre `/*__MAP__*/ … /*__MAP_END__*/`. Atribución en `assets/MAPA-FUENTE.txt`.
 - **Galápagos** va en **recuadro (inset)** aparte (está a lon −92, lejísimos).
+- **Regiones vecinas** (océano azul / Colombia tan / Perú rosado) como cuñas desde el
+  centro a través de los vértices frontera; **base opaca** de Ecuador para que no se
+  transparenten al atenuar provincias. (Se probaron líneas fronterizas punteadas pero
+  la autora pidió quitarlas: se veían como una hélice al transparentarse; el límite
+  queda por el cambio de color.)
 - **Resalte = pintar el propio path** (no un círculo), así cae dentro de la provincia
   aunque sea cóncava (Guayas/Esmeraldas).
 - **6 colores asignados a mano** (`COLOR_BY_SLUG`) sin choques entre vecinas; NO son
