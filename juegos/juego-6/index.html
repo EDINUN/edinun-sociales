@@ -380,7 +380,7 @@ const GRAD_POS = [
 ];
 const LIBROS = [
   { id: "libro-2", label: "Libro 2", temas: [{ id: "l2-t1", label: "Reconociendo mi país" }] },
-  { id: "libro-3", label: "Libro 3", temas: [{ id: "l3-t1", label: "Tema 1" }, { id: "l3-t2", label: "Tema 2" }, { id: "l3-t3", label: "Tema 3" }] },
+  { id: "libro-3", label: "Libro 3", temas: [{ id: "l3-t1", label: "Hechos históricos" }, { id: "l3-t2", label: "Tema 2" }, { id: "l3-t3", label: "Tema 3" }] },
   { id: "libro-5", label: "Libro 5", temas: [{ id: "l5-t1", label: "Tema 1" }, { id: "l5-t2", label: "Tema 2" }] },
   { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "Tema 1" }] },
 ];
@@ -821,6 +821,353 @@ function ReconoceGame({ app, setApp, go }) {
   );
 }
 
+// ═════════════════════════════════════════════════════════════════════════
+// LIBRO 3 · TEMA 1 · "Hechos históricos" (7 años) — VENTANAS DEL PASADO.
+// Un personaje histórico (nombre) → su ÁREA (el niño TOCA 1 de 3). Con cada
+// ronda se abre una ventana de una POSTAL escondida del Ecuador; al terminar se
+// revela la postal completa + su dato. Contenido del libro; personas reales SIN
+// imagen (emoji del área + nombre). Bocadillo fijo = CÓMO. Anti-repetición.
+// ═════════════════════════════════════════════════════════════════════════
+const L3_ROUNDS = 4;
+const L3_RECENT_KEY = "edinun_juego6_l3_recientes_v1";
+const L3_RECENT_CAP = 6;
+
+const L3_AREAS = {
+  musica: { t: "música", e: "🎵" },
+  pintura: { t: "pintura", e: "🎨" },
+  deporte: { t: "deporte", e: "⚽" },
+  politica: { t: "política", e: "🏛️" },
+  literatura: { t: "literatura", e: "📖" },
+};
+const L3_AREA_IDS = ["musica", "pintura", "deporte", "politica", "literatura"];
+
+// Persona ↔ área SALEN DEL LIBRO ("ecuatorianos ejemplares" + "indaguemos más").
+// (Eduardo Kingman se deja fuera: el libro lo etiqueta "arte" → mezclaría con
+//  "pintura" y sería injusto para el niño. No añadir personas sin material del libro.)
+// `slug` → retrato opcional en assets/pers-<slug>.(jpg|png|…). Si el archivo no
+// existe, cae al 👤 (ver L3Foto). Personas reales → la autora pone las fotos
+// REALES del libro; NO se generan con IA.
+const PERSONAJES_L3 = [
+  { n: "Julio Jaramillo", slug: "jaramillo", area: "musica" },
+  { n: "Araceli Gilbert", slug: "gilbert", area: "pintura" },
+  { n: "Oswaldo Guayasamín", slug: "guayasamin", area: "pintura" },
+  { n: "Glenda Morejón", slug: "morejon", area: "deporte" },
+  { n: "Richard Carapaz", slug: "carapaz", area: "deporte" },
+  { n: "Eloy Alfaro", slug: "alfaro", area: "politica" },
+  { n: "Rumiñahui", slug: "ruminahui", area: "politica" }, // el libro: "política y milicia"
+  { n: "María Fernanda Heredia", slug: "heredia", area: "literatura" },
+  { n: "Juan Montalvo", slug: "montalvo", area: "literatura" }, // el libro: "gran novelista de Ambato"
+];
+
+// Postales del Ecuador — RESERVADO para un posible "bonus de juego perfecto"
+// (imágenes opcionales; los prompts ya se entregaron a la autora). La mecánica A
+// (elegida) NO las usa: el álbum final muestra las FOTOS de los personajes descubiertos.
+const POSTALES_L3 = [
+  { id: "pichincha", titulo: "Batalla de Pichincha", cells: ["☀️", "🦅", "🌋", "🇪🇨"], dato: "La Batalla de Pichincha fue parte de nuestra independencia." },
+  { id: "templo", titulo: "Templo de la Patria", cells: ["🕊️", "⭐", "🏛️", "🔥"], dato: "El Templo de la Patria, en Quito, recuerda a los héroes." },
+  { id: "regiones", titulo: "Regiones del Ecuador", cells: ["🏝️", "⛰️", "🏖️", "🌳"], dato: "Ecuador tiene región insular, costa, sierra y amazonía." },
+];
+
+function l3Shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function l3Recent() { try { const r = JSON.parse(localStorage.getItem(L3_RECENT_KEY) || "[]"); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
+function l3Push(ids) { try { const prev = l3Recent().filter((id) => ids.indexOf(id) === -1); localStorage.setItem(L3_RECENT_KEY, JSON.stringify(ids.concat(prev).slice(0, L3_RECENT_CAP))); } catch (e) {} }
+
+// Elige L3_ROUNDS personajes (los NO recientes primero) y arma 3 opciones de área
+// por ronda: la correcta (del libro) + 2 áreas distractoras. Recargar varía.
+function l3BuildRounds() {
+  const recent = new Set(l3Recent());
+  const all = PERSONAJES_L3.map((_, i) => i);
+  const fresh = l3Shuffle(all.filter((i) => !recent.has(i)));
+  const stale = l3Shuffle(all.filter((i) => recent.has(i)));
+  const chosen = fresh.concat(stale).slice(0, L3_ROUNDS);
+  l3Push(chosen);
+  return chosen.map((pi) => {
+    const p = PERSONAJES_L3[pi];
+    const distractores = l3Shuffle(L3_AREA_IDS.filter((a) => a !== p.area)).slice(0, 2);
+    const opsIds = l3Shuffle([p.area].concat(distractores));
+    const opciones = opsIds.map((id) => ({ id, e: L3_AREAS[id].e, t: L3_AREAS[id].t }));
+    return { nombre: p.n, slug: p.slug, area: p.area, opciones, correcta: opsIds.indexOf(p.area) };
+  });
+}
+
+const L3_ANIMOS = ["¡Casi! Sigue intentándolo.", "¡La próxima es tuya!", "Equivocarse también es aprender.", "¡Ya casi te lo sabes!"];
+const L3_OPT_COLORS = ["#ef5a5a", "#4fa0ff", "#2ecc8f"];
+// Foto del personaje TAPADA por 4 ventanas. Intenta la foto real
+// (assets/pers-<slug>.<ext>) y, si no existe ninguna, cae al 👤. `revealed` abre las
+// ventanas (solo al acertar). La autora pone las fotos REALES del libro; NO se generan.
+const L3_IMG_EXTS = ["jpg", "png", "jpeg", "webp"];
+
+function L3Foto({ slug, revealed, size = 184 }) {
+  const [tryIdx, setTryIdx] = useStateG(0);
+  const failed = tryIdx >= L3_IMG_EXTS.length;
+  return (
+    <div style={{ position: "relative", width: size, height: size, borderRadius: 16, overflow: "hidden", border: "3px solid #f2c260", boxShadow: "0 12px 28px rgba(0,0,0,0.45)", background: "#2b1c62" }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #fff, #efe9dc)" }}>
+        {!failed ? (
+          <img src={`assets/pers-${slug}.${L3_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : (
+          <span style={{ fontSize: Math.round(size * 0.5), lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.25))" }}>👤</span>
+        )}
+      </div>
+      <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4, padding: 4, pointerEvents: "none" }}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} style={{ borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #f2c260, #d79a2b)", border: "1px solid rgba(255,255,255,0.35)", boxShadow: "inset 0 -3px 0 rgba(0,0,0,0.15)", transition: "opacity 0.5s ease, transform 0.5s ease", transitionDelay: `${i * 130}ms`, opacity: revealed ? 0 : 1, transform: revealed ? "scale(0.4)" : "scale(1)" }}>
+            <span style={{ fontSize: 30, color: "rgba(60,38,8,0.55)", fontWeight: 800 }}>?</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Tarjeta del álbum final: foto si lo descubrió (acertó); 👤/🔒 (gris) si no.
+function L3AlbumCard({ slug, nombre, area, ok }) {
+  const [tryIdx, setTryIdx] = useStateG(0);
+  const failed = tryIdx >= L3_IMG_EXTS.length;
+  const ar = L3_AREAS[area] || { t: area, e: "❓" };
+  return (
+    <div style={{ width: 116, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+      <div style={{ position: "relative", width: 92, height: 92, borderRadius: 12, overflow: "hidden", border: `3px solid ${ok ? "#2ecc8f" : "rgba(255,255,255,0.3)"}`, background: "linear-gradient(180deg, #fff, #efe9dc)", display: "flex", alignItems: "center", justifyContent: "center", filter: ok ? "none" : "grayscale(1) brightness(0.85)" }}>
+        {ok && !failed ? (
+          <img src={`assets/pers-${slug}.${L3_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <span style={{ fontSize: 46 }}>{ok ? "👤" : "🔒"}</span>
+        )}
+      </div>
+      <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: "#fff", textAlign: "center", lineHeight: 1.05 }}>{nombre}</div>
+      <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: ok ? "#fce9a8" : "rgba(255,255,255,0.5)" }}>{ar.e} {ar.t}</div>
+    </div>
+  );
+}
+
+function VentanasGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const catLabel = app.currentCatLabel || "Hechos históricos";
+
+  const [rounds, setRounds] = useStateG(() => l3BuildRounds());
+  const [idx, setIdx] = useStateG(0);
+  const [picked, setPicked] = useStateG(null);
+  const [revealed, setRevealed] = useStateG(false); // ventanas abiertas de la ronda (solo al acertar)
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
+  const [aciertos, setAciertos] = useStateG(0);
+  const [stars, setStars] = useStateG(0);
+  const [elapsed, setElapsed] = useStateG(0);
+  const [log, setLog] = useStateG([]);
+  const [albumOpen, setAlbumOpen] = useStateG(false); // overlay final (álbum de personajes)
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+
+  const started = useRefG(Date.now());
+  const exerciseStart = useRefG(Date.now());
+  const advancing = useRefG(false);
+
+  useEffectG(() => {
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500);
+    return () => clearInterval(t);
+  }, []);
+
+  const q = rounds[idx];
+  const answered = picked !== null;
+  const correcta = q.opciones[q.correcta];
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function confirmRestart() {
+    setConfirmingRestart(false); advancing.current = false;
+    setRounds(l3BuildRounds());
+    setIdx(0); setPicked(null); setRevealed(false); setFeedback(null); setFeedbackMsg(""); setAciertos(0); setStars(0); setLog([]); setAlbumOpen(false);
+    started.current = Date.now(); exerciseStart.current = Date.now();
+  }
+
+  function answerTap(i) {
+    if (answered || advancing.current) return;
+    if (typeof markFirstAttempt === "function") markFirstAttempt();
+    setPicked(i);
+    const isCorrect = i === q.correcta;
+    const exSec = Math.max(0, Math.floor((Date.now() - exerciseStart.current) / 1000));
+    const entry = { idx: idx + 1, emoji: "👤", a: q.nombre, slug: q.slug, area: q.area, userAnswer: `${q.opciones[i].e} ${q.opciones[i].t}`, correctAnswer: `${correcta.e} ${correcta.t}`, isCorrect, time: exSec };
+    const newLog = [...log, entry];
+    const newAciertos = aciertos + (isCorrect ? 1 : 0);
+    const newStars = stars + (isCorrect ? 1 : 0);
+    const isLast = idx + 1 >= rounds.length;
+    setLog(newLog); setAciertos(newAciertos); setStars(newStars);
+    advancing.current = true;
+    if (isCorrect) {
+      setRevealed(true); // abre las ventanas → aparece su foto
+      setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
+      const ar = L3_AREAS[q.area] || { t: q.area, e: "" };
+      setTimeout(() => { setFeedback("ok"); setFeedbackMsg(`${q.nombre} · ${ar.e} ${ar.t}`); }, 900);
+      setTimeout(() => advance(newLog, newAciertos, newStars, isLast), 1750);
+    } else {
+      setTimeout(() => { setFeedback("err"); setFeedbackMsg(L3_ANIMOS[idx % L3_ANIMOS.length]); }, 2000);
+      setTimeout(() => advance(newLog, newAciertos, newStars, isLast), 2700);
+    }
+  }
+
+  function advance(newLog, newAciertos, newStars, isLast) {
+    setFeedback(null); setFeedbackMsg("");
+    if (!isLast) {
+      setIdx((i) => i + 1); setPicked(null); setRevealed(false); exerciseStart.current = Date.now(); advancing.current = false;
+    } else {
+      // Álbum final: las fotos que sí descubrió (acertó), luego el reporte.
+      setAlbumOpen(true);
+      setTimeout(() => {
+        setApp((s) => ({
+          ...s, stars: newStars,
+          lastResult: { category: catLabel, solved: newAciertos, total: rounds.length, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog },
+        }));
+        if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+        go("results");
+      }, 3600);
+    }
+  }
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      {/* HUD */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      {/* RONDA con dots — top:52 (§1.1) */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: rounds.length }).map((_, i) => {
+          const done = i < log.length;
+          const ok = done && log[i] && log[i].isCorrect;
+          return (
+            <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: done ? (ok ? "#fce9a8" : "#ff6b6b") : (i === idx ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: done ? "0 0 8px currentColor" : "none", color: ok ? "#fce9a8" : "#ff6b6b" }} />
+          );
+        })}
+      </div>
+
+      {/* Personaje guía + bocadillo (CÓMO, fijo) */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            Toca su área.<br />¡Descubre su foto!
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* Zona central: NOMBRE (título) + foto tapada por ventanas + opciones de área */}
+      <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly" }}>
+        <div style={{ textAlign: "center", pointerEvents: "none" }}>
+          <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>¿En qué se destacó?</div>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 30, lineHeight: 1.1, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)", maxWidth: 460 }}>
+            {q.nombre}
+          </div>
+        </div>
+
+        {/* Foto del personaje tapada por 4 ventanas (se abren al acertar) */}
+        <L3Foto key={q.slug} slug={q.slug} revealed={revealed} size={184} />
+
+        {/* 3 tarjetas de área */}
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "nowrap" }}>
+          {q.opciones.map((op, i) => {
+            const correctOne = i === q.correcta;
+            const baseColor = L3_OPT_COLORS[i % L3_OPT_COLORS.length];
+            let borderColor = baseColor, bg = "linear-gradient(180deg, #fff8e6 0%, #f7e3a8 100%)", nameColor = "#3a2608";
+            if (answered) {
+              if (correctOne) { borderColor = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; nameColor = "#06381f"; }
+              else if (i === picked) { borderColor = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; nameColor = "#fff"; }
+              else { bg = "linear-gradient(180deg, rgba(255,248,230,0.5), rgba(247,227,168,0.5))"; }
+            }
+            return (
+              <button key={i} onClick={() => answerTap(i)} disabled={answered}
+                style={{ width: 122, height: 112, borderRadius: 18, border: `3px solid ${borderColor}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: answered ? "default" : "pointer", boxShadow: answered && correctOne ? "0 0 22px rgba(46,204,143,0.6), inset 0 1px 0 rgba(255,255,255,0.4)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: answered && correctOne ? "translateY(-4px)" : "none", transition: "all 0.15s ease" }}>
+                <span style={{ fontSize: 50, lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.3))" }}>{op.e}</span>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 15, color: nameColor, textAlign: "center", lineHeight: 1.05 }}>{op.t}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Acciones */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {/* Overlay acierto/fallo */}
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Overlay final: álbum de personajes descubiertos */}
+      {albumOpen && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1001, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "rgba(0,0,0,0.66)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s", padding: 16 }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(26px, 4.5vmin, 46px)", color: "#fce9a8", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px rgba(242,194,96,0.6)", textAlign: "center" }}>
+              {aciertos >= rounds.length ? "¡Los descubriste a todos! 🎉" : "Tu álbum de personajes"}
+            </div>
+            <div style={{ display: "flex", gap: 14, padding: "16px 18px", borderRadius: 18, background: "linear-gradient(135deg, #2b1c62, #140a37)", border: "3px solid #f2c260", boxShadow: "0 16px 40px rgba(0,0,0,0.5)", flexWrap: "wrap", justifyContent: "center", maxWidth: "92vw" }}>
+              {log.map((e, i) => (
+                <L3AlbumCard key={i} slug={e.slug} nombre={e.a} area={e.area} ok={e.isCorrect} />
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: "clamp(13px, 2vmin, 16px)", color: "#fff", background: "rgba(0,0,0,0.45)", padding: "6px 20px", borderRadius: 999 }}>
+              Descubriste {aciertos} de {rounds.length}
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal SALIR */}
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal REINICIAR */}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar con personajes nuevos.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // Juego placeholder (mismo marco que cualquier juego EDINUN).
 // ─────────────────────────────────────────────────────────────
@@ -1108,6 +1455,7 @@ function ResultsScreen({ app, setApp, go }) {
 // libro/tema, añadir aquí:  if (app.currentCategory === "l3-t2") return <JuegoX .../>;
 function GameScreen({ app, setApp, go }) {
   if (app.currentCategory === "l2-t1") return <ReconoceGame app={app} setApp={setApp} go={go} />;
+  if (app.currentCategory === "l3-t1") return <VentanasGame app={app} setApp={setApp} go={go} />;
   return <PlaceholderGame app={app} setApp={setApp} go={go} />;
 }
 

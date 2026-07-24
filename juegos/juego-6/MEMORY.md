@@ -12,7 +12,7 @@ del mapa). La autora dijo *"hay cambio de planes… vamos a cambiar todo"* y dec
 ```
 Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → reporte
   Libro 2 → 1 tema   ("Reconociendo mi país", 6 años)   ✅ hecho
-  Libro 3 → 3 temas                                       ⏳ placeholder
+  Libro 3 → 3 temas  (T1 "Hechos históricos", 7 años ✅) 🟡 T1 hecho · T2/T3 placeholder
   Libro 5 → 2 temas                                       ⏳ placeholder
   Libro 6 → 1 tema                                        ⏳ placeholder
 ```
@@ -45,16 +45,44 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
 - **Verificado:** e2e `reachedResults: true`; anti-repetición al recargar **0 solapes**
   (p1=[3,9,5,1] vs p2=[4,7,6,8]); format-lint 15/15.
 
+## Libro 3 · Tema 1 · "Hechos históricos" (7 años)
+
+- Del **TEMA 1 del libro** (fotos de la autora): **ecuatorianos ejemplares** y su **área**
+  (música/deporte/pintura/literatura/política); marco/recompensa = Batalla de Pichincha,
+  Templo de la Patria y las regiones del Ecuador.
+- La autora rechazó las 3 primeras mecánicas (*"como aburrido, plantéame algo más
+  interesante"*). Se propusieron 3 con más juego (Detective / **Ventanas del pasado** /
+  Atrapa la fuente) **como bosquejo ASCII en el chat**. Eligió **Ventanas del pasado** y
+  pidió que fuera **con los personajes históricos**.
+- **¿Generar imágenes? → NO.** Personas reales → NO se generan sus caras (saldrían
+  inventadas; regla de no inventar). Se usa **emoji del área + nombre** (opción A).
+- Mecánica: **Ventanas del pasado** (`VentanasGame`, opción A) — el **nombre es el título**
+  y **su foto va tapada por ventanas 2×2**; toca 1 de 3 áreas; **al acertar se destapa su
+  foto**, al fallar queda tapada (no resta). Final: **álbum** con las fotos que descubrió.
+  Fotos reales del libro en `assets/pers-<slug>` (respaldo 👤); anti-repetición de personajes.
+- **Idea de la autora (rediseño):** cambió el diseño para que el **nombre sea el título** y
+  las ventanas tapen la **FOTO del personaje** que se va revelando; "al final se muestra la
+  imagen si elijo bien todas las preguntas" → **álbum** de los descubiertos. Insistió mucho
+  en poner las fotos (por eso `L3Foto`/`L3AlbumCard` cargan `assets/pers-<slug>` con respaldo
+  👤). Las postales quedaron **reservadas** como posible bonus (prompts entregados).
+- **Verificado:** overflow 0 (4 viewports), anti-repetición **0 solapes**, e2e
+  (acierto→foto→álbum→reporte) sin errores, format-lint 15/15.
+
 ## Aprendizajes
 
 - La autora prefiere ver los **bosquejos de mecánica dibujados en el propio chat**
   (ASCII), no como enlace a un artifact. (Lo pidió 3 veces.)
 - Regla recordada por la autora: *"al recargar la página me debe salir variado"* →
   anti-repetición FIFO en cada juego con banco, verificado por test de recarga.
+- Al proponer mecánicas, si la autora dice que están "aburridas", subir el **factor
+  juego** (exploración/sorpresa/recompensa), no solo cambiar de quiz a clasificar.
+- Para **personas reales** (personajes históricos): NUNCA generar sus caras con IA
+  (inventadas). Retratos solo si la autora pasa los reales del libro (próceres = dominio
+  público; modernos = con derechos). Por defecto: emoji del área + nombre.
 
 ## Pendiente
 
-- **Libro 3** (3 temas), **Libro 5** (2 temas), **Libro 6** (1 tema): contenido +
+- **Libro 3 · Temas 2 y 3**, **Libro 5** (2 temas), **Libro 6** (1 tema): contenido +
   mecánica de cada uno (la autora los pasa uno por uno).
 - **Título global** del hub + card del landing (placeholder por ahora).
 - Personaje guía por defecto por libro/tema (hoy: domi, elegible).

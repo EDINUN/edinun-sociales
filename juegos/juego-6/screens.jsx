@@ -139,7 +139,7 @@ const GRAD_POS = [
 ];
 const LIBROS = [
   { id: "libro-2", label: "Libro 2", temas: [{ id: "l2-t1", label: "Reconociendo mi país" }] },
-  { id: "libro-3", label: "Libro 3", temas: [{ id: "l3-t1", label: "Tema 1" }, { id: "l3-t2", label: "Tema 2" }, { id: "l3-t3", label: "Tema 3" }] },
+  { id: "libro-3", label: "Libro 3", temas: [{ id: "l3-t1", label: "Hechos históricos" }, { id: "l3-t2", label: "Tema 2" }, { id: "l3-t3", label: "Tema 3" }] },
   { id: "libro-5", label: "Libro 5", temas: [{ id: "l5-t1", label: "Tema 1" }, { id: "l5-t2", label: "Tema 2" }] },
   { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "Tema 1" }] },
 ];

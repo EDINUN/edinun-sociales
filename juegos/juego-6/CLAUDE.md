@@ -9,7 +9,7 @@ tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número 
 | Libro | Temas | Estado |
 |-------|-------|--------|
 | Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
-| Libro 3 | **3 temas** | ⏳ placeholder |
+| Libro 3 | **3 temas** — T1 "Hechos históricos" (7 años) · T2 · T3 | 🟡 T1 ✅ · T2/T3 ⏳ |
 | Libro 5 | **2 temas** | ⏳ placeholder |
 | Libro 6 | **1 tema** | ⏳ placeholder |
 
@@ -39,9 +39,10 @@ results`). En `screens.jsx`:
 
 `GameScreen` **despacha por `app.currentCategory`**:
 - `"l2-t1"` → **`ReconoceGame`** (Libro 2).
-- cualquier otro (l3-t1, l3-t2, l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
+- `"l3-t1"` → **`VentanasGame`** (Libro 3 · Tema 1).
+- cualquier otro (l3-t2, l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
   ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
-- `ResultsScreen`/`PrintableReport` sirven a ambos (log vacío en placeholder).
+- `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
 Al implementar un tema nuevo: crear su componente y añadir `if (currentCategory ===
 "<id>") return <SuJuego/>;` en `GameScreen`. Guardar su design-doc en
@@ -61,6 +62,31 @@ Diseño en `.planning/libro-2-design.md`.
 ⚠ **Contenido del libro:** las respuestas correctas salen del TEMA 2 "Reconociendo mi
 país" (país=Ecuador, capital=Quito, servicios básicos, quién ayuda). Los distractores
 son contrastes obvios (no datos del libro). No añadir ítems sin material del libro.
+
+### Libro 3 · Tema 1 · "Hechos históricos" (`VentanasGame`, 7 años)
+
+**Ventanas del pasado (opción A, decisión de la autora):** el **nombre** del personaje es
+el título; debajo, **su FOTO tapada por una cuadrícula 2×2 de ventanas**. 4 rondas, un
+personaje por ronda. El niño **TOCA 1 de 3 áreas** (🎵🎨⚽🏛️📖). **Acierta →** se abren
+las ventanas y **aparece su foto** (`revealed`) + overlay "{nombre} · área" + ⭐;
+**falla →** se ve el área correcta en verde y **la foto NO se destapa** (no lo descubrió),
+sin restar. Al terminar: **álbum** (`L3AlbumCard`) con las fotos que **sí** descubrió
+(acertadas a color; falladas en gris con 🔒) → "la imagen se muestra si elijo bien".
+Bocadillo fijo = CÓMO ("Toca su área. ¡Descubre su foto!"). Anti-repetición de personajes
+FIFO (`L3_RECENT_KEY`, cap 6). Diseño en `.planning/libro-3-tema-1-design.md`.
+
+**Fotos:** `L3Foto` / `L3AlbumCard` cargan `assets/pers-<slug>.(jpg|png|jpeg|webp)` y caen
+al 👤 si falta. Personas reales → la autora pone las **fotos reales del libro**; NO se
+generan caras con IA. Slugs: `jaramillo, gilbert, guayasamin, morejon, carapaz, alfaro,
+ruminahui, heredia, montalvo`.
+
+⚠ **Contenido del libro:** banco `PERSONAJES_L3` (9) con la **área textual del libro**
+("ecuatorianos ejemplares" + "indaguemos más"); distractores = otras áreas. Eduardo
+Kingman queda fuera a propósito (el libro lo etiqueta "arte" → mezclaría con "pintura").
+`POSTALES_L3` queda **reservado** (bonus opcional de "juego perfecto"; prompts de imagen
+ya entregados a la autora), NO usado en la mecánica A. **Verificado:** overflow 0 en 4
+viewports; anti-repetición 0 solapes; e2e (acierto→foto→álbum→reporte) sin errores;
+format-lint 15/15.
 
 ## Personajes
 
