@@ -632,7 +632,7 @@ const L3T2_REGIMENES = [
     { t: "Gobernador", nivel: "Provincia" }, { t: "Jefe Político", nivel: "Cantón" }, { t: "Teniente Político", nivel: "Parroquia" },
   ] },
   { id: "autonomo", label: "Régimen seccional autónomo", cards: [
-    { t: "Provincia", nivel: "1ª · más grande" }, { t: "Cantón", nivel: "2º" }, { t: "Parroquia", nivel: "3ª · más pequeña" },
+    { t: "Provincia", nivel: "" }, { t: "Cantón", nivel: "" }, { t: "Parroquia", nivel: "" },
   ] },
   { id: "gobiernos", label: "Gobiernos seccionales autónomos", cards: [
     { t: "Consejo Provincial", nivel: "Provincia" }, { t: "Consejo Municipal", nivel: "Cantón" }, { t: "Junta Parroquial", nivel: "Parroquia" },
@@ -687,11 +687,12 @@ function R1Region({ onSolve }) {
     onSolve(regId === correctReg, { emoji: "📍", a: `¿De qué región ${verbo} ${frase}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
       <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 9, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué región {verbo}</span>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 28, color: "#fce9a8" }}>{frase}?</span>
       </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, width: "100%", minHeight: 0 }}>
       <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={true} size={200} />
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
         {L3T2_REG_IDS.map((rid) => {
@@ -704,12 +705,16 @@ function R1Region({ onSolve }) {
           }
           return (
             <button key={rid} onClick={() => tap(rid)} disabled={answered}
-              style={{ width: 104, height: 94, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
+              style={{ position: "relative", width: 104, height: 94, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
+              {answered && (isCorrect || rid === picked) && (
+                <span style={{ position: "absolute", top: 5, right: 7, fontSize: 20, fontWeight: 900, lineHeight: 1, color: isCorrect ? "#06381f" : "#fff" }}>{isCorrect ? "✓" : "✗"}</span>
+              )}
               <span style={{ fontSize: 38, lineHeight: 1 }}>{rg.e}</span>
               <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col }}>{rg.t}</span>
             </button>
           );
         })}
+      </div>
       </div>
     </div>
   );
@@ -744,12 +749,12 @@ function R2Orden({ onSolve, verifyRef }) {
   }
   verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño</div>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{regimen.label}</div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, marginTop: "auto", marginBottom: "auto" }}>
         <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬆ más grande</div>
         <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 9, touchAction: "none" }}>
           {order.map((cardIdx, pos) => {
@@ -759,11 +764,11 @@ function R2Orden({ onSolve, verifyRef }) {
             const inkMain = verified ? (okPos ? "#06381f" : "#fff") : "#3a2608";
             return (
               <div key={cardIdx} data-slot onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
-                style={{ position: "relative", width: 300, height: 66, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1 }}>
-                <span style={{ fontSize: verified ? 24 : 18, fontWeight: 900, color: verified ? inkMain : "#c39a3e", width: 26, textAlign: "center" }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
+                style={{ position: "relative", width: 224, height: 64, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1 }}>
+                <span style={{ fontSize: verified ? 22 : 17, fontWeight: 900, color: verified ? inkMain : "#c39a3e", width: 22, textAlign: "center", flexShrink: 0 }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
                 <div style={{ textAlign: "center", lineHeight: 1.05 }}>
-                  <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: inkMain }}>{c.t}</div>
-                  <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: verified ? (okPos ? "rgba(6,56,31,0.75)" : "rgba(255,255,255,0.85)") : "#8a5a1a" }}>{c.nivel}</div>
+                  <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: inkMain }}>{c.t}</div>
+                  {c.nivel && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: verified ? (okPos ? "rgba(6,56,31,0.75)" : "rgba(255,255,255,0.85)") : "#8a5a1a" }}>{c.nivel}</div>}
                 </div>
               </div>
             );
@@ -793,12 +798,12 @@ function R3Provincias({ onSolve, verifyRef }) {
   }
   verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Toca las provincias que sí son de la</div>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, width: "100%", maxWidth: 470 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, width: "100%", maxWidth: 470, marginTop: "auto", marginBottom: "auto" }}>
         {built.shown.map((p) => {
           const sel = !!selected[p.name];
           let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", bg = sel ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608", mark = sel ? "●" : "○", markCol = sel ? "#2773d8" : "rgba(58,38,8,0.35)";
