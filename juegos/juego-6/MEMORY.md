@@ -83,8 +83,15 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   **4 regiones** (paisajes SIN caras) → `region-<slug>.jpg` (respaldo al emoji). Contenido
   del texto del tema (no de las actividades) y **bancos grandes** para que recargar varíe
   (petición expresa).
-- **Verificado:** overflow 0 en las 3 rondas, arrastre de R2 mueve cartas, e2e
-  (R1→R2→R3→reporte) sin errores, format-lint 15/15.
+- **Ajustes tras verla jugando:** (1) en R1 la autora **NO quería el tapar/destapar** →
+  la **imagen de la región se muestra siempre visible** y el ítem va en la misma línea del
+  enunciado (imagen más grande). (2) Vio la referencia de edinun-language ("Vocales/Letra V")
+  y pidió **pills de tema** para saltar entre temas del libro sin volver al Home →
+  `TemaPills` en `GameScreen`. (3) "Verde" confundía (emoji banano) → fuera; y **aprobó
+  ampliar el banco** de R1 (Cangrejo/Banano/Coco/Volcán/Papa/Mono/Caimán/Pingüino/Lobo
+  marino) → *"si puedes agregar palabras solo dime y yo apruebo"*.
+- **Verificado:** overflow 0 en las 3 rondas, arrastre de R2 mueve cartas, pills cambian de
+  tema sin errores, e2e (R1→R2→R3→reporte) sin errores, format-lint 15/15.
 
 ## Aprendizajes
 

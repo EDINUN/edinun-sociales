@@ -617,10 +617,10 @@ const L3T2_REG_IDS = ["costa", "sierra", "amazonia", "insular"];
 
 // R1 — ítem → región (platos textuales del libro + naturaleza que define cada región).
 const L3T2_ITEMS = [
-  { e: "🦐", t: "Mariscos", reg: "costa" }, { e: "🍌", t: "Verde", reg: "costa" }, { e: "🏖️", t: "Playa", reg: "costa" }, { e: "🐟", t: "Pescado", reg: "costa" },
-  { e: "🍲", t: "Fritada", reg: "sierra" }, { e: "🐹", t: "Cuy", reg: "sierra" }, { e: "🏔️", t: "Nevado", reg: "sierra" }, { e: "🦙", t: "Llama", reg: "sierra" },
-  { e: "🍢", t: "Maito", reg: "amazonia" }, { e: "🌴", t: "Selva", reg: "amazonia" }, { e: "🦜", t: "Tucán", reg: "amazonia" }, { e: "🛶", t: "Río", reg: "amazonia" },
-  { e: "🐢", t: "Tortuga", reg: "insular" }, { e: "🦎", t: "Iguana", reg: "insular" }, { e: "🏝️", t: "Galápagos", reg: "insular" },
+  { e: "🦐", t: "Mariscos", reg: "costa" }, { e: "🏖️", t: "Playa", reg: "costa" }, { e: "🐟", t: "Pescado", reg: "costa" }, { e: "🦀", t: "Cangrejo", reg: "costa" }, { e: "🍌", t: "Banano", reg: "costa" }, { e: "🥥", t: "Coco", reg: "costa" },
+  { e: "🍲", t: "Fritada", reg: "sierra" }, { e: "🐹", t: "Cuy", reg: "sierra" }, { e: "🏔️", t: "Nevado", reg: "sierra" }, { e: "🦙", t: "Llama", reg: "sierra" }, { e: "🌋", t: "Volcán", reg: "sierra" }, { e: "🥔", t: "Papa", reg: "sierra" },
+  { e: "🍢", t: "Maito", reg: "amazonia" }, { e: "🌴", t: "Selva", reg: "amazonia" }, { e: "🦜", t: "Tucán", reg: "amazonia" }, { e: "🛶", t: "Río", reg: "amazonia" }, { e: "🐒", t: "Mono", reg: "amazonia" }, { e: "🐊", t: "Caimán", reg: "amazonia" },
+  { e: "🐢", t: "Tortuga", reg: "insular" }, { e: "🦎", t: "Iguana", reg: "insular" }, { e: "🏝️", t: "Galápagos", reg: "insular" }, { e: "🐧", t: "Pingüino", reg: "insular" }, { e: "🦭", t: "Lobo marino", reg: "insular" },
 ];
 
 // R2 — "Modelo para la administración del Estado" (diagrama del libro). Orden correcto:
@@ -684,11 +684,11 @@ function R1Region({ onSolve }) {
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
-      <div style={{ textAlign: "center", pointerEvents: "none" }}>
-        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>¿De qué región del Ecuador es?</div>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 26, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{item.e} {item.t}</div>
+      <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 10, justifyContent: "center", flexWrap: "wrap", maxWidth: 470, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "rgba(255,255,255,0.9)" }}>¿De qué región es</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 27, color: "#fce9a8" }}>{item.e} {item.t}?</span>
       </div>
-      <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={answered && picked === correctReg} size={148} />
+      <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={true} size={200} />
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
         {L3T2_REG_IDS.map((rid) => {
           const rg = L3T2_REGIONES[rid], isCorrect = rid === correctReg;
@@ -1230,14 +1230,41 @@ function ResultsScreen({ app, setApp, go }) {
   );
 }
 
+// Pills de tema (arriba, centro) — saltar entre los temas del libro sin volver al Home
+// (como el "Vocales / Letra V" de edinun-language). Solo aparecen si el libro tiene 2+ temas.
+function TemaPills({ temas, active, onSwitch }) {
+  return (
+    <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", gap: 6, background: "rgba(10,6,35,0.55)", borderRadius: 999, padding: 4, border: "1px solid rgba(242,194,96,0.35)", backdropFilter: "blur(6px)", maxWidth: 640 }}>
+      {temas.map((t) => {
+        const on = t.id === active;
+        return (
+          <button key={t.id} onClick={() => onSwitch(t)} disabled={on}
+            style={{ padding: "6px 14px", borderRadius: 999, border: "none", cursor: on ? "default" : "pointer", background: on ? "linear-gradient(180deg, #ffe08a, #e0a92a)" : "transparent", color: on ? "#3a2608" : "rgba(255,255,255,0.82)", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, whiteSpace: "nowrap", boxShadow: on ? "0 3px 8px rgba(0,0,0,0.3)" : "none", transition: "all 0.15s ease" }}>
+            {t.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ═══════════════ Despachador ═══════════════
-// Todos los temas usan el placeholder por ahora. Cuando llegue el contenido de un
-// libro/tema, añadir aquí:  if (app.currentCategory === "l3-t2") return <JuegoX .../>;
+// Despacha por app.currentCategory. Los pills (arriba) permiten saltar entre los temas
+// del libro. Al implementar un tema nuevo: mapear su componente en `pick`.
 function GameScreen({ app, setApp, go }) {
-  if (app.currentCategory === "l2-t1") return <ReconoceGame app={app} setApp={setApp} go={go} />;
-  if (app.currentCategory === "l3-t1") return <VentanasGame app={app} setApp={setApp} go={go} />;
-  if (app.currentCategory === "l3-t2") return <TerritorioGame app={app} setApp={setApp} go={go} />;
-  return <PlaceholderGame app={app} setApp={setApp} go={go} />;
+  const libro = typeof LIBROS !== "undefined" ? LIBROS.find((l) => l.id === app.libro) : null;
+  const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame };
+  const Game = pick[app.currentCategory] || PlaceholderGame;
+  function switchTema(t) {
+    if (!libro || t.id === app.currentCategory) return;
+    setApp((s) => ({ ...s, currentCategory: t.id, currentCatLabel: `${libro.label} · ${t.label}` }));
+  }
+  return (
+    <React.Fragment>
+      {libro && libro.temas.length > 1 && <TemaPills temas={libro.temas} active={app.currentCategory} onSwitch={switchTema} />}
+      <Game key={app.currentCategory} app={app} setApp={setApp} go={go} />
+    </React.Fragment>
+  );
 }
 
 Object.assign(window, { GameScreen, ResultsScreen });

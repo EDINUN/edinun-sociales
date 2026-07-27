@@ -45,6 +45,12 @@ results`). En `screens.jsx`:
   ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
 - `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
+**`TemaPills`** (arriba, centro): en libros con **2+ temas**, `GameScreen` muestra pills
+con los temas del libro (lee `LIBROS`, en scope del bundle) para **saltar entre temas sin
+volver al Home** — al tocar cambia `currentCategory`/`currentCatLabel` y re-despacha (el
+juego se remonta por `key={currentCategory}`). Cambio instantáneo (pierde la ronda en
+curso). El personaje/nombre se conservan.
+
 Al implementar un tema nuevo: crear su componente y añadir `if (currentCategory ===
 "<id>") return <SuJuego/>;` en `GameScreen`. Guardar su design-doc en
 `.planning/libro-N-design.md` y renombrar su `label` en `LIBROS`.
@@ -95,9 +101,11 @@ format-lint 15/15.
 orquestadas por `TerritorioGame` (chrome compartido + `onSolve` por ronda; avance
 automático; reporte de 3 filas). Sub-componentes:
 
-- **R1 `R1Region`** — ¿de qué región es? **tocar 1 de 4** (Costa/Sierra/Amazonía/Insular)
-  + **destapar la imagen de la región** (`L3Foto` con `prefix="region"`, `region-<slug>.jpg`,
-  respaldo al emoji). Banco `L3T2_ITEMS` (platos + naturaleza del tema).
+- **R1 `R1Region`** — "¿De qué región es {ítem}?" (ítem inline en el enunciado) **tocar 1
+  de 4** (Costa/Sierra/Amazonía/Insular). La **imagen de la región se muestra grande y
+  visible** (`L3Foto revealed` fijo; sin tapar/destapar — decisión de la autora), `prefix
+  ="region"`, `region-<slug>.jpeg`, respaldo al emoji. Banco `L3T2_ITEMS` = ~23 ítems que
+  refieren a cada región (platos + naturaleza/fauna), **ampliado y aprobado por la autora**.
 - **R2 `R2Orden`** — ordena de mayor a menor **ARRASTRANDO** (pointer events, `data-slot`).
   Rota entre los **3 regímenes** del diagrama del libro (`L3T2_REGIMENES`: dependiente /
   autónomo / gobiernos autónomos); orden correcto Provincia›Cantón›Parroquia (índice 0,1,2).
