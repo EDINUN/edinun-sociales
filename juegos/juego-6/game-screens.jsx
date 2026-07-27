@@ -1230,16 +1230,18 @@ function ResultsScreen({ app, setApp, go }) {
   );
 }
 
-// Pills de tema (arriba, centro) — saltar entre los temas del libro sin volver al Home
-// (como el "Vocales / Letra V" de edinun-language). Solo aparecen si el libro tiene 2+ temas.
+// Pills de tema (arriba, centro) — saltar entre los temas del libro sin volver al Home.
+// FORMATO CALCADO de edinun-language/juego-2 (chip oscuro; activo con el gradiente del
+// tema por posición, GRAD_POS). Con modal de confirmación. Solo si el libro tiene 2+ temas.
 function TemaPills({ temas, active, onSwitch }) {
   return (
-    <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", gap: 6, background: "rgba(10,6,35,0.55)", borderRadius: 999, padding: 4, border: "1px solid rgba(242,194,96,0.35)", backdropFilter: "blur(6px)", maxWidth: 640 }}>
-      {temas.map((t) => {
+    <div data-qa="hud-temas" style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 6 }}>
+      {temas.map((t, i) => {
         const on = t.id === active;
+        const g = (typeof GRAD_POS !== "undefined" && GRAD_POS[i]) || { grad: "linear-gradient(180deg, #ffe08a, #e0a92a)", ink: "#3a2608" };
         return (
-          <button key={t.id} onClick={() => onSwitch(t)} disabled={on}
-            style={{ padding: "6px 14px", borderRadius: 999, border: "none", cursor: on ? "default" : "pointer", background: on ? "linear-gradient(180deg, #ffe08a, #e0a92a)" : "transparent", color: on ? "#3a2608" : "rgba(255,255,255,0.82)", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12.5, whiteSpace: "nowrap", boxShadow: on ? "0 3px 8px rgba(0,0,0,0.3)" : "none", transition: "all 0.15s ease" }}>
+          <button key={t.id} onClick={() => onSwitch(t)} title={on ? "Tema actual" : `Cambiar a "${t.label}"`}
+            style={{ padding: "5px 12px", borderRadius: 999, background: on ? g.grad : "rgba(0,0,0,0.35)", color: on ? g.ink : "rgba(252,233,168,0.85)", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 11, letterSpacing: "0.02em", border: on ? "1px solid rgba(255,255,255,0.55)" : "1px solid rgba(242,194,96,0.35)", boxShadow: on ? "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.18), 0 0 12px rgba(255,255,255,0.18)" : "none", cursor: on ? "default" : "pointer", transition: "all 0.18s ease", whiteSpace: "nowrap" }}>
             {t.label}
           </button>
         );
@@ -1248,21 +1250,43 @@ function TemaPills({ temas, active, onSwitch }) {
   );
 }
 
+function SwitchTemaModal({ tema, onCancel, onConfirm }) {
+  return (
+    <PortalToBody>
+      <div onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+        <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 460, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(148,120,255,0.3)" }}>
+          <div className="ed-label" style={{ color: "#a78bfa", marginBottom: 6 }}>Cambiar de tema</div>
+          <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Ir a “{tema.label}”?</h2>
+          <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder el progreso de esta ronda. No habrá reporte de esta sesión.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <button className="ed-btn ed-btn-ghost" onClick={onCancel} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+            <button className="ed-btn ed-btn-primary" onClick={onConfirm} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, CAMBIAR</button>
+          </div>
+        </div>
+      </div>
+    </PortalToBody>
+  );
+}
+
 // ═══════════════ Despachador ═══════════════
-// Despacha por app.currentCategory. Los pills (arriba) permiten saltar entre los temas
-// del libro. Al implementar un tema nuevo: mapear su componente en `pick`.
+// Despacha por app.currentCategory. Los pills (arriba) saltan entre los temas del libro
+// con modal de confirmación. Al implementar un tema nuevo: mapear su componente en `pick`.
 function GameScreen({ app, setApp, go }) {
   const libro = typeof LIBROS !== "undefined" ? LIBROS.find((l) => l.id === app.libro) : null;
   const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame };
   const Game = pick[app.currentCategory] || PlaceholderGame;
-  function switchTema(t) {
-    if (!libro || t.id === app.currentCategory) return;
-    setApp((s) => ({ ...s, currentCategory: t.id, currentCatLabel: `${libro.label} · ${t.label}` }));
+  const [pendingTema, setPendingTema] = useStateG(null);
+  function requestSwitch(t) { if (!libro || t.id === app.currentCategory) return; setPendingTema(t); }
+  function confirmSwitch() {
+    if (!pendingTema) return;
+    setApp((s) => ({ ...s, currentCategory: pendingTema.id, currentCatLabel: `${libro.label} · ${pendingTema.label}` }));
+    setPendingTema(null);
   }
   return (
     <React.Fragment>
-      {libro && libro.temas.length > 1 && <TemaPills temas={libro.temas} active={app.currentCategory} onSwitch={switchTema} />}
+      {libro && libro.temas.length > 1 && <TemaPills temas={libro.temas} active={app.currentCategory} onSwitch={requestSwitch} />}
       <Game key={app.currentCategory} app={app} setApp={setApp} go={go} />
+      {pendingTema && <SwitchTemaModal tema={pendingTema} onCancel={() => setPendingTema(null)} onConfirm={confirmSwitch} />}
     </React.Fragment>
   );
 }

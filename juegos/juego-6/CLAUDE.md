@@ -47,9 +47,12 @@ results`). En `screens.jsx`:
 
 **`TemaPills`** (arriba, centro): en libros con **2+ temas**, `GameScreen` muestra pills
 con los temas del libro (lee `LIBROS`, en scope del bundle) para **saltar entre temas sin
-volver al Home** — al tocar cambia `currentCategory`/`currentCatLabel` y re-despacha (el
-juego se remonta por `key={currentCategory}`). Cambio instantáneo (pierde la ronda en
-curso). El personaje/nombre se conservan.
+volver al Home** — al tocar abre `SwitchTemaModal` (confirmación, acción destructiva) y al
+confirmar cambia `currentCategory`/`currentCatLabel` y re-despacha (el juego se remonta por
+`key={currentCategory}`). El personaje/nombre se conservan. **Formato calcado de
+`edinun-language/juego-2`**: chip oscuro `rgba(0,0,0,0.35)`; activo con el gradiente del
+tema por posición (`GRAD_POS[i]`), borde blanco y glow; `top:16`, fontSize 11, padding
+"5px 12px".
 
 Al implementar un tema nuevo: crear su componente y añadir `if (currentCategory ===
 "<id>") return <SuJuego/>;` en `GameScreen`. Guardar su design-doc en
