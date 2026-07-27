@@ -836,9 +836,12 @@ function TerritorioGame({ app, setApp, go }) {
     const newStars = stars + (isCorrect ? 1 : 0);
     setLog(newLog); setStars(newStars);
     if (isCorrect) setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
-    // En R1 (destapa la imagen de la región), deja verla ~0.8s antes del overlay.
-    const preFb = round === 0 && isCorrect ? 800 : 0;
-    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "" : L3_ANIMOS[round % L3_ANIMOS.length]); }, preFb);
+    // Deja ver la respuesta ANTES del overlay: al acertar en R1 ~0.8s (para ver la
+    // imagen); al FALLAR ~1.5s (para ver la respuesta correcta en verde), como en los
+    // demás juegos EDINUN. Luego el overlay ~1s y avanza.
+    const showFbAt = isCorrect ? (round === 0 ? 800 : 0) : 1500;
+    const advanceAt = showFbAt + (isCorrect ? 1250 : 1000);
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
       if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; }
@@ -848,7 +851,7 @@ function TerritorioGame({ app, setApp, go }) {
         if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
         go("results");
       }
-    }, (isCorrect ? 1250 : 2300) + preFb);
+    }, advanceAt);
   }
 
   function confirmRestart() {
