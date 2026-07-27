@@ -329,17 +329,17 @@ const L3_OPT_COLORS = ["#ef5a5a", "#4fa0ff", "#2ecc8f"];
 // ventanas (solo al acertar). La autora pone las fotos REALES del libro; NO se generan.
 const L3_IMG_EXTS = ["jpg", "png", "jpeg", "webp"];
 
-function L3Foto({ slug, revealed, size = 184 }) {
+function L3Foto({ slug, revealed, size = 184, prefix = "pers", fallback = "👤" }) {
   const [tryIdx, setTryIdx] = useStateG(0);
   const failed = tryIdx >= L3_IMG_EXTS.length;
   return (
     <div style={{ position: "relative", width: size, height: size, borderRadius: 16, overflow: "hidden", border: "3px solid #f2c260", boxShadow: "0 12px 28px rgba(0,0,0,0.45)", background: "#2b1c62" }}>
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #fff, #efe9dc)" }}>
         {!failed ? (
-          <img src={`assets/pers-${slug}.${L3_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)}
+          <img src={`assets/${prefix}-${slug}.${L3_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)}
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
-          <span style={{ fontSize: Math.round(size * 0.5), lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.25))" }}>👤</span>
+          <span style={{ fontSize: Math.round(size * 0.5), lineHeight: 1, filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.25))" }}>{fallback}</span>
         )}
       </div>
       <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4, padding: 4, pointerEvents: "none" }}>
@@ -588,6 +588,354 @@ function VentanasGame({ app, setApp, go }) {
               <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
               <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
               <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar con personajes nuevos.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// LIBRO 3 · TEMA 2 · "La identidad territorial" (7 años) — 3 RONDAS DISTINTAS.
+// R1 ¿de qué región es? (tocar 1 de 4 + destapar imagen de la región, como Tema 1)
+// R2 ordena de mayor a menor (ARRASTRAR; rota entre los 3 regímenes del libro)
+// R3 toca solo las provincias de la región (TOCAR VARIAS + ¡VERIFICAR!)
+// Todo del libro. Anti-repetición por ronda → recargar varía. Ver design-doc.
+// ═════════════════════════════════════════════════════════════════════════
+const L3T2_REGIONES = {
+  costa: { t: "Costa", e: "🏖️", slug: "costa" },
+  sierra: { t: "Sierra", e: "⛰️", slug: "sierra" },
+  amazonia: { t: "Amazonía", e: "🌳", slug: "amazonia" },
+  insular: { t: "Insular", e: "🏝️", slug: "insular" },
+};
+const L3T2_REG_IDS = ["costa", "sierra", "amazonia", "insular"];
+
+// R1 — ítem → región (platos textuales del libro + naturaleza que define cada región).
+const L3T2_ITEMS = [
+  { e: "🦐", t: "Mariscos", reg: "costa" }, { e: "🍌", t: "Verde", reg: "costa" }, { e: "🏖️", t: "Playa", reg: "costa" }, { e: "🐟", t: "Pescado", reg: "costa" },
+  { e: "🍲", t: "Fritada", reg: "sierra" }, { e: "🐹", t: "Cuy", reg: "sierra" }, { e: "🏔️", t: "Nevado", reg: "sierra" }, { e: "🦙", t: "Llama", reg: "sierra" },
+  { e: "🍢", t: "Maito", reg: "amazonia" }, { e: "🌴", t: "Selva", reg: "amazonia" }, { e: "🦜", t: "Tucán", reg: "amazonia" }, { e: "🛶", t: "Río", reg: "amazonia" },
+  { e: "🐢", t: "Tortuga", reg: "insular" }, { e: "🦎", t: "Iguana", reg: "insular" }, { e: "🏝️", t: "Galápagos", reg: "insular" },
+];
+
+// R2 — "Modelo para la administración del Estado" (diagrama del libro). Orden correcto:
+// Provincia › Cantón › Parroquia (las cards YA vienen mayor→menor: índice 0,1,2 = correcto).
+const L3T2_REGIMENES = [
+  { id: "dependiente", label: "Régimen seccional dependiente", cards: [
+    { t: "Gobernador", nivel: "Provincia" }, { t: "Jefe Político", nivel: "Cantón" }, { t: "Teniente Político", nivel: "Parroquia" },
+  ] },
+  { id: "autonomo", label: "Régimen seccional autónomo", cards: [
+    { t: "Provincia", nivel: "1ª · más grande" }, { t: "Cantón", nivel: "2º" }, { t: "Parroquia", nivel: "3ª · más pequeña" },
+  ] },
+  { id: "gobiernos", label: "Gobiernos seccionales autónomos", cards: [
+    { t: "Consejo Provincial", nivel: "Provincia" }, { t: "Consejo Municipal", nivel: "Cantón" }, { t: "Junta Parroquial", nivel: "Parroquia" },
+  ] },
+];
+
+// R3 — provincias por región (del libro: Sierra/Interandina 10 · Costa 7 · Amazonía 6 · Insular 1).
+const L3T2_PROVINCIAS = {
+  sierra: ["Pichincha", "Cotopaxi", "Tungurahua", "Chimborazo", "Imbabura", "Carchi", "Bolívar", "Cañar", "Azuay", "Loja"],
+  costa: ["Guayas", "Manabí", "Esmeraldas", "Santa Elena", "Los Ríos", "El Oro", "Santo Domingo"],
+  amazonia: ["Napo", "Orellana", "Pastaza", "Morona Santiago", "Zamora Chinchipe", "Sucumbíos"],
+  insular: ["Galápagos"],
+};
+
+const L3T2_R1_KEY = "edinun_juego6_l3t2_r1_v1";
+const L3T2_R2_KEY = "edinun_juego6_l3t2_r2_v1";
+const L3T2_R3_KEY = "edinun_juego6_l3t2_r3_v1";
+function l3t2Recent(key) { try { const r = JSON.parse(localStorage.getItem(key) || "[]"); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
+function l3t2Push(key, id, cap) { try { const prev = l3t2Recent(key).filter((x) => x !== id); localStorage.setItem(key, JSON.stringify([id].concat(prev).slice(0, cap))); } catch (e) {} }
+function l3t2PickItem() {
+  const recent = new Set(l3t2Recent(L3T2_R1_KEY)), all = L3T2_ITEMS.map((_, i) => i);
+  const idx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
+  l3t2Push(L3T2_R1_KEY, idx, 8); return L3T2_ITEMS[idx];
+}
+function l3t2PickRegimen() {
+  const recent = new Set(l3t2Recent(L3T2_R2_KEY)), ids = L3T2_REGIMENES.map((r) => r.id);
+  const pickId = (l3Shuffle(ids.filter((i) => !recent.has(i))).concat(l3Shuffle(ids)))[0];
+  l3t2Push(L3T2_R2_KEY, pickId, 2); return L3T2_REGIMENES.find((r) => r.id === pickId);
+}
+function l3t2BuildR3() {
+  const targets = ["sierra", "costa", "amazonia"], recent = new Set(l3t2Recent(L3T2_R3_KEY));
+  const target = (l3Shuffle(targets.filter((t) => !recent.has(t))).concat(l3Shuffle(targets)))[0];
+  l3t2Push(L3T2_R3_KEY, target, 2);
+  const correct = l3Shuffle(L3T2_PROVINCIAS[target]).slice(0, 3);
+  const others = l3Shuffle(L3T2_REG_IDS.filter((r) => r !== target).flatMap((r) => L3T2_PROVINCIAS[r])).slice(0, 3);
+  const shown = l3Shuffle(correct.map((n) => ({ name: n, ok: true })).concat(others.map((n) => ({ name: n, ok: false }))));
+  return { target, shown };
+}
+
+// ── R1: ¿de qué región es? (tocar 1 de 4 + destapar imagen) ──
+function R1Region({ onSolve }) {
+  const item = useRefG(l3t2PickItem()).current;
+  const [picked, setPicked] = useStateG(null);
+  const answered = picked !== null;
+  const correctReg = item.reg, R = L3T2_REGIONES[correctReg];
+  function tap(regId) {
+    if (answered) return;
+    setPicked(regId);
+    const p = L3T2_REGIONES[regId];
+    onSolve(regId === correctReg, { emoji: item.e, a: `¿De qué región es ${item.t}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>¿De qué región del Ecuador es?</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 26, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{item.e} {item.t}</div>
+      </div>
+      <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={answered && picked === correctReg} size={148} />
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
+        {L3T2_REG_IDS.map((rid) => {
+          const rg = L3T2_REGIONES[rid], isCorrect = rid === correctReg;
+          let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608";
+          if (answered) {
+            if (isCorrect) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; }
+            else if (rid === picked) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; }
+            else bg = "linear-gradient(180deg, rgba(255,248,230,0.5), rgba(247,227,168,0.5))";
+          }
+          return (
+            <button key={rid} onClick={() => tap(rid)} disabled={answered}
+              style={{ width: 104, height: 94, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
+              <span style={{ fontSize: 38, lineHeight: 1 }}>{rg.e}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col }}>{rg.t}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── R2: ordena de mayor a menor (ARRASTRAR; rota entre los 3 regímenes) ──
+function R2Orden({ onSolve }) {
+  const regimen = useRefG(l3t2PickRegimen()).current;
+  const [order, setOrder] = useStateG(() => { let o = l3Shuffle([0, 1, 2]); if (o[0] === 0 && o[1] === 1 && o[2] === 2) o = [o[1], o[0], o[2]]; return o; });
+  const [verified, setVerified] = useStateG(false);
+  const [dragPos, setDragPos] = useStateG(null);
+  const [dxy, setDxy] = useStateG({ x: 0, y: 0 });
+  const rowRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 });
+  function down(e, pos) { if (verified) return; startRef.current = { x: e.clientX, y: e.clientY }; setDragPos(pos); setDxy({ x: 0, y: 0 }); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }
+  function move(e) { if (dragPos === null) return; setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y }); }
+  function up(e) {
+    if (dragPos === null) return;
+    let target = dragPos; const row = rowRef.current;
+    if (row) { const cx = [...row.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.left + r.width / 2; }); target = 0; for (let i = 0; i < cx.length; i++) if (e.clientX > cx[i] - 1) target = i; }
+    if (target !== dragPos) setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; });
+    setDragPos(null); setDxy({ x: 0, y: 0 });
+  }
+  function verificar() {
+    if (verified) return;
+    const isCorrect = order[0] === 0 && order[1] === 1 && order[2] === 2;
+    setVerified(true);
+    if (!isCorrect) setTimeout(() => setOrder([0, 1, 2]), 450);
+    onSolve(isCorrect, { emoji: "🗂️", a: `Ordena: ${regimen.label}`, userAnswer: order.map((i) => regimen.cards[i].t).join(" › "), correctAnswer: regimen.cards.map((c) => c.t).join(" › ") });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño</div>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{regimen.label}</div>
+      </div>
+      <div ref={rowRef} style={{ display: "flex", gap: 12, alignItems: "flex-start", justifyContent: "center", touchAction: "none" }}>
+        {order.map((cardIdx, pos) => {
+          const c = regimen.cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
+          let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)";
+          if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; if (okPos) bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; }
+          return (
+            <div key={cardIdx} data-slot style={{ width: 132 }}>
+              <div onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
+                style={{ height: 116, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.05)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1, position: "relative" }}>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: okPos ? "#06381f" : "#3a2608", textAlign: "center", lineHeight: 1.1, padding: "0 6px" }}>{c.t}</span>
+                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: okPos ? "rgba(6,56,31,0.75)" : "#8a5a1a" }}>{c.nivel}</span>
+              </div>
+              <div style={{ textAlign: "center", marginTop: 4, fontFamily: "var(--ed-font-ui)", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{pos === 0 ? "más grande" : pos === 2 ? "más pequeña" : "·"}</div>
+            </div>
+          );
+        })}
+      </div>
+      <button className="ed-btn ed-btn-primary" onClick={verificar} disabled={verified} style={{ height: 46, padding: "0 30px", fontSize: 15, fontWeight: 800, letterSpacing: "0.04em", opacity: verified ? 0.6 : 1 }}>¡VERIFICAR!</button>
+    </div>
+  );
+}
+
+// ── R3: toca solo las provincias de la región (TOCAR VARIAS + ¡VERIFICAR!) ──
+function R3Provincias({ onSolve }) {
+  const built = useRefG(l3t2BuildR3()).current, R = L3T2_REGIONES[built.target];
+  const [selected, setSelected] = useStateG(() => ({}));
+  const [verified, setVerified] = useStateG(false);
+  function toggle(name) { if (verified) return; setSelected((p) => ({ ...p, [name]: !p[name] })); }
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const correct = built.shown.filter((p) => p.ok).map((p) => p.name);
+    const sel = built.shown.filter((p) => selected[p.name]).map((p) => p.name);
+    const isCorrect = sel.length === correct.length && sel.every((n) => correct.includes(n));
+    onSolve(isCorrect, { emoji: R.e, a: `Provincias de la ${R.t}`, userAnswer: sel.join(", ") || "—", correctAnswer: correct.join(", ") });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Toca las provincias que sí son de la</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, width: "100%", maxWidth: 466 }}>
+        {built.shown.map((p) => {
+          const sel = !!selected[p.name];
+          let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", bg = sel ? "linear-gradient(180deg, #cfe6ff, #9cc7ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608";
+          if (verified) {
+            if (p.ok) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; }
+            else if (sel) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; }
+            else bg = "linear-gradient(180deg, rgba(255,248,230,0.4), rgba(247,227,168,0.4))";
+          }
+          return (
+            <button key={p.name} onClick={() => toggle(p.name)} disabled={verified}
+              style={{ height: 56, borderRadius: 12, border: `3px solid ${border}`, background: bg, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, cursor: verified ? "default" : "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.25)", padding: "0 6px", lineHeight: 1.05 }}>
+              {p.name}
+            </button>
+          );
+        })}
+      </div>
+      <button className="ed-btn ed-btn-primary" onClick={verificar} disabled={verified} style={{ height: 46, padding: "0 30px", fontSize: 15, fontWeight: 800, letterSpacing: "0.04em", opacity: verified ? 0.6 : 1 }}>¡VERIFICAR!</button>
+    </div>
+  );
+}
+
+function TerritorioGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const catLabel = app.currentCatLabel || "La identidad territorial";
+  const TOTAL = 3;
+  const [round, setRound] = useStateG(0);
+  const [stars, setStars] = useStateG(0);
+  const [log, setLog] = useStateG([]);
+  const [elapsed, setElapsed] = useStateG(0);
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [rk, setRk] = useStateG(0);
+  const started = useRefG(Date.now());
+  const advancing = useRefG(false);
+
+  useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function onSolve(isCorrect, entry) {
+    if (advancing.current) return;
+    advancing.current = true;
+    if (typeof markFirstAttempt === "function") markFirstAttempt();
+    const newLog = [...log, { idx: round + 1, isCorrect, ...entry }];
+    const newStars = stars + (isCorrect ? 1 : 0);
+    setLog(newLog); setStars(newStars);
+    if (isCorrect) setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
+    // En R1 (destapa la imagen de la región), deja verla ~0.8s antes del overlay.
+    const preFb = round === 0 && isCorrect ? 800 : 0;
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "" : L3_ANIMOS[round % L3_ANIMOS.length]); }, preFb);
+    setTimeout(() => {
+      setFeedback(null); setFeedbackMsg("");
+      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; }
+      else {
+        const solved = newLog.filter((e) => e.isCorrect).length;
+        setApp((s) => ({ ...s, stars: newStars, lastResult: { category: catLabel, solved, total: TOTAL, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog } }));
+        if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+        go("results");
+      }
+    }, (isCorrect ? 1250 : 2300) + preFb);
+  }
+
+  function confirmRestart() {
+    setConfirmingRestart(false); advancing.current = false;
+    setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    started.current = Date.now();
+  }
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      {/* HUD */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      {/* RONDA con dots — top:52 (§1.1) */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: TOTAL }).map((_, i) => {
+          const done = i < log.length, ok = done && log[i] && log[i].isCorrect;
+          return <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: done ? (ok ? "#fce9a8" : "#ff6b6b") : (i === round ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: done ? "0 0 8px currentColor" : "none", color: ok ? "#fce9a8" : "#ff6b6b" }} />;
+        })}
+      </div>
+
+      {/* Personaje guía + bocadillo (CÓMO por ronda) */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {round === 0 ? "Toca su región." : round === 1 ? (<>Ordena de mayor<br />a menor.</>) : (<>Toca las<br />correctas.</>)}
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* Zona central: la ronda actual */}
+      <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
+        {round === 0 && <R1Region key={`r1-${rk}`} onSolve={onSolve} />}
+        {round === 1 && <R2Orden key={`r2-${rk}`} onSolve={onSolve} />}
+        {round === 2 && <R3Provincias key={`r3-${rk}`} onSolve={onSolve} />}
+      </div>
+
+      {/* Acciones */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {/* Overlay acierto/fallo */}
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{`${feedbackMsg} — ${char.name}`}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal SALIR */}
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal REINICIAR */}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar las 3 rondas otra vez.</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
                 <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
@@ -888,6 +1236,7 @@ function ResultsScreen({ app, setApp, go }) {
 function GameScreen({ app, setApp, go }) {
   if (app.currentCategory === "l2-t1") return <ReconoceGame app={app} setApp={setApp} go={go} />;
   if (app.currentCategory === "l3-t1") return <VentanasGame app={app} setApp={setApp} go={go} />;
+  if (app.currentCategory === "l3-t2") return <TerritorioGame app={app} setApp={setApp} go={go} />;
   return <PlaceholderGame app={app} setApp={setApp} go={go} />;
 }
 

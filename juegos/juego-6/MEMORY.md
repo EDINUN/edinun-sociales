@@ -12,7 +12,7 @@ del mapa). La autora dijo *"hay cambio de planes… vamos a cambiar todo"* y dec
 ```
 Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → reporte
   Libro 2 → 1 tema   ("Reconociendo mi país", 6 años)   ✅ hecho
-  Libro 3 → 3 temas  (T1 "Hechos históricos", 7 años ✅) 🟡 T1 hecho · T2/T3 placeholder
+  Libro 3 → 3 temas  (T1 "Hechos históricos" ✅ · T2 "Identidad territorial" ✅, 7 años) 🟡 T3 placeholder
   Libro 5 → 2 temas                                       ⏳ placeholder
   Libro 6 → 1 tema                                        ⏳ placeholder
 ```
@@ -67,6 +67,24 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   👤). Las postales quedaron **reservadas** como posible bonus (prompts entregados).
 - **Verificado:** overflow 0 (4 viewports), anti-repetición **0 solapes**, e2e
   (acierto→foto→álbum→reporte) sin errores, format-lint 15/15.
+
+## Libro 3 · Tema 2 · "La identidad territorial" (7 años)
+
+- La autora pidió **3 rondas, cada una con mecánica distinta** (como juego-4/5). Iteramos
+  mucho el diseño en el chat: rechazó R2 fija ("no me gusta que sea fija") → se cambió a
+  ordenar **rotando entre los 3 regímenes** del libro; notó que R2 y R3 eran ambas de
+  arrastrar → R3 pasó a **tocar** (además más fácil para 7 años que arrastrar varias);
+  notó que R1≈R2 → se separaron por sub-tema (regiones / organización / provincias). R3
+  quedó **por región** (no por zona de planificación, más fácil).
+- Mecánica (`TerritorioGame`): **R1** ¿de qué región? (tocar 1 de 4 + destapar imagen de
+  la región) · **R2** ordenar mayor→menor **arrastrando** (rota los 3 regímenes) · **R3**
+  tocar las provincias correctas de la región + ¡VERIFICAR!. Anti-repetición por ronda.
+- **Imágenes:** la autora ofreció generarlas; para R1 se le pasaron los prompts de las
+  **4 regiones** (paisajes SIN caras) → `region-<slug>.jpg` (respaldo al emoji). Contenido
+  del texto del tema (no de las actividades) y **bancos grandes** para que recargar varíe
+  (petición expresa).
+- **Verificado:** overflow 0 en las 3 rondas, arrastre de R2 mueve cartas, e2e
+  (R1→R2→R3→reporte) sin errores, format-lint 15/15.
 
 ## Aprendizajes
 

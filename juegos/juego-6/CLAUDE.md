@@ -9,7 +9,7 @@ tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número 
 | Libro | Temas | Estado |
 |-------|-------|--------|
 | Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
-| Libro 3 | **3 temas** — T1 "Hechos históricos" (7 años) · T2 · T3 | 🟡 T1 ✅ · T2/T3 ⏳ |
+| Libro 3 | **3 temas** — T1 "Hechos históricos" · T2 "Identidad territorial" (7) · T3 | 🟡 T1 ✅ · T2 ✅ · T3 ⏳ |
 | Libro 5 | **2 temas** | ⏳ placeholder |
 | Libro 6 | **1 tema** | ⏳ placeholder |
 
@@ -40,7 +40,8 @@ results`). En `screens.jsx`:
 `GameScreen` **despacha por `app.currentCategory`**:
 - `"l2-t1"` → **`ReconoceGame`** (Libro 2).
 - `"l3-t1"` → **`VentanasGame`** (Libro 3 · Tema 1).
-- cualquier otro (l3-t2, l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
+- `"l3-t2"` → **`TerritorioGame`** (Libro 3 · Tema 2, 3 rondas).
+- cualquier otro (l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
   ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
 - `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
@@ -87,6 +88,28 @@ Kingman queda fuera a propósito (el libro lo etiqueta "arte" → mezclaría con
 ya entregados a la autora), NO usado en la mecánica A. **Verificado:** overflow 0 en 4
 viewports; anti-repetición 0 solapes; e2e (acierto→foto→álbum→reporte) sin errores;
 format-lint 15/15.
+
+### Libro 3 · Tema 2 · "Identidad territorial" (`TerritorioGame`, 7 años)
+
+**3 rondas encadenadas, cada una con una mecánica DISTINTA** (decisión de la autora),
+orquestadas por `TerritorioGame` (chrome compartido + `onSolve` por ronda; avance
+automático; reporte de 3 filas). Sub-componentes:
+
+- **R1 `R1Region`** — ¿de qué región es? **tocar 1 de 4** (Costa/Sierra/Amazonía/Insular)
+  + **destapar la imagen de la región** (`L3Foto` con `prefix="region"`, `region-<slug>.jpg`,
+  respaldo al emoji). Banco `L3T2_ITEMS` (platos + naturaleza del tema).
+- **R2 `R2Orden`** — ordena de mayor a menor **ARRASTRANDO** (pointer events, `data-slot`).
+  Rota entre los **3 regímenes** del diagrama del libro (`L3T2_REGIMENES`: dependiente /
+  autónomo / gobiernos autónomos); orden correcto Provincia›Cantón›Parroquia (índice 0,1,2).
+  Cada tarjeta muestra su nivel como pista. `¡VERIFICAR!`; al fallar se reordena al correcto.
+- **R3 `R3Provincias`** — **tocar varias**: se muestran 6 provincias (3 correctas + 3
+  distractoras) y el niño toca las de la región pedida (`L3T2_PROVINCIAS`, rota
+  Sierra/Costa/Amazonía) → `¡VERIFICAR!`.
+
+Anti-repetición por ronda (`L3T2_R1/R2/R3_KEY`). **Imágenes de región** (4, las genera la
+autora — paisajes SIN caras): `region-costa/sierra/amazonia/insular.jpg` en `assets/`.
+Diseño en `.planning/libro-3-tema-2-design.md`. **Verificado:** overflow 0 en las 3 rondas;
+arrastre de R2 mueve cartas; e2e (R1→R2→R3→reporte) sin errores; format-lint 15/15.
 
 ## Personajes
 
