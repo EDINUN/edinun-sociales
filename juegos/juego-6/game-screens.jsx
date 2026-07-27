@@ -687,7 +687,7 @@ function R1Region({ onSolve }) {
     onSolve(regId === correctReg, { emoji: "📍", a: `¿De qué región ${verbo} ${frase}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, height: "100%", width: "100%" }}>
       <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 9, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué región {verbo}</span>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 28, color: "#fce9a8" }}>{frase}?</span>
@@ -715,20 +715,23 @@ function R1Region({ onSolve }) {
   );
 }
 
-// ── R2: ordena de mayor a menor (ARRASTRAR; rota entre los 3 regímenes) ──
-function R2Orden({ onSolve }) {
+// ── R2: ordena de mayor a menor (ARRASTRAR VERTICAL; rota entre los 3 regímenes) ──
+// El ¡VERIFICAR! vive en la columna de acciones (TerritorioGame) → aquí se expone
+// `verificar` vía verifyRef. Al verificar: ✓ verde en su sitio, ✗ rojo si está mal, y
+// al fallar se reordena al correcto (revela).
+function R2Orden({ onSolve, verifyRef }) {
   const regimen = useRefG(l3t2PickRegimen()).current;
   const [order, setOrder] = useStateG(() => { let o = l3Shuffle([0, 1, 2]); if (o[0] === 0 && o[1] === 1 && o[2] === 2) o = [o[1], o[0], o[2]]; return o; });
   const [verified, setVerified] = useStateG(false);
   const [dragPos, setDragPos] = useStateG(null);
   const [dxy, setDxy] = useStateG({ x: 0, y: 0 });
-  const rowRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 });
+  const colRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 });
   function down(e, pos) { if (verified) return; startRef.current = { x: e.clientX, y: e.clientY }; setDragPos(pos); setDxy({ x: 0, y: 0 }); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }
   function move(e) { if (dragPos === null) return; setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y }); }
   function up(e) {
     if (dragPos === null) return;
-    let target = dragPos; const row = rowRef.current;
-    if (row) { const cx = [...row.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.left + r.width / 2; }); target = 0; for (let i = 0; i < cx.length; i++) if (e.clientX > cx[i] - 1) target = i; }
+    let target = dragPos; const col = colRef.current;
+    if (col) { const cy = [...col.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; }); target = 0; for (let i = 0; i < cy.length; i++) if (e.clientY > cy[i] - 1) target = i; }
     if (target !== dragPos) setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; });
     setDragPos(null); setDxy({ x: 0, y: 0 });
   }
@@ -736,39 +739,46 @@ function R2Orden({ onSolve }) {
     if (verified) return;
     const isCorrect = order[0] === 0 && order[1] === 1 && order[2] === 2;
     setVerified(true);
-    if (!isCorrect) setTimeout(() => setOrder([0, 1, 2]), 450);
+    if (!isCorrect) setTimeout(() => setOrder([0, 1, 2]), 650); // revela el orden correcto
     onSolve(isCorrect, { emoji: "🗂️", a: `Ordena: ${regimen.label}`, userAnswer: order.map((i) => regimen.cards[i].t).join(" › "), correctAnswer: regimen.cards.map((c) => c.t).join(" › ") });
   }
+  verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño</div>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{regimen.label}</div>
       </div>
-      <div ref={rowRef} style={{ display: "flex", gap: 12, alignItems: "flex-start", justifyContent: "center", touchAction: "none" }}>
-        {order.map((cardIdx, pos) => {
-          const c = regimen.cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
-          let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)";
-          if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; if (okPos) bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; }
-          return (
-            <div key={cardIdx} data-slot style={{ width: 132 }}>
-              <div onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
-                style={{ height: 116, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.05)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1, position: "relative" }}>
-                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: okPos ? "#06381f" : "#3a2608", textAlign: "center", lineHeight: 1.1, padding: "0 6px" }}>{c.t}</span>
-                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: okPos ? "rgba(6,56,31,0.75)" : "#8a5a1a" }}>{c.nivel}</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬆ más grande</div>
+        <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 9, touchAction: "none" }}>
+          {order.map((cardIdx, pos) => {
+            const c = regimen.cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
+            let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)";
+            if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; bg = okPos ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; }
+            const inkMain = verified ? (okPos ? "#06381f" : "#fff") : "#3a2608";
+            return (
+              <div key={cardIdx} data-slot onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
+                style={{ position: "relative", width: 300, height: 66, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1 }}>
+                <span style={{ fontSize: verified ? 24 : 18, fontWeight: 900, color: verified ? inkMain : "#c39a3e", width: 26, textAlign: "center" }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
+                <div style={{ textAlign: "center", lineHeight: 1.05 }}>
+                  <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: inkMain }}>{c.t}</div>
+                  <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: verified ? (okPos ? "rgba(6,56,31,0.75)" : "rgba(255,255,255,0.85)") : "#8a5a1a" }}>{c.nivel}</div>
+                </div>
               </div>
-              <div style={{ textAlign: "center", marginTop: 4, fontFamily: "var(--ed-font-ui)", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{pos === 0 ? "más grande" : pos === 2 ? "más pequeña" : "·"}</div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬇ más pequeña</div>
       </div>
-      <button className="ed-btn ed-btn-primary" onClick={verificar} disabled={verified} style={{ height: 46, padding: "0 30px", fontSize: 15, fontWeight: 800, letterSpacing: "0.04em", opacity: verified ? 0.6 : 1 }}>¡VERIFICAR!</button>
     </div>
   );
 }
 
-// ── R3: toca solo las provincias de la región (TOCAR VARIAS + ¡VERIFICAR!) ──
-function R3Provincias({ onSolve }) {
+// ── R3: toca solo las provincias de la región (TOCAR VARIAS; ¡VERIFICAR! en acciones) ──
+// Cuadro con marca: ○ sin elegir · ● elegido · ✓ correcto (aunque no la tocara → revela)
+// · ✗ mal elegida.
+function R3Provincias({ onSolve, verifyRef }) {
   const built = useRefG(l3t2BuildR3()).current, R = L3T2_REGIONES[built.target];
   const [selected, setSelected] = useStateG(() => ({}));
   const [verified, setVerified] = useStateG(false);
@@ -781,30 +791,31 @@ function R3Provincias({ onSolve }) {
     const isCorrect = sel.length === correct.length && sel.every((n) => correct.includes(n));
     onSolve(isCorrect, { emoji: R.e, a: `Provincias de la ${R.t}`, userAnswer: sel.join(", ") || "—", correctAnswer: correct.join(", ") });
   }
+  verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Toca las provincias que sí son de la</div>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, width: "100%", maxWidth: 466 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, width: "100%", maxWidth: 470 }}>
         {built.shown.map((p) => {
           const sel = !!selected[p.name];
-          let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", bg = sel ? "linear-gradient(180deg, #cfe6ff, #9cc7ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608";
+          let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", bg = sel ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608", mark = sel ? "●" : "○", markCol = sel ? "#2773d8" : "rgba(58,38,8,0.35)";
           if (verified) {
-            if (p.ok) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; }
-            else if (sel) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; }
-            else bg = "linear-gradient(180deg, rgba(255,248,230,0.4), rgba(247,227,168,0.4))";
+            if (p.ok) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; mark = "✓"; markCol = "#06381f"; }
+            else if (sel) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; mark = "✗"; markCol = "#fff"; }
+            else { bg = "linear-gradient(180deg, rgba(255,248,230,0.35), rgba(247,227,168,0.35))"; mark = "○"; markCol = "rgba(58,38,8,0.25)"; }
           }
           return (
             <button key={p.name} onClick={() => toggle(p.name)} disabled={verified}
-              style={{ height: 56, borderRadius: 12, border: `3px solid ${border}`, background: bg, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, cursor: verified ? "default" : "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.25)", padding: "0 6px", lineHeight: 1.05 }}>
-              {p.name}
+              style={{ height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: verified ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)", padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 7 }}>
+              <span style={{ fontSize: verified ? 19 : 15, fontWeight: 900, color: markCol, flexShrink: 0, width: 20, textAlign: "center" }}>{mark}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, textAlign: "left", lineHeight: 1.05 }}>{p.name}</span>
             </button>
           );
         })}
       </div>
-      <button className="ed-btn ed-btn-primary" onClick={verificar} disabled={verified} style={{ height: 46, padding: "0 30px", fontSize: 15, fontWeight: 800, letterSpacing: "0.04em", opacity: verified ? 0.6 : 1 }}>¡VERIFICAR!</button>
     </div>
   );
 }
@@ -822,29 +833,31 @@ function TerritorioGame({ app, setApp, go }) {
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
   const [rk, setRk] = useStateG(0);
+  const [busy, setBusy] = useStateG(false);
   const started = useRefG(Date.now());
   const advancing = useRefG(false);
+  const verifyRef = useRefG(null);
 
   useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
   function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
 
   function onSolve(isCorrect, entry) {
     if (advancing.current) return;
-    advancing.current = true;
+    advancing.current = true; setBusy(true);
     if (typeof markFirstAttempt === "function") markFirstAttempt();
     const newLog = [...log, { idx: round + 1, isCorrect, ...entry }];
     const newStars = stars + (isCorrect ? 1 : 0);
     setLog(newLog); setStars(newStars);
     if (isCorrect) setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
     // Deja ver la respuesta ANTES del overlay: al acertar en R1 ~0.8s (para ver la
-    // imagen); al FALLAR ~1.5s (para ver la respuesta correcta en verde), como en los
-    // demás juegos EDINUN. Luego el overlay ~1s y avanza.
-    const showFbAt = isCorrect ? (round === 0 ? 800 : 0) : 1500;
+    // imagen); al FALLAR ~1.8s (para ver ✓/✗ y la respuesta correcta), como en los demás
+    // juegos EDINUN. Luego el overlay ~1s y avanza.
+    const showFbAt = isCorrect ? (round === 0 ? 800 : 0) : 1800;
     const advanceAt = showFbAt + (isCorrect ? 1250 : 1000);
     setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
-      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; }
+      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
       else {
         const solved = newLog.filter((e) => e.isCorrect).length;
         setApp((s) => ({ ...s, stars: newStars, lastResult: { category: catLabel, solved, total: TOTAL, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog } }));
@@ -855,7 +868,7 @@ function TerritorioGame({ app, setApp, go }) {
   }
 
   function confirmRestart() {
-    setConfirmingRestart(false); advancing.current = false;
+    setConfirmingRestart(false); advancing.current = false; setBusy(false);
     setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
     started.current = Date.now();
   }
@@ -898,12 +911,15 @@ function TerritorioGame({ app, setApp, go }) {
       {/* Zona central: la ronda actual */}
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
         {round === 0 && <R1Region key={`r1-${rk}`} onSolve={onSolve} />}
-        {round === 1 && <R2Orden key={`r2-${rk}`} onSolve={onSolve} />}
-        {round === 2 && <R3Provincias key={`r3-${rk}`} onSolve={onSolve} />}
+        {round === 1 && <R2Orden key={`r2-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
+        {round === 2 && <R3Provincias key={`r3-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
       </div>
 
-      {/* Acciones */}
+      {/* Acciones (¡VERIFICAR! verde arriba, solo en R2/R3) */}
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        {(round === 1 || round === 2) && !busy && (
+          <button className="ed-btn" onClick={() => verifyRef.current && verifyRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none" }}>¡VERIFICAR!</button>
+        )}
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
       </div>

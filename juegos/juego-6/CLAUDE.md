@@ -109,13 +109,19 @@ automático; reporte de 3 filas). Sub-componentes:
   visible** (`L3Foto revealed` fijo; sin tapar/destapar — decisión de la autora), `prefix
   ="region"`, `region-<slug>.jpeg`, respaldo al emoji. Banco `L3T2_ITEMS` = ~23 ítems que
   refieren a cada región (platos + naturaleza/fauna), **ampliado y aprobado por la autora**.
-- **R2 `R2Orden`** — ordena de mayor a menor **ARRASTRANDO** (pointer events, `data-slot`).
-  Rota entre los **3 regímenes** del diagrama del libro (`L3T2_REGIMENES`: dependiente /
-  autónomo / gobiernos autónomos); orden correcto Provincia›Cantón›Parroquia (índice 0,1,2).
-  Cada tarjeta muestra su nivel como pista. `¡VERIFICAR!`; al fallar se reordena al correcto.
-- **R3 `R3Provincias`** — **tocar varias**: se muestran 6 provincias (3 correctas + 3
-  distractoras) y el niño toca las de la región pedida (`L3T2_PROVINCIAS`, rota
-  Sierra/Costa/Amazonía) → `¡VERIFICAR!`.
+- **R2 `R2Orden`** — ordena **EN VERTICAL** (⬆ más grande → ⬇ más pequeña) **ARRASTRANDO**
+  (pointer events por Y, `data-slot`). Rota entre los **3 regímenes** (`L3T2_REGIMENES`:
+  dependiente / autónomo / gobiernos autónomos); orden correcto Provincia›Cantón›Parroquia.
+  Cada tarjeta muestra su nivel + handle ⠿. Al verificar: **✓** en su sitio, **✗** si está
+  mal; al fallar se reordena al correcto (revela).
+- **R3 `R3Provincias`** — **tocar varias**: 6 provincias (3 correctas + 3 distractoras) con
+  marca **○** sin elegir / **●** elegido; toca las de la región pedida (`L3T2_PROVINCIAS`,
+  rota Sierra/Costa/Amazonía). Al verificar: **✓** verde en las correctas (revela) / **✗**
+  rojo en las mal elegidas.
+
+El **¡VERIFICAR!** de R2/R3 vive en la **columna de acciones** (verde, arriba de
+REINICIAR/SALIR; vía `verifyRef` + estado `busy`), NO en el centro — como
+`edinun-language`. Al fallar, la respuesta correcta se ve **~1.8 s** antes del "¡UPS!".
 
 Anti-repetición por ronda (`L3T2_R1/R2/R3_KEY`). **Imágenes de región** (4, las genera la
 autora — paisajes SIN caras): `region-costa/sierra/amazonia/insular.jpg` en `assets/`.
