@@ -144,6 +144,10 @@ const LIBROS = [
   { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "Tema 1" }] },
 ];
 
+// Personaje guía por defecto de cada libro (preseleccionado en CharacterScreen; el
+// niño lo puede cambiar). Elección de la autora.
+const LIBRO_CHAR = { "libro-2": "yaku", "libro-3": "sisa", "libro-5": "andi", "libro-6": "domi" };
+
 function MenuButton({ label, grad, ink, active, onClick }) {
   return (
     <button onClick={onClick} style={{
@@ -263,7 +267,7 @@ function HomeScreen({ app, setApp, go }) {
 // 2. SELECCIÓN DE PERSONAJE (estándar). La categoría/tema ya viene del Home.
 // ─────────────────────────────────────────────────────────────
 function CharacterScreen({ app, setApp, go }) {
-  const [sel, setSel] = useState(app.character || "domi");
+  const [sel, setSel] = useState(LIBRO_CHAR[app.libro] || app.character || "domi");
   const current = CHARACTERS.find((c) => c.id === sel) || CHARACTERS[0];
 
   function choose() {

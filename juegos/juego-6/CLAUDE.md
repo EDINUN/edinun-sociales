@@ -90,8 +90,10 @@ format-lint 15/15.
 
 ## Personajes
 
-Elenco compartido (domi/sisa/yaku/andi). El jugador elige guía en CharacterScreen
-(default del shell: domi). Sugerencia temática por libro/tema al implementarlos.
+Elenco compartido (domi/sisa/yaku/andi). El jugador elige guía en CharacterScreen, que
+**preselecciona el personaje por defecto de cada libro** (`LIBRO_CHAR` en `screens.jsx`):
+Libro 2 → **Yaku**, Libro 3 → **Sisa**, Libro 5 → **Andi**, Libro 6 → **Domi**. Usa el
+`app.libro` que fija HomeScreen al entrar; el niño puede cambiarlo. (Elección de la autora.)
 
 ## Contador de visitas
 
