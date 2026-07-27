@@ -616,11 +616,13 @@ const L3T2_REGIONES = {
 const L3T2_REG_IDS = ["costa", "sierra", "amazonia", "insular"];
 
 // R1 — ítem → región (platos textuales del libro + naturaleza que define cada región).
+// `art` = artículo para el enunciado ("¿De qué región es el cuy?"); `pl` = plural ("son").
+// Galápagos (nombre propio) → art "" ("¿De qué región es Galápagos?").
 const L3T2_ITEMS = [
-  { e: "🦐", t: "Mariscos", reg: "costa" }, { e: "🏖️", t: "Playa", reg: "costa" }, { e: "🐟", t: "Pescado", reg: "costa" }, { e: "🦀", t: "Cangrejo", reg: "costa" }, { e: "🍌", t: "Banano", reg: "costa" }, { e: "🥥", t: "Coco", reg: "costa" },
-  { e: "🍲", t: "Fritada", reg: "sierra" }, { e: "🐹", t: "Cuy", reg: "sierra" }, { e: "🏔️", t: "Nevado", reg: "sierra" }, { e: "🦙", t: "Llama", reg: "sierra" }, { e: "🌋", t: "Volcán", reg: "sierra" }, { e: "🥔", t: "Papa", reg: "sierra" },
-  { e: "🍢", t: "Maito", reg: "amazonia" }, { e: "🌴", t: "Selva", reg: "amazonia" }, { e: "🦜", t: "Tucán", reg: "amazonia" }, { e: "🛶", t: "Río", reg: "amazonia" }, { e: "🐒", t: "Mono", reg: "amazonia" }, { e: "🐊", t: "Caimán", reg: "amazonia" },
-  { e: "🐢", t: "Tortuga", reg: "insular" }, { e: "🦎", t: "Iguana", reg: "insular" }, { e: "🏝️", t: "Galápagos", reg: "insular" }, { e: "🐧", t: "Pingüino", reg: "insular" }, { e: "🦭", t: "Lobo marino", reg: "insular" },
+  { t: "Mariscos", art: "los", pl: true, reg: "costa" }, { t: "Playa", art: "la", reg: "costa" }, { t: "Pescado", art: "el", reg: "costa" }, { t: "Cangrejo", art: "el", reg: "costa" }, { t: "Banano", art: "el", reg: "costa" }, { t: "Coco", art: "el", reg: "costa" },
+  { t: "Fritada", art: "la", reg: "sierra" }, { t: "Cuy", art: "el", reg: "sierra" }, { t: "Nevado", art: "el", reg: "sierra" }, { t: "Llama", art: "la", reg: "sierra" }, { t: "Volcán", art: "el", reg: "sierra" }, { t: "Papa", art: "la", reg: "sierra" },
+  { t: "Maito", art: "el", reg: "amazonia" }, { t: "Selva", art: "la", reg: "amazonia" }, { t: "Tucán", art: "el", reg: "amazonia" }, { t: "Río", art: "el", reg: "amazonia" }, { t: "Mono", art: "el", reg: "amazonia" }, { t: "Caimán", art: "el", reg: "amazonia" },
+  { t: "Tortuga", art: "la", reg: "insular" }, { t: "Iguana", art: "la", reg: "insular" }, { t: "Galápagos", art: "", reg: "insular" }, { t: "Pingüino", art: "el", reg: "insular" }, { t: "Lobo marino", art: "el", reg: "insular" },
 ];
 
 // R2 — "Modelo para la administración del Estado" (diagrama del libro). Orden correcto:
@@ -676,17 +678,19 @@ function R1Region({ onSolve }) {
   const [picked, setPicked] = useStateG(null);
   const answered = picked !== null;
   const correctReg = item.reg, R = L3T2_REGIONES[correctReg];
+  const verbo = item.pl ? "son" : "es";
+  const frase = item.art ? `${item.art} ${item.t.toLowerCase()}` : item.t;
   function tap(regId) {
     if (answered) return;
     setPicked(regId);
     const p = L3T2_REGIONES[regId];
-    onSolve(regId === correctReg, { emoji: item.e, a: `¿De qué región es ${item.t}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
+    onSolve(regId === correctReg, { emoji: "📍", a: `¿De qué región ${verbo} ${frase}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
-      <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 10, justifyContent: "center", flexWrap: "wrap", maxWidth: 470, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "rgba(255,255,255,0.9)" }}>¿De qué región es</span>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 27, color: "#fce9a8" }}>{item.e} {item.t}?</span>
+      <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 9, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué región {verbo}</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 28, color: "#fce9a8" }}>{frase}?</span>
       </div>
       <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={true} size={200} />
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
