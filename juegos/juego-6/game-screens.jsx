@@ -639,6 +639,14 @@ const L3T2_REGIMENES = [
   ] },
 ];
 
+// Un color distinto por tarjeta de R2 (viaja CON la tarjeta al arrastrar → fácil de
+// seguir). NO se usan verde ni rojo: quedan reservados para el ✓/✗ al verificar.
+const L3T2_CARD_COLORS = [
+  { bg: "linear-gradient(180deg, #fff1c9, #f6cf72)", border: "#e0a72c", ink: "#5a3d0a", handle: "#b9820f" },
+  { bg: "linear-gradient(180deg, #d9e9ff, #a6c8ff)", border: "#4f8fef", ink: "#0f2a55", handle: "#2f66c8" },
+  { bg: "linear-gradient(180deg, #ecdcff, #c7a9ff)", border: "#9b7be8", ink: "#2a1657", handle: "#6d45c8" },
+];
+
 // R3 — provincias por región (del libro: Sierra/Interandina 10 · Costa 7 · Amazonía 6 · Insular 1).
 const L3T2_PROVINCIAS = {
   sierra: ["Pichincha", "Cotopaxi", "Tungurahua", "Chimborazo", "Imbabura", "Carchi", "Bolívar", "Cañar", "Azuay", "Loja"],
@@ -666,15 +674,15 @@ function l3t2BuildR3() {
   const targets = ["sierra", "costa", "amazonia"], recent = new Set(l3t2Recent(L3T2_R3_KEY));
   const target = (l3Shuffle(targets.filter((t) => !recent.has(t))).concat(l3Shuffle(targets)))[0];
   l3t2Push(L3T2_R3_KEY, target, 2);
-  const correct = l3Shuffle(L3T2_PROVINCIAS[target]).slice(0, 3);
-  const others = l3Shuffle(L3T2_REG_IDS.filter((r) => r !== target).flatMap((r) => L3T2_PROVINCIAS[r])).slice(0, 3);
+  const correct = l3Shuffle(L3T2_PROVINCIAS[target]).slice(0, 4);
+  const others = l3Shuffle(L3T2_REG_IDS.filter((r) => r !== target).flatMap((r) => L3T2_PROVINCIAS[r])).slice(0, 4);
   const shown = l3Shuffle(correct.map((n) => ({ name: n, ok: true })).concat(others.map((n) => ({ name: n, ok: false }))));
   return { target, shown };
 }
 
 // ── R1: ¿de qué región es? (tocar 1 de 4 + destapar imagen) ──
 function R1Region({ onSolve }) {
-  const item = useRefG(l3t2PickItem()).current;
+  const [item] = useStateG(() => l3t2PickItem()); // una sola vez al montar (anti-repetición correcta)
   const [picked, setPicked] = useStateG(null);
   const answered = picked !== null;
   const correctReg = item.reg, R = L3T2_REGIONES[correctReg];
@@ -687,12 +695,12 @@ function R1Region({ onSolve }) {
     onSolve(regId === correctReg, { emoji: "📍", a: `¿De qué región ${verbo} ${frase}?`, userAnswer: `${p.e} ${p.t}`, correctAnswer: `${R.e} ${R.t}` });
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", gap: 24 }}>
       <div style={{ pointerEvents: "none", display: "flex", alignItems: "baseline", gap: 9, justifyContent: "center", flexWrap: "wrap", maxWidth: 480, textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué región {verbo}</span>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 28, color: "#fce9a8" }}>{frase}?</span>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, width: "100%", minHeight: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 22, width: "100%" }}>
       <L3Foto slug={R.slug} prefix="region" fallback={R.e} revealed={true} size={200} />
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
         {L3T2_REG_IDS.map((rid) => {
@@ -725,51 +733,86 @@ function R1Region({ onSolve }) {
 // `verificar` vía verifyRef. Al verificar: ✓ verde en su sitio, ✗ rojo si está mal, y
 // al fallar se reordena al correcto (revela).
 function R2Orden({ onSolve, verifyRef }) {
-  const regimen = useRefG(l3t2PickRegimen()).current;
+  const [regimen] = useStateG(() => l3t2PickRegimen()); // una sola vez al montar (anti-repetición correcta)
+  // Ancho de la tarjeta según la etiqueta más larga del régimen: el "autónomo" (palabras
+  // cortas) queda angosto; los otros ("Consejo Provincial", "Teniente Político") reciben lo
+  // justo para no cortar el texto. Así no quedan cuadros enormes con hueco a los lados.
+  const cardW = Math.min(228, Math.max(150, Math.round(74 + Math.max(...regimen.cards.map((c) => c.t.length)) * 8.6)));
   const [order, setOrder] = useStateG(() => { let o = l3Shuffle([0, 1, 2]); if (o[0] === 0 && o[1] === 1 && o[2] === 2) o = [o[1], o[0], o[2]]; return o; });
   const [verified, setVerified] = useStateG(false);
+  const [revealSol, setRevealSol] = useStateG(false); // al fallar, revela el orden correcto (dorado)
   const [dragPos, setDragPos] = useStateG(null);
   const [dxy, setDxy] = useStateG({ x: 0, y: 0 });
-  const colRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 });
-  function down(e, pos) { if (verified) return; startRef.current = { x: e.clientX, y: e.clientY }; setDragPos(pos); setDxy({ x: 0, y: 0 }); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }
-  function move(e) { if (dragPos === null) return; setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y }); }
-  function up(e) {
-    if (dragPos === null) return;
-    let target = dragPos; const col = colRef.current;
-    if (col) { const cy = [...col.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; }); target = 0; for (let i = 0; i < cy.length; i++) if (e.clientY > cy[i] - 1) target = i; }
-    if (target !== dragPos) setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; });
-    setDragPos(null); setDxy({ x: 0, y: 0 });
+  const colRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 }), slotCentersRef = useRefG([]);
+  // Arrastre con reordenamiento EN VIVO: las cartas se acomodan mientras arrastras (sin
+  // esperar a soltar → se siente inmediato). Los 3 huecos NO se mueven (solo cambia qué
+  // carta ocupa cada uno), así que sus centros se miden una sola vez al empezar.
+  function down(e, pos) {
+    if (verified) return;
+    startRef.current = { x: e.clientX, y: e.clientY };
+    const col = colRef.current;
+    slotCentersRef.current = col ? [...col.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; }) : [];
+    setDragPos(pos); setDxy({ x: 0, y: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
   }
+  function move(e) {
+    if (dragPos === null) return;
+    const cy = slotCentersRef.current;
+    let target = 0;
+    for (let i = 0; i < cy.length; i++) if (e.clientY > cy[i] - 6) target = i;
+    if (cy.length && target !== dragPos) {
+      setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; });
+      startRef.current = { x: startRef.current.x, y: cy[target] };
+      setDragPos(target);
+      setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - cy[target] });
+      return;
+    }
+    setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y });
+  }
+  function up(e) { if (dragPos === null) return; setDragPos(null); setDxy({ x: 0, y: 0 }); }
   function verificar() {
     if (verified) return;
     const isCorrect = order[0] === 0 && order[1] === 1 && order[2] === 2;
     setVerified(true);
-    if (!isCorrect) setTimeout(() => setOrder([0, 1, 2]), 650); // revela el orden correcto
+    // Al FALLAR: 1º deja ver SU arreglo con ✗ rojo (ve su error); ~1s después reordena al
+    // orden correcto en DORADO con el rótulo "orden correcto" (NO verde, para que no parezca
+    // que ganó). Así ve claramente cuál era la respuesta.
+    if (!isCorrect) setTimeout(() => setRevealSol(true), 1000); // revela la correcta AL LADO de cada tarjeta mal ubicada (sin reordenar)
     onSolve(isCorrect, { emoji: "🗂️", a: `Ordena: ${regimen.label}`, userAnswer: order.map((i) => regimen.cards[i].t).join(" › "), correctAnswer: regimen.cards.map((c) => c.t).join(" › ") });
   }
   verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño</div>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{regimen.label}</div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, marginTop: "auto", marginBottom: "auto" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
         <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬆ más grande</div>
-        <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 9, touchAction: "none" }}>
+        <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 18, touchAction: "none", transform: revealSol ? "translateX(-75px)" : "none", transition: "transform 0.3s ease" }}>
           {order.map((cardIdx, pos) => {
             const c = regimen.cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
-            let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)";
+            const pal = L3T2_CARD_COLORS[cardIdx % 3];
+            let border = pal.border, bg = pal.bg;
             if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; bg = okPos ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; }
-            const inkMain = verified ? (okPos ? "#06381f" : "#fff") : "#3a2608";
+            const inkMain = verified ? (okPos ? "#06381f" : "#fff") : pal.ink;
             return (
               <div key={cardIdx} data-slot onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
-                style={{ position: "relative", width: 224, height: 64, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.2s ease", zIndex: dragging ? 50 : 1 }}>
-                <span style={{ fontSize: verified ? 22 : 17, fontWeight: 900, color: verified ? inkMain : "#c39a3e", width: 22, textAlign: "center", flexShrink: 0 }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
+                style={{ position: "relative", width: 224, height: 64, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.15s ease", zIndex: dragging ? 50 : 1 }}>
+                <span style={{ fontSize: verified ? 22 : 17, fontWeight: 900, color: verified ? inkMain : pal.handle, width: 22, textAlign: "center", flexShrink: 0 }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
                 <div style={{ textAlign: "center", lineHeight: 1.05 }}>
                   <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: inkMain }}>{c.t}</div>
-                  {c.nivel && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: verified ? (okPos ? "rgba(6,56,31,0.75)" : "rgba(255,255,255,0.85)") : "#8a5a1a" }}>{c.nivel}</div>}
+                  {c.nivel && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: verified ? (okPos ? "rgba(6,56,31,0.75)" : "rgba(255,255,255,0.85)") : pal.handle }}>{c.nivel}</div>}
                 </div>
+                {revealSol && order[pos] !== pos && (
+                  <div style={{ position: "absolute", left: "calc(100% + 12px)", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 7, whiteSpace: "nowrap", background: "linear-gradient(180deg, #ffe6a1, #f1c153)", border: "2px solid #e0a72c", borderRadius: 12, padding: "4px 12px", boxShadow: "0 5px 12px rgba(0,0,0,0.4)" }}>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: "#1f8a54" }}>✓</span>
+                    <div style={{ textAlign: "left", lineHeight: 1.05 }}>
+                      <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(90,61,10,0.7)" }}>aquí va</div>
+                      <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#5a3d0a" }}>{regimen.cards[pos].t}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -784,7 +827,8 @@ function R2Orden({ onSolve, verifyRef }) {
 // Cuadro con marca: ○ sin elegir · ● elegido · ✓ correcto (aunque no la tocara → revela)
 // · ✗ mal elegida.
 function R3Provincias({ onSolve, verifyRef }) {
-  const built = useRefG(l3t2BuildR3()).current, R = L3T2_REGIONES[built.target];
+  const [built] = useStateG(() => l3t2BuildR3()); // una sola vez al montar (anti-repetición correcta)
+  const R = L3T2_REGIONES[built.target];
   const [selected, setSelected] = useStateG(() => ({}));
   const [verified, setVerified] = useStateG(false);
   function toggle(name) { if (verified) return; setSelected((p) => ({ ...p, [name]: !p[name] })); }
@@ -798,25 +842,30 @@ function R3Provincias({ onSolve, verifyRef }) {
   }
   verifyRef.current = verificar;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 14, gap: 10 }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Toca las provincias que sí son de la</div>
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}</div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, width: "100%", maxWidth: 470, marginTop: "auto", marginBottom: "auto" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", alignContent: "space-evenly", columnGap: 16, width: "100%", maxWidth: 380, flex: 1 }}>
         {built.shown.map((p) => {
           const sel = !!selected[p.name];
-          let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", bg = sel ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608", mark = sel ? "●" : "○", markCol = sel ? "#2773d8" : "rgba(58,38,8,0.35)";
+          // 4 estados CLAROS al verificar: la tocó y acertó (verde ✓) · la tocó y no era
+          // (rojo ✗) · NO la tocó pero sí era (ámbar rayado + "faltó") · no era y no la
+          // tocó (apagada ○). Así el VERDE solo sale en lo que ELLA tocó bien.
+          let border = sel ? "#4fa0ff" : "rgba(242,194,96,0.7)", borderStyle = "solid", bg = sel ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608", mark = sel ? "●" : "○", markCol = sel ? "#2773d8" : "rgba(58,38,8,0.35)", missed = false;
           if (verified) {
-            if (p.ok) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; mark = "✓"; markCol = "#06381f"; }
+            if (p.ok && sel) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; mark = "✓"; markCol = "#06381f"; }
+            else if (p.ok) { border = "#c98a1e"; borderStyle = "dashed"; bg = "linear-gradient(180deg, #fff2d0, #f4d693)"; col = "#5a3d0a"; mark = "★"; markCol = "#b9780f"; missed = true; }
             else if (sel) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; mark = "✗"; markCol = "#fff"; }
-            else { bg = "linear-gradient(180deg, rgba(255,248,230,0.35), rgba(247,227,168,0.35))"; mark = "○"; markCol = "rgba(58,38,8,0.25)"; }
+            else { bg = "linear-gradient(180deg, rgba(255,248,230,0.3), rgba(247,227,168,0.3))"; mark = "○"; markCol = "rgba(58,38,8,0.25)"; }
           }
           return (
             <button key={p.name} onClick={() => toggle(p.name)} disabled={verified}
-              style={{ height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: verified ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)", padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 7 }}>
+              style={{ position: "relative", height: 60, borderRadius: 14, border: `3px ${borderStyle} ${border}`, background: bg, cursor: verified ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)", padding: "0 8px", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+              {missed && <span style={{ position: "absolute", top: -9, right: -7, background: "#c98a1e", color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 10, padding: "2px 8px", borderRadius: 999, letterSpacing: "0.05em", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>faltó</span>}
               <span style={{ fontSize: verified ? 19 : 15, fontWeight: 900, color: markCol, flexShrink: 0, width: 20, textAlign: "center" }}>{mark}</span>
-              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, textAlign: "left", lineHeight: 1.05 }}>{p.name}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, textAlign: "center", lineHeight: 1.05 }}>{p.name}</span>
             </button>
           );
         })}
@@ -857,9 +906,9 @@ function TerritorioGame({ app, setApp, go }) {
     // Deja ver la respuesta ANTES del overlay: al acertar en R1 ~0.8s (para ver la
     // imagen); al FALLAR ~1.8s (para ver ✓/✗ y la respuesta correcta), como en los demás
     // juegos EDINUN. Luego el overlay ~1s y avanza.
-    const showFbAt = isCorrect ? (round === 0 ? 800 : 0) : 1800;
+    const showFbAt = isCorrect ? (round === 0 ? 800 : 0) : (round === 1 ? 2300 : 1800);
     const advanceAt = showFbAt + (isCorrect ? 1250 : 1000);
-    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "+1 ⭐" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
       if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
@@ -932,9 +981,9 @@ function TerritorioGame({ app, setApp, go }) {
       {/* Overlay acierto/fallo */}
       {feedback && (
         <PortalToBody>
-          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
             <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
-            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{`${feedbackMsg} — ${char.name}`}</div>)}
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}</div>)}
           </div>
         </PortalToBody>
       )}
