@@ -9,8 +9,8 @@ tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número 
 | Libro | Temas | Estado |
 |-------|-------|--------|
 | Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
-| Libro 3 | **3 temas** — T1 "Hechos históricos" · T2 "Identidad territorial" (7) · T3 | 🟡 T1 ✅ · T2 ✅ · T3 ⏳ |
-| Libro 5 | **2 temas** | ⏳ placeholder |
+| Libro 3 | **3 temas** — T1 "Hechos históricos" · T2 "Identidad territorial" · T3 "Viajando por mi país" (7) | ✅ los 3 |
+| Libro 5 | **2 temas** — T1 "Región Interandina" (9) · T2 | 🟡 T1 ✅ · T2 ⏳ |
 | Libro 6 | **1 tema** | ⏳ placeholder |
 
 > Historial: juego-6 fue antes "Explora el Ecuador" (provincias del Ecuador). La autora
@@ -41,7 +41,9 @@ results`). En `screens.jsx`:
 - `"l2-t1"` → **`ReconoceGame`** (Libro 2).
 - `"l3-t1"` → **`VentanasGame`** (Libro 3 · Tema 1).
 - `"l3-t2"` → **`TerritorioGame`** (Libro 3 · Tema 2, 3 rondas).
-- cualquier otro (l3-t3, l5-t1, l5-t2, l6-t1) → **`PlaceholderGame`**
+- `"l3-t3"` → **`ViajeGame`** (Libro 3 · Tema 3, 3 rondas).
+- `"l5-t1"` → **`InterandinaGame`** (Libro 5 · Tema 1, 3 rondas).
+- cualquier otro (l5-t2, l6-t1) → **`PlaceholderGame`**
   ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
 - `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
@@ -127,6 +129,106 @@ Anti-repetición por ronda (`L3T2_R1/R2/R3_KEY`). **Imágenes de región** (4, l
 autora — paisajes SIN caras): `region-costa/sierra/amazonia/insular.jpg` en `assets/`.
 Diseño en `.planning/libro-3-tema-2-design.md`. **Verificado:** overflow 0 en las 3 rondas;
 arrastre de R2 mueve cartas; e2e (R1→R2→R3→reporte) sin errores; format-lint 15/15.
+
+### Libro 3 · Tema 3 · "Viajando por mi país" (`ViajeGame`, 7 años)
+
+**3 rondas encadenadas con mecánicas distintas**, y cada verbo es uno que el Tema 2 NO
+usa (petición expresa de la autora: *"que sea diferente al tema dos"*). Del tema del
+libro "Viajando por mi país con mi familia" (las 4 regiones naturales en detalle).
+
+- **R1 `R1Memoria` — VOLTEAR.** Memoria de **8 cartas (4 parejas)**: cada pareja es un
+  **lugar ↔ su región** (una pareja por región → sin cartas ambiguas). Patrón calcado de
+  `juego-1` (`deck/flipped/matched` + lock, 460 ms al emparejar / 950 ms al fallar). **Al
+  formar la pareja la carta de REGIÓN se destapa con la FOTO real** (`L3T3RegionFoto`
+  reusa `assets/region-<slug>.jpeg` del Tema 2; respaldo al emoji). **⭐ +1 POR PAREJA**,
+  sumada **al instante** (`onStar`) — no al final, o el contador no se movería.
+- **R2 `R2Ruleta` — GIRAR.** `GIRAR` anima una ruleta SVG de 4 sectores con los **colores
+  del libro** (Costa amarillo · Sierra café · Amazonía verde · Insular azul) y frena en la
+  región sorteada (4 vueltas, 1,7 s). Luego el niño lleva a la **maleta 🧳** las 2 de 4
+  tarjetas que sí son de ahí — **arrastrando o simplemente TOCANDO** (a los 7 años el
+  arrastre falla; el tap hace lo mismo: `moved < 6px` = toque). Al verificar: ✓ verde en
+  las bien metidas · ✗ rojo en las intrusas · **"faltó" ámbar** en las que dejó fuera
+  (mismo lenguaje que R3 del Tema 2).
+- **R3 `R3Mapa` — COLOCAR EN EL MAPA.** Los **límites del Ecuador** (del "Aplico" del
+  libro). Alrededor del mapa se ven los vecinos como contexto (**Colombia** arriba ·
+  **Perú** abajo y a la derecha · **océano Pacífico** a la izquierda) y el niño coloca los
+  **4 puntos cardinales** en sus recuadros, **arrastrando o tocando** (tocar ficha → tocar
+  recuadro; tocar un recuadro lleno la devuelve). ⚠ Se colocan los CARDINALES y no los
+  límites **a propósito**: Perú es límite al Sur *y* al Este → dos fichas idénticas serían
+  ambiguas. Al fallar: ✓/✗ y etiqueta dorada **"VA · NORTE"**. Mapa en
+  `assets/mapa-ecuador.<ext>` (lo genera la autora); sin él cae a una placa "ECUADOR".
+  **Sin banco:** el contenido es fijo; entre partidas solo cambia el orden de las fichas.
+  (Esta ronda era "Arma la postal" —sílabas— y la autora la sustituyó a mitad de la
+  construcción; la postal queda en el historial de git.)
+
+**⭐ del tema: hasta 6** (4 de R1 + 1 de R2 + 1 de R3) → el reporte sale con **6 filas**.
+`ViajeGame` lleva las ⭐ en `starsRef` (fuente de verdad) porque R1 las suma pareja a
+pareja y `onSolve` solo añade las de R2/R3. `onSolve(isCorrect, entries, starsGained,
+starsMsg)`: `entries` es un ARRAY (R1 manda 4 filas), y `starsMsg` es lo que anuncia el
+cartel cuando las ⭐ ya se sumaron antes.
+
+⚠ **Contenido del libro:** `L3T3_LUGARES` (32 ítems) = grandes ciudades, ríos, productos
+agrícolas, nevados y fauna que el texto nombra en cada región; `L3T3_CARDINALES` = los
+límites del Ecuador. **No añadir ítems sin material del libro.** Anti-repetición en R1 y R2
+(`L3T3_R1/R2_KEY`, sobre el FIFO genérico `l3t2Recent/Push`); R3 no la lleva (contenido fijo).
+
+**El tema se juega SIN NINGUNA IMAGEN** (decisión de la autora): las fichas van con nombre
+y, cuando aporta, emoji. Regla `l3t3Generico`: los emojis **compartidos por varios ítems**
+(🏙️ todas las ciudades · 🌊 los ríos · 🏔️ los nevados · 🏖️) **no se dibujan** — Quito y
+Riobamba salían idénticos — y en su lugar el **nombre va grande** (17 px en R1 / 16 px en
+R2). El emoji solo se mantiene cuando es único del ítem (🐆 jaguar, 🐢 tortuga, 🦅 cóndor,
+🍌 banano…), porque ahí sí informa. Las 4 cartas de REGIÓN conservan su emoji + color del
+libro (son 4 distintos). Si algún día llegan las fotos, la foto gana sobre todo esto.
+
+**Fotos, todas opcionales** (`L3T3Foto` prueba una cadena de candidatos y cae al emoji o a
+nada, así que el juego se ve completo aunque falten — hoy no hay ninguna). ⚠ **Este tema NO reusa assets del Tema 2** —
+decisión de la autora (*"aquí no debes usar las imágenes del tema 2"*): cada tema lleva su
+propio arte o el niño ve la misma foto dos veces. Regiones **`t3-region-<slug>.jpg`** (4,
+propias de este tema; el Tema 2 sigue con `region-<slug>`) · lugares
+**`lugar-<slug>.jpg`** (16, las genera la autora: `guayaquil, rio-guayas,
+banano, delfines, chimborazo, cotopaxi, quito, condor, puyo, nueva-loja, jaguar, selva,
+galapagos, tortuga, pinguino, lobos`; **cuadradas 1:1**, sin texto ni rostros) · mapa
+`mapa-ecuador.<ext>`. El `slug` de cada lugar vive en `L3T3_LUGARES`; sin `slug`, emoji.
+Diseño en `.planning/libro-3-tema-3-design.md`. **Verificado** (4 viewports): overflow 0 y
+colchón ≥60 px en las 3 rondas; e2e acierto (6/6, 6 ⭐, 100 %) y e2e fallo; el ⭐ del HUD
+sube con cada pareja; R1 sin solapes en 3 recargas; R2 rota las 4 regiones; format-lint 15/15.
+
+> El `qa-visual.js` genérico **no sirve para juego-6**: espera el `input.ed-input` en el
+> Home y aquí hay menú de 2 niveles (Libro → tema). Hay que guiarlo a mano (Libro 3 → tema
+> → nombre → ENTRAR → ¡VAMOS!) y acotar los clics de prueba a la **zona central** por
+> geometría — arriba están las `TemaPills`, que si no se acotan reciben el clic y abren el
+> modal de cambio de tema.
+
+### Libro 5 · Tema 1 · "Región Interandina" (`InterandinaGame`, 9 años)
+
+**3 rondas encadenadas con mecánicas distintas** del tema del libro *"Provincias de la
+región Interandina"* (las 10 provincias de la Sierra, norte→sur). Orquestadas por
+`InterandinaGame` (mismo chrome que `TerritorioGame`: `onSolve` por ronda, ¡VERIFICAR! en
+acciones vía `verifyRef`+`busy`, overlay con **+1 ⭐**, reporte de 3 filas). Personaje por
+defecto **Andi**. Sub-componentes:
+
+- **R1 `PR1Provincia` — TOCAR 1 de 4.** "¿De qué provincia es {lugar}?": tarjeta central
+  con **emoji + nombre del lugar/atractivo** y 4 botones de provincia (la correcta + 3
+  distractoras). Marca ✓/✗ al tocar. Banco `L5_LUGARES` (26 lugares ÚNICOS por provincia,
+  textuales del libro).
+- **R2 `PR2OrdenNS` — ARRASTRAR de NORTE a SUR.** Reusa el arrastre en vivo de `R2Orden`
+  (slotCenters, live-reorder) y su **feedback "AQUÍ VA · {correcta}"** al fallar (columna
+  se corre a la izquierda, pastilla dorada al lado de cada tarjeta mal ubicada). 3
+  provincias por ronda, orden correcto = índice en `L5_ORDEN_NS` (el orden textual del
+  libro). Reusa `L3T2_CARD_COLORS`.
+- **R3 `PR3Empareja` — EMPAREJAR pueblo↔provincia.** Dos columnas; **toca un pueblo, toca
+  su provincia** → se enlazan con **color + número** (`L5_PAIR_COLORS`). ¡VERIFICAR!: ✓/✗
+  por pueblo y, en los fallados, se revela **"va con {provincia}"** en dorado. Banco
+  `L5_PUEBLOS` (7 pueblos/nacionalidades del libro; **se excluye "Cañari"** porque el libro
+  lo asigna a Cañar Y Azuay → sería ambiguo emparejar).
+
+Anti-repetición por ronda (`L5_R1/R2/R3_KEY`, sobre el FIFO genérico `l3t2Recent/Push`).
+**Solo emoji, SIN imágenes** (decisión de la autora, 2026-07-28: *"no debo generar
+imágenes"*) — no se añaden fotos. Diseño en
+`.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
+distintas** (6263 y 6310 m) → **no se usa la altura exacta** como respuesta. **Verificado:**
+overflow 0 en las 3 rondas; e2e (R1→R2→R3→reporte) sin errores; anti-repetición 0
+repeticiones consecutivas; format-lint 15/15.
 
 ## Personajes
 

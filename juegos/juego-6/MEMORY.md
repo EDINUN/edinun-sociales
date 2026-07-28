@@ -12,7 +12,8 @@ del mapa). La autora dijo *"hay cambio de planes… vamos a cambiar todo"* y dec
 ```
 Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → reporte
   Libro 2 → 1 tema   ("Reconociendo mi país", 6 años)   ✅ hecho
-  Libro 3 → 3 temas  (T1 "Hechos históricos" ✅ · T2 "Identidad territorial" ✅, 7 años) 🟡 T3 placeholder
+  Libro 3 → 3 temas  (T1 "Hechos históricos" · T2 "Identidad territorial" · T3
+                      "Viajando por mi país", 7 años)          ✅ los 3
   Libro 5 → 2 temas                                       ⏳ placeholder
   Libro 6 → 1 tema                                        ⏳ placeholder
 ```
@@ -93,6 +94,64 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
 - **Verificado:** overflow 0 en las 3 rondas, arrastre de R2 mueve cartas, pills cambian de
   tema sin errores, e2e (R1→R2→R3→reporte) sin errores, format-lint 15/15.
 
+## Libro 3 · Tema 3 · "Viajando por mi país" (7 años)
+
+- Del tema del libro **"Viajando por mi país con mi familia"** (8 capturas de la autora):
+  las 4 regiones en detalle — Costa (ríos Guayas/Esmeraldas/Jubones, banano/arroz,
+  Guayaquil/Manta/Machala/Salinas…), Sierra (callejón interandino, +1500 m y páramos
+  +4000 m, Quito/Cuenca/Ambato/Riobamba/Ibarra/Loja, Cotopaxi/Chimborazo/Cayambe, cóndor),
+  Amazonía (la más grande y la menos poblada, Puyo/Nueva Loja/El Coca, jaguar) e Insular
+  (a 1000 km, especies únicas, Patrimonio Natural de la Humanidad, Archipiélago de Colón /
+  Islas Encantadas). También el mapa por colores (Costa amarillo · Sierra café · Amazonía
+  verde · Insular azul), que se reusó como color de región en el juego.
+- **Ojo con el número de tema:** la página del libro dice **"TEMA 2"**, pero en el hub es
+  el **3º botón del Libro 3** (ya pasó con el Libro 2, cuyo juego salió del "TEMA 2" del
+  libro). La numeración del libro ≠ la del hub.
+- **Riesgo detectado y evitado:** el Tema 2 ya pregunta "¿de qué región es…?" y por
+  provincias. La autora insistió: *"verás que debe ser diferente al tema dos por favor"*.
+  Por eso las 3 propuestas se construyeron alrededor de un **verbo que el Tema 2 no usa**
+  y sobre otro sub-tema (ciudades/ríos/nevados/fauna, no regiones-organización-provincias).
+- Se le mostraron **3 bosquejos ASCII en el chat** (memoria / ruleta / postal). Eligió
+  **A "Memoria del viaje"** y enseguida notó: *"pero aquí deberíamos tener 3 mecánicas
+  diferentes, ¿no crees?"* → **las 3 propuestas pasaron a ser las 3 rondas** (memoria ·
+  ruleta · postal). Muy buena idea suya: encaja con el estándar del ecosistema.
+- **DECISIÓN FINAL — el tema va SIN IMÁGENES.** Tras pedir los prompts, la autora notó lo
+  importante: *"las imágenes están con full detalles y basura visual, cachas que en el
+  tamaño que vamos a colocar no se va a notar"* (las fichas son de ~94 px). Y luego:
+  *"haz el juego sin las imágenes generadas y si es de cambiar la mecánica dímelo"*.
+  **No hizo falta cambiar la mecánica** — las 3 rondas funcionan enteras sin una sola
+  imagen. Lo que sí se cambió es el tratamiento de las fichas: se vio en captura que
+  **Quito y Riobamba salían con el mismo 🏙️** (todas las ciudades comparten emoji, los
+  ríos 🌊 y los nevados 🏔️ también) → `l3t3Generico` **oculta el emoji genérico** y agranda
+  el **nombre**; se conserva solo el emoji único (🐆 🐢 🦅 🍌…) y el de las 4 regiones.
+  El soporte de fotos se dejó en el código (cuesta cero y cae solo), por si algún día se
+  generan. **Aprendizaje:** a tamaño de ficha (~90 px) hay que pedir arte tipo **icono**
+  (un sujeto, formas planas, pocos colores), nunca "bright and detailed".
+- **Imágenes (historial):** primero se reusaron solo las 4 fotos de región del Tema 2. La autora lo
+  cuestionó (*"¿por qué usas las imágenes del tema 2? si necesito generarlas solo dime"*) y
+  tenía razón a medias: para las **cartas de región** y la ruleta reusar está bien (lo que
+  se ve *es* la región), pero los **lugares** estaban en emoji y la postal mostraba la foto
+  genérica de la Sierra cuando la palabra era CHIMBORAZO. → Se añadió soporte de
+  **`lugar-<slug>.jpg`** (16, horizontales 3:2, prompts entregados) con **respaldo en
+  cadena** (`L3T3Foto`: lugar → región → emoji), así el juego se ve completo con o sin ellas.
+- **Copy corregido por la autora (2 pasadas):** el enunciado de R2 decía *"¿Qué nos llevamos
+  de la región Amazonía?"*. Ella señaló primero el sentido (*"no sería que llevamos a la
+  región… más no que nos llevamos de"*) y luego dio con el verbo bueno: *"o más bien sería
+  como que encuentras"* → **"¿Qué encontramos en la Amazonía?"**. De paso se arregló la
+  gramática ("la región Amazonía" → **la Costa · la Sierra · la Amazonía · la región
+  Insular**, vía `L3T3_REG_EN`).
+- **R3 cambió a mitad de la construcción (idea de la autora):** era "Arma la postal"
+  (sílabas) y pidió *"la tercera ronda podría ser que arrastramos los puntos cardinales en
+  el mapa del Ecuador"*. Se cambió a **`R3Mapa`** (la postal queda en git). Se le advirtió
+  que **arrastrar los LÍMITES no funciona** (Perú es límite al Sur *y* al Este → dos fichas
+  iguales); por eso los vecinos van dibujados como contexto y lo que se coloca son los
+  **4 puntos cardinales**. El **mapa lo genera ella**; se descartó pedírselo a la IA sin
+  revisión porque una silueta mal dibujada del país es un error de contenido escolar.
+- **Verificado:** overflow 0 y colchón ≥60 px en las 3 rondas × 4 viewports; e2e de
+  acierto (6/6, 6 ⭐, 100 %) y de fallo; el ⭐ del HUD sube con **cada pareja** (primero
+  no lo hacía: solo sumaba al cerrar la ronda); R1 con 0 solapes en 3 recargas; R2 rota
+  las 4 regiones; format-lint 15/15.
+
 ## Aprendizajes
 
 - La autora prefiere ver los **bosquejos de mecánica dibujados en el propio chat**
@@ -107,7 +166,7 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
 
 ## Pendiente
 
-- **Libro 3 · Temas 2 y 3**, **Libro 5** (2 temas), **Libro 6** (1 tema): contenido +
-  mecánica de cada uno (la autora los pasa uno por uno).
+- **Libro 5** (2 temas) y **Libro 6** (1 tema): contenido + mecánica de cada uno (la
+  autora los pasa uno por uno). El Libro 3 ya está completo (T1 · T2 · T3).
 - **Título global** del hub + card del landing (placeholder por ahora).
 - Personaje guía por defecto por libro/tema (hoy: domi, elegible).

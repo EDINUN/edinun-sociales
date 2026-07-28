@@ -1025,6 +1025,671 @@ function TerritorioGame({ app, setApp, go }) {
   );
 }
 
+// ═════════════════════════════════════════════════════════════════════════
+// LIBRO 3 · TEMA 3 — "Viajando por mi país" (7 años) · ViajeGame
+//
+// 3 rondas encadenadas, cada una con una mecánica DISTINTA — y cada una con un
+// VERBO que el Tema 2 NO usa (petición expresa de la autora: "que no se parezca
+// al Tema 2"):
+//   R1 VOLTEAR   → memoria: 4 parejas lugar ↔ región (patrón de juego-1)
+//   R2 GIRAR     → ruleta que sortea la región + arrastrar/tocar a la maleta
+//   R3 COMPLETAR → armar el nombre del lugar con sílabas sobre una postal
+// Todo el contenido es TEXTUAL del tema del libro (ciudades, ríos, productos,
+// nevados y fauna de cada región). Diseño: .planning/libro-3-tema-3-design.md
+// ═════════════════════════════════════════════════════════════════════════
+
+// Colores de región TAL COMO LOS PIDE EL LIBRO en la actividad del mapa
+// ("Costa amarillo · Sierra café · Amazonía verde · Insular azul"). Son colores de
+// CONTENIDO, no los gradientes por posición de los botones de tema (§0 del estándar).
+const L3T3_REG_COLOR = {
+  costa: { grad: "linear-gradient(180deg, #ffe9a0, #e8b93a)", border: "#c99a1e", ink: "#3a2608" },
+  sierra: { grad: "linear-gradient(180deg, #d9ab78, #8f5c2c)", border: "#6b4320", ink: "#2c1806" },
+  amazonia: { grad: "linear-gradient(180deg, #93dd93, #2f8f45)", border: "#1e6a30", ink: "#05300f" },
+  insular: { grad: "linear-gradient(180deg, #9fd0ff, #2e7ad8)", border: "#1f5cb0", ink: "#08264d" },
+};
+// Color plano para los sectores de la ruleta (SVG no admite gradiente CSS inline).
+const L3T3_REG_FILL = { costa: "#e8b93a", sierra: "#8f5c2c", amazonia: "#2f8f45", insular: "#2e7ad8" };
+// Cómo se nombra cada región DENTRO de una frase ("¿Qué encontramos en …?"). Sin esto
+// salía "la región Amazonía", que está mal dicho.
+const L3T3_REG_EN = { costa: "la Costa", sierra: "la Sierra", amazonia: "la Amazonía", insular: "la región Insular" };
+
+// Emojis GENÉRICOS: los comparten varios ítems (todas las ciudades son 🏙️, los ríos 🌊,
+// los nevados 🏔️), así que no distinguen nada — Quito y Riobamba salían idénticos. En esas
+// fichas se oculta el emoji y manda el NOMBRE, más grande. Donde el emoji sí es único
+// (🐆 jaguar, 🐢 tortuga, 🦅 cóndor, 🍌 banano…) se mantiene, porque ahí sí informa.
+// Cuando exista la foto del lugar (`lugar-<slug>`), la foto gana y esto no aplica.
+const L3T3_EMOJI_GENERICO = ["🏙️", "🌊", "🏔️", "🏖️"];
+function l3t3Generico(e) { return L3T3_EMOJI_GENERICO.indexOf(e) !== -1; }
+
+// Lugares/elementos → su región. TODO sale del texto del tema (grandes ciudades,
+// ríos, productos agrícolas, nevados y fauna que el libro nombra en cada región).
+// Se usa en R1 (parejas) y en R2 (lo que va a la maleta).
+// `slug` (opcional) = foto propia del lugar en `assets/lugar-<slug>.jpg|jpeg|png|webp`.
+// Si el archivo no existe, la ficha cae al emoji sola → el juego funciona igual sin fotos.
+const L3T3_LUGARES = [
+  { t: "Guayaquil", e: "🏙️", reg: "costa", slug: "guayaquil" }, { t: "Manta", e: "🏙️", reg: "costa" }, { t: "Machala", e: "🏙️", reg: "costa" },
+  { t: "Salinas", e: "🏖️", reg: "costa" }, { t: "Babahoyo", e: "🏙️", reg: "costa" }, { t: "Río Guayas", e: "🌊", reg: "costa", slug: "rio-guayas" },
+  { t: "Río Jubones", e: "🌊", reg: "costa" }, { t: "Banano", e: "🍌", reg: "costa", slug: "banano" }, { t: "Arroz", e: "🌾", reg: "costa" },
+  { t: "Manglares", e: "🌿", reg: "costa" }, { t: "Ballenas", e: "🐋", reg: "costa" }, { t: "Delfines", e: "🐬", reg: "costa", slug: "delfines" },
+  { t: "Quito", e: "🏙️", reg: "sierra", slug: "quito" }, { t: "Cuenca", e: "🏙️", reg: "sierra" }, { t: "Ambato", e: "🏙️", reg: "sierra" },
+  { t: "Riobamba", e: "🏙️", reg: "sierra" }, { t: "Ibarra", e: "🏙️", reg: "sierra" }, { t: "Cotopaxi", e: "🏔️", reg: "sierra", slug: "cotopaxi" },
+  { t: "Chimborazo", e: "🏔️", reg: "sierra", slug: "chimborazo" }, { t: "Cayambe", e: "🏔️", reg: "sierra" }, { t: "Cóndor andino", e: "🦅", reg: "sierra", slug: "condor" },
+  { t: "Páramo", e: "🌫️", reg: "sierra" },
+  { t: "Puyo", e: "🏙️", reg: "amazonia", slug: "puyo" }, { t: "Nueva Loja", e: "🏙️", reg: "amazonia", slug: "nueva-loja" }, { t: "El Coca", e: "🏙️", reg: "amazonia" },
+  { t: "Jaguar", e: "🐆", reg: "amazonia", slug: "jaguar" }, { t: "Selva virgen", e: "🌳", reg: "amazonia", slug: "selva" },
+  { t: "Galápagos", e: "🏝️", reg: "insular", slug: "galapagos" }, { t: "Tortuga gigante", e: "🐢", reg: "insular", slug: "tortuga" }, { t: "Pingüino", e: "🐧", reg: "insular", slug: "pinguino" },
+  { t: "Lobos marinos", e: "🦭", reg: "insular", slug: "lobos" }, { t: "Iguana", e: "🦎", reg: "insular" },
+];
+
+// R3 — límites del Ecuador (del "Aplico" del libro: "Ubica los límites de tu país…
+// Al Norte / Al Sur / Al Este / Al Oeste"). Los vecinos van dibujados alrededor del mapa
+// como CONTEXTO y lo que el niño coloca son los 4 PUNTOS CARDINALES: así cada ficha es
+// única. (Al revés no funciona: Perú es límite al Sur Y al Este → habría 2 fichas iguales.)
+const L3T3_CARDINALES = [
+  { id: "norte", t: "NORTE", vecino: "Colombia" },
+  { id: "sur", t: "SUR", vecino: "Perú" },
+  { id: "este", t: "ESTE", vecino: "Perú" },
+  { id: "oeste", t: "OESTE", vecino: "Océano Pacífico" },
+];
+
+const L3T3_R1_KEY = "edinun_juego6_l3t3_r1_v1";
+const L3T3_R2_KEY = "edinun_juego6_l3t3_r2_v1";
+
+// Anti-repetición: reusa el FIFO genérico del Tema 2 (l3t2Recent/l3t2Push por clave).
+// R1 — un lugar por región, evitando los que salieron en las últimas partidas.
+function l3t3BuildR1() {
+  const recent = l3t2Recent(L3T3_R1_KEY);
+  const picks = L3T2_REG_IDS.map((rid) => {
+    const pool = L3T3_LUGARES.filter((x) => x.reg === rid);
+    const fresh = pool.filter((x) => recent.indexOf(x.t) === -1);
+    const arr = fresh.length ? fresh : pool;
+    return arr[Math.floor(Math.random() * arr.length)];
+  });
+  picks.forEach((p) => l3t2Push(L3T3_R1_KEY, p.t, 12));
+  // Baraja de 8: por cada región, la carta del LUGAR y la carta de la REGIÓN.
+  const deck = [];
+  picks.forEach((p) => {
+    deck.push({ key: `lug-${p.reg}`, pid: p.reg, kind: "lugar", e: p.e, t: p.t, slug: p.slug });
+    deck.push({ key: `reg-${p.reg}`, pid: p.reg, kind: "region", e: L3T2_REGIONES[p.reg].e, t: L3T2_REGIONES[p.reg].t });
+  });
+  return l3Shuffle(deck);
+}
+
+// R2 — sortea la región (rotando) y arma 2 correctas + 2 intrusas.
+function l3t3BuildR2() {
+  const recent = l3t2Recent(L3T3_R2_KEY);
+  const fresh = L3T2_REG_IDS.filter((r) => recent.indexOf(r) === -1);
+  const pool = fresh.length ? fresh : L3T2_REG_IDS;
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  l3t2Push(L3T3_R2_KEY, target, 3);
+  const buenas = l3Shuffle(L3T3_LUGARES.filter((x) => x.reg === target)).slice(0, 2);
+  const malas = l3Shuffle(L3T3_LUGARES.filter((x) => x.reg !== target)).slice(0, 2);
+  return { target, cards: l3Shuffle(buenas.concat(malas)) };
+}
+
+// Foto con respaldo EN CADENA: prueba cada candidato (`<prefijo>-<slug>`) con todas las
+// extensiones y, si ninguna carga, muestra el emoji. Así el juego se ve completo aunque
+// falten fotos: la postal intenta la del LUGAR, luego la de la REGIÓN, luego el emoji.
+function L3T3Foto({ cands, fallback, w, h, radius = 10 }) {
+  const [i, setI] = useStateG(0);
+  const total = cands.length * L3_IMG_EXTS.length;
+  const failed = i >= total;
+  const c = cands[Math.floor(i / L3_IMG_EXTS.length)];
+  // Sin foto y sin respaldo → no se dibuja NADA (la ficha se queda solo con su nombre,
+  // que es lo que se quiere cuando el emoji no distingue: ver `l3t3Generico`).
+  if (failed && !fallback) return null;
+  return (
+    <div style={{ width: w, height: h, borderRadius: radius, overflow: "hidden", background: "linear-gradient(180deg, #fff, #efe9dc)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      {!failed && c ? (
+        <img src={`assets/${c.p}-${c.s}.${L3_IMG_EXTS[i % L3_IMG_EXTS.length]}`} alt="" draggable="false" onError={() => setI((k) => k + 1)}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      ) : (<span style={{ fontSize: Math.round(Math.min(w, h) * 0.62), lineHeight: 1 }}>{fallback}</span>)}
+    </div>
+  );
+}
+// Foto de región PROPIA de este tema: `assets/t3-region-<slug>.<ext>`.
+// ⚠ NO reusar `region-<slug>` (las del Tema 2): decisión de la autora — cada tema lleva
+// su propio arte, si no el niño ve la misma foto en dos temas seguidos. Sin el archivo,
+// la carta muestra el emoji de la región (y se ve bien igual).
+function L3T3RegionFoto({ reg, w, h, radius = 10 }) {
+  const R = L3T2_REGIONES[reg];
+  return <L3T3Foto cands={[{ p: "t3-region", s: R.slug }]} fallback={R.e} w={w} h={h} radius={radius} />;
+}
+
+// ── R1: memoria — 4 parejas "lugar ↔ su región" (VOLTEAR) ──
+// Calcado del patrón de juego-1 (deck/flipped/matched + lock). Al formar la pareja,
+// la carta de REGIÓN se destapa con la FOTO real de la región (premio visual).
+function R1Memoria({ onSolve, onStar }) {
+  const [deck] = useStateG(() => l3t3BuildR1());
+  const [flipped, setFlipped] = useStateG([]);
+  const [matched, setMatched] = useStateG({});
+  const lock = useRefG(false);
+  const matchedRef = useRefG({});
+  const logRef = useRefG([]);
+
+  function tapCard(i) {
+    if (lock.current) return;
+    const card = deck[i];
+    if (matchedRef.current[card.key] || flipped.indexOf(i) !== -1) return;
+    const nf = flipped.concat([i]);
+    setFlipped(nf);
+    if (nf.length < 2) return;
+    lock.current = true;
+    const ca = deck[nf[0]], cb = deck[nf[1]];
+    if (ca.pid === cb.pid) {
+      setTimeout(() => {
+        matchedRef.current[ca.key] = true; matchedRef.current[cb.key] = true;
+        setMatched(Object.assign({}, matchedRef.current));
+        setFlipped([]); lock.current = false;
+        const lug = ca.kind === "lugar" ? ca : cb, R = L3T2_REGIONES[ca.pid];
+        logRef.current.push({ emoji: lug.e, a: "Pareja encontrada", userAnswer: `${lug.t} · ${R.t}`, correctAnswer: `${lug.t} · ${R.t}`, isCorrect: true });
+        onStar();   // ⭐ al instante, en cada pareja (si no, el contador no se mueve)
+        if (Object.keys(matchedRef.current).length >= 8) {
+          // La memoria siempre se completa: la ronda cuenta como acierto. Las ⭐ ya se
+          // sumaron pareja a pareja (por eso va 0 aquí), pero el cartel muestra el total.
+          setTimeout(() => onSolve(true, logRef.current.slice(), 0, logRef.current.length), 300);
+        }
+      }, 460);
+    } else {
+      setTimeout(() => { setFlipped([]); lock.current = false; }, 950);
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 19, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>
+        Encuentra las 4 parejas: el lugar y su región.
+      </div>
+      {/* Cartas y fotos CUADRADAS (1:1): la autora genera las imágenes en cuadrado, así
+          no se recorta nada. Ver `.planning/libro-3-tema-3-design.md` §Fotos. */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 112px)", gap: 12, justifyContent: "center" }}>
+        {deck.map((card, i) => {
+          const isMatched = !!matched[card.key], isUp = isMatched || flipped.indexOf(i) !== -1;
+          const pal = L3T3_REG_COLOR[card.pid];
+          return (
+            <button key={card.key} onClick={() => tapCard(i)}
+              style={{ width: 112, height: 134, borderRadius: 16, cursor: isUp ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 5, overflow: "hidden",
+                border: `3px solid ${isMatched ? "#2ecc8f" : (isUp ? "rgba(242,194,96,0.7)" : "rgba(242,194,96,0.5)")}`,
+                background: isUp ? (card.kind === "region" ? pal.grad : "linear-gradient(180deg,#fff8e6,#f7e3a8)") : "linear-gradient(160deg,#7b52e0,#3a1f8c)",
+                boxShadow: isMatched ? "0 0 20px rgba(46,204,143,0.5), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.35), 0 6px 14px rgba(0,0,0,0.35)",
+                transition: "all 0.15s ease" }}>
+              {isUp ? (
+                card.kind === "region" ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    {isMatched
+                      ? <L3T3RegionFoto reg={card.pid} w={94} h={94} />
+                      : <span style={{ fontSize: 44, lineHeight: 1 }}>{card.e}</span>}
+                    <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: pal.ink, lineHeight: 1.05, textAlign: "center" }}>{card.t}</span>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "0 3px" }}>
+                    <L3T3Foto cands={card.slug ? [{ p: "lugar", s: card.slug }] : []} fallback={l3t3Generico(card.e) ? null : card.e} w={94} h={94} />
+                    <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: l3t3Generico(card.e) ? 17 : 12, color: "#3a2608", lineHeight: 1.1, textAlign: "center" }}>{card.t}</span>
+                  </div>
+                )
+              ) : (
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 48, lineHeight: 1, background: "linear-gradient(180deg, #fef3cf, #f2c260)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.45))" }}>?</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── R2: la ruleta del viaje (GIRAR + llevar a la maleta) ──
+// GIRAR sortea la región; luego el niño lleva a la maleta las 2 tarjetas que sí son de
+// ahí — ARRASTRÁNDOLAS o simplemente TOCÁNDOLAS (a los 7 años el arrastre falla mucho,
+// así que el tap hace lo mismo). ¡VERIFICAR! vive en la columna de acciones.
+function l3t3Sector(cx, cy, r, a1, a2) {
+  const pt = (a) => { const rad = ((a - 90) * Math.PI) / 180; return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)]; };
+  const [x1, y1] = pt(a1), [x2, y2] = pt(a2);
+  return `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+}
+
+function R2Ruleta({ onSolve, verifyRef }) {
+  const [built] = useStateG(() => l3t3BuildR2());
+  const [angle, setAngle] = useStateG(0);
+  const [spun, setSpun] = useStateG(false);
+  const [spinning, setSpinning] = useStateG(false);
+  const [inBag, setInBag] = useStateG({});
+  const [verified, setVerified] = useStateG(false);
+  const [drag, setDrag] = useStateG(null); // { t, dx, dy }
+  const startRef = useRefG({ x: 0, y: 0, moved: false });
+  const bagRef = useRefG(null);
+  const R = L3T2_REGIONES[built.target];
+  const targetIdx = L3T2_REG_IDS.indexOf(built.target);
+
+  function girar() {
+    if (spinning || spun) return;
+    setSpinning(true);
+    // 4 vueltas completas y frena con el sector sorteado bajo el puntero de arriba.
+    setAngle(360 * 4 - (targetIdx * 90 + 45));
+    setTimeout(() => { setSpinning(false); setSpun(true); }, 1700);
+  }
+
+  function toggle(t) { if (verified || !spun) return; setInBag((p) => Object.assign({}, p, { [t]: !p[t] })); }
+  function down(e, t) {
+    if (verified || !spun || inBag[t]) return;
+    startRef.current = { x: e.clientX, y: e.clientY, moved: false };
+    setDrag({ t, dx: 0, dy: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+  }
+  function move(e) {
+    if (!drag) return;
+    const dx = e.clientX - startRef.current.x, dy = e.clientY - startRef.current.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) startRef.current.moved = true;
+    setDrag((d) => (d ? { t: d.t, dx, dy } : d));
+  }
+  function up(e) {
+    if (!drag) return;
+    const t = drag.t, moved = startRef.current.moved;
+    const bag = bagRef.current;
+    let dentro = false;
+    if (bag) { const r = bag.getBoundingClientRect(); dentro = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }
+    setDrag(null);
+    if (dentro || !moved) toggle(t);      // soltada en la maleta, o simple toque
+  }
+
+  function verificar() {
+    if (verified || !spun) return;
+    setVerified(true);
+    const buenas = built.cards.filter((c) => c.reg === built.target);
+    const isCorrect = buenas.every((c) => inBag[c.t]) && built.cards.every((c) => (c.reg === built.target ? true : !inBag[c.t]));
+    const metidas = built.cards.filter((c) => inBag[c.t]).map((c) => c.t);
+    onSolve(isCorrect, [{ emoji: "🎡", a: `¿Qué es de la región ${R.t}?`, userAnswer: metidas.length ? metidas.join(" + ") : "nada en la maleta", correctAnswer: buenas.map((c) => c.t).join(" + "), isCorrect }], isCorrect ? 1 : 0);
+  }
+  verifyRef.current = verificar;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>
+        {spun ? (<>¿Qué encontramos en <span style={{ color: "#fce9a8", fontWeight: 800 }}>{L3T3_REG_EN[built.target]}</span>?</>) : "¿A qué región vamos de viaje?"}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 26 }}>
+        {/* Ruleta */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <div style={{ position: "relative", width: 148, height: 148 }}>
+            <div style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "14px solid #fce9a8", filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.5))", zIndex: 2 }} />
+            <div style={{ width: 148, height: 148, transform: `rotate(${angle}deg)`, transition: spinning ? "transform 1.7s cubic-bezier(0.15,0.85,0.2,1)" : "none" }}>
+              <svg viewBox="0 0 148 148" width="148" height="148">
+                {L3T2_REG_IDS.map((rid, i) => (
+                  <path key={rid} d={l3t3Sector(74, 74, 70, i * 90, (i + 1) * 90)} fill={L3T3_REG_FILL[rid]} stroke="rgba(255,255,255,0.75)" strokeWidth="2" />
+                ))}
+                {L3T2_REG_IDS.map((rid, i) => {
+                  const a = ((i * 90 + 45 - 90) * Math.PI) / 180;
+                  return <text key={`e-${rid}`} x={74 + 46 * Math.cos(a)} y={74 + 46 * Math.sin(a) + 7} textAnchor="middle" style={{ fontSize: 21 }}>{L3T2_REGIONES[rid].e}</text>;
+                })}
+                <circle cx="74" cy="74" r="15" fill="#2b1c62" stroke="#f2c260" strokeWidth="3" />
+              </svg>
+            </div>
+          </div>
+          {!spun ? (
+            <button className="ed-btn" onClick={girar} disabled={spinning}
+              style={{ height: 40, padding: "0 26px", fontSize: 15, fontWeight: 800, letterSpacing: "0.06em", background: "linear-gradient(180deg, #ffc06e, #e4881a)", color: "#3a2608", border: "none", opacity: spinning ? 0.6 : 1, cursor: spinning ? "default" : "pointer" }}>GIRAR</button>
+          ) : (
+            <div style={{ height: 40, display: "flex", alignItems: "center", gap: 7, background: L3T3_REG_COLOR[built.target].grad, border: `2px solid ${L3T3_REG_COLOR[built.target].border}`, borderRadius: 999, padding: "0 16px" }}>
+              <span style={{ fontSize: 17 }}>{R.e}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: L3T3_REG_COLOR[built.target].ink }}>{R.t}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Maleta */}
+        <div ref={bagRef} style={{ width: 176, height: 132, borderRadius: 16, border: `3px ${spun ? "solid" : "dashed"} rgba(242,194,96,0.75)`, background: "linear-gradient(180deg, rgba(255,248,230,0.18), rgba(247,227,168,0.10))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: 7 }}>
+          <div style={{ fontSize: 24, lineHeight: 1, opacity: Object.keys(inBag).filter((k) => inBag[k]).length ? 0.5 : 1 }}>🧳</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
+            {built.cards.filter((c) => inBag[c.t]).map((c) => {
+              const okc = c.reg === built.target;
+              return (
+                <button key={c.t} onClick={() => toggle(c.t)} disabled={verified}
+                  style={{ display: "flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "3px 9px", border: `2px solid ${verified ? (okc ? "#2ecc8f" : "#ff6b6b") : "#e0a72c"}`, background: verified ? (okc ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))") : "linear-gradient(180deg, #fff8e6, #f7e3a8)", cursor: verified ? "default" : "pointer" }}>
+                  {!l3t3Generico(c.e) && <span style={{ fontSize: 13 }}>{c.e}</span>}
+                  <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: verified ? (okc ? "#06381f" : "#fff") : "#3a2608" }}>{c.t}</span>
+                  {verified && <span style={{ fontSize: 12, fontWeight: 900, color: okc ? "#06381f" : "#fff" }}>{okc ? "✓" : "✗"}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Tarjetas por llevar */}
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", touchAction: "none" }}>
+        {built.cards.map((c) => {
+          if (inBag[c.t]) return <div key={c.t} style={{ width: 110, height: 112, borderRadius: 14, border: "2px dashed rgba(255,255,255,0.22)" }} />;
+          const dragging = drag && drag.t === c.t, falto = verified && c.reg === built.target;
+          return (
+            <button key={c.t} onPointerDown={(e) => down(e, c.t)} onPointerMove={move} onPointerUp={up} disabled={verified || !spun}
+              style={{ position: "relative", width: 110, height: 112, borderRadius: 14, border: `3px ${falto ? "dashed" : "solid"} ${falto ? "#c98a1e" : "rgba(242,194,96,0.7)"}`, background: falto ? "linear-gradient(180deg, #fff2d0, #f4d693)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: "4px 5px", cursor: spun && !verified ? "grab" : "default", opacity: spun ? 1 : 0.45, touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)", transform: dragging ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.05)` : "none", transition: dragging ? "none" : "transform 0.15s ease", zIndex: dragging ? 50 : 1 }}>
+              {falto && <span style={{ position: "absolute", top: -9, right: -7, background: "#c98a1e", color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 10, padding: "2px 8px", borderRadius: 999, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>faltó</span>}
+              <L3T3Foto cands={c.slug ? [{ p: "lugar", s: c.slug }] : []} fallback={l3t3Generico(c.e) ? null : c.e} w={84} h={84} radius={9} />
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: l3t3Generico(c.e) ? 16 : 11, color: "#3a2608", lineHeight: 1.1, textAlign: "center" }}>{c.t}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── R3: los límites del Ecuador (ARRASTRAR los puntos cardinales al mapa) ──
+// El mapa va en `assets/mapa-ecuador.<ext>` (lo genera la autora). Mientras no exista,
+// cae a una placa "ECUADOR" y la ronda funciona igual. Alrededor del mapa quedan los
+// vecinos del libro (Colombia · Perú · Océano Pacífico) como pista de contexto.
+// Se puede ARRASTRAR la ficha al recuadro o TOCARLA y luego tocar el recuadro (a los
+// 7 años el arrastre falla; las dos formas hacen lo mismo).
+function L3T3MapaEcuador({ w, h }) {
+  const [i, setI] = useStateG(0);
+  const failed = i >= L3_IMG_EXTS.length;
+  if (failed) {
+    // Mientras no exista la imagen del mapa: placa con la BANDERA (amarillo/azul/rojo,
+    // en sus proporciones reales) + el nombre. Se ve intencional, no un hueco roto — y
+    // NO se dibuja una silueta inventada del país (sería un error de contenido escolar).
+    return (
+      <div style={{ width: w, height: h, borderRadius: 14, border: "3px solid #f2c260", background: "linear-gradient(180deg, #fff8e6, #f0dca8)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0, overflow: "hidden", boxShadow: "0 8px 20px rgba(0,0,0,0.35)" }}>
+        <div style={{ width: w - 34, height: 54, borderRadius: 7, overflow: "hidden", border: "2px solid rgba(58,38,8,0.35)", boxShadow: "0 3px 8px rgba(0,0,0,0.3)" }}>
+          <div style={{ height: "50%", background: "#ffdd00" }} />
+          <div style={{ height: "25%", background: "#034ea2" }} />
+          <div style={{ height: "25%", background: "#ed1c24" }} />
+        </div>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, letterSpacing: "0.06em", color: "#3a2608" }}>ECUADOR</span>
+      </div>
+    );
+  }
+  return (
+    <img src={`assets/mapa-ecuador.${L3_IMG_EXTS[i]}`} alt="" draggable="false" onError={() => setI((k) => k + 1)}
+      style={{ width: w, height: h, objectFit: "contain", display: "block", flexShrink: 0, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.45))" }} />
+  );
+}
+
+function R3Mapa({ onSolve, verifyRef }) {
+  const [bandeja] = useStateG(() => l3Shuffle(L3T3_CARDINALES.map((c) => c.id)));
+  const [placed, setPlaced] = useStateG(() => ({}));   // { slotId: cardinalId }
+  const [sel, setSel] = useStateG(null);               // ficha elegida (modo tocar)
+  const [verified, setVerified] = useStateG(false);
+  const [drag, setDrag] = useStateG(null);
+  const slotRefs = useRefG({});
+  const startRef = useRefG({ x: 0, y: 0, moved: false });
+  const puestas = Object.keys(placed).map((k) => placed[k]);
+  const CARD = {}; L3T3_CARDINALES.forEach((c) => { CARD[c.id] = c; });
+
+  function poner(slotId, cid) {
+    if (verified) return;
+    setPlaced((prev) => {
+      const n = {};
+      Object.keys(prev).forEach((k) => { if (prev[k] !== cid) n[k] = prev[k]; }); // la ficha solo puede estar en un sitio
+      n[slotId] = cid;
+      return n;
+    });
+    setSel(null);
+  }
+  function tapSlot(slotId) {
+    if (verified) return;
+    if (placed[slotId]) { setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; }); return; }
+    if (sel) poner(slotId, sel);
+  }
+  function down(e, cid) {
+    if (verified) return;
+    startRef.current = { x: e.clientX, y: e.clientY, moved: false };
+    setDrag({ cid, dx: 0, dy: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+  }
+  function move(e) {
+    if (!drag) return;
+    const dx = e.clientX - startRef.current.x, dy = e.clientY - startRef.current.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) startRef.current.moved = true;
+    setDrag((d) => (d ? { cid: d.cid, dx, dy } : d));
+  }
+  function up(e) {
+    if (!drag) return;
+    const cid = drag.cid, moved = startRef.current.moved;
+    let destino = null;
+    L3T3_CARDINALES.forEach((c) => {
+      const el = slotRefs.current[c.id];
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) destino = c.id;
+    });
+    setDrag(null);
+    if (destino) poner(destino, cid);
+    else if (!moved) setSel((s) => (s === cid ? null : cid));   // toque = elegir/soltar
+  }
+
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const isCorrect = L3T3_CARDINALES.every((c) => placed[c.id] === c.id);
+    const mia = L3T3_CARDINALES.map((c) => `${c.vecino}: ${placed[c.id] ? CARD[placed[c.id]].t : "—"}`).join(" · ");
+    onSolve(isCorrect, [{ emoji: "🧭", a: "Los límites del Ecuador", userAnswer: mia, correctAnswer: L3T3_CARDINALES.map((c) => `${c.vecino}: ${c.t}`).join(" · "), isCorrect }], isCorrect ? 1 : 0);
+  }
+  verifyRef.current = verificar;
+
+  // Recuadro donde se suelta cada punto cardinal.
+  function Slot({ c }) {
+    const cid = placed[c.id], ok = verified && cid === c.id;
+    let border = cid ? "#4fa0ff" : "rgba(242,194,96,0.75)", bg = cid ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "rgba(255,255,255,0.10)", ink = "#0f2a55";
+    if (verified) {
+      border = ok ? "#2ecc8f" : "#ff6b6b";
+      bg = ok ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))";
+      ink = ok ? "#06381f" : "#fff";
+    }
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+        <div className="ed-label" style={{ fontSize: 10, color: "rgba(255,255,255,0.62)", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{c.vecino}</div>
+        <div ref={(el) => { slotRefs.current[c.id] = el; }} onClick={() => tapSlot(c.id)}
+          style={{ width: 96, height: 42, borderRadius: 12, border: `3px ${cid ? "solid" : "dashed"} ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, cursor: verified ? "default" : "pointer", boxShadow: cid ? "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)" : "none" }}>
+          {verified && <span style={{ fontSize: 15, fontWeight: 900, color: ink }}>{ok ? "✓" : "✗"}</span>}
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, letterSpacing: "0.04em", color: cid ? ink : "rgba(255,255,255,0.35)" }}>{cid ? CARD[cid].t : "?"}</span>
+        </div>
+        {/* Al fallar, revela cuál iba aquí (dorado, no verde: no lo acertó) */}
+        {verified && !ok && (
+          <div style={{ display: "flex", alignItems: "center", gap: 5, background: "linear-gradient(180deg, #ffe6a1, #f1c153)", border: "2px solid #e0a72c", borderRadius: 9, padding: "1px 8px" }}>
+            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8, letterSpacing: "0.06em", color: "rgba(90,61,10,0.7)" }}>VA</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: "#5a3d0a" }}>{c.t}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 20, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>
+        ¿Dónde queda cada punto cardinal?
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "112px 138px 112px", gap: 6, alignItems: "center", justifyItems: "center" }}>
+        <div /><Slot c={L3T3_CARDINALES[0]} /><div />
+        <Slot c={L3T3_CARDINALES[3]} />
+        <L3T3MapaEcuador w={142} h={142} />
+        <Slot c={L3T3_CARDINALES[2]} />
+        <div /><Slot c={L3T3_CARDINALES[1]} /><div />
+      </div>
+
+      {/* Fichas por colocar */}
+      <div style={{ display: "flex", gap: 9, justifyContent: "center", touchAction: "none" }}>
+        {bandeja.map((cid) => {
+          if (puestas.indexOf(cid) !== -1) return <div key={cid} style={{ width: 92, height: 40, borderRadius: 12, border: "2px dashed rgba(255,255,255,0.2)" }} />;
+          const dragging = drag && drag.cid === cid, elegida = sel === cid;
+          return (
+            <button key={cid} onPointerDown={(e) => down(e, cid)} onPointerMove={move} onPointerUp={up} disabled={verified}
+              style={{ width: 92, height: 40, borderRadius: 12, border: `3px solid ${elegida ? "#4fa0ff" : "rgba(242,194,96,0.7)"}`, background: elegida ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "linear-gradient(180deg, #fff8e6, #f7e3a8)", cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)", transform: dragging ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.06)` : "none", transition: dragging ? "none" : "transform 0.15s ease", zIndex: dragging ? 50 : 1 }}>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, letterSpacing: "0.05em", color: "#3a2608" }}>{CARD[cid].t}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Orquestador de las 3 rondas ──
+function ViajeGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const catLabel = app.currentCatLabel || "Viajando por mi país";
+  const TOTAL = 3;
+  const [round, setRound] = useStateG(0);
+  const [stars, setStars] = useStateG(0);
+  const [results, setResults] = useStateG([]);   // acierto por RONDA (para los dots)
+  const [log, setLog] = useStateG([]);           // filas del reporte (R1 aporta 4)
+  const [elapsed, setElapsed] = useStateG(0);
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [rk, setRk] = useStateG(0);
+  const [busy, setBusy] = useStateG(false);
+  const started = useRefG(Date.now());
+  const advancing = useRefG(false);
+  const verifyRef = useRefG(null);
+  const starsRef = useRefG(0);   // fuente de verdad de las ⭐ (R1 las suma pareja a pareja)
+
+  useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function addStars(n) {
+    if (!n) return;
+    starsRef.current += n; setStars(starsRef.current);
+    setApp((s) => ({ ...s, stars: (s.stars || 0) + n }));
+  }
+
+  // entries = filas del reporte de esta ronda (R1 manda 4; R2/R3 mandan 1).
+  // starsMsg = las ⭐ que anuncia el cartel cuando ya se sumaron antes (caso de R1).
+  function onSolve(isCorrect, entries, starsGained, starsMsg) {
+    if (advancing.current) return;
+    advancing.current = true; setBusy(true);
+    if (typeof markFirstAttempt === "function") markFirstAttempt();
+    const rows = entries.map((e, i) => Object.assign({ idx: log.length + i + 1 }, e));
+    const newLog = log.concat(rows);
+    const newResults = results.concat([isCorrect]);
+    setLog(newLog); setResults(newResults);
+    addStars(starsGained);
+    const shown = starsMsg != null ? starsMsg : starsGained;
+    // Deja ver la respuesta ANTES del overlay: al fallar ~1.8 s (ve ✓/✗ y la correcta),
+    // como en el resto de juegos EDINUN. Luego el overlay ~1 s y avanza solo.
+    const showFbAt = isCorrect ? (round === 0 ? 500 : 0) : 1800;
+    const advanceAt = showFbAt + (isCorrect ? 1250 : 1000);
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? `+${shown} ⭐` : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
+    setTimeout(() => {
+      setFeedback(null); setFeedbackMsg("");
+      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
+      else {
+        const solved = newLog.filter((e) => e.isCorrect).length;
+        setApp((s) => ({ ...s, lastResult: { category: catLabel, solved, total: newLog.length, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: starsRef.current, log: newLog } }));
+        if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+        go("results");
+      }
+    }, advanceAt);
+  }
+
+  function confirmRestart() {
+    setConfirmingRestart(false); advancing.current = false; setBusy(false);
+    starsRef.current = 0;
+    setRound(0); setStars(0); setResults([]); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    started.current = Date.now();
+  }
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      {/* HUD */}
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      {/* RONDA con dots — top:52 (§1.1) */}
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: TOTAL }).map((_, i) => {
+          const done = i < results.length, ok = done && results[i];
+          return <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: done ? (ok ? "#fce9a8" : "#ff6b6b") : (i === round ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: done ? "0 0 8px currentColor" : "none", color: ok ? "#fce9a8" : "#ff6b6b" }} />;
+        })}
+      </div>
+
+      {/* Personaje guía + bocadillo (CÓMO por ronda) */}
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {round === 0 ? (<>Voltea dos cartas y<br />busca la pareja.</>) : round === 1 ? (<>Gira la ruleta y luego<br />arrastra las cosas<br />a la maleta.</>) : (<>Arrastra cada punto<br />a su lugar.</>)}
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      {/* Zona central: la ronda actual */}
+      <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
+        {round === 0 && <R1Memoria key={`r1-${rk}`} onSolve={onSolve} onStar={() => addStars(1)} />}
+        {round === 1 && <R2Ruleta key={`r2-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
+        {round === 2 && <R3Mapa key={`r3-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
+      </div>
+
+      {/* Acciones (¡VERIFICAR! verde arriba, solo en R2/R3) */}
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        {(round === 1 || round === 2) && !busy && (
+          <button className="ed-btn" onClick={() => verifyRef.current && verifyRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none" }}>¡VERIFICAR!</button>
+        )}
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {/* Overlay acierto/fallo */}
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal SALIR */}
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {/* Modal REINICIAR */}
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar las 3 rondas otra vez.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // Juego placeholder (mismo marco que cualquier juego EDINUN).
 // ─────────────────────────────────────────────────────────────
@@ -1310,6 +1975,394 @@ function ResultsScreen({ app, setApp, go }) {
 // Pills de tema (arriba, centro) — saltar entre los temas del libro sin volver al Home.
 // FORMATO CALCADO de edinun-language/juego-2 (chip oscuro; activo con el gradiente del
 // tema por posición, GRAD_POS). Con modal de confirmación. Solo si el libro tiene 2+ temas.
+// ═════════════════════════════════════════════════════════════════════════
+// LIBRO 5 · TEMA 1 · "Región Interandina" (9 años) — 3 RONDAS DISTINTAS.
+// Provincias de la Sierra (libro "Provincias de la región Interandina").
+// R1 ¿de qué provincia es este lugar? (tocar 1 de 4)  · R2 ordena de NORTE a SUR
+// (arrastrar, reusa el arrastre en vivo) · R3 empareja el pueblo con su provincia.
+// Todo textual del libro. Anti-repetición por ronda. Ver design-doc.
+// ═════════════════════════════════════════════════════════════════════════
+const L5_PROVINCIAS = [
+  { id: "carchi", t: "Carchi", e: "🌲" }, { id: "imbabura", t: "Imbabura", e: "🏞️" },
+  { id: "pichincha", t: "Pichincha", e: "🏛️" }, { id: "cotopaxi", t: "Cotopaxi", e: "🌋" },
+  { id: "tungurahua", t: "Tungurahua", e: "🌸" }, { id: "chimborazo", t: "Chimborazo", e: "🏔️" },
+  { id: "bolivar", t: "Bolívar", e: "🧂" }, { id: "canar", t: "Cañar", e: "🏛️" },
+  { id: "azuay", t: "Azuay", e: "⛪" }, { id: "loja", t: "Loja", e: "☕" },
+];
+const L5_ORDEN_NS = ["carchi", "imbabura", "pichincha", "cotopaxi", "tungurahua", "chimborazo", "bolivar", "canar", "azuay", "loja"];
+function l5Prov(id) { return L5_PROVINCIAS.find((p) => p.id === id); }
+
+// R1 — lugar/atractivo ÚNICO por provincia (textual del libro) → provincia.
+// Solo emoji, SIN imágenes (decisión de la autora): la pista clave es el NOMBRE del lugar.
+const L5_LUGARES = [
+  { t: "Laguna Verde", e: "🏞️", prov: "carchi" }, { t: "Bosque de Polylepis", e: "🌲", prov: "carchi" },
+  { t: "Mercado de ponchos de Otavalo", e: "🧶", prov: "imbabura" }, { t: "Laguna de Mojanda", e: "🏞️", prov: "imbabura" }, { t: "Cascada de Peguche", e: "💧", prov: "imbabura" },
+  { t: "Mitad del Mundo", e: "🌐", prov: "pichincha" }, { t: "Centro histórico de Quito", e: "🏛️", prov: "pichincha" }, { t: "Mindo", e: "🦋", prov: "pichincha" },
+  { t: "Volcán Cotopaxi", e: "🌋", prov: "cotopaxi" }, { t: "Laguna del Quilotoa", e: "🌋", prov: "cotopaxi" }, { t: "El Boliche", e: "🚂", prov: "cotopaxi" },
+  { t: "Baños de Agua Santa", e: "♨️", prov: "tungurahua" }, { t: "Fiesta de las Flores y las Frutas", e: "🌸", prov: "tungurahua" }, { t: "Parque Nacional Sangay", e: "🌋", prov: "tungurahua" },
+  { t: "Guano, capital artesanal", e: "🧵", prov: "chimborazo" }, { t: "Laguna de Colta", e: "🏞️", prov: "chimborazo" },
+  { t: "Minas de sal de Salinas", e: "🧂", prov: "bolivar" }, { t: "Guaranda, las siete colinas", e: "⛰️", prov: "bolivar" },
+  { t: "Ruinas de Ingapirca", e: "🏛️", prov: "canar" }, { t: "Laguna de Culebrillas", e: "🏞️", prov: "canar" },
+  { t: "Cuenca, Patrimonio Cultural", e: "⛪", prov: "azuay" }, { t: "Parque Nacional Cajas", e: "🏞️", prov: "azuay" }, { t: "Chordeleg y sus artesanías", e: "💍", prov: "azuay" },
+  { t: "Vilcabamba", e: "🌿", prov: "loja" }, { t: "Virgen de El Cisne", e: "⛪", prov: "loja" }, { t: "Bosque petrificado de Puyango", e: "🪵", prov: "loja" },
+];
+
+// R3 — pueblo/nacionalidad → provincia (lista textual del libro). Se excluye "Cañari"
+// (el libro lo asigna a Cañar Y Azuay → ambiguo para emparejar).
+const L5_PUEBLOS = [
+  { pueblo: "Otavalo", prov: "imbabura" }, { pueblo: "Cayambi", prov: "pichincha" },
+  { pueblo: "Panzaleo", prov: "cotopaxi" }, { pueblo: "Salasaka", prov: "tungurahua" },
+  { pueblo: "Waranka", prov: "bolivar" }, { pueblo: "Puruwá", prov: "chimborazo" },
+  { pueblo: "Saraguro", prov: "loja" },
+];
+const L5_PAIR_COLORS = [
+  { dot: "#4f8fef", ring: "rgba(79,143,239,0.9)", bg: "linear-gradient(180deg, #dbeafe, #a9cbff)", ink: "#0f2a55" },
+  { dot: "#e0a72c", ring: "rgba(224,167,44,0.9)", bg: "linear-gradient(180deg, #fff1c9, #f6cf72)", ink: "#5a3d0a" },
+  { dot: "#9b7be8", ring: "rgba(155,123,232,0.9)", bg: "linear-gradient(180deg, #ecdcff, #c7a9ff)", ink: "#2a1657" },
+];
+
+const L5_R1_KEY = "edinun_juego6_l5t1_r1_v1";
+const L5_R2_KEY = "edinun_juego6_l5t1_r2_v1";
+const L5_R3_KEY = "edinun_juego6_l5t1_r3_v1";
+function l5R1Build() {
+  const recent = new Set(l3t2Recent(L5_R1_KEY)), all = L5_LUGARES.map((_, i) => i);
+  const idx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
+  l3t2Push(L5_R1_KEY, idx, 10);
+  const lugar = L5_LUGARES[idx], correct = lugar.prov;
+  const distract = l3Shuffle(L5_PROVINCIAS.filter((p) => p.id !== correct)).slice(0, 3);
+  const opts = l3Shuffle([l5Prov(correct)].concat(distract));
+  return { lugar, correct, opts };
+}
+function l5R2Build() {
+  const recent = new Set(l3t2Recent(L5_R2_KEY));
+  let trio = null;
+  for (let k = 0; k < 12; k++) {
+    const pick = l3Shuffle(L5_ORDEN_NS.slice()).slice(0, 3).sort((a, b) => L5_ORDEN_NS.indexOf(a) - L5_ORDEN_NS.indexOf(b));
+    trio = pick; if (!recent.has(pick.join(","))) break;
+  }
+  l3t2Push(L5_R2_KEY, trio.join(","), 4);
+  return { cards: trio.map((id) => l5Prov(id)) }; // ya en orden N→S (índice 0 = más al norte)
+}
+function l5R3Build() {
+  const recent = new Set(l3t2Recent(L5_R3_KEY)), all = L5_PUEBLOS.map((_, i) => i);
+  const chosen = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i)))).slice(0, 3);
+  chosen.forEach((i) => l3t2Push(L5_R3_KEY, i, 4));
+  const pueblos = chosen.map((i) => L5_PUEBLOS[i]);
+  const provs = l3Shuffle(pueblos.map((p) => l5Prov(p.prov)));
+  return { pueblos, provs };
+}
+
+// ── R1: ¿de qué provincia es este lugar? (tocar 1 de 4) ──
+function PR1Provincia({ onSolve }) {
+  const [b] = useStateG(() => l5R1Build());
+  const [picked, setPicked] = useStateG(null);
+  const answered = picked !== null;
+  function tap(pid) {
+    if (answered) return;
+    setPicked(pid);
+    const chosen = l5Prov(pid), correct = l5Prov(b.correct);
+    onSolve(pid === b.correct, { emoji: "📍", a: `¿De qué provincia es ${b.lugar.t}?`, userAnswer: `${chosen.e} ${chosen.t}`, correctAnswer: `${correct.e} ${correct.t}` });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", gap: 18 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué provincia es...</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 20, padding: "14px 26px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", maxWidth: 440 }}>
+        <span style={{ fontSize: 60, lineHeight: 1 }}>{b.lugar.e}</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#3a2608", textAlign: "center", lineHeight: 1.1 }}>{b.lugar.t}</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
+        {b.opts.map((p) => {
+          const isCorrect = p.id === b.correct;
+          let border = "#f2c260", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = "#3a2608";
+          if (answered) {
+            if (isCorrect) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; }
+            else if (p.id === picked) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; }
+            else bg = "linear-gradient(180deg, rgba(255,248,230,0.5), rgba(247,227,168,0.5))";
+          }
+          return (
+            <button key={p.id} onClick={() => tap(p.id)} disabled={answered}
+              style={{ position: "relative", width: 104, height: 92, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
+              {answered && (isCorrect || p.id === picked) && (
+                <span style={{ position: "absolute", top: 5, right: 7, fontSize: 20, fontWeight: 900, lineHeight: 1, color: isCorrect ? "#06381f" : "#fff" }}>{isCorrect ? "✓" : "✗"}</span>
+              )}
+              <span style={{ fontSize: 32, lineHeight: 1 }}>{p.e}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, textAlign: "center", lineHeight: 1.02 }}>{p.t}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── R2: ordena de NORTE a SUR (arrastrar en vivo) ──
+function PR2OrdenNS({ onSolve, verifyRef }) {
+  const [build] = useStateG(() => l5R2Build());
+  const cards = build.cards;
+  const [order, setOrder] = useStateG(() => { let o = l3Shuffle([0, 1, 2]); if (o[0] === 0 && o[1] === 1 && o[2] === 2) o = [o[1], o[0], o[2]]; return o; });
+  const [verified, setVerified] = useStateG(false);
+  const [revealSol, setRevealSol] = useStateG(false);
+  const [dragPos, setDragPos] = useStateG(null);
+  const [dxy, setDxy] = useStateG({ x: 0, y: 0 });
+  const colRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 }), slotCentersRef = useRefG([]);
+  function down(e, pos) { if (verified) return; startRef.current = { x: e.clientX, y: e.clientY }; const col = colRef.current; slotCentersRef.current = col ? [...col.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; }) : []; setDragPos(pos); setDxy({ x: 0, y: 0 }); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }
+  function move(e) { if (dragPos === null) return; const cy = slotCentersRef.current; let target = 0; for (let i = 0; i < cy.length; i++) if (e.clientY > cy[i] - 6) target = i; if (cy.length && target !== dragPos) { setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; }); startRef.current = { x: startRef.current.x, y: cy[target] }; setDragPos(target); setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - cy[target] }); return; } setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y }); }
+  function up(e) { if (dragPos === null) return; setDragPos(null); setDxy({ x: 0, y: 0 }); }
+  function verificar() {
+    if (verified) return;
+    const isCorrect = order[0] === 0 && order[1] === 1 && order[2] === 2;
+    setVerified(true);
+    if (!isCorrect) setTimeout(() => setRevealSol(true), 1000);
+    onSolve(isCorrect, { emoji: "🧭", a: "Ordena de NORTE a SUR", userAnswer: order.map((i) => cards[i].t).join(" › "), correctAnswer: cards.map((c) => c.t).join(" › ") });
+  }
+  verifyRef.current = verificar;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena las provincias de NORTE a SUR</div>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>Región Interandina (Sierra)</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬆ NORTE</div>
+        <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 18, touchAction: "none", transform: revealSol ? "translateX(-70px)" : "none", transition: "transform 0.3s ease" }}>
+          {order.map((cardIdx, pos) => {
+            const c = cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
+            const pal = L3T2_CARD_COLORS[cardIdx % 3];
+            let border = pal.border, bg = pal.bg;
+            if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; bg = okPos ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; }
+            const inkMain = verified ? (okPos ? "#06381f" : "#fff") : pal.ink;
+            return (
+              <div key={cardIdx} data-slot onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
+                style={{ position: "relative", width: 214, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.15s ease", zIndex: dragging ? 50 : 1 }}>
+                <span style={{ fontSize: verified ? 22 : 17, fontWeight: 900, color: verified ? inkMain : pal.handle, width: 20, textAlign: "center", flexShrink: 0 }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
+                <span style={{ fontSize: 22, lineHeight: 1 }}>{c.e}</span>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: inkMain }}>{c.t}</span>
+                {revealSol && order[pos] !== pos && (
+                  <div style={{ position: "absolute", left: "calc(100% + 12px)", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 7, whiteSpace: "nowrap", background: "linear-gradient(180deg, #ffe6a1, #f1c153)", border: "2px solid #e0a72c", borderRadius: 12, padding: "4px 12px", boxShadow: "0 5px 12px rgba(0,0,0,0.4)" }}>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: "#1f8a54" }}>✓</span>
+                    <div style={{ textAlign: "left", lineHeight: 1.05 }}>
+                      <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(90,61,10,0.7)" }}>aquí va</div>
+                      <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#5a3d0a" }}>{cards[pos].t}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>⬇ SUR</div>
+      </div>
+    </div>
+  );
+}
+
+// ── R3: empareja el pueblo con su provincia (unir por color/número + VERIFICAR) ──
+function PR3Empareja({ onSolve, verifyRef }) {
+  const [build] = useStateG(() => l5R3Build());
+  const pueblos = build.pueblos, provs = build.provs;
+  const [sel, setSel] = useStateG(null);
+  const [pairs, setPairs] = useStateG({});
+  const [verified, setVerified] = useStateG(false);
+  function tapPueblo(i) { if (verified) return; setSel(i === sel ? null : i); }
+  function tapProv(provId) {
+    if (verified || sel === null) return;
+    setPairs((prev) => { const next = {}; Object.keys(prev).forEach((k) => { if (prev[k] !== provId) next[k] = prev[k]; }); next[sel] = provId; return next; });
+    setSel(null);
+  }
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const ok = pueblos.every((p, i) => pairs[i] === p.prov);
+    onSolve(ok, { emoji: "🔗", a: "Une el pueblo con su provincia", userAnswer: pueblos.map((p, i) => `${p.pueblo}→${pairs[i] ? l5Prov(pairs[i]).t : "?"}`).join(", "), correctAnswer: pueblos.map((p) => `${p.pueblo}→${l5Prov(p.prov).t}`).join(", ") });
+  }
+  verifyRef.current = verificar;
+  function provPairedBy(provId) { const k = Object.keys(pairs).find((kk) => pairs[kk] === provId); return k === undefined ? null : Number(k); }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une el pueblo con su provincia</div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 34, justifyContent: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {pueblos.map((p, i) => {
+            const pal = L5_PAIR_COLORS[i], paired = pairs[i] !== undefined, selected = sel === i;
+            const correct = verified && pairs[i] === p.prov, wrong = verified && !correct;
+            let border = paired ? pal.dot : "#f2c260", bg = paired ? pal.bg : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = paired ? pal.ink : "#3a2608";
+            if (verified) { if (correct) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; } else { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; } }
+            return (
+              <button key={i} onClick={() => tapPueblo(i)} disabled={verified}
+                style={{ position: "relative", width: 176, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: verified ? "default" : "pointer", display: "flex", alignItems: "center", gap: 8, padding: "0 12px", boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.03)" : "none", transition: "all 0.12s ease" }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: paired ? pal.dot : "rgba(58,38,8,0.15)", color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>{paired ? i + 1 : ""}</span>
+                <div style={{ textAlign: "left", lineHeight: 1.02, minWidth: 0 }}>
+                  <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: col }}>{p.pueblo}</div>
+                  {wrong && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 10, color: "#ffe6a1" }}>va con {l5Prov(p.prov).t}</div>}
+                </div>
+                {verified && <span style={{ position: "absolute", top: -8, right: -6, fontSize: 15, fontWeight: 900, color: correct ? "#1f8a54" : "#c0392b", background: "#fff", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{correct ? "✓" : "✗"}</span>}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {provs.map((pr) => {
+            const by = provPairedBy(pr.id), pal = by === null ? null : L5_PAIR_COLORS[by], canTap = sel !== null && !verified;
+            let border = pal ? pal.dot : "#f2c260", bg = pal ? pal.bg : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = pal ? pal.ink : "#3a2608";
+            return (
+              <button key={pr.id} onClick={() => tapProv(pr.id)} disabled={verified || sel === null}
+                style={{ position: "relative", width: 176, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: canTap ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: canTap ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28), 0 0 0 2px rgba(242,194,96,0.55)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
+                <span style={{ fontSize: 22, lineHeight: 1 }}>{pr.e}</span>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: col }}>{pr.t}</span>
+                {by !== null && <span style={{ position: "absolute", top: -8, left: -6, width: 22, height: 22, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{by + 1}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InterandinaGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const catLabel = app.currentCatLabel || "Región Interandina";
+  const TOTAL = 3;
+  const [round, setRound] = useStateG(0);
+  const [stars, setStars] = useStateG(0);
+  const [log, setLog] = useStateG([]);
+  const [elapsed, setElapsed] = useStateG(0);
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [rk, setRk] = useStateG(0);
+  const [busy, setBusy] = useStateG(false);
+  const started = useRefG(Date.now());
+  const advancing = useRefG(false);
+  const verifyRef = useRefG(null);
+
+  useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function onSolve(isCorrect, entry) {
+    if (advancing.current) return;
+    advancing.current = true; setBusy(true);
+    if (typeof markFirstAttempt === "function") markFirstAttempt();
+    const newLog = [...log, { idx: round + 1, isCorrect, ...entry }];
+    const newStars = stars + (isCorrect ? 1 : 0);
+    setLog(newLog); setStars(newStars);
+    if (isCorrect) setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
+    const showFbAt = isCorrect ? 0 : (round === 1 ? 2300 : 1800);
+    const advanceAt = showFbAt + (isCorrect ? 1150 : 1000);
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "+1 ⭐" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
+    setTimeout(() => {
+      setFeedback(null); setFeedbackMsg("");
+      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
+      else {
+        const solved = newLog.filter((e) => e.isCorrect).length;
+        setApp((s) => ({ ...s, stars: newStars, lastResult: { category: catLabel, solved, total: TOTAL, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog } }));
+        if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+        go("results");
+      }
+    }, advanceAt);
+  }
+
+  function confirmRestart() {
+    setConfirmingRestart(false); advancing.current = false; setBusy(false);
+    setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    started.current = Date.now();
+  }
+
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: TOTAL }).map((_, i) => {
+          const done = i < log.length, ok = done && log[i] && log[i].isCorrect;
+          return <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: done ? (ok ? "#fce9a8" : "#ff6b6b") : (i === round ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: done ? "0 0 8px currentColor" : "none", color: ok ? "#fce9a8" : "#ff6b6b" }} />;
+        })}
+      </div>
+
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {round === 0 ? "Toca su provincia." : round === 1 ? (<>Ordena de<br />norte a sur.</>) : (<>Une el pueblo<br />y su provincia.</>)}
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
+        {round === 0 && <PR1Provincia key={`p1-${rk}`} onSolve={onSolve} />}
+        {round === 1 && <PR2OrdenNS key={`p2-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
+        {round === 2 && <PR3Empareja key={`p3-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />}
+      </div>
+
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        {(round === 1 || round === 2) && !busy && (
+          <button className="ed-btn" onClick={() => verifyRef.current && verifyRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none" }}>¡VERIFICAR!</button>
+        )}
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar las 3 rondas otra vez.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
 function TemaPills({ temas, active, onSwitch }) {
   return (
     <div data-qa="hud-temas" style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 20, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1350,7 +2403,7 @@ function SwitchTemaModal({ tema, onCancel, onConfirm }) {
 // con modal de confirmación. Al implementar un tema nuevo: mapear su componente en `pick`.
 function GameScreen({ app, setApp, go }) {
   const libro = typeof LIBROS !== "undefined" ? LIBROS.find((l) => l.id === app.libro) : null;
-  const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame };
+  const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame, "l3-t3": ViajeGame, "l5-t1": InterandinaGame };
   const Game = pick[app.currentCategory] || PlaceholderGame;
   const [pendingTema, setPendingTema] = useStateG(null);
   function requestSwitch(t) { if (!libro || t.id === app.currentCategory) return; setPendingTema(t); }
