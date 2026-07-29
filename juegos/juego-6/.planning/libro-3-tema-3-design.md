@@ -84,6 +84,15 @@ Tablero de **8 cartas (4 parejas)**, calcado del patrón de `juego-1` (`buildDec
 - **¡VERIFICAR!** en la columna de acciones (como el Tema 2). Al fallar, se marcan las
   correctas en verde ✓ y las mal metidas en rojo ✗ **~1.8 s** antes del "¡UPS!".
 - ⭐ +1 si las 2 correctas están dentro y ninguna distractora.
+- ⚠ **El alto del álbum se calcula para el PEOR caso: LAS 4 tarjetas dentro** (el niño
+  puede meterlas todas; es una respuesta mal, no un estado imposible). Con el alto viejo
+  (132) el contenido pedía ~156 px → las pastillas **tapaban el rótulo 📸 y se salían por
+  el borde de abajo**: "el cuadrito se daña" (lo cazó la autora). Ahora **184 px** = rótulo
+  (36) + 4 pastillas (4×25 + 3×4 de gap = 112) + padding/borde (20), y sigue por debajo de
+  los **196 px de la columna de la ruleta** (148 + 8 + 40), así que la fila no crece ni
+  mueve nada. El nombre de la pastilla va `nowrap` para que su alto sea predecible.
+  **Regla general:** una caja de alto fijo que recibe fichas tiene que caber con TODAS
+  dentro, no solo con las que son correctas.
 
 ## R3 — "Los límites del Ecuador" (`R3Mapa`)
 
@@ -127,6 +136,19 @@ océano Pacífico) y el niño coloca los **4 puntos cardinales**.
   arrastre se sentía "que no responde".
 - **Recuperación:** si arrastra y suelta lejos de todo, la ficha queda **elegida** (azul);
   solo tiene que tocar el recuadro. Antes se perdía el gesto entero sin ninguna señal.
+- ⚠ **El soltado tolerante SOLO aplica si de verdad arrastró** (`moved`). Un simple toque
+  únicamente ELIGE la ficha. Si no se distingue, la bandeja queda a ~60 px del recuadro de
+  abajo y, con el margen tolerante, **tocar una ficha la mandaba sola al recuadro SUR**.
+- **Bandeja vacía:** cuando ya están los 4 colocados, la fila de huecos punteados no dice
+  nada y es justo cuando el niño necesita saber qué sigue → se reemplaza por la pastilla
+  dorada **"👉 ¡Ya están los 4! Toca ¡VERIFICAR!"** (mismo alto, el layout no salta).
+- **Sacar arrastrando hacia afuera:** una ficha ya colocada se quita **tocándola** o
+  **tirándola fuera** del recuadro; si se arrastra pero se suelta dentro, se queda. Igual
+  en la maleta de R2, para no enseñar dos gestos distintos.
+- ⚠ El recuadro se pinta con `renderSlot(c)` — una **función que devuelve JSX**, NO un
+  componente declarado dentro de `R3Mapa`: eso último remonta el `<div>` en cada render y
+  rompe el `setPointerCapture`. Y al soltar hay que medir con `slotRefs`, no con
+  `e.currentTarget`.
 - **¡VERIFICAR!** en la columna de acciones. Al fallar: ✓ verde donde acertó, ✗ rojo donde
   no, y debajo la etiqueta dorada **"VA · NORTE"** revelando cuál iba (dorado, no verde).
 - **Mapa:** `assets/mapa-ecuador.<jpg|png|jpeg|webp>` (lo genera la autora). Mientras no

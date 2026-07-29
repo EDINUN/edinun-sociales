@@ -168,6 +168,40 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   dorado** mientras arrastra, y **recuperación** (si suelta lejos, la ficha queda elegida
   para solo tocar el recuadro). Verificado soltando 45 px FUERA del recuadro: cae igual.
   **Regla general:** en cualquier arrastre para 6-8 años, hit-test estricto = mecánica rota.
+- **Bug que introdujo ese mismo arreglo** (cazado por el test, no por la autora): con el
+  margen tolerante, **tocar** una ficha la mandaba sola al recuadro SUR, porque la bandeja
+  queda a ~60 px de él. Corregido: el soltado tolerante **solo se evalúa si `moved`** (si
+  de verdad arrastró); un toque solo elige. **Aprendizaje:** al ampliar un área de soltado,
+  revisar qué otros elementos caen dentro del nuevo margen.
+- **Bandeja vacía en R3** (lo pidió la autora): cuando ya están los 4 puntos colocados, los
+  huecos punteados no decían nada → ahora sale la pastilla **"👉 ¡Ya están los 4! Toca
+  ¡VERIFICAR!"** en su lugar, del mismo alto para que el layout no salte.
+- **"Páramo" con 🌫️ no se entendía** (lo cazó la autora): parecía niebla suelta. Se sumó
+  🌫️ a `L3T3_EMOJI_GENERICO`, que ahora cubre dos casos: emoji **compartido** por varios
+  ítems y emoji **que no se entiende**. Páramo quedó solo con su nombre en grande.
+- **Sacar arrastrando hacia afuera** (lo pidió la autora): además del toque, tirar la ficha
+  fuera de la maleta (R2) o fuera del recuadro (R3) la devuelve. Si arrastra pero suelta
+  DENTRO, se queda (se arrepintió). Mismo gesto en las dos rondas, para no enseñar dos
+  formas distintas.
+- **El álbum de R2 "se dañaba" con las 4 fichas dentro** (2026-07-29, lo vio la autora:
+  *"cuando coloco todas las opciones es como el cuadrito se daña"*). La caja era de alto
+  **fijo 132 px** y con 4 pastillas el contenido pide ~156 → tapaban el rótulo 📸 y se
+  salían por el borde inferior. Alto a **184** (cabe el peor caso) + nombre `nowrap`;
+  queda bajo los 196 px de la columna de la ruleta, así que la fila no se mueve.
+  **Aprendizaje:** dimensionar toda caja receptora de fichas para que quepan **TODAS**,
+  no solo las correctas — el niño mete de más y ese estado hay que dibujarlo bien.
+  Verificado con un test que mete las 4 y mide desborde: 0 px arriba/abajo/lados en
+  4 viewports, antes y después de ¡VERIFICAR!, overflow del lienzo 0, 0 errores.
+- 🐛 **Bug de React que costó encontrar:** en R3 el recuadro estaba escrito como un
+  **componente declarado DENTRO** de `R3Mapa` (`function Slot({c})`). Eso crea un tipo
+  nuevo en cada render → React **desmonta y remonta** el `<div>` → se pierde el
+  `setPointerCapture` a media arrastrada y el `pointerup` nunca llegaba, así que "sacar
+  arrastrando" no hacía nada (y los tests de arrastre dentro/fuera daban el mismo
+  resultado, que fue la pista). Arreglado convirtiéndolo en una **función que devuelve
+  JSX** (`renderSlot(c)`), no un componente. **Regla: nunca declarar un componente dentro
+  de otro si adentro hay gestos con pointer capture o refs al DOM.**
+  De paso: al decidir en `pointerup`, medir con la **ref del elemento**, no con
+  `e.currentTarget` (con capture no siempre es el que se cree).
 
 ## Aprendizajes
 
