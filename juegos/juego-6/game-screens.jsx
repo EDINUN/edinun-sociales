@@ -2307,6 +2307,14 @@ function PR3Empareja({ onSolve, verifyRef }) {
   const [sel, setSel] = useStateG(null);       // índice del TRAJE (izquierda) seleccionado
   const [pairs, setPairs] = useStateG({});      // trajeIdx -> slug del pueblo elegido
   const [verified, setVerified] = useStateG(false);
+  const wrapRef = useRefG(null), trajeRefs = useRefG([]), puebloRefs = useRefG({});
+  const [anchors, setAnchors] = useStateG(null); // {trajes:[{x,y}], pueblos:{slug:{x,y}}} en px lógicos (offset del bloque)
+  useEffectG(() => {
+    const tj = trajeRefs.current.map((el) => (el ? { x: el.offsetLeft + el.offsetWidth, y: el.offsetTop + el.offsetHeight / 2 } : null));
+    const pb = {};
+    Object.keys(puebloRefs.current).forEach((slug) => { const el = puebloRefs.current[slug]; if (el) pb[slug] = { x: el.offsetLeft, y: el.offsetTop + el.offsetHeight / 2 }; });
+    setAnchors({ trajes: tj, pueblos: pb });
+  }, []);
   function tapTraje(i) { if (verified) return; setSel(i === sel ? null : i); }
   function tapPueblo(slug) {
     if (verified || sel === null) return;
@@ -2327,7 +2335,28 @@ function PR3Empareja({ onSolve, verifyRef }) {
         <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une la vestimenta con su pueblo</div>
       </div>
       <div style={{ flex: 1, display: "flex", alignItems: "center", minHeight: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 40, justifyContent: "center" }}>
+      <div ref={wrapRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 40, justifyContent: "center" }}>
+        {/* Líneas de enlace traje ↔ pueblo (por encima del gap, nunca sobre las tarjetas) */}
+        {anchors && (
+          <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", overflow: "visible" }}>
+            {Object.keys(pairs).map((k) => {
+              const ti = Number(k), slug = pairs[k], a = anchors.trajes[ti], b = anchors.pueblos[slug];
+              if (!a || !b) return null;
+              const okPair = verified && slug === trajes[ti].slug;
+              const color = verified ? (okPair ? "#2ecc8f" : "#ff6b6b") : L5_PAIR_COLORS[ti].dot;
+              const cx = (b.x - a.x) * 0.5;
+              const d = `M ${a.x} ${a.y} C ${a.x + cx} ${a.y} ${b.x - cx} ${b.y} ${b.x} ${b.y}`;
+              return (
+                <g key={k}>
+                  <path d={d} stroke="rgba(0,0,0,0.30)" strokeWidth={8} fill="none" strokeLinecap="round" />
+                  <path d={d} stroke={color} strokeWidth={5} fill="none" strokeLinecap="round" />
+                  <circle cx={a.x} cy={a.y} r={5.5} fill={color} stroke="#fff" strokeWidth={2} />
+                  <circle cx={b.x} cy={b.y} r={5.5} fill={color} stroke="#fff" strokeWidth={2} />
+                </g>
+              );
+            })}
+          </svg>
+        )}
         {/* Izquierda: VESTIMENTAS (fotos reales del traje) */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {trajes.map((t, i) => {
@@ -2336,7 +2365,7 @@ function PR3Empareja({ onSolve, verifyRef }) {
             let border = paired ? pal.dot : "#f2c260";
             if (verified) border = correct ? "#2ecc8f" : "#ff6b6b";
             return (
-              <button key={i} onClick={() => tapTraje(i)} disabled={verified}
+              <button key={i} ref={(el) => { trajeRefs.current[i] = el; }} onClick={() => tapTraje(i)} disabled={verified}
                 style={{ position: "relative", width: 116, height: 116, borderRadius: 16, border: `3px solid ${border}`, background: "#fff", cursor: verified ? "default" : "pointer", padding: 0, overflow: "hidden", boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.04)" : "none", transition: "transform 0.12s ease" }}>
                 <img src={`assets/l5-pueblo-${t.slug}.jpg`} alt="" draggable="false" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 {paired && <span style={{ position: "absolute", top: -9, left: -9, width: 24, height: 24, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{i + 1}</span>}
@@ -2352,7 +2381,7 @@ function PR3Empareja({ onSolve, verifyRef }) {
             const by = puebloPairedBy(p.slug), pal = by === null ? null : L5_PAIR_COLORS[by], canTap = sel !== null && !verified;
             let border = pal ? pal.dot : "#f2c260", bg = pal ? pal.bg : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = pal ? pal.ink : "#3a2608";
             return (
-              <button key={p.slug} onClick={() => tapPueblo(p.slug)} disabled={verified || sel === null}
+              <button key={p.slug} ref={(el) => { puebloRefs.current[p.slug] = el; }} onClick={() => tapPueblo(p.slug)} disabled={verified || sel === null}
                 style={{ position: "relative", width: 200, height: 116, borderRadius: 16, border: `3px solid ${border}`, background: bg, cursor: canTap ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, boxShadow: canTap ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28), 0 0 0 2px rgba(242,194,96,0.55)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
                 <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: col }}>{p.pueblo}</span>
                 <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: col, opacity: 0.82 }}>{l5Prov(p.prov).e} {l5Prov(p.prov).t}</span>
