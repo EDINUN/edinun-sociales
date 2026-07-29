@@ -2199,13 +2199,14 @@ function PR1Provincia({ onSolve }) {
     onSolve(pid === b.correct, { emoji: "📍", a: `¿De qué provincia es ${b.lugar.t}?`, userAnswer: `${chosen.e} ${chosen.t}`, correctAnswer: `${correct.e} ${correct.t}` });
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", gap: 18 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 8 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué provincia es...</span>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 20, padding: "14px 26px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", maxWidth: 440 }}>
-        <L5Foto slug={b.lugar.slug} emoji={b.lugar.e} size={140} />
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#3a2608", textAlign: "center", lineHeight: 1.1 }}>{b.lugar.t}</span>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18, minHeight: 0, width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 20, padding: "16px 28px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", maxWidth: 460 }}>
+        <L5Foto slug={b.lugar.slug} emoji={b.lugar.e} size={196} />
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#3a2608", textAlign: "center", lineHeight: 1.1 }}>{b.lugar.t}</span>
       </div>
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
         {b.opts.map((p) => {
@@ -2226,6 +2227,7 @@ function PR1Provincia({ onSolve }) {
             </button>
           );
         })}
+      </div>
       </div>
     </div>
   );
