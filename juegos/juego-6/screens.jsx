@@ -139,7 +139,11 @@ const GRAD_POS = [
 ];
 const LIBROS = [
   { id: "libro-2", label: "Libro 2", temas: [{ id: "l2-t1", label: "Reconociendo mi país" }] },
-  { id: "libro-3", label: "Libro 3", temas: [{ id: "l3-t1", label: "Hechos históricos" }, { id: "l3-t2", label: "Identidad territorial" }, { id: "l3-t3", label: "Viajando por mi país" }] },
+  { id: "libro-3", label: "Libro 3", temas: [
+    { id: "l3-t1", label: "Hechos históricos", desc: "Hechos históricos relevantes de mi provincia" },
+    { id: "l3-t2", label: "Identidad territorial", desc: "La identidad territorial" },
+    { id: "l3-t3", label: "Viajando por mi país", desc: "Viajando por mi país con mi familia" },
+  ] },
   { id: "libro-5", label: "Libro 5", temas: [{ id: "l5-t1", label: "Región Interandina" }, { id: "l5-t2", label: "Tema 2" }] },
   { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "Tema 1" }] },
 ];
@@ -240,9 +244,10 @@ function HomeScreen({ app, setApp, go }) {
               )}
 
               <div style={{ padding: "10px 16px", borderRadius: 14, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(148,120,255,0.3)", fontFamily: "var(--ed-font-display)", fontWeight: 600, fontSize: 14, lineHeight: 1.4, color: "#fce9a8", textAlign: "center" }}>
-                {libro.temas.length === 1
-                  ? `${libro.temas[0].label}.`
-                  : (temaId ? `${libro.temas.find((t) => t.id === temaId).label}.` : `Este libro tiene ${libro.temas.length} temas. Elige uno arriba.`)}
+                {(() => {
+                  const st = libro.temas.length === 1 ? libro.temas[0] : libro.temas.find((t) => t.id === temaId);
+                  return st ? `${st.desc || st.label}.` : `Este libro tiene ${libro.temas.length} temas. Elige uno arriba.`;
+                })()}
               </div>
 
               <div>
