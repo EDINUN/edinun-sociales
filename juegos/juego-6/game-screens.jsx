@@ -1366,22 +1366,28 @@ function R2Ruleta({ onSolve, verifyRef }) {
         </div>
 
         {/* Maleta */}
-        <div ref={bagRef} style={{ width: 176, height: 132, borderRadius: 16, border: `3px ${spun ? "solid" : "dashed"} rgba(242,194,96,0.75)`, background: "linear-gradient(180deg, rgba(255,248,230,0.18), rgba(247,227,168,0.10))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: 7 }}>
+        <div ref={bagRef} style={{ width: 176, height: 184, borderRadius: 16, border: `3px ${spun ? "solid" : "dashed"} rgba(242,194,96,0.75)`, background: "linear-gradient(180deg, rgba(255,248,230,0.18), rgba(247,227,168,0.10))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: 7 }}>
           {/* Álbum del viaje, NO maleta: la autora notó que la metáfora era falsa —
               nadie se lleva un pingüino ni un río en una maleta. Aquí se "guarda la foto"
-              de lo que se encuentra, que sí funciona con animales, ríos y ciudades. */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, opacity: Object.keys(inBag).filter((k) => inBag[k]).length ? 0.4 : 1, transition: "opacity 0.2s" }}>
+              de lo que se encuentra, que sí funciona con animales, ríos y ciudades.
+              ⚠ La altura (184) está calculada para el PEOR caso: el rótulo (36) + las 4
+              pastillas (4×25 + 3×4 gap = 112). Con 132 se rompía la caja al meter las 4
+              (tapaba el 📸 y se salía por el borde de abajo). Sigue por debajo de los
+              196 px de la columna de la ruleta, así que la fila no crece. */}
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 1, opacity: Object.keys(inBag).filter((k) => inBag[k]).length ? 0.4 : 1, transition: "opacity 0.2s" }}>
             <span style={{ fontSize: 24, lineHeight: 1 }}>📸</span>
             <span className="ed-label" style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em" }}>mi álbum</span>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", alignContent: "center" }}>
             {built.cards.filter((c) => inBag[c.t]).map((c) => {
               const okc = c.reg === built.target;
               return (
                 <button key={c.t} onPointerDown={(e) => downOut(e, c.t)} onPointerMove={moveOut} onPointerUp={upOut} disabled={verified}
                   style={{ display: "flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "3px 9px", border: `2px solid ${verified ? (okc ? "#2ecc8f" : "#ff6b6b") : "#e0a72c"}`, background: verified ? (okc ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))") : "linear-gradient(180deg, #fff8e6, #f7e3a8)", cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", transform: dragOut && dragOut.t === c.t ? `translate(${dragOut.dx}px, ${dragOut.dy}px) scale(1.06)` : "none", transition: dragOut && dragOut.t === c.t ? "none" : "transform 0.15s ease", zIndex: dragOut && dragOut.t === c.t ? 50 : 1, boxShadow: dragOut && dragOut.t === c.t ? "0 14px 26px rgba(0,0,0,0.5)" : "none" }}>
-                  {!l3t3Generico(c.e) && <span style={{ fontSize: 13 }}>{c.e}</span>}
-                  <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: verified ? (okc ? "#06381f" : "#fff") : "#3a2608" }}>{c.t}</span>
+                  {!l3t3Generico(c.e) && <span style={{ fontSize: 13, flexShrink: 0 }}>{c.e}</span>}
+                  {/* nowrap: si el nombre largo ("Tortuga gigante") partiera en 2 líneas la
+                      pastilla crecería y el alto de la caja dejaría de ser predecible. */}
+                  <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: verified ? (okc ? "#06381f" : "#fff") : "#3a2608", whiteSpace: "nowrap" }}>{c.t}</span>
                   {verified && <span style={{ fontSize: 12, fontWeight: 900, color: okc ? "#06381f" : "#fff" }}>{okc ? "✓" : "✗"}</span>}
                 </button>
               );
@@ -2079,7 +2085,7 @@ function ResultsScreen({ app, setApp, go }) {
 
           <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <button className="ed-btn ed-btn-ghost" onClick={() => window.print()} style={{ padding: "0 10px", fontSize: 13, height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>IMPRIMIR REPORTE</button>
-            <button className="ed-btn ed-btn-primary" onClick={() => go("home")} style={{ padding: "0 10px", fontSize: 13, height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>VOLVER A LOS LIBROS</button>
+            <button className="ed-btn ed-btn-primary" onClick={() => go("game")} style={{ padding: "0 10px", fontSize: 13, height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>VOLVER AL JUEGO</button>
           </div>
         </div>
       </div>
