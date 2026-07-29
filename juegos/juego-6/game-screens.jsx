@@ -1471,12 +1471,16 @@ function R3Mapa({ onSolve, verifyRef }) {
   function up(e) {
     if (!drag) return;
     const cid = drag.cid, moved = startRef.current.moved;
-    const destino = slotCercano(e.clientX, e.clientY);
     setDrag(null);
+    // Un TOQUE (sin mover) solo ELIGE la ficha. Ojo: no se puede buscar destino aquí —
+    // la bandeja queda a ~60 px del recuadro de abajo y, con el margen tolerante, tocar
+    // una ficha la mandaba sola al recuadro SUR. Solo se suelta si de verdad arrastró.
+    if (!moved) { setSel((s) => (s === cid ? null : cid)); return; }
+    const destino = slotCercano(e.clientX, e.clientY);
     if (destino) { poner(destino, cid); return; }
-    // Si arrastró pero soltó lejos, la ficha queda ELEGIDA: solo tiene que tocar el
-    // recuadro. Antes se perdía el gesto entero y parecía que el juego no respondía.
-    setSel((s) => (s === cid && !moved ? null : cid));
+    // Arrastró pero soltó lejos: la ficha queda ELEGIDA, solo tiene que tocar el recuadro.
+    // Antes se perdía el gesto entero y parecía que el juego no respondía.
+    setSel(cid);
   }
 
   function verificar() {
@@ -2032,20 +2036,22 @@ const L5_ORDEN_NS = ["carchi", "imbabura", "pichincha", "cotopaxi", "tungurahua"
 function l5Prov(id) { return L5_PROVINCIAS.find((p) => p.id === id); }
 
 // R1 — lugar/atractivo ÚNICO por provincia (textual del libro) → provincia.
-// `slug` → foto opcional en assets/l5-<slug>.(jpg|png|jpeg|webp); si falta, cae al emoji.
-// La autora pone FOTOS REALES (paisajes/monumentos, sin caras); prefijo l5- propio del
-// Libro 5 para no chocar con `lugar-<slug>` del Tema 3.
+// `slug` → foto en assets/l5-<slug>.(jpg|png|jpeg|webp). La autora pone FOTOS REALES
+// (paisajes/monumentos, sin caras); prefijo l5- propio del Libro 5.
+// `foto: true` = ese lugar YA tiene su archivo subido. La R1 SOLO pregunta por los que
+// tienen `foto` (decisión de la autora: que siempre salga imagen, nunca emoji).
+// ➜ Al subir una foto nueva, ponerle `foto: true` a ese lugar para que entre a la R1.
 const L5_LUGARES = [
-  { t: "Laguna Verde", e: "🏞️", prov: "carchi", slug: "laguna-verde" }, { t: "Bosque de Polylepis", e: "🌲", prov: "carchi", slug: "bosque-polylepis" },
-  { t: "Mercado de ponchos de Otavalo", e: "🧶", prov: "imbabura", slug: "otavalo" }, { t: "Laguna de Mojanda", e: "🏞️", prov: "imbabura", slug: "mojanda" }, { t: "Cascada de Peguche", e: "💧", prov: "imbabura", slug: "peguche" },
-  { t: "Mitad del Mundo", e: "🌐", prov: "pichincha", slug: "mitad-del-mundo" }, { t: "Centro histórico de Quito", e: "🏛️", prov: "pichincha", slug: "quito" }, { t: "Mindo", e: "🦋", prov: "pichincha", slug: "mindo" },
-  { t: "Volcán Cotopaxi", e: "🌋", prov: "cotopaxi", slug: "cotopaxi" }, { t: "Laguna del Quilotoa", e: "🌋", prov: "cotopaxi", slug: "quilotoa" }, { t: "El Boliche", e: "🚂", prov: "cotopaxi", slug: "el-boliche" },
-  { t: "Baños de Agua Santa", e: "♨️", prov: "tungurahua", slug: "banos" }, { t: "Fiesta de las Flores y las Frutas", e: "🌸", prov: "tungurahua", slug: "flores-frutas" }, { t: "Parque Nacional Sangay", e: "🌋", prov: "tungurahua", slug: "sangay" },
-  { t: "Guano, capital artesanal", e: "🧵", prov: "chimborazo", slug: "guano" }, { t: "Laguna de Colta", e: "🏞️", prov: "chimborazo", slug: "colta" },
-  { t: "Minas de sal de Salinas", e: "🧂", prov: "bolivar", slug: "salinas" }, { t: "Guaranda, las siete colinas", e: "⛰️", prov: "bolivar", slug: "guaranda" },
-  { t: "Ruinas de Ingapirca", e: "🏛️", prov: "canar", slug: "ingapirca" }, { t: "Laguna de Culebrillas", e: "🏞️", prov: "canar", slug: "culebrillas" },
-  { t: "Cuenca, Patrimonio Cultural", e: "⛪", prov: "azuay", slug: "cuenca" }, { t: "Parque Nacional Cajas", e: "🏞️", prov: "azuay", slug: "cajas" }, { t: "Chordeleg y sus artesanías", e: "💍", prov: "azuay", slug: "chordeleg" },
-  { t: "Vilcabamba", e: "🌿", prov: "loja", slug: "vilcabamba" }, { t: "Virgen de El Cisne", e: "⛪", prov: "loja", slug: "el-cisne" }, { t: "Bosque petrificado de Puyango", e: "🪵", prov: "loja", slug: "puyango" },
+  { t: "Laguna Verde", e: "🏞️", prov: "carchi", slug: "laguna-verde" }, { t: "Bosque de Polylepis", e: "🌲", prov: "carchi", slug: "bosque-polylepis", foto: true },
+  { t: "Mercado de ponchos de Otavalo", e: "🧶", prov: "imbabura", slug: "otavalo", foto: true }, { t: "Laguna de Mojanda", e: "🏞️", prov: "imbabura", slug: "mojanda" }, { t: "Cascada de Peguche", e: "💧", prov: "imbabura", slug: "peguche" },
+  { t: "Mitad del Mundo", e: "🌐", prov: "pichincha", slug: "mitad-del-mundo", foto: true }, { t: "Centro histórico de Quito", e: "🏛️", prov: "pichincha", slug: "quito" }, { t: "Mindo", e: "🦋", prov: "pichincha", slug: "mindo" },
+  { t: "Volcán Cotopaxi", e: "🌋", prov: "cotopaxi", slug: "cotopaxi" }, { t: "Laguna del Quilotoa", e: "🌋", prov: "cotopaxi", slug: "quilotoa", foto: true }, { t: "El Boliche", e: "🚂", prov: "cotopaxi", slug: "el-boliche" },
+  { t: "Baños de Agua Santa", e: "♨️", prov: "tungurahua", slug: "banos", foto: true }, { t: "Fiesta de las Flores y las Frutas", e: "🌸", prov: "tungurahua", slug: "flores-frutas" }, { t: "Parque Nacional Sangay", e: "🌋", prov: "tungurahua", slug: "sangay" },
+  { t: "Guano, capital artesanal", e: "🧵", prov: "chimborazo", slug: "guano" }, { t: "Laguna de Colta", e: "🏞️", prov: "chimborazo", slug: "colta", foto: true },
+  { t: "Minas de sal de Salinas", e: "🧂", prov: "bolivar", slug: "salinas", foto: true }, { t: "Guaranda, las siete colinas", e: "⛰️", prov: "bolivar", slug: "guaranda" },
+  { t: "Ruinas de Ingapirca", e: "🏛️", prov: "canar", slug: "ingapirca", foto: true }, { t: "Laguna de Culebrillas", e: "🏞️", prov: "canar", slug: "culebrillas" },
+  { t: "Cuenca, Patrimonio Cultural", e: "⛪", prov: "azuay", slug: "cuenca", foto: true }, { t: "Parque Nacional Cajas", e: "🏞️", prov: "azuay", slug: "cajas" }, { t: "Chordeleg y sus artesanías", e: "💍", prov: "azuay", slug: "chordeleg" },
+  { t: "Vilcabamba", e: "🌿", prov: "loja", slug: "vilcabamba", foto: true }, { t: "Virgen de El Cisne", e: "⛪", prov: "loja", slug: "el-cisne", foto: true }, { t: "Bosque petrificado de Puyango", e: "🪵", prov: "loja", slug: "puyango" },
 ];
 const L5_IMG_EXTS = ["jpg", "png", "jpeg", "webp"];
 function L5Foto({ slug, emoji, size = 140 }) {
@@ -2073,9 +2079,10 @@ const L5_R1_KEY = "edinun_juego6_l5t1_r1_v1";
 const L5_R2_KEY = "edinun_juego6_l5t1_r2_v1";
 const L5_R3_KEY = "edinun_juego6_l5t1_r3_v1";
 function l5R1Build() {
-  const recent = new Set(l3t2Recent(L5_R1_KEY)), all = L5_LUGARES.map((_, i) => i);
+  // Solo lugares CON foto (l.foto): así la R1 siempre muestra imagen, nunca emoji.
+  const recent = new Set(l3t2Recent(L5_R1_KEY)), all = L5_LUGARES.map((l, i) => (l.foto ? i : -1)).filter((i) => i >= 0);
   const idx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
-  l3t2Push(L5_R1_KEY, idx, 10);
+  l3t2Push(L5_R1_KEY, idx, 6);
   const lugar = L5_LUGARES[idx], correct = lugar.prov;
   const distract = l3Shuffle(L5_PROVINCIAS.filter((p) => p.id !== correct)).slice(0, 3);
   const opts = l3Shuffle([l5Prov(correct)].concat(distract));

@@ -232,9 +232,11 @@ y cae al emoji si falta; prefijo `l5-` propio, NO reusa `lugar-<slug>` del Tema 
 fotos **NO se generan con IA** (decisión de la autora): salen de las **fotos del propio
 libro** (EDINUN) + **Wikimedia Commons** (licencia libre). Subidas (11 → **las 10
 provincias tienen al menos una foto**): `quilotoa, otavalo, mitad-del-mundo, ingapirca,
-cuenca, vilcabamba, banos, bosque-polylepis, colta, salinas, el-cisne`; el resto de
-lugares (15) siguen en emoji. ⚠ Nombrar en **minúscula** (`.jpg`, no `.JPG`) — producción es
-Linux y distingue mayúsculas. Diseño en `.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
+cuenca, vilcabamba, banos, bosque-polylepis, colta, salinas, el-cisne`. **La R1 SOLO
+pregunta por los lugares con `foto: true`** (decisión de la autora: que SIEMPRE salga
+imagen, nunca emoji) — los 15 lugares sin foto no entran a la R1. ➜ Al subir una foto
+nueva, marcar ese lugar con `foto: true` en `L5_LUGARES` para que entre. ⚠ Nombrar en
+**minúscula** (`.jpg`, no `.JPG`) — producción es Linux y distingue mayúsculas. Diseño en `.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
 distintas** (6263 y 6310 m) → **no se usa la altura exacta** como respuesta. **Verificado:**
 overflow 0 en las 3 rondas; e2e (R1→R2→R3→reporte) sin errores; anti-repetición 0
 repeticiones consecutivas; format-lint 15/15.
