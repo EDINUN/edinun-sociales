@@ -220,11 +220,15 @@ defecto **Andi**. Sub-componentes:
   se corre a la izquierda, pastilla dorada al lado de cada tarjeta mal ubicada). 3
   provincias por ronda, orden correcto = índice en `L5_ORDEN_NS` (el orden textual del
   libro). Reusa `L3T2_CARD_COLORS`.
-- **R3 `PR3Empareja` — EMPAREJAR pueblo↔provincia.** Dos columnas; **toca un pueblo, toca
-  su provincia** → se enlazan con **color + número** (`L5_PAIR_COLORS`). ¡VERIFICAR!: ✓/✗
-  por pueblo y, en los fallados, se revela **"va con {provincia}"** en dorado. Banco
-  `L5_PUEBLOS` (7 pueblos/nacionalidades del libro; **se excluye "Cañari"** porque el libro
-  lo asigna a Cañar Y Azuay → sería ambiguo emparejar).
+- **R3 `PR3Empareja` — EMPAREJAR vestimenta↔pueblo.** Izquierda: **fotos reales del traje
+  típico** (`assets/l5-pueblo-<slug>.jpg`); derecha: el **nombre del pueblo + su provincia**
+  como etiqueta (dato del libro, no se pierde). **Toca un traje, toca su pueblo** → se
+  enlazan con **color + número** (`L5_PAIR_COLORS`). ¡VERIFICAR!: ✓/✗ por traje y, en los
+  fallados, se revela el pueblo correcto en dorado. Banco `L5_PUEBLOS` (7 del libro; la R3
+  SOLO usa los que tienen `vest: true` = con foto de traje → muestra 3 por ronda). Fotos
+  **REALES, NO IA** (la ropa tradicional es de culturas reales; generarla sería inexacto).
+  Subidas (4): `otavalo, saraguro, salasaka, cayambi`. **"Cañari" queda fuera** (el libro lo
+  asigna a Cañar Y Azuay → ambiguo).
 
 Anti-repetición por ronda (`L5_R1/R2/R3_KEY`, sobre el FIFO genérico `l3t2Recent/Push`).
 **R1 con FOTOS REALES opcionales** (`L5Foto` prueba `assets/l5-<slug>.(jpg|png|jpeg|webp)`

@@ -1831,7 +1831,7 @@ function R2Ruleta({ onSolve, verifyRef }) {
   const [drag, setDrag] = useStateG(null); // { t, dx, dy } — arrastrando HACIA la maleta
   const [dragOut, setDragOut] = useStateG(null); // { t, dx, dy } — sacando de la maleta
   const startRef = useRefG({ x: 0, y: 0, moved: false });
-  const outRef = useRefG({ x: 0, y: 0, moved: false });
+  const outRef = useRefG({ x: 0, y: 0, moved: false, id: null });
   const bagRef = useRefG(null);
   const R = L3T2_REGIONES[built.target];
   const targetIdx = L3T2_REG_IDS.indexOf(built.target);
@@ -2014,9 +2014,11 @@ function R3Mapa({ onSolve, verifyRef }) {
   const [placed, setPlaced] = useStateG(() => ({}));   // { slotId: cardinalId }
   const [sel, setSel] = useStateG(null);               // ficha elegida (modo tocar)
   const [verified, setVerified] = useStateG(false);
-  const [drag, setDrag] = useStateG(null);
+  const [drag, setDrag] = useStateG(null);       // arrastrando una ficha HACIA un recuadro
+  const [dragOut, setDragOut] = useStateG(null); // sacando una ficha YA colocada
   const slotRefs = useRefG({});
   const startRef = useRefG({ x: 0, y: 0, moved: false });
+  const outRef = useRefG({ x: 0, y: 0, moved: false, id: null });
   const puestas = Object.keys(placed).map((k) => placed[k]);
   const CARD = {}; L3T3_CARDINALES.forEach((c) => { CARD[c.id] = c; });
 
@@ -2030,10 +2032,42 @@ function R3Mapa({ onSolve, verifyRef }) {
     });
     setSel(null);
   }
+  function quitarSlot(slotId) {
+    setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; });
+  }
   function tapSlot(slotId) {
     if (verified) return;
-    if (placed[slotId]) { setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; }); return; }
+    if (placed[slotId]) { quitarSlot(slotId); return; }
     if (sel) poner(slotId, sel);
+  }
+  // ── Sacar del recuadro ARRASTRANDO hacia afuera (además del toque) ──
+  // Mismo gesto que en la maleta de R2, para que el niño no tenga que aprender dos formas.
+  // El gesto se sigue por REF (`outRef.id`), no por estado: al soltar hay que decidir con
+  // datos del momento y el estado puede venir de un render viejo.
+  function slotDown(e, slotId) {
+    if (verified || !placed[slotId]) return;   // recuadro vacío → no hay nada que sacar
+    outRef.current = { x: e.clientX, y: e.clientY, moved: false, id: slotId };
+    setDragOut({ id: slotId, dx: 0, dy: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+  }
+  function slotMove(e) {
+    if (!outRef.current.id) return;
+    const dx = e.clientX - outRef.current.x, dy = e.clientY - outRef.current.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) outRef.current.moved = true;
+    setDragOut({ id: outRef.current.id, dx, dy });
+  }
+  function slotUp(e, slotId) {
+    if (verified) return;
+    if (outRef.current.id !== slotId) { tapSlot(slotId); return; }   // vacío → recibe la elegida
+    const moved = outRef.current.moved;
+    // OJO: medir con `slotRefs`, NO con `e.currentTarget` — con pointer capture el
+    // currentTarget no siempre es el recuadro y "¿soltó fuera?" salía siempre que no.
+    const el = slotRefs.current[slotId];
+    const r = el ? el.getBoundingClientRect() : { left: 0, right: 0, top: 0, bottom: 0 };
+    const dentro = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    outRef.current = { x: 0, y: 0, moved: false, id: null };
+    setDragOut(null);
+    if (!moved || !dentro) quitarSlot(slotId);   // toque = sacar; arrastrada FUERA = sacar
   }
   // ── Soltar TOLERANTE (7 años) ──────────────────────────────────────────────
   // Antes solo valía si el cursor caía DENTRO del recuadro (96×42): si el niño soltaba
@@ -2093,12 +2127,17 @@ function R3Mapa({ onSolve, verifyRef }) {
   verifyRef.current = verificar;
 
   // Recuadro donde se suelta cada punto cardinal.
-  function Slot({ c }) {
+  // ⚠ Es una FUNCIÓN QUE DEVUELVE JSX, no un componente: declarar un componente dentro de
+  // otro crea un tipo nuevo en cada render, y React desmonta y vuelve a montar el <div>.
+  // Eso hacía perder el `setPointerCapture` a media arrastrada y el gesto de "sacar
+  // arrastrando" nunca llegaba a su `pointerup`. Con una función normal el div es estable.
+  function renderSlot(c) {
     const cid = placed[c.id], ok = verified && cid === c.id;
     // `apuntado` = el recuadro al que va a caer la ficha que se está arrastrando, o el
     // que recibirá la ficha ya elegida a toque. Se ilumina para que el niño lo vea ANTES
     // de soltar: sin esta pista el arrastre se sentía "que no responde".
     const apuntado = !verified && ((drag && drag.sobre === c.id) || (!drag && sel && !cid));
+    const sacando = dragOut && dragOut.id === c.id;   // se está tirando la ficha hacia afuera
     let border = cid ? "#4fa0ff" : "rgba(242,194,96,0.75)", bg = cid ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "rgba(255,255,255,0.10)", ink = "#0f2a55";
     if (verified) {
       border = ok ? "#2ecc8f" : "#ff6b6b";
@@ -2109,10 +2148,11 @@ function R3Mapa({ onSolve, verifyRef }) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
         <div className="ed-label" style={{ fontSize: 10, color: enfoque ? "#fce9a8" : "rgba(255,255,255,0.62)", letterSpacing: "0.05em", whiteSpace: "nowrap", transition: "color 0.12s" }}>{c.vecino}</div>
-        <div ref={(el) => { slotRefs.current[c.id] = el; }} onClick={() => tapSlot(c.id)}
-          style={{ width: 96, height: 42, borderRadius: 12, border: `3px ${cid ? "solid" : "dashed"} ${enfoque ? "#fce9a8" : (apuntado ? "#7ab8ff" : border)}`, background: enfoque ? "rgba(252,233,168,0.28)" : (apuntado ? "rgba(122,184,255,0.18)" : bg), display: "flex", alignItems: "center", justifyContent: "center", gap: 5, cursor: verified ? "default" : "pointer", transform: enfoque ? "scale(1.09)" : "none", transition: "transform 0.12s, background 0.12s, border-color 0.12s", boxShadow: enfoque ? "0 0 16px rgba(252,233,168,0.75)" : (cid ? "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)" : "none") }}>
+        <div ref={(el) => { slotRefs.current[c.id] = el; }}
+          onPointerDown={(e) => slotDown(e, c.id)} onPointerMove={slotMove} onPointerUp={(e) => slotUp(e, c.id)}
+          style={{ width: 96, height: 42, borderRadius: 12, border: `3px ${cid ? "solid" : "dashed"} ${enfoque ? "#fce9a8" : (apuntado ? "#7ab8ff" : border)}`, background: enfoque ? "rgba(252,233,168,0.28)" : (apuntado ? "rgba(122,184,255,0.18)" : bg), display: "flex", alignItems: "center", justifyContent: "center", gap: 5, cursor: verified ? "default" : (cid ? "grab" : "pointer"), touchAction: "none", userSelect: "none", transform: enfoque ? "scale(1.09)" : "none", transition: "transform 0.12s, background 0.12s, border-color 0.12s", boxShadow: enfoque ? "0 0 16px rgba(252,233,168,0.75)" : (cid ? "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)" : "none") }}>
           {verified && <span style={{ fontSize: 15, fontWeight: 900, color: ink }}>{ok ? "✓" : "✗"}</span>}
-          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, letterSpacing: "0.04em", color: cid ? ink : "rgba(255,255,255,0.35)" }}>{cid ? CARD[cid].t : "?"}</span>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, letterSpacing: "0.04em", color: cid ? ink : "rgba(255,255,255,0.35)", transform: sacando ? `translate(${dragOut.dx}px, ${dragOut.dy}px)` : "none", transition: sacando ? "none" : "transform 0.15s ease", pointerEvents: "none" }}>{cid ? CARD[cid].t : "?"}</span>
         </div>
         {/* Al fallar, revela cuál iba aquí (dorado, no verde: no lo acertó) */}
         {verified && !ok && (
@@ -2132,11 +2172,11 @@ function R3Mapa({ onSolve, verifyRef }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "116px 172px 116px", gap: 8, alignItems: "center", justifyItems: "center" }}>
-        <div /><Slot c={L3T3_CARDINALES[0]} /><div />
-        <Slot c={L3T3_CARDINALES[3]} />
+        <div />{renderSlot(L3T3_CARDINALES[0])}<div />
+        {renderSlot(L3T3_CARDINALES[3])}
         <L3T3MapaEcuador w={168} h={168} />
-        <Slot c={L3T3_CARDINALES[2]} />
-        <div /><Slot c={L3T3_CARDINALES[1]} /><div />
+        {renderSlot(L3T3_CARDINALES[2])}
+        <div />{renderSlot(L3T3_CARDINALES[1])}<div />
       </div>
 
       {/* Fichas por colocar. Cuando ya están las 4, la fila de huecos vacíos no dice nada
@@ -2259,7 +2299,7 @@ function ViajeGame({ app, setApp, go }) {
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-            {round === 0 ? (<>Voltea dos cartas y<br />busca la pareja.</>) : round === 1 ? (<>Gira la ruleta y luego<br />arrastra las cosas<br />a la maleta.</>) : (<>Arrastra cada punto<br />a su lugar.</>)}
+            {round === 0 ? (<>Voltea dos cartas y<br />busca la pareja.</>) : round === 1 ? (<>Gira la ruleta y luego<br />arrastra las tarjetas<br />a la maleta.</>) : (<>Arrastra cada punto<br />a su lugar.</>)}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>
@@ -2661,13 +2701,17 @@ function L5Foto({ slug, emoji, size = 140 }) {
   return <img src={`assets/l5-${slug}.${L5_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)} style={{ width: size, height: size, objectFit: "cover", borderRadius: 12, display: "block", boxShadow: "0 6px 16px rgba(0,0,0,0.3)" }} />;
 }
 
-// R3 — pueblo/nacionalidad → provincia (lista textual del libro). Se excluye "Cañari"
-// (el libro lo asigna a Cañar Y Azuay → ambiguo para emparejar).
+// R3 — pueblo/nacionalidad de la Sierra (lista textual del libro). Se empareja la
+// VESTIMENTA (foto real del traje, assets/l5-pueblo-<slug>.jpg) con su pueblo. `vest: true`
+// = ese pueblo ya tiene foto de traje → la R3 SOLO usa esos (así siempre hay imagen). La
+// provincia se muestra como ETIQUETA (dato del libro, no se pierde). "Cañari" queda fuera
+// (el libro lo asigna a Cañar Y Azuay → ambiguo). ➜ Al subir una vestimenta nueva, poner
+// `vest: true` a ese pueblo. Fotos REALES (no IA): la ropa tradicional es de culturas reales.
 const L5_PUEBLOS = [
-  { pueblo: "Otavalo", prov: "imbabura" }, { pueblo: "Cayambi", prov: "pichincha" },
-  { pueblo: "Panzaleo", prov: "cotopaxi" }, { pueblo: "Salasaka", prov: "tungurahua" },
-  { pueblo: "Waranka", prov: "bolivar" }, { pueblo: "Puruwá", prov: "chimborazo" },
-  { pueblo: "Saraguro", prov: "loja" },
+  { pueblo: "Otavalo", prov: "imbabura", slug: "otavalo", vest: true }, { pueblo: "Cayambi", prov: "pichincha", slug: "cayambi", vest: true },
+  { pueblo: "Panzaleo", prov: "cotopaxi", slug: "panzaleo" }, { pueblo: "Salasaka", prov: "tungurahua", slug: "salasaka", vest: true },
+  { pueblo: "Waranka", prov: "bolivar", slug: "waranka" }, { pueblo: "Puruwá", prov: "chimborazo", slug: "puruwa" },
+  { pueblo: "Saraguro", prov: "loja", slug: "saraguro", vest: true },
 ];
 const L5_PAIR_COLORS = [
   { dot: "#4f8fef", ring: "rgba(79,143,239,0.9)", bg: "linear-gradient(180deg, #dbeafe, #a9cbff)", ink: "#0f2a55" },
@@ -2699,12 +2743,14 @@ function l5R2Build() {
   return { cards: trio.map((id) => l5Prov(id)) }; // ya en orden N→S (índice 0 = más al norte)
 }
 function l5R3Build() {
-  const recent = new Set(l3t2Recent(L5_R3_KEY)), all = L5_PUEBLOS.map((_, i) => i);
+  // Solo pueblos CON vestimenta (vest): empareja la foto del traje ↔ el pueblo.
+  const withVest = L5_PUEBLOS.filter((p) => p.vest);
+  const recent = new Set(l3t2Recent(L5_R3_KEY)), all = withVest.map((_, i) => i);
   const chosen = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i)))).slice(0, 3);
-  chosen.forEach((i) => l3t2Push(L5_R3_KEY, i, 4));
-  const pueblos = chosen.map((i) => L5_PUEBLOS[i]);
-  const provs = l3Shuffle(pueblos.map((p) => l5Prov(p.prov)));
-  return { pueblos, provs };
+  chosen.forEach((i) => l3t2Push(L5_R3_KEY, i, 3));
+  const trajes = chosen.map((i) => withVest[i]);   // panel izquierdo (vestimentas), en este orden
+  const nombres = l3Shuffle(trajes.slice());        // panel derecho (nombres del pueblo), barajado
+  return { trajes, nombres };
 }
 
 // ── R1: ¿de qué provincia es este lugar? (tocar 1 de 4) ──
@@ -2815,59 +2861,59 @@ function PR2OrdenNS({ onSolve, verifyRef }) {
 // ── R3: empareja el pueblo con su provincia (unir por color/número + VERIFICAR) ──
 function PR3Empareja({ onSolve, verifyRef }) {
   const [build] = useStateG(() => l5R3Build());
-  const pueblos = build.pueblos, provs = build.provs;
-  const [sel, setSel] = useStateG(null);
-  const [pairs, setPairs] = useStateG({});
+  const trajes = build.trajes, nombres = build.nombres;
+  const [sel, setSel] = useStateG(null);       // índice del TRAJE (izquierda) seleccionado
+  const [pairs, setPairs] = useStateG({});      // trajeIdx -> slug del pueblo elegido
   const [verified, setVerified] = useStateG(false);
-  function tapPueblo(i) { if (verified) return; setSel(i === sel ? null : i); }
-  function tapProv(provId) {
+  function tapTraje(i) { if (verified) return; setSel(i === sel ? null : i); }
+  function tapPueblo(slug) {
     if (verified || sel === null) return;
-    setPairs((prev) => { const next = {}; Object.keys(prev).forEach((k) => { if (prev[k] !== provId) next[k] = prev[k]; }); next[sel] = provId; return next; });
+    setPairs((prev) => { const next = {}; Object.keys(prev).forEach((k) => { if (prev[k] !== slug) next[k] = prev[k]; }); next[sel] = slug; return next; });
     setSel(null);
   }
   function verificar() {
     if (verified) return;
     setVerified(true);
-    const ok = pueblos.every((p, i) => pairs[i] === p.prov);
-    onSolve(ok, { emoji: "🔗", a: "Une el pueblo con su provincia", userAnswer: pueblos.map((p, i) => `${p.pueblo}→${pairs[i] ? l5Prov(pairs[i]).t : "?"}`).join(", "), correctAnswer: pueblos.map((p) => `${p.pueblo}→${l5Prov(p.prov).t}`).join(", ") });
+    const ok = trajes.every((t, i) => pairs[i] === t.slug);
+    onSolve(ok, { emoji: "🧵", a: "Une la vestimenta con su pueblo", userAnswer: trajes.map((t, i) => `${t.pueblo}→${pairs[i] || "?"}`).join(", "), correctAnswer: trajes.map((t) => `${t.pueblo}→${t.pueblo}`).join(", ") });
   }
   verifyRef.current = verificar;
-  function provPairedBy(provId) { const k = Object.keys(pairs).find((kk) => pairs[kk] === provId); return k === undefined ? null : Number(k); }
+  function puebloPairedBy(slug) { const k = Object.keys(pairs).find((kk) => pairs[kk] === slug); return k === undefined ? null : Number(k); }
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une el pueblo con su provincia</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une la vestimenta con su pueblo</div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 34, justifyContent: "center" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {pueblos.map((p, i) => {
+      <div style={{ display: "flex", alignItems: "center", gap: 40, justifyContent: "center" }}>
+        {/* Izquierda: VESTIMENTAS (fotos reales del traje) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {trajes.map((t, i) => {
             const pal = L5_PAIR_COLORS[i], paired = pairs[i] !== undefined, selected = sel === i;
-            const correct = verified && pairs[i] === p.prov, wrong = verified && !correct;
-            let border = paired ? pal.dot : "#f2c260", bg = paired ? pal.bg : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = paired ? pal.ink : "#3a2608";
-            if (verified) { if (correct) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; col = "#06381f"; } else { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; col = "#fff"; } }
+            const correct = verified && pairs[i] === t.slug, wrong = verified && !correct;
+            let border = paired ? pal.dot : "#f2c260";
+            if (verified) border = correct ? "#2ecc8f" : "#ff6b6b";
             return (
-              <button key={i} onClick={() => tapPueblo(i)} disabled={verified}
-                style={{ position: "relative", width: 176, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: verified ? "default" : "pointer", display: "flex", alignItems: "center", gap: 8, padding: "0 12px", boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.03)" : "none", transition: "all 0.12s ease" }}>
-                <span style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: paired ? pal.dot : "rgba(58,38,8,0.15)", color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>{paired ? i + 1 : ""}</span>
-                <div style={{ textAlign: "left", lineHeight: 1.02, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: col }}>{p.pueblo}</div>
-                  {wrong && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 10, color: "#ffe6a1" }}>va con {l5Prov(p.prov).t}</div>}
-                </div>
-                {verified && <span style={{ position: "absolute", top: -8, right: -6, fontSize: 15, fontWeight: 900, color: correct ? "#1f8a54" : "#c0392b", background: "#fff", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{correct ? "✓" : "✗"}</span>}
+              <button key={i} onClick={() => tapTraje(i)} disabled={verified}
+                style={{ position: "relative", width: 86, height: 86, borderRadius: 14, border: `3px solid ${border}`, background: "#fff", cursor: verified ? "default" : "pointer", padding: 0, overflow: "hidden", boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.04)" : "none", transition: "transform 0.12s ease" }}>
+                <img src={`assets/l5-pueblo-${t.slug}.jpg`} alt="" draggable="false" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                {paired && <span style={{ position: "absolute", top: -9, left: -9, width: 24, height: 24, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{i + 1}</span>}
+                {verified && <span style={{ position: "absolute", top: -9, right: -9, fontSize: 15, fontWeight: 900, color: correct ? "#1f8a54" : "#c0392b", background: "#fff", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{correct ? "✓" : "✗"}</span>}
+                {wrong && <span style={{ position: "absolute", bottom: -11, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "2px solid #e0a72c", borderRadius: 999, padding: "1px 9px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, color: "#5a3d0a", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>{t.pueblo}</span>}
               </button>
             );
           })}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {provs.map((pr) => {
-            const by = provPairedBy(pr.id), pal = by === null ? null : L5_PAIR_COLORS[by], canTap = sel !== null && !verified;
+        {/* Derecha: PUEBLO (nombre + provincia como etiqueta del libro) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {nombres.map((p) => {
+            const by = puebloPairedBy(p.slug), pal = by === null ? null : L5_PAIR_COLORS[by], canTap = sel !== null && !verified;
             let border = pal ? pal.dot : "#f2c260", bg = pal ? pal.bg : "linear-gradient(180deg, #fff8e6, #f7e3a8)", col = pal ? pal.ink : "#3a2608";
             return (
-              <button key={pr.id} onClick={() => tapProv(pr.id)} disabled={verified || sel === null}
-                style={{ position: "relative", width: 176, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: canTap ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: canTap ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28), 0 0 0 2px rgba(242,194,96,0.55)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
-                <span style={{ fontSize: 22, lineHeight: 1 }}>{pr.e}</span>
-                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: col }}>{pr.t}</span>
-                {by !== null && <span style={{ position: "absolute", top: -8, left: -6, width: 22, height: 22, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{by + 1}</span>}
+              <button key={p.slug} onClick={() => tapPueblo(p.slug)} disabled={verified || sel === null}
+                style={{ position: "relative", width: 188, height: 86, borderRadius: 14, border: `3px solid ${border}`, background: bg, cursor: canTap ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, boxShadow: canTap ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28), 0 0 0 2px rgba(242,194,96,0.55)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: col }}>{p.pueblo}</span>
+                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: col, opacity: 0.82 }}>{l5Prov(p.prov).e} {l5Prov(p.prov).t}</span>
+                {by !== null && <span style={{ position: "absolute", top: -9, left: -9, width: 24, height: 24, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{by + 1}</span>}
               </button>
             );
           })}
@@ -2948,7 +2994,7 @@ function InterandinaGame({ app, setApp, go }) {
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-            {round === 0 ? "Toca su provincia." : round === 1 ? (<>Ordena de<br />norte a sur.</>) : (<>Une el pueblo<br />y su provincia.</>)}
+            {round === 0 ? "Toca su provincia." : round === 1 ? (<>Ordena de<br />norte a sur.</>) : (<>Une el traje<br />con su pueblo.</>)}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>

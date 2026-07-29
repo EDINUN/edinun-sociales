@@ -10,7 +10,7 @@ Sierra ecuatoriana, recorridas de norte a sur). Componente: `InterandinaGame`
 |---|---|---|
 | R1 `PR1Provincia` | **Tocar 1 de 4** | "¿De qué provincia es {lugar}?" → toca la provincia correcta |
 | R2 `PR2OrdenNS` | **Arrastrar (ordenar)** | Ordena 3 provincias de NORTE a SUR |
-| R3 `PR3Empareja` | **Emparejar** | Une cada pueblo con su provincia (color + número) + ¡VERIFICAR! |
+| R3 `PR3Empareja` | **Emparejar** | Une la **vestimenta** (foto real del traje) con su **pueblo** (nombre + provincia de etiqueta) + ¡VERIFICAR! · solo pueblos con `vest`/foto |
 
 - Chrome compartido con `TerritorioGame`: HUD, RONDA (3 dots), personaje+bocadillo,
   acciones (¡VERIFICAR! en R2/R3), overlay ¡EXCELENTE!/¡UPS! con **+1 ⭐**, reporte 3 filas.
