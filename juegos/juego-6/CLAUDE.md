@@ -223,9 +223,13 @@ defecto **Andi**. Sub-componentes:
   lo asigna a Cañar Y Azuay → sería ambiguo emparejar).
 
 Anti-repetición por ronda (`L5_R1/R2/R3_KEY`, sobre el FIFO genérico `l3t2Recent/Push`).
-**Solo emoji, SIN imágenes** (decisión de la autora, 2026-07-28: *"no debo generar
-imágenes"*) — no se añaden fotos. Diseño en
-`.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
+**R1 con FOTOS REALES opcionales** (`L5Foto` prueba `assets/l5-<slug>.(jpg|png|jpeg|webp)`
+y cae al emoji si falta; prefijo `l5-` propio, NO reusa `lugar-<slug>` del Tema 3). Las
+fotos **NO se generan con IA** (decisión de la autora): salen de las **fotos del propio
+libro** (EDINUN) + **Wikimedia Commons** (licencia libre). Subidas hasta ahora (6):
+`quilotoa, otavalo, mitad-del-mundo, ingapirca, cuenca, vilcabamba`; el resto de lugares
+(20) siguen en emoji. ⚠ Nombrar en **minúscula** (`.jpg`, no `.JPG`) — producción es
+Linux y distingue mayúsculas. Diseño en `.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
 distintas** (6263 y 6310 m) → **no se usa la altura exacta** como respuesta. **Verificado:**
 overflow 0 en las 3 rondas; e2e (R1→R2→R3→reporte) sin errores; anti-repetición 0
 repeticiones consecutivas; format-lint 15/15.

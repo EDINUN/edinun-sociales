@@ -33,8 +33,11 @@ Sierra ecuatoriana, recorridas de norte a sur). Componente: `InterandinaGame`
 
 ## Decisiones / avisos
 
-- **Imágenes:** **solo emoji, SIN imágenes** — decisión de la autora (2026-07-28:
-  *"no debo generar imágenes"*). No se añaden fotos a este tema.
+- **Imágenes:** R1 usa **FOTOS REALES opcionales** (`L5Foto`: prueba `assets/l5-<slug>.
+  (jpg|png|jpeg|webp)`, cae al emoji si falta). **NO se generan con IA** — salen de las
+  **fotos del libro** (EDINUN, sin líos de derechos) + **Wikimedia Commons** (licencia
+  libre). Subidas: `quilotoa, otavalo, mitad-del-mundo, ingapirca, cuenca, vilcabamba`;
+  el resto en emoji. ⚠ Extensión en **minúscula** (producción Linux distingue mayúsculas).
 - ⚠ **Chimborazo:** el libro trae **dos alturas** distintas (pág. 56 = 6263 m, pág. 59 =
   6310 m). Para no meter un dato equivocado, **no se usa la altura exacta** en el juego.
 - Alternativa descartada para R3 (por ahora): clasificar Sierra Norte/Centro/Sur — el

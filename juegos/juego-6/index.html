@@ -1972,8 +1972,12 @@ function L3T3MapaEcuador({ w, h }) {
     );
   }
   return (
-    <img src={`assets/mapa-ecuador.${L3_IMG_EXTS[i]}`} alt="" draggable="false" onError={() => setI((k) => k + 1)}
-      style={{ width: w, height: h, objectFit: "contain", display: "block", flexShrink: 0, filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.45))" }} />
+    // Marco dorado como el resto de fichas EDINUN: el mapa es un JPG opaco, sin marco
+    // se veía como una calcomanía cuadrada pegada sobre el fieltro verde.
+    <div style={{ width: w, height: h, borderRadius: 16, overflow: "hidden", border: "3px solid #f2c260", flexShrink: 0, boxShadow: "0 10px 24px rgba(0,0,0,0.45)", background: "#dfe9f2" }}>
+      <img src={`assets/mapa-ecuador.${L3_IMG_EXTS[i]}`} alt="" draggable="false" onError={() => setI((k) => k + 1)}
+        style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+    </div>
   );
 }
 
@@ -2073,10 +2077,10 @@ function R3Mapa({ onSolve, verifyRef }) {
         ¿Dónde queda cada punto cardinal?
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "112px 138px 112px", gap: 6, alignItems: "center", justifyItems: "center" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "116px 172px 116px", gap: 8, alignItems: "center", justifyItems: "center" }}>
         <div /><Slot c={L3T3_CARDINALES[0]} /><div />
         <Slot c={L3T3_CARDINALES[3]} />
-        <L3T3MapaEcuador w={142} h={142} />
+        <L3T3MapaEcuador w={168} h={168} />
         <Slot c={L3T3_CARDINALES[2]} />
         <div /><Slot c={L3T3_CARDINALES[1]} /><div />
       </div>
@@ -2565,19 +2569,28 @@ const L5_ORDEN_NS = ["carchi", "imbabura", "pichincha", "cotopaxi", "tungurahua"
 function l5Prov(id) { return L5_PROVINCIAS.find((p) => p.id === id); }
 
 // R1 — lugar/atractivo ÚNICO por provincia (textual del libro) → provincia.
-// Solo emoji, SIN imágenes (decisión de la autora): la pista clave es el NOMBRE del lugar.
+// `slug` → foto opcional en assets/l5-<slug>.(jpg|png|jpeg|webp); si falta, cae al emoji.
+// La autora pone FOTOS REALES (paisajes/monumentos, sin caras); prefijo l5- propio del
+// Libro 5 para no chocar con `lugar-<slug>` del Tema 3.
 const L5_LUGARES = [
-  { t: "Laguna Verde", e: "🏞️", prov: "carchi" }, { t: "Bosque de Polylepis", e: "🌲", prov: "carchi" },
-  { t: "Mercado de ponchos de Otavalo", e: "🧶", prov: "imbabura" }, { t: "Laguna de Mojanda", e: "🏞️", prov: "imbabura" }, { t: "Cascada de Peguche", e: "💧", prov: "imbabura" },
-  { t: "Mitad del Mundo", e: "🌐", prov: "pichincha" }, { t: "Centro histórico de Quito", e: "🏛️", prov: "pichincha" }, { t: "Mindo", e: "🦋", prov: "pichincha" },
-  { t: "Volcán Cotopaxi", e: "🌋", prov: "cotopaxi" }, { t: "Laguna del Quilotoa", e: "🌋", prov: "cotopaxi" }, { t: "El Boliche", e: "🚂", prov: "cotopaxi" },
-  { t: "Baños de Agua Santa", e: "♨️", prov: "tungurahua" }, { t: "Fiesta de las Flores y las Frutas", e: "🌸", prov: "tungurahua" }, { t: "Parque Nacional Sangay", e: "🌋", prov: "tungurahua" },
-  { t: "Guano, capital artesanal", e: "🧵", prov: "chimborazo" }, { t: "Laguna de Colta", e: "🏞️", prov: "chimborazo" },
-  { t: "Minas de sal de Salinas", e: "🧂", prov: "bolivar" }, { t: "Guaranda, las siete colinas", e: "⛰️", prov: "bolivar" },
-  { t: "Ruinas de Ingapirca", e: "🏛️", prov: "canar" }, { t: "Laguna de Culebrillas", e: "🏞️", prov: "canar" },
-  { t: "Cuenca, Patrimonio Cultural", e: "⛪", prov: "azuay" }, { t: "Parque Nacional Cajas", e: "🏞️", prov: "azuay" }, { t: "Chordeleg y sus artesanías", e: "💍", prov: "azuay" },
-  { t: "Vilcabamba", e: "🌿", prov: "loja" }, { t: "Virgen de El Cisne", e: "⛪", prov: "loja" }, { t: "Bosque petrificado de Puyango", e: "🪵", prov: "loja" },
+  { t: "Laguna Verde", e: "🏞️", prov: "carchi", slug: "laguna-verde" }, { t: "Bosque de Polylepis", e: "🌲", prov: "carchi", slug: "bosque-polylepis" },
+  { t: "Mercado de ponchos de Otavalo", e: "🧶", prov: "imbabura", slug: "otavalo" }, { t: "Laguna de Mojanda", e: "🏞️", prov: "imbabura", slug: "mojanda" }, { t: "Cascada de Peguche", e: "💧", prov: "imbabura", slug: "peguche" },
+  { t: "Mitad del Mundo", e: "🌐", prov: "pichincha", slug: "mitad-del-mundo" }, { t: "Centro histórico de Quito", e: "🏛️", prov: "pichincha", slug: "quito" }, { t: "Mindo", e: "🦋", prov: "pichincha", slug: "mindo" },
+  { t: "Volcán Cotopaxi", e: "🌋", prov: "cotopaxi", slug: "cotopaxi" }, { t: "Laguna del Quilotoa", e: "🌋", prov: "cotopaxi", slug: "quilotoa" }, { t: "El Boliche", e: "🚂", prov: "cotopaxi", slug: "el-boliche" },
+  { t: "Baños de Agua Santa", e: "♨️", prov: "tungurahua", slug: "banos" }, { t: "Fiesta de las Flores y las Frutas", e: "🌸", prov: "tungurahua", slug: "flores-frutas" }, { t: "Parque Nacional Sangay", e: "🌋", prov: "tungurahua", slug: "sangay" },
+  { t: "Guano, capital artesanal", e: "🧵", prov: "chimborazo", slug: "guano" }, { t: "Laguna de Colta", e: "🏞️", prov: "chimborazo", slug: "colta" },
+  { t: "Minas de sal de Salinas", e: "🧂", prov: "bolivar", slug: "salinas" }, { t: "Guaranda, las siete colinas", e: "⛰️", prov: "bolivar", slug: "guaranda" },
+  { t: "Ruinas de Ingapirca", e: "🏛️", prov: "canar", slug: "ingapirca" }, { t: "Laguna de Culebrillas", e: "🏞️", prov: "canar", slug: "culebrillas" },
+  { t: "Cuenca, Patrimonio Cultural", e: "⛪", prov: "azuay", slug: "cuenca" }, { t: "Parque Nacional Cajas", e: "🏞️", prov: "azuay", slug: "cajas" }, { t: "Chordeleg y sus artesanías", e: "💍", prov: "azuay", slug: "chordeleg" },
+  { t: "Vilcabamba", e: "🌿", prov: "loja", slug: "vilcabamba" }, { t: "Virgen de El Cisne", e: "⛪", prov: "loja", slug: "el-cisne" }, { t: "Bosque petrificado de Puyango", e: "🪵", prov: "loja", slug: "puyango" },
 ];
+const L5_IMG_EXTS = ["jpg", "png", "jpeg", "webp"];
+function L5Foto({ slug, emoji, size = 140 }) {
+  const [tryIdx, setTryIdx] = useStateG(0);
+  const failed = !slug || tryIdx >= L5_IMG_EXTS.length;
+  if (failed) return <span style={{ fontSize: Math.round(size * 0.42), lineHeight: 1 }}>{emoji}</span>;
+  return <img src={`assets/l5-${slug}.${L5_IMG_EXTS[tryIdx]}`} alt="" draggable="false" onError={() => setTryIdx((i) => i + 1)} style={{ width: size, height: size, objectFit: "cover", borderRadius: 12, display: "block", boxShadow: "0 6px 16px rgba(0,0,0,0.3)" }} />;
+}
 
 // R3 — pueblo/nacionalidad → provincia (lista textual del libro). Se excluye "Cañari"
 // (el libro lo asigna a Cañar Y Azuay → ambiguo para emparejar).
@@ -2640,8 +2653,8 @@ function PR1Provincia({ onSolve }) {
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué provincia es...</span>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 20, padding: "14px 26px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", maxWidth: 440 }}>
-        <span style={{ fontSize: 60, lineHeight: 1 }}>{b.lugar.e}</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 20, padding: "14px 26px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", maxWidth: 440 }}>
+        <L5Foto slug={b.lugar.slug} emoji={b.lugar.e} size={140} />
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#3a2608", textAlign: "center", lineHeight: 1.1 }}>{b.lugar.t}</span>
       </div>
       <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
