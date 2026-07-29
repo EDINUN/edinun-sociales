@@ -1053,12 +1053,13 @@ const L3T3_REG_FILL = { costa: "#e8b93a", sierra: "#8f5c2c", amazonia: "#2f8f45"
 // salía "la región Amazonía", que está mal dicho.
 const L3T3_REG_EN = { costa: "la Costa", sierra: "la Sierra", amazonia: "la Amazonía", insular: "la región Insular" };
 
-// Emojis GENÉRICOS: los comparten varios ítems (todas las ciudades son 🏙️, los ríos 🌊,
-// los nevados 🏔️), así que no distinguen nada — Quito y Riobamba salían idénticos. En esas
-// fichas se oculta el emoji y manda el NOMBRE, más grande. Donde el emoji sí es único
-// (🐆 jaguar, 🐢 tortuga, 🦅 cóndor, 🍌 banano…) se mantiene, porque ahí sí informa.
-// Cuando exista la foto del lugar (`lugar-<slug>`), la foto gana y esto no aplica.
-const L3T3_EMOJI_GENERICO = ["🏙️", "🌊", "🏔️", "🏖️"];
+// Emojis que NO APORTAN. Dos casos: (a) los comparten varios ítems — todas las ciudades
+// son 🏙️, los ríos 🌊, los nevados 🏔️ — y entonces no distinguen nada (Quito y Riobamba
+// salían idénticos); (b) no se entienden — 🌫️ para "Páramo" parecía niebla suelta (lo
+// cazó la autora). En esas fichas se oculta el emoji y manda el NOMBRE, más grande. Donde
+// el emoji sí es único y reconocible (🐆 jaguar, 🐢 tortuga, 🦅 cóndor, 🍌 banano…) se
+// mantiene. Cuando exista la foto del lugar (`lugar-<slug>`), la foto gana sobre todo esto.
+const L3T3_EMOJI_GENERICO = ["🏙️", "🌊", "🏔️", "🏖️", "🌫️"];
 function l3t3Generico(e) { return L3T3_EMOJI_GENERICO.indexOf(e) !== -1; }
 
 // Lugares/elementos → su región. TODO sale del texto del tema (grandes ciudades,
@@ -1255,8 +1256,10 @@ function R2Ruleta({ onSolve, verifyRef }) {
   const [spinning, setSpinning] = useStateG(false);
   const [inBag, setInBag] = useStateG({});
   const [verified, setVerified] = useStateG(false);
-  const [drag, setDrag] = useStateG(null); // { t, dx, dy }
+  const [drag, setDrag] = useStateG(null); // { t, dx, dy } — arrastrando HACIA la maleta
+  const [dragOut, setDragOut] = useStateG(null); // { t, dx, dy } — sacando de la maleta
   const startRef = useRefG({ x: 0, y: 0, moved: false });
+  const outRef = useRefG({ x: 0, y: 0, moved: false });
   const bagRef = useRefG(null);
   const R = L3T2_REGIONES[built.target];
   const targetIdx = L3T2_REG_IDS.indexOf(built.target);
@@ -1290,6 +1293,31 @@ function R2Ruleta({ onSolve, verifyRef }) {
     if (bag) { const r = bag.getBoundingClientRect(); dentro = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }
     setDrag(null);
     if (dentro || !moved) toggle(t);      // soltada en la maleta, o simple toque
+  }
+
+  // ── Sacar de la maleta ARRASTRANDO hacia afuera (además del toque) ──
+  // Petición de la autora: si se arrepiente, tirar la ficha fuera de la maleta la devuelve.
+  // Igual que al meterla, solo cuenta si de verdad ARRASTRÓ; un toque simple también saca.
+  function downOut(e, t) {
+    if (verified) return;
+    outRef.current = { x: e.clientX, y: e.clientY, moved: false };
+    setDragOut({ t, dx: 0, dy: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+  }
+  function moveOut(e) {
+    if (!dragOut) return;
+    const dx = e.clientX - outRef.current.x, dy = e.clientY - outRef.current.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) outRef.current.moved = true;
+    setDragOut((d) => (d ? { t: d.t, dx, dy } : d));
+  }
+  function upOut(e) {
+    if (!dragOut) return;
+    const t = dragOut.t, moved = outRef.current.moved;
+    const bag = bagRef.current;
+    let dentro = false;
+    if (bag) { const r = bag.getBoundingClientRect(); dentro = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }
+    setDragOut(null);
+    if (!moved || !dentro) toggle(t);   // toque = sacar; arrastrada FUERA = sacar
   }
 
   function verificar() {
@@ -1344,8 +1372,8 @@ function R2Ruleta({ onSolve, verifyRef }) {
             {built.cards.filter((c) => inBag[c.t]).map((c) => {
               const okc = c.reg === built.target;
               return (
-                <button key={c.t} onClick={() => toggle(c.t)} disabled={verified}
-                  style={{ display: "flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "3px 9px", border: `2px solid ${verified ? (okc ? "#2ecc8f" : "#ff6b6b") : "#e0a72c"}`, background: verified ? (okc ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))") : "linear-gradient(180deg, #fff8e6, #f7e3a8)", cursor: verified ? "default" : "pointer" }}>
+                <button key={c.t} onPointerDown={(e) => downOut(e, c.t)} onPointerMove={moveOut} onPointerUp={upOut} disabled={verified}
+                  style={{ display: "flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "3px 9px", border: `2px solid ${verified ? (okc ? "#2ecc8f" : "#ff6b6b") : "#e0a72c"}`, background: verified ? (okc ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))") : "linear-gradient(180deg, #fff8e6, #f7e3a8)", cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", transform: dragOut && dragOut.t === c.t ? `translate(${dragOut.dx}px, ${dragOut.dy}px) scale(1.06)` : "none", transition: dragOut && dragOut.t === c.t ? "none" : "transform 0.15s ease", zIndex: dragOut && dragOut.t === c.t ? 50 : 1, boxShadow: dragOut && dragOut.t === c.t ? "0 14px 26px rgba(0,0,0,0.5)" : "none" }}>
                   {!l3t3Generico(c.e) && <span style={{ fontSize: 13 }}>{c.e}</span>}
                   <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: verified ? (okc ? "#06381f" : "#fff") : "#3a2608" }}>{c.t}</span>
                   {verified && <span style={{ fontSize: 12, fontWeight: 900, color: okc ? "#06381f" : "#fff" }}>{okc ? "✓" : "✗"}</span>}
@@ -1414,9 +1442,11 @@ function R3Mapa({ onSolve, verifyRef }) {
   const [placed, setPlaced] = useStateG(() => ({}));   // { slotId: cardinalId }
   const [sel, setSel] = useStateG(null);               // ficha elegida (modo tocar)
   const [verified, setVerified] = useStateG(false);
-  const [drag, setDrag] = useStateG(null);
+  const [drag, setDrag] = useStateG(null);       // arrastrando una ficha HACIA un recuadro
+  const [dragOut, setDragOut] = useStateG(null); // sacando una ficha YA colocada
   const slotRefs = useRefG({});
   const startRef = useRefG({ x: 0, y: 0, moved: false });
+  const outRef = useRefG({ x: 0, y: 0, moved: false });
   const puestas = Object.keys(placed).map((k) => placed[k]);
   const CARD = {}; L3T3_CARDINALES.forEach((c) => { CARD[c.id] = c; });
 
@@ -1430,10 +1460,36 @@ function R3Mapa({ onSolve, verifyRef }) {
     });
     setSel(null);
   }
+  function quitarSlot(slotId) {
+    setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; });
+  }
   function tapSlot(slotId) {
     if (verified) return;
-    if (placed[slotId]) { setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; }); return; }
+    if (placed[slotId]) { quitarSlot(slotId); return; }
     if (sel) poner(slotId, sel);
+  }
+  // ── Sacar del recuadro ARRASTRANDO hacia afuera (además del toque) ──
+  // Mismo gesto que en la maleta de R2, para que el niño no tenga que aprender dos formas.
+  function slotDown(e, slotId) {
+    if (verified || !placed[slotId]) return;   // recuadro vacío → no hay nada que sacar
+    outRef.current = { x: e.clientX, y: e.clientY, moved: false };
+    setDragOut({ id: slotId, dx: 0, dy: 0 });
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
+  }
+  function slotMove(e) {
+    if (!dragOut) return;
+    const dx = e.clientX - outRef.current.x, dy = e.clientY - outRef.current.y;
+    if (Math.abs(dx) > 6 || Math.abs(dy) > 6) outRef.current.moved = true;
+    setDragOut((d) => (d ? { id: d.id, dx, dy } : d));
+  }
+  function slotUp(e, slotId) {
+    if (verified) return;
+    if (!dragOut) { tapSlot(slotId); return; }   // estaba vacío → recibe la ficha elegida
+    const moved = outRef.current.moved;
+    const r = e.currentTarget.getBoundingClientRect();
+    const dentro = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    setDragOut(null);
+    if (!moved || !dentro) quitarSlot(slotId);   // toque = sacar; arrastrada FUERA = sacar
   }
   // ── Soltar TOLERANTE (7 años) ──────────────────────────────────────────────
   // Antes solo valía si el cursor caía DENTRO del recuadro (96×42): si el niño soltaba
@@ -2138,12 +2194,11 @@ function PR1Provincia({ onSolve }) {
           }
           return (
             <button key={p.id} onClick={() => tap(p.id)} disabled={answered}
-              style={{ position: "relative", width: 104, height: 92, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
+              style={{ position: "relative", width: 108, height: 60, borderRadius: 16, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 6px", cursor: answered ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(0,0,0,0.3)" }}>
               {answered && (isCorrect || p.id === picked) && (
-                <span style={{ position: "absolute", top: 5, right: 7, fontSize: 20, fontWeight: 900, lineHeight: 1, color: isCorrect ? "#06381f" : "#fff" }}>{isCorrect ? "✓" : "✗"}</span>
+                <span style={{ position: "absolute", top: 4, right: 6, fontSize: 17, fontWeight: 900, lineHeight: 1, color: isCorrect ? "#06381f" : "#fff" }}>{isCorrect ? "✓" : "✗"}</span>
               )}
-              <span style={{ fontSize: 32, lineHeight: 1 }}>{p.e}</span>
-              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 13, color: col, textAlign: "center", lineHeight: 1.02 }}>{p.t}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: col, textAlign: "center", lineHeight: 1.05 }}>{p.t}</span>
             </button>
           );
         })}
