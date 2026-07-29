@@ -57,4 +57,20 @@ montar** (`useStateG(() => build())`), no en cada render.
 - `format-lint.js juego-6` → 15/15.
 - e2e (`scratchpad/qa-l5.js`): Libro 5 → Región Interandina → R1 tocar → R2 ordenar
   (revelado "AQUÍ VA") → R3 emparejar → reporte. Overflow 0 en las 3 rondas; sin
-  pageerrors; 3 tarjetas arrastrables en R2; matching con color+número en R3.
+  pageerrors; 3 tarjetas arrastrables en R2; matching con **línea + color** en R3.
+
+## Cambios posteriores (2026-07-29)
+
+- **R3 sin números de pareja** (la autora: *"si ya ponemos las líneas de unir entonces
+  quitemos los números"*). El enlace se lee con la **línea curva de color** + el borde de
+  las dos tarjetas + el puntito de anclaje; el número solo repetía esa información. Se
+  quitaron los dos badges (el de la foto y el del pueblo); el ✓/✗ de la verificación queda.
+- 🐛 **El ✓/✗ y la etiqueta del pueblo correcto salían recortados**: la tarjeta de traje
+  llevaba `overflow:hidden` para recortar la foto a las esquinas redondeadas, y eso también
+  cortaba los badges que sobresalen (`top/right:-9`, `bottom:-11`). Al fallar, la respuesta
+  correcta quedaba ilegible → **rompía la invariante "al fallar, revelar la correcta"**.
+  Arreglado moviendo el recorte a un `<span>` interno con la foto (`inset:0`, radio 13) y
+  dejando el botón con overflow visible. **Regla:** si una tarjeta recorta su imagen, el
+  recorte va en la imagen, nunca en el contenedor que lleva badges salientes.
+- **Enunciado con punto final** ("Une la vestimenta con su pueblo.") — ver la pasada de
+  puntuación de enunciados del juego-6.

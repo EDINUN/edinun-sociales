@@ -214,6 +214,22 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
 - Para **personas reales** (personajes históricos): NUNCA generar sus caras con IA
   (inventadas). Retratos solo si la autora pasa los reales del libro (próceres = dominio
   público; modernos = con derechos). Por defecto: emoji del área + nombre.
+- **Puntuación de los enunciados** (pasada del 2026-07-29, la pidió la autora): el
+  enunciado imperativo **cierra con punto**; el que es pregunta cierra con `?` y no lleva
+  punto; los `ed-label` (kickers en mayúsculas) y los rótulos del reporte (columna
+  "ejercicio") **no llevan punto** porque son etiquetas, no frases. Si el enunciado va
+  partido en dos líneas (kicker + destacado), el punto va al final del destacado — igual
+  que el `?` de la R1 del Tema 2, que cuelga del destacado.
+- **Redundancias que sobran cuando llega el refuerzo bueno:** al dibujarse las líneas de
+  unión en la R3 del Libro 5, la autora pidió quitar los números de pareja (*"si ya ponemos
+  las líneas de unir entonces quitemos los números"*). La línea + el color del borde + el
+  puntito ya dicen con quién está unida cada tarjeta.
+- 🐛 **`overflow:hidden` en una tarjeta con badges salientes los corta.** En la R3 del
+  Libro 5 el botón recortaba la foto y, de paso, el ✓/✗ y la etiqueta dorada del pueblo
+  correcto → al fallar no se leía la respuesta buena (rompía la invariante del repo).
+  El recorte tiene que ir en la **imagen**, no en el contenedor. Lo cazó el QA visual, no
+  la autora: los badges se veían como una astilla de color en el borde, fácil de leer como
+  "adorno".
 
 ## Pendiente
 

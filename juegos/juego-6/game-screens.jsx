@@ -784,7 +784,7 @@ function R2Orden({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena de lo más grande a lo más pequeño.</div>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{regimen.label}</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -845,7 +845,9 @@ function R3Provincias({ onSolve, verifyRef }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 14, gap: 10 }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Toca las provincias que sí son de la</div>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}</div>
+        {/* El punto final va aquí: el enunciado es UNA frase partida en dos líneas
+            (kicker + destacado), igual que en R1 el "?" cuelga del destacado. */}
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{R.e} Región {R.t}.</div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", alignContent: "space-evenly", columnGap: 16, width: "100%", maxWidth: 380, flex: 1 }}>
         {built.shown.map((p) => {
@@ -2263,7 +2265,7 @@ function PR2OrdenNS({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena las provincias de NORTE a SUR</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Ordena las provincias de NORTE a SUR.</div>
         <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>Región Interandina (Sierra)</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -2332,7 +2334,7 @@ function PR3Empareja({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 14 }}>
       <div style={{ textAlign: "center", pointerEvents: "none" }}>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une la vestimenta con su pueblo</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Une la vestimenta con su pueblo.</div>
       </div>
       <div style={{ flex: 1, display: "flex", alignItems: "center", minHeight: 0 }}>
       <div ref={wrapRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 40, justifyContent: "center" }}>
@@ -2366,9 +2368,16 @@ function PR3Empareja({ onSolve, verifyRef }) {
             if (verified) border = correct ? "#2ecc8f" : "#ff6b6b";
             return (
               <button key={i} ref={(el) => { trajeRefs.current[i] = el; }} onClick={() => tapTraje(i)} disabled={verified}
-                style={{ position: "relative", width: 116, height: 116, borderRadius: 16, border: `3px solid ${border}`, background: "#fff", cursor: verified ? "default" : "pointer", padding: 0, overflow: "hidden", boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.04)" : "none", transition: "transform 0.12s ease" }}>
-                <img src={`assets/l5-pueblo-${t.slug}.jpg`} alt="" draggable="false" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                {paired && <span style={{ position: "absolute", top: -9, left: -9, width: 24, height: 24, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{i + 1}</span>}
+                style={{ position: "relative", width: 116, height: 116, borderRadius: 16, border: `3px solid ${border}`, background: "#fff", cursor: verified ? "default" : "pointer", padding: 0, boxShadow: selected ? `0 0 0 3px ${pal.ring}, 0 6px 14px rgba(0,0,0,0.35)` : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)", transform: selected ? "scale(1.04)" : "none", transition: "transform 0.12s ease" }}>
+                {/* ⚠ El recorte va en la FOTO, no en el botón: con `overflow:hidden` en el
+                    botón se cortaban el ✓/✗ (top/right -9) y la etiqueta dorada del pueblo
+                    correcto (bottom -11) → al fallar no se leía la respuesta buena. */}
+                <span style={{ position: "absolute", inset: 0, borderRadius: 13, overflow: "hidden", display: "block" }}>
+                  <img src={`assets/l5-pueblo-${t.slug}.jpg`} alt="" draggable="false" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </span>
+                {/* Sin número de pareja: la LÍNEA de unión + el color del borde + el puntito
+                    del anclaje ya dicen con quién está unida (decisión de la autora: el
+                    número era la redundancia de cuando todavía no se dibujaban las líneas). */}
                 {verified && <span style={{ position: "absolute", top: -9, right: -9, fontSize: 15, fontWeight: 900, color: correct ? "#1f8a54" : "#c0392b", background: "#fff", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{correct ? "✓" : "✗"}</span>}
                 {wrong && <span style={{ position: "absolute", bottom: -11, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "2px solid #e0a72c", borderRadius: 999, padding: "1px 9px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, color: "#5a3d0a", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>{t.pueblo}</span>}
               </button>
@@ -2385,7 +2394,6 @@ function PR3Empareja({ onSolve, verifyRef }) {
                 style={{ position: "relative", width: 200, height: 116, borderRadius: 16, border: `3px solid ${border}`, background: bg, cursor: canTap ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, boxShadow: canTap ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28), 0 0 0 2px rgba(242,194,96,0.55)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
                 <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: col }}>{p.pueblo}</span>
                 <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, color: col, opacity: 0.82 }}>{l5Prov(p.prov).e} {l5Prov(p.prov).t}</span>
-                {by !== null && <span style={{ position: "absolute", top: -9, left: -9, width: 24, height: 24, borderRadius: "50%", background: pal.dot, color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{by + 1}</span>}
               </button>
             );
           })}

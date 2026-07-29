@@ -223,8 +223,14 @@ defecto **Andi**. Sub-componentes:
 - **R3 `PR3Empareja` — EMPAREJAR vestimenta↔pueblo.** Izquierda: **fotos reales del traje
   típico** (`assets/l5-pueblo-<slug>.jpg`); derecha: el **nombre del pueblo + su provincia**
   como etiqueta (dato del libro, no se pierde). **Toca un traje, toca su pueblo** → se
-  enlazan con **color + número** (`L5_PAIR_COLORS`). ¡VERIFICAR!: ✓/✗ por traje y, en los
-  fallados, se revela el pueblo correcto en dorado. Banco `L5_PUEBLOS` (7 del libro; la R3
+  enlazan con una **línea curva + color** (`L5_PAIR_COLORS`): la línea sale de un puntito
+  en el borde de cada tarjeta y el borde toma el color de la pareja. **Sin número de
+  pareja** (decisión de la autora: *"si ya ponemos las líneas de unir entonces quitemos
+  los números"* — el número era la redundancia de cuando no había línea).
+  ¡VERIFICAR!: ✓/✗ por traje y, en los fallados, se revela el pueblo correcto en dorado.
+  ⚠ La tarjeta de traje **no lleva `overflow:hidden`** (el recorte va en un `<span>` con la
+  foto): con el recorte en el botón se cortaban el ✓/✗ y la etiqueta dorada del pueblo
+  correcto, o sea que al fallar NO se leía la respuesta buena. Banco `L5_PUEBLOS` (7 del libro; la R3
   SOLO usa los que tienen `vest: true` = con foto de traje → muestra 3 por ronda). Fotos
   **REALES, NO IA** (la ropa tradicional es de culturas reales; generarla sería inexacto).
   Subidas (4): `otavalo, saraguro, salasaka, cayambi`. **"Cañari" queda fuera** (el libro lo
