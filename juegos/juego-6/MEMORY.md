@@ -152,6 +152,23 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   no lo hacía: solo sumaba al cerrar la ronda); R1 con 0 solapes en 3 recargas; R2 rota
   las 4 regiones; format-lint 15/15.
 
+### Mapa y arrastre de R3 (2026-07-29)
+
+- La autora **sí generó el mapa** (`mapa-ecuador.jpg`, 2048×2048): Ecuador en verde,
+  vecinos en gris, océano azul y Galápagos, sin letras ni rosa de los vientos. Se agrandó
+  el hueco de 142 → **168 px** y se le puso **marco dorado** (sin marco, al ser un JPG
+  opaco, parecía una calcomanía cuadrada pegada sobre el fieltro verde).
+  Observado al revisarla: la silueta es una **aproximación** (el Golfo de Guayaquil va más
+  abajo, el oriente más redondeado, Galápagos demasiado al norte) y **pesa 1,2 MB** para
+  verse a 168 px — se le sugirió exportarla a 512×512. Lo que el mapa AFIRMA sí es correcto.
+- **"No se arrastra bien"** (reporte de la autora): el soltado exigía que el cursor cayera
+  DENTRO del recuadro de 96×42 px. A 7 años eso casi nunca pasa → el gesto se perdía sin
+  ninguna señal y parecía que el juego estaba roto. Arreglado con tres cosas: **soltado
+  tolerante** (`slotCercano`, margen 0,62 × ancho medido al borde), **destino iluminado en
+  dorado** mientras arrastra, y **recuperación** (si suelta lejos, la ficha queda elegida
+  para solo tocar el recuadro). Verificado soltando 45 px FUERA del recuadro: cae igual.
+  **Regla general:** en cualquier arrastre para 6-8 años, hit-test estricto = mecánica rota.
+
 ## Aprendizajes
 
 - La autora prefiere ver los **bosquejos de mecánica dibujados en el propio chat**

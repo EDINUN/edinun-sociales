@@ -1435,31 +1435,48 @@ function R3Mapa({ onSolve, verifyRef }) {
     if (placed[slotId]) { setPlaced((prev) => { const n = Object.assign({}, prev); delete n[slotId]; return n; }); return; }
     if (sel) poner(slotId, sel);
   }
+  // ── Soltar TOLERANTE (7 años) ──────────────────────────────────────────────
+  // Antes solo valía si el cursor caía DENTRO del recuadro (96×42): si el niño soltaba
+  // un poquito afuera no pasaba nada y la ficha se devolvía sin explicación. Ahora se
+  // acepta el recuadro más cercano dentro de un margen generoso alrededor de su borde;
+  // como solo hay 4 y están lejos entre sí, no hay riesgo de confundir el destino.
+  function slotCercano(x, y) {
+    let dentro = null, cerca = null, mejor = Infinity;
+    L3T3_CARDINALES.forEach((c) => {
+      const el = slotRefs.current[c.id];
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) { dentro = c.id; return; }
+      const dx = Math.max(r.left - x, 0, x - r.right);
+      const dy = Math.max(r.top - y, 0, y - r.bottom);   // distancia al BORDE, no al centro
+      const d = Math.sqrt(dx * dx + dy * dy);
+      // El margen se mide con el propio recuadro, así escala solo con el lienzo.
+      if (d < mejor && d <= r.width * 0.62) { mejor = d; cerca = c.id; }
+    });
+    return dentro || cerca;
+  }
   function down(e, cid) {
     if (verified) return;
     startRef.current = { x: e.clientX, y: e.clientY, moved: false };
-    setDrag({ cid, dx: 0, dy: 0 });
+    setDrag({ cid, dx: 0, dy: 0, sobre: null });
     try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {}
   }
   function move(e) {
     if (!drag) return;
     const dx = e.clientX - startRef.current.x, dy = e.clientY - startRef.current.y;
     if (Math.abs(dx) > 6 || Math.abs(dy) > 6) startRef.current.moved = true;
-    setDrag((d) => (d ? { cid: d.cid, dx, dy } : d));
+    const sobre = startRef.current.moved ? slotCercano(e.clientX, e.clientY) : null;
+    setDrag((d) => (d ? { cid: d.cid, dx, dy, sobre } : d));   // `sobre` ilumina el destino
   }
   function up(e) {
     if (!drag) return;
     const cid = drag.cid, moved = startRef.current.moved;
-    let destino = null;
-    L3T3_CARDINALES.forEach((c) => {
-      const el = slotRefs.current[c.id];
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) destino = c.id;
-    });
+    const destino = slotCercano(e.clientX, e.clientY);
     setDrag(null);
-    if (destino) poner(destino, cid);
-    else if (!moved) setSel((s) => (s === cid ? null : cid));   // toque = elegir/soltar
+    if (destino) { poner(destino, cid); return; }
+    // Si arrastró pero soltó lejos, la ficha queda ELEGIDA: solo tiene que tocar el
+    // recuadro. Antes se perdía el gesto entero y parecía que el juego no respondía.
+    setSel((s) => (s === cid && !moved ? null : cid));
   }
 
   function verificar() {
@@ -1474,17 +1491,22 @@ function R3Mapa({ onSolve, verifyRef }) {
   // Recuadro donde se suelta cada punto cardinal.
   function Slot({ c }) {
     const cid = placed[c.id], ok = verified && cid === c.id;
+    // `apuntado` = el recuadro al que va a caer la ficha que se está arrastrando, o el
+    // que recibirá la ficha ya elegida a toque. Se ilumina para que el niño lo vea ANTES
+    // de soltar: sin esta pista el arrastre se sentía "que no responde".
+    const apuntado = !verified && ((drag && drag.sobre === c.id) || (!drag && sel && !cid));
     let border = cid ? "#4fa0ff" : "rgba(242,194,96,0.75)", bg = cid ? "linear-gradient(180deg, #dcecff, #a9d0ff)" : "rgba(255,255,255,0.10)", ink = "#0f2a55";
     if (verified) {
       border = ok ? "#2ecc8f" : "#ff6b6b";
       bg = ok ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))";
       ink = ok ? "#06381f" : "#fff";
     }
+    const enfoque = drag && drag.sobre === c.id;
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-        <div className="ed-label" style={{ fontSize: 10, color: "rgba(255,255,255,0.62)", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{c.vecino}</div>
+        <div className="ed-label" style={{ fontSize: 10, color: enfoque ? "#fce9a8" : "rgba(255,255,255,0.62)", letterSpacing: "0.05em", whiteSpace: "nowrap", transition: "color 0.12s" }}>{c.vecino}</div>
         <div ref={(el) => { slotRefs.current[c.id] = el; }} onClick={() => tapSlot(c.id)}
-          style={{ width: 96, height: 42, borderRadius: 12, border: `3px ${cid ? "solid" : "dashed"} ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, cursor: verified ? "default" : "pointer", boxShadow: cid ? "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)" : "none" }}>
+          style={{ width: 96, height: 42, borderRadius: 12, border: `3px ${cid ? "solid" : "dashed"} ${enfoque ? "#fce9a8" : (apuntado ? "#7ab8ff" : border)}`, background: enfoque ? "rgba(252,233,168,0.28)" : (apuntado ? "rgba(122,184,255,0.18)" : bg), display: "flex", alignItems: "center", justifyContent: "center", gap: 5, cursor: verified ? "default" : "pointer", transform: enfoque ? "scale(1.09)" : "none", transition: "transform 0.12s, background 0.12s, border-color 0.12s", boxShadow: enfoque ? "0 0 16px rgba(252,233,168,0.75)" : (cid ? "inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(0,0,0,0.28)" : "none") }}>
           {verified && <span style={{ fontSize: 15, fontWeight: 900, color: ink }}>{ok ? "✓" : "✗"}</span>}
           <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, letterSpacing: "0.04em", color: cid ? ink : "rgba(255,255,255,0.35)" }}>{cid ? CARD[cid].t : "?"}</span>
         </div>
@@ -1513,7 +1535,19 @@ function R3Mapa({ onSolve, verifyRef }) {
         <div /><Slot c={L3T3_CARDINALES[1]} /><div />
       </div>
 
-      {/* Fichas por colocar */}
+      {/* Fichas por colocar. Cuando ya están las 4, la fila de huecos vacíos no dice nada
+          y justo ahí el niño necesita saber qué sigue → se reemplaza por el aviso de
+          verificar (mismo alto, para que no salte el layout). */}
+      {puestas.length === L3T3_CARDINALES.length ? (
+        <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {!verified && (
+            <div className="ed-float-soft" style={{ display: "flex", alignItems: "center", gap: 9, background: "linear-gradient(180deg, #ffe6a1, #f1c153)", border: "3px solid #e0a72c", borderRadius: 999, padding: "6px 20px", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+              <span style={{ fontSize: 16 }}>👉</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: "#5a3d0a" }}>¡Ya están los 4! Toca ¡VERIFICAR!</span>
+            </div>
+          )}
+        </div>
+      ) : (
       <div style={{ display: "flex", gap: 9, justifyContent: "center", touchAction: "none" }}>
         {bandeja.map((cid) => {
           if (puestas.indexOf(cid) !== -1) return <div key={cid} style={{ width: 92, height: 40, borderRadius: 12, border: "2px dashed rgba(255,255,255,0.2)" }} />;
@@ -1526,6 +1560,7 @@ function R3Mapa({ onSolve, verifyRef }) {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

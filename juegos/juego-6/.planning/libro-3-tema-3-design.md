@@ -117,6 +117,16 @@ océano Pacífico) y el niño coloca los **4 puntos cardinales**.
   ficha (NORTE·SUR·ESTE·OESTE) es única y se aprenden las dos cosas a la vez.
 - **Arrastrar o tocar:** se puede arrastrar la ficha al recuadro, o **tocarla y luego tocar
   el recuadro** (a los 7 años el arrastre falla). Tocar un recuadro lleno devuelve la ficha.
+- **Soltar tolerante (`slotCercano`):** la primera versión solo aceptaba el soltado si el
+  cursor caía DENTRO del recuadro (96×42) — la autora reportó *"no se arrastra bien"*.
+  Ahora vale el recuadro más cercano dentro de un margen de **0,62 × su ancho** medido al
+  BORDE (no al centro), y el margen se calcula con el rect real, así escala con el lienzo.
+  Como solo hay 4 recuadros y están lejos entre sí, no hay riesgo de destino equivocado.
+- **Pista de destino:** mientras arrastra, el recuadro al que va a caer se **ilumina en
+  dorado** (borde, glow y `scale(1.09)`) y su rótulo de vecino se aclara. Sin esa pista el
+  arrastre se sentía "que no responde".
+- **Recuperación:** si arrastra y suelta lejos de todo, la ficha queda **elegida** (azul);
+  solo tiene que tocar el recuadro. Antes se perdía el gesto entero sin ninguna señal.
 - **¡VERIFICAR!** en la columna de acciones. Al fallar: ✓ verde donde acertó, ✗ rojo donde
   no, y debajo la etiqueta dorada **"VA · NORTE"** revelando cuál iba (dorado, no verde).
 - **Mapa:** `assets/mapa-ecuador.<jpg|png|jpeg|webp>` (lo genera la autora). Mientras no

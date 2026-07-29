@@ -153,7 +153,11 @@ libro "Viajando por mi país con mi familia" (las 4 regiones naturales en detall
   libro). Alrededor del mapa se ven los vecinos como contexto (**Colombia** arriba ·
   **Perú** abajo y a la derecha · **océano Pacífico** a la izquierda) y el niño coloca los
   **4 puntos cardinales** en sus recuadros, **arrastrando o tocando** (tocar ficha → tocar
-  recuadro; tocar un recuadro lleno la devuelve). ⚠ Se colocan los CARDINALES y no los
+  recuadro; tocar un recuadro lleno la devuelve). El soltado es **tolerante**
+  (`slotCercano`: vale el recuadro más cercano dentro de 0,62 × su ancho, medido al borde),
+  el destino **se ilumina en dorado** mientras arrastra, y si suelta lejos la ficha queda
+  **elegida** en vez de perderse. ⚠ No volver al hit-test estricto: a 7 años el cursor casi
+  nunca cae dentro de un recuadro de 96×42 y el juego parecía no responder. ⚠ Se colocan los CARDINALES y no los
   límites **a propósito**: Perú es límite al Sur *y* al Este → dos fichas idénticas serían
   ambiguas. Al fallar: ✓/✗ y etiqueta dorada **"VA · NORTE"**. Mapa en
   `assets/mapa-ecuador.<ext>` (lo genera la autora); sin él cae a una placa "ECUADOR".
@@ -226,9 +230,10 @@ Anti-repetición por ronda (`L5_R1/R2/R3_KEY`, sobre el FIFO genérico `l3t2Rece
 **R1 con FOTOS REALES opcionales** (`L5Foto` prueba `assets/l5-<slug>.(jpg|png|jpeg|webp)`
 y cae al emoji si falta; prefijo `l5-` propio, NO reusa `lugar-<slug>` del Tema 3). Las
 fotos **NO se generan con IA** (decisión de la autora): salen de las **fotos del propio
-libro** (EDINUN) + **Wikimedia Commons** (licencia libre). Subidas hasta ahora (6):
-`quilotoa, otavalo, mitad-del-mundo, ingapirca, cuenca, vilcabamba`; el resto de lugares
-(20) siguen en emoji. ⚠ Nombrar en **minúscula** (`.jpg`, no `.JPG`) — producción es
+libro** (EDINUN) + **Wikimedia Commons** (licencia libre). Subidas (11 → **las 10
+provincias tienen al menos una foto**): `quilotoa, otavalo, mitad-del-mundo, ingapirca,
+cuenca, vilcabamba, banos, bosque-polylepis, colta, salinas, el-cisne`; el resto de
+lugares (15) siguen en emoji. ⚠ Nombrar en **minúscula** (`.jpg`, no `.JPG`) — producción es
 Linux y distingue mayúsculas. Diseño en `.planning/libro-5-tema-1-design.md`. ⚠ El libro trae el Chimborazo con **dos alturas
 distintas** (6263 y 6310 m) → **no se usa la altura exacta** como respuesta. **Verificado:**
 overflow 0 en las 3 rondas; e2e (R1→R2→R3→reporte) sin errores; anti-repetición 0
