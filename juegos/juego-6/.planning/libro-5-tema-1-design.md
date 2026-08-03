@@ -74,3 +74,9 @@ montar** (`useStateG(() => build())`), no en cada render.
   recorte va en la imagen, nunca en el contenedor que lleva badges salientes.
 - **Enunciado con punto final** ("Une la vestimenta con su pueblo.") — ver la pasada de
   puntuación de enunciados del juego-6.
+- **R1: el enunciado bajó 16 px** (lo pidió la autora: *"colócalo un poquito más abajo"*).
+  `paddingTop` del contenedor **8 → 24**: con 8 el enunciado caía en **y=68** y los puntos
+  de RONDA terminan en **y=67**, o sea pegados. Ahora va en y=84; la tarjeta y las opciones
+  bajan solo la mitad (8 px) porque el bloque de abajo va centrado en el espacio restante,
+  y la fila de provincias cierra en **y=491**, con 31 px hasta el borde de la zona de juego
+  (522). Verificado en 4 viewports: overflow 0.

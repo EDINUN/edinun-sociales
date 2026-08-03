@@ -2784,7 +2784,10 @@ function PR1Provincia({ onSolve }) {
     onSolve(pid === b.correct, { emoji: "📍", a: `¿De qué provincia es ${b.lugar.t}?`, userAnswer: `${chosen.e} ${chosen.t}`, correctAnswer: `${correct.e} ${correct.t}` });
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 24 }}>
+      {/* paddingTop 24 (no 8): con 8 el enunciado caía en y=68 y los puntos de RONDA
+          terminan en y=67 — se leían pegados. Con 24 respira y las opciones siguen con
+          ~30 px de colchón hasta el borde de la zona de juego. */}
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 22, color: "rgba(255,255,255,0.9)" }}>¿De qué provincia es...</span>
       </div>
