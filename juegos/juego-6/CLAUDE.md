@@ -11,7 +11,7 @@ tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número 
 | Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
 | Libro 3 | **3 temas** — T1 "Hechos históricos" · T2 "Identidad territorial" · T3 "Viajando por mi país" (7) | ✅ los 3 |
 | Libro 5 | **2 temas** — T1 "Región Interandina" · T2 "La región amazónica" (9) | ✅ los 2 |
-| Libro 6 | **1 tema** | ⏳ placeholder |
+| Libro 6 | **1 tema** — "La Amazonía, nido de vida silvestre" (10) | ✅ hecho |
 
 > Historial: juego-6 fue antes "Explora el Ecuador" (provincias del Ecuador). La autora
 > pidió descartarlo y reconstruir juego-6 como este hub de libros (2026-07-23). El juego
@@ -44,8 +44,9 @@ results`). En `screens.jsx`:
 - `"l3-t3"` → **`ViajeGame`** (Libro 3 · Tema 3, 3 rondas).
 - `"l5-t1"` → **`InterandinaGame`** (Libro 5 · Tema 1, 3 rondas).
 - `"l5-t2"` → **`AmazoniaGame`** (Libro 5 · Tema 2, 3 rondas).
-- cualquier otro (l6-t1) → **`PlaceholderGame`**
-  ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
+- `"l6-t1"` → **`SilvestreGame`** (Libro 6 · Tema 1, 3 rondas).
+- cualquier otro → **`PlaceholderGame`** ("en construcción · {libro · tema}") — mismo
+  chrome EDINUN. **Hoy ya no lo usa ningún tema**: los 7 están implementados.
 - `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
 **`TemaPills`** (arriba, centro): en libros con **2+ temas**, `GameScreen` muestra pills
@@ -256,37 +257,114 @@ repeticiones consecutivas; format-lint 15/15.
 
 **3 rondas encadenadas con mecánicas DISTINTAS y frescas** del tema del libro *"La región
 amazónica"* (las 6 provincias del Oriente). Orquestadas por `AmazoniaGame`, que usa un
-**arreglo `L5T2_ROUNDS`** de `{ C, verify, bubble }` (`TOTAL = ROUNDS.length`) — así el
-tema pudo crecer de 1 a 3 rondas sin refactor. Mismo chrome que `InterandinaGame`. Guía por
-defecto **Andi**. **La autora eligió cada mecánica viendo bocetos ASCII en el chat, ronda
-por ronda.** Sub-componentes:
+**arreglo `L5T2_ROUNDS`** de `{ C, verify, bubble, erase }` (`TOTAL = ROUNDS.length`) — así
+el tema pudo crecer de 1 a 3 rondas sin refactor. Mismo chrome que `InterandinaGame`. Guía
+por defecto **Andi**. **La autora eligió cada mecánica viendo bocetos ASCII en el chat,
+ronda por ronda.** Enunciado estandarizado en las 3 (fontSize 22, `paddingTop` bajo la
+fila RONDA). Sub-componentes (orden real de `L5T2_ROUNDS`):
 
-- **R1 `PR1Capital` — TOCAR 1 de 4.** "¿Cuál es la capital de {provincia}?": tarjeta con la
-  provincia (foto opcional + nombre) y 4 capitales (la correcta + 3 distractoras). Banco
-  `L5T2_PROVINCIAS` (6, textual del libro). Foto opcional `assets/l5t2-<slug>.jpg` (`L5Foto`
-  con el nuevo parámetro `prefix`), respaldo al emoji del tesoro de cada provincia.
-- **R2 `PR2Lupa` — EXPLORAR CON LA LUPA (mecánica nueva en el hub).** La selva está a
-  oscuras (emojis tenues + blur); la **lupa sigue el puntero** (`onPointerMove`, coords en
-  px lógicos dividiendo por la escala del lienzo) y revela lo que hay debajo. El niño busca
-  y **toca** lo pedido (enunciado = QUÉ: "Encuentra {tesoro}"; bocadillo = CÓMO: "Mueve la
-  lupa por la selva."). Escena `L5T2_FAUNA` (6 tesoros del libro, uno por provincia) +
-  `L5T2_DECOYS` (5 NO amazónicos: 🦙🐧🐢⛵🏔️) → tocar un intruso = fallo (se revela el
-  correcto en verde y el tocado en rojo). Sin imágenes: emojis + CSS.
-- **R3 `PR3Palabra` — ARMAR LA PALABRA (mecánica nueva en el hub), CON DIFICULTAD.** Ordena
-  las letras en las casillas para escribir la capital + ¡VERIFICAR!. **Dificultad
-  (pedida por la autora):** la bandeja trae las letras de la capital **+ 2 letras señuelo**
-  que no van, todo barajado; hay que elegir las correctas y ponerlas en orden. Tocar una
-  ficha la coloca en la siguiente casilla; tocar una casilla llena devuelve la letra. Banco
-  `L5T2_CAPITALES` (5 capitales de UNA palabra: TENA/PUYO/MACAS/ZAMORA/COCA; Nueva Loja
-  queda para R1 por tener dos palabras). Al fallar: casillas ✓/✗ + pastilla dorada "Va:
-  {palabra}".
+- **R1 `PR3Palabra` — ARMAR LA PALABRA, CON DIFICULTAD.** "¿Cuál es la capital de
+  {provincia}?": ordena las letras en las casillas para escribir la capital + ¡VERIFICAR!.
+  **Dificultad:** la bandeja trae las letras de la capital **+ 3 letras señuelo** barajadas;
+  hay que elegir las correctas y ponerlas en orden. Tocar una ficha la pone en la siguiente
+  casilla; tocar una casilla llena devuelve la letra. **BORRAR** (última letra puesta) vive
+  en la **columna de acciones** (`ed-btn-erase`, vía `eraseRef` — como en edinun-language),
+  NO en el centro. Banco `L5T2_CAPITALES` (5 capitales de UNA palabra:
+  TENA/PUYO/MACAS/ZAMORA/COCA; Sucumbíos/Nueva Loja queda fuera por ser dos palabras).
+  Al fallar: casillas ✓/✗ + pastilla dorada "Va: {palabra}". Anti-repetición `L5T2_R3_KEY`
+  **cap 4** → recorre las 5 capitales antes de repetir ninguna.
+- **R2 `PR2Lupa` — EXPLORAR CON LA LUPA sobre una IMAGEN REAL de la selva.** Fondo
+  `assets/l5t2-selva.png` (la genera la autora — paisaje amazónico, sin caras); encima, una
+  capa oscura con **máscara radial** que hace de lupa y **sigue el puntero**
+  (`onPointerMove`, coords en px lógicos dividiendo por la escala del lienzo). El niño busca
+  y **toca** el animal pedido (enunciado = QUÉ: "Encuentra {tesoro}"; bocadillo = CÓMO:
+  "Mueve la lupa por la selva."). Hotspots **fraccionales** (escala-independientes) en
+  `L5T2_SELVA`: delfín rosado, oso de anteojos, guacamayo + **mono señuelo** (nunca se pide;
+  tocarlo = fallo). Al responder: anillo **verde ✓** en el correcto y **rojo ✗** en el
+  tocado. Anti-repetición `L5T2_R2_KEY` **cap 2** → rota los 3 objetivos sin repetir seguido
+  (tope: la imagen solo tiene esos 3 animales "buenos").
+- **R3 `PR3Pesca` — PESCA EN EL RÍO (arcade).** Las provincias flotan por un río de
+  derecha a izquierda; el niño **toca las de la Amazonía** antes de que pasen. Cada ronda: 3
+  amazónicas (banco `L5T2_AMAZ`, 6) + 3 intrusas de Sierra/Costa (`L5T2_NO_AMAZ`, 8),
+  barajadas en 3 carriles con entrada escalonada. Contador 🎣 X/3. **Tocar una intrusa =
+  error al INSTANTE** (decisión de la autora, "una mal = incorrecto"): se **congela el
+  río**, la carta se marca **roja ✗** (acomodada a la vista si estaba pegada al borde) y las
+  amazónicas aún visibles se revelan **verdes ✓**, luego ¡UPS!. **Termina apenas pesca las 3
+  amazónicas** (ya no espera a que pasen las intrusas). Dejar pasar una amazónica también
+  falla. Anti-repetición `L5T2_PESCA_KEY` **cap 2** (con cap 3 el trío se partía en 2 grupos
+  fijos y alternaba idéntico cada recarga; cap 2 lo mezcla de verdad).
 
-Anti-repetición por ronda (`L5T2_R1_KEY` cap 4 · `L5T2_R2_KEY` cap 3 · `L5T2_R3_KEY` cap
-3, sobre el FIFO `l3t2Recent/Push`). **Ninguna ronda necesita imágenes generadas** (R2 =
-emojis+CSS, R3 = letras; R1 con foto opcional). Diseño en
-`.planning/libro-5-tema-2-design.md`. **Verificado:** overflow 0 en las 3 rondas; e2e
-(R1→R2→R3→reporte 3/3) sin errores; anti-repetición 0 repes en 5 recargas (R2 objetivo y R3
-palabra); format-lint 15/15.
+**Imágenes:** solo R2 usa una generada (`assets/l5t2-selva.png`); R1 = letras, R3 =
+tarjetas+CSS. Diseño en `.planning/libro-5-tema-2-design.md`. **Verificado:** overflow 0 en
+las 3 rondas; e2e (R1→R2→R3→reporte) sin errores por los dos caminos de R3 (pescar las 3 =
+gana · tocar una intrusa = ¡UPS! con ✗/✓); anti-repetición 0 repes consecutivas en 6
+recargas en las 3 rondas (R1 recorre las 5, R2 rota los 3, R3 mezcla los tríos);
+format-lint 15/15.
+
+### Libro 6 · Tema 1 · "La Amazonía, nido de vida silvestre" (`SilvestreGame`, 10 años)
+
+**3 rondas encadenadas con TRES VERBOS distintos** (arrastrar · marcar varios · tocar 1
+de 4), del TEMA 2 del Libro 6. Mismo chrome que `AmazoniaGame` (arreglo `L6T1_ROUNDS` de
+`{C, verify, bubble}`). Guía **Domi**. ⭐ hasta 3 (+1 por ronda).
+
+- **R1 `SR1Descenso` — ARRASTRAR a su lugar.** Columna de 3 fichas sobre un **corte del
+  terreno en SVG** (`L6T1Perfil`, dibujo abstracto: franjas y ladera, **no** una silueta
+  del país). Rota entre **3 escaleras** (`L6T1_ESCALERAS`): zonas del relieve · volcanes
+  por altura · temperatura por lugar; todas con el mismo sentido "arriba = más alto / más
+  frío". La ficha muestra **solo el nombre**; el dato (altura, °C) **se revela al
+  verificar** — con el número a la vista, ordenar sería leer. Al fallar: ✓/✗ y la pastilla
+  **"AQUÍ VA"** (reusa el patrón de `R2Orden`/`PR2OrdenNS`). El perfil se oculta al
+  revelar, porque esa pastilla necesita el espacio de la derecha.
+- **R2 `SR2Cuenca` — MARCAR VARIOS + ¡VERIFICAR!** 8 tarjetas = 4 países de la cuenca
+  (de `L6T1_CUENCA`, los 8 del libro) + 4 intrusos (`L6T1_INTRUSOS`, contrastes obvios, no
+  del libro). ✓ / ✗ / **"faltó"** como en el Libro 3. C(8,4)² = 4 900 combinaciones → no
+  repite. **Sin banderas emoji**: en Windows se ven como dos letras ("EC"), así que la
+  tarjeta lleva el nombre en grande. **El elegido se pinta VIOLETA con texto blanco**
+  (gradiente 4º del estándar) + anillo dorado + `scale(1.04)`: con la marca ○→● sobre
+  crema la autora no distinguía lo que había tocado. **No se dice cuántos son** (se quitó
+  la línea "Son cuatro" a petición suya), ni en el enunciado ni en el bocadillo.
+- **R3 `SR3Nacionalidad` — TOCAR 1 de 4** (valida al tocar). Cartel con una **pista
+  textual** (`L6T1_PISTAS`, 9) y 4 nacionalidades (`L6T1_NACIONALIDADES`, 6 del libro).
+  **Foto en cada tarjeta** (`assets/l6-nac-<slug>.jpg`, `L6T1_NAC_SLUG`: `kichwa, cofan,
+  secoya, siona, huaorani, shuar`), vía `L3T3Foto` con `fallback null` → si algún archivo
+  faltara, esa tarjeta se queda solo con el nombre y la ronda sigue funcionando.
+  **Las 6 ya están subidas:** 5 salen de la columna "Iconografía" de la tabla del libro
+  (extraídas del PDF que pasó la autora) y la de **Kichwa** la puso ella aparte.
+  ⚠ **Personas reales → NUNCA generadas con IA**; si se reemplaza alguna, que venga del
+  libro o de una fuente de licencia libre (Wikimedia Commons), como en el Libro 5.
+  El dato que decide la respuesta va **resaltado en dorado** dentro de la pista (campo
+  `hi` de `L6T1_PISTAS`) para que el niño sepa dónde mirar. Al responder salen **✓ verde
+  en la correcta y ✗ roja en la tocada** (círculo blanco sobre la esquina; lo pidió la
+  autora: el color de fondo solo no bastaba) y, al acertar, el cartel "¡EXCELENTE!" se
+  retrasa **500 ms** para que dé tiempo a verlo. Verificado con y sin fotos: overflow 0 y
+  colchón 47 px en 3 viewports.
+
+  > **Cómo se sacaron las fotos del PDF** (esta máquina no tiene poppler, ImageMagick ni
+  > PIL): (1) los JPEG incrustados se vuelcan leyendo el binario del PDF y cortando entre
+  > los marcadores `FFD8`…`FFD9`; (2) el recorte a cuadrado se hace **dibujando en un
+  > `<canvas>` dentro de Chromium con Playwright** y exportando con `toDataURL` (hay que
+  > pasar la imagen como `data:` URL: desde `about:blank` el navegador no lee `file://`);
+  > (3) para **verificar** qué foto es cada nacionalidad se renderiza la página con
+  > **pdf.js** (CDN) y se compara — el orden de los JPEG dentro del PDF *no* garantiza el
+  > orden de la tabla, aunque aquí coincidiera.
+
+Anti-repetición por ronda (`L6T1_R1_KEY` cap 2 · `L6T1_R2_KEY` cap 4 · `L6T1_R3_KEY` cap
+4, sobre el FIFO `l3t2Recent/Push`). **Sin ninguna imagen.**
+
+⚠ **Contenido del libro — contradicciones que NO se usan como respuesta:** la extensión
+(texto 115 613 km² vs cuaderno 120 000 km²) · cuántas nacionalidades son (dice siete y
+nombra nueve) · la ortografía **Zumaco** (texto y cuaderno) vs **Sumaco** (pie de foto) →
+se ordena por altura, nunca se escribe el nombre. El cuaderno además lista "Tena" como
+provincia y omite Pastaza: **manda el texto**. Secoya y Siona viven las dos en
+Shushufindi → sus pistas son **las del propio cuaderno**, que es la clave del libro.
+⚠ Las fotos de nacionalidades son de **personas reales**: si algún día se añaden, salen
+del libro, **nunca de IA**.
+
+Diseño en `.planning/libro-6-tema-1-design.md`. **Verificado** (4 viewports): overflow 0 y
+**colchón mecánica↔acciones 47 px** (mínimo 30) en las 3 rondas; e2e perfecto 3/3 · 100 % ·
+3 ⭐ y e2e con fallos (revela "AQUÍ VA" y "faltó"); anti-repetición 0 repeticiones
+consecutivas en 5 recargas (R1 rota las 3 escaleras, R3 dio 5 pistas distintas de 5);
+format-lint 15/15.
 
 ## Personajes
 

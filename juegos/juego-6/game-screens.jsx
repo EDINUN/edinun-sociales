@@ -2556,7 +2556,7 @@ const L5T2_PROVINCIAS = [
   { id: "orellana", t: "Orellana", cap: "El Coca", e: "🌳" },           // Yasuní
   { id: "napo", t: "Napo", cap: "Tena", e: "💧" },                       // cascada San Rafael
   { id: "pastaza", t: "Pastaza", cap: "Puyo", e: "🦜" },                 // aves exóticas
-  { id: "morona", t: "Morona Santiago", cap: "Macas", e: "🕳️" },         // cuevas de los Tayos
+  { id: "morona", t: "Morona Santiago", cap: "Macas", e: "🌋" },         // Parque/volcán Sangay
   { id: "zamora", t: "Zamora Chinchipe", cap: "Zamora", e: "🐻" },       // oso de anteojos
 ];
 const L5T2_R1_KEY = "edinun_juego6_l5t2_r1_v1";
@@ -2615,82 +2615,68 @@ function PR1Capital({ onSolve }) {
   );
 }
 
-// ── R2: EXPLORA CON LA LUPA — mover la lupa por la selva oscura y TOCAR lo pedido ──
-// La selva empieza a oscuras (emojis tenues); la lupa (sigue el puntero) revela lo que hay
-// debajo. Cada provincia aporta su tesoro (posible objetivo) + decoys que NO son amazónicos
-// (buscar el correcto entre intrusos enseña). Sin imágenes: emojis + CSS.
+// ── R2: EXPLORA CON LA LUPA — la lupa destapa la ILUSTRACIÓN de la selva y el niño TOCA el
+// animal pedido. Fondo = assets/l5t2-selva.png; una capa oscura tapa todo y la lupa (máscara
+// radial que sigue el puntero) destapa un círculo. Los animales son HOTSPOTS en coords
+// fraccionarias (0..1) de la imagen (escalan solas). Se pide 1 de los 3 del libro (delfín
+// rosado · oso de anteojos · guacamayo); el mono es señuelo. Anti-repetición del objetivo.
 const L5T2_R2_KEY = "edinun_juego6_l5t2_r2_v1";
-const L5T2_FAUNA = [
-  { id: "delfin", name: "el delfín rosado", e: "🐬" },
-  { id: "oso", name: "el oso de anteojos", e: "🐻" },
-  { id: "aves", name: "las aves exóticas", e: "🦜" },
-  { id: "cascada", name: "la cascada San Rafael", e: "💧" },
-  { id: "tayos", name: "las cuevas de los Tayos", e: "🕳️" },
-  { id: "yasuni", name: "el Parque Yasuní", e: "🌳" },
+const L5T2_SELVA = [
+  { id: "delfin", name: "el delfín rosado", fx: 0.301, fy: 0.715 },
+  { id: "oso", name: "el oso de anteojos", fx: 0.676, fy: 0.655 },
+  { id: "guacamayo", name: "el guacamayo", fx: 0.730, fy: 0.180 },
+  { id: "mono", name: "el mono", fx: 0.949, fy: 0.571 },   // señuelo: nunca se pide
 ];
-const L5T2_DECOYS = [
-  { id: "llama", e: "🦙" }, { id: "pinguino", e: "🐧" }, { id: "tortuga", e: "🐢" }, { id: "barco", e: "⛵" }, { id: "nieve", e: "🏔️" },
-];
+const L5T2_R2_TARGETS = ["delfin", "oso", "guacamayo"];    // los 3 del libro que sí se piden
 function l5t2R2Build() {
-  const recent = new Set(l3t2Recent(L5T2_R2_KEY)), all = L5T2_FAUNA.map((_, i) => i);
-  const tIdx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
-  l3t2Push(L5T2_R2_KEY, tIdx, 3);
-  const target = L5T2_FAUNA[tIdx];
-  const otros = l3Shuffle(L5T2_FAUNA.filter((_, i) => i !== tIdx)).slice(0, 3);
-  const dec = l3Shuffle(L5T2_DECOYS).slice(0, 3);
-  const chosen = l3Shuffle([target].concat(otros).concat(dec));
-  const cols = [72, 178, 284, 388], rows = [82, 212];
-  const cells = l3Shuffle(cols.flatMap((x) => rows.map((y) => ({ x, y }))));
-  const items = chosen.map((it, i) => ({ ...it, x: Math.round(cells[i].x + (Math.random() * 28 - 14)), y: Math.round(cells[i].y + (Math.random() * 24 - 12)) }));
-  return { target, items };
+  const recent = new Set(l3t2Recent(L5T2_R2_KEY)), all = L5T2_R2_TARGETS.map((_, i) => i);
+  const i = l3Shuffle(all.filter((x) => !recent.has(x))).concat(l3Shuffle(all.filter((x) => recent.has(x))))[0];
+  l3t2Push(L5T2_R2_KEY, i, 2);
+  const targetId = L5T2_R2_TARGETS[i];
+  return { targetId, target: L5T2_SELVA.find((h) => h.id === targetId) };
 }
 
 function PR2Lupa({ onSolve }) {
+  const SW = 460, SH = 299, R = 82, HIT = 56;
   const [b] = useStateG(() => l5t2R2Build());
   const [lupa, setLupa] = useStateG(null);
   const [picked, setPicked] = useStateG(null);
   const answered = picked !== null;
-  const R = 84;
   const sceneRef = useRefG(null);
-  function move(e) {
+  function local(e) { const el = sceneRef.current; if (!el) return null; const r = el.getBoundingClientRect(), sc = r.width / SW; return { x: (e.clientX - r.left) / sc, y: (e.clientY - r.top) / sc }; }
+  function move(e) { if (answered) return; const p = local(e); if (p) setLupa(p); }
+  function pick(e) {
     if (answered) return;
-    const el = sceneRef.current; if (!el) return;
-    const r = el.getBoundingClientRect(), sc = r.width / 450;
-    setLupa({ x: (e.clientX - r.left) / sc, y: (e.clientY - r.top) / sc });
+    const p = local(e); if (!p) return;
+    let hit = null, best = HIT;
+    L5T2_SELVA.forEach((h) => { const d = Math.hypot(p.x - h.fx * SW, p.y - h.fy * SH); if (d < best) { best = d; hit = h; } });
+    if (!hit) return;                        // tocó vacío → sigue buscando
+    setPicked(hit.id);
+    onSolve(hit.id === b.targetId, { emoji: "🔍", a: `Encuentra ${b.target.name}`, userAnswer: hit.name, correctAnswer: b.target.name });
   }
-  function tap(it) {
-    if (answered) return;
-    setPicked(it.id);
-    onSolve(it.id === b.target.id, { emoji: it.e, a: `Encuentra ${b.target.name}`, userAnswer: `${it.e}`, correctAnswer: `${b.target.e} ${b.target.name}` });
-  }
+  const mask = lupa ? `radial-gradient(circle ${R}px at ${lupa.x}px ${lupa.y}px, rgba(0,0,0,0) 0, rgba(0,0,0,0) ${R - 16}px, #000 ${R}px)` : "none";
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>Encuentra {b.target.name} {b.target.e}</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>Encuentra {b.target.name}</span>
       </div>
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
-        <div ref={sceneRef} onPointerMove={move} onPointerLeave={() => { if (!answered) setLupa(null); }}
-          style={{ position: "relative", width: 450, height: 300, borderRadius: 20, overflow: "hidden", border: "3px solid #f2c260", cursor: answered ? "default" : "none", background: "radial-gradient(120% 120% at 50% 30%, #10402f, #06251a 68%, #04140e)", boxShadow: "inset 0 0 60px rgba(0,0,0,0.65), 0 12px 28px rgba(0,0,0,0.4)", touchAction: "none" }}>
-          {b.items.map((it) => {
-            const near = lupa && Math.hypot(lupa.x - it.x, lupa.y - it.y) < R;
-            const show = answered || near;
-            const isTarget = it.id === b.target.id, isPicked = it.id === picked;
+        <div ref={sceneRef} onPointerDown={move} onPointerMove={move} onPointerUp={pick} onPointerLeave={() => { if (!answered) setLupa(null); }}
+          style={{ position: "relative", width: SW, height: SH, borderRadius: 20, overflow: "hidden", border: "3px solid #f2c260", cursor: answered ? "default" : "crosshair", backgroundImage: 'url("assets/l5t2-selva.png")', backgroundSize: "cover", backgroundPosition: "center", boxShadow: "inset 0 0 40px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.4)", touchAction: "none" }}>
+          {!answered && (
+            <div style={{ position: "absolute", inset: 0, background: "rgba(3,17,11,0.94)", WebkitMaskImage: mask, maskImage: mask, pointerEvents: "none" }} />
+          )}
+          {lupa && !answered && (
+            <div style={{ position: "absolute", left: lupa.x, top: lupa.y, width: R * 2, height: R * 2, transform: "translate(-50%,-50%)", borderRadius: "50%", border: "3px solid rgba(255,255,255,0.9)", boxShadow: "0 0 0 2px rgba(0,0,0,0.5), 0 0 26px rgba(255,255,255,0.4)", pointerEvents: "none" }} />
+          )}
+          {answered && L5T2_SELVA.filter((h) => h.id === b.targetId || h.id === picked).map((h) => {
+            const isTarget = h.id === b.targetId;
             return (
-              <button key={it.id} onClick={() => tap(it)} disabled={answered}
-                style={{ position: "absolute", left: it.x, top: it.y, transform: "translate(-50%,-50%)", width: 66, height: 66, borderRadius: 16, padding: 0, cursor: answered ? "default" : "pointer",
-                  border: answered && (isTarget || isPicked) ? `3px solid ${isTarget ? "#2ecc8f" : "#ff6b6b"}` : "3px solid transparent",
-                  background: answered && isTarget ? "rgba(46,204,143,0.25)" : (answered && isPicked ? "rgba(255,107,107,0.25)" : "transparent"),
-                  display: "flex", alignItems: "center", justifyContent: "center", opacity: show ? 1 : 0.08, filter: show ? "none" : "blur(2.5px)", transition: "opacity 0.12s ease, filter 0.12s ease" }}>
-                <span style={{ fontSize: 40, lineHeight: 1 }}>{it.e}</span>
-                {answered && (isTarget || (isPicked && !isTarget)) && (
-                  <span style={{ position: "absolute", top: -9, right: -7, fontSize: 16, fontWeight: 900, color: "#fff", background: isTarget ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>{isTarget ? "✓" : "✗"}</span>
-                )}
-              </button>
+              <div key={h.id} style={{ position: "absolute", left: h.fx * SW, top: h.fy * SH, width: 66, height: 66, transform: "translate(-50%,-50%)", borderRadius: "50%", border: `4px solid ${isTarget ? "#2ecc8f" : "#ff6b6b"}`, boxShadow: `0 0 18px ${isTarget ? "rgba(46,204,143,0.75)" : "rgba(255,107,107,0.75)"}`, pointerEvents: "none" }}>
+                <span style={{ position: "absolute", top: -12, right: -8, fontSize: 17, fontWeight: 900, color: "#fff", background: isTarget ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>{isTarget ? "✓" : "✗"}</span>
+              </div>
             );
           })}
-          {lupa && !answered && (
-            <div style={{ position: "absolute", left: lupa.x, top: lupa.y, width: R * 2, height: R * 2, transform: "translate(-50%,-50%)", borderRadius: "50%", border: "3px solid rgba(255,255,255,0.85)", boxShadow: "0 0 0 2px rgba(0,0,0,0.4), 0 0 22px rgba(255,255,255,0.35), inset 0 0 34px rgba(255,255,255,0.14)", background: "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 68%, transparent)", pointerEvents: "none" }} />
-          )}
         </div>
       </div>
     </div>
@@ -2705,7 +2691,7 @@ const L5T2_R3_KEY = "edinun_juego6_l5t2_r3_v1";
 const L5T2_CAPITALES = [
   { prov: "Napo", cap: "TENA", e: "💧" },
   { prov: "Pastaza", cap: "PUYO", e: "🦜" },
-  { prov: "Morona Santiago", cap: "MACAS", e: "🕳️" },
+  { prov: "Morona Santiago", cap: "MACAS", e: "🌋" },
   { prov: "Zamora Chinchipe", cap: "ZAMORA", e: "🐻" },
   { prov: "Orellana", cap: "COCA", e: "🌳" },
 ];
@@ -2713,7 +2699,8 @@ const L5T2_ABC = "ABCDEFGHIJLMNOPRSTUVY".split("");
 function l5t2R3Build() {
   const recent = new Set(l3t2Recent(L5T2_R3_KEY)), all = L5T2_CAPITALES.map((_, i) => i);
   const idx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
-  l3t2Push(L5T2_R3_KEY, idx, 3);
+  // cap 4 (de 5 capitales): recuerda las últimas 4 → recorre las 5 antes de repetir ninguna.
+  l3t2Push(L5T2_R3_KEY, idx, 4);
   const item = L5T2_CAPITALES[idx], letters = item.cap.split("");
   // 3 letras señuelo (dificultad: más letras que descartar antes de ordenar).
   const decoys = l3Shuffle(L5T2_ABC.filter((c) => letters.indexOf(c) === -1)).slice(0, 3);
@@ -2721,7 +2708,7 @@ function l5t2R3Build() {
   return { item, word: item.cap, tiles };
 }
 
-function PR3Palabra({ onSolve, verifyRef }) {
+function PR3Palabra({ onSolve, verifyRef, eraseRef }) {
   const [b] = useStateG(() => l5t2R3Build());
   const [slots, setSlots] = useStateG(() => Array(b.word.length).fill(null));
   const [verified, setVerified] = useStateG(false);
@@ -2731,7 +2718,7 @@ function PR3Palabra({ onSolve, verifyRef }) {
     if (verified || used.has(id)) return;
     setSlots((prev) => { const i = prev.indexOf(null); if (i === -1) return prev; const n = prev.slice(); n[i] = id; return n; });
   }
-  function tapSlot(i) {
+  function tapSlot(i) {   // tocar una casilla con letra la devuelve a la bandeja (así se corrige)
     if (verified || slots[i] === null) return;
     setSlots((prev) => { const n = prev.slice(); n[i] = null; return n; });
   }
@@ -2742,33 +2729,126 @@ function PR3Palabra({ onSolve, verifyRef }) {
     onSolve(assembled === b.word, { emoji: "🔡", a: `Escribe la capital de ${b.item.prov}`, userAnswer: assembled || "—", correctAnswer: b.word });
   }
   verifyRef.current = verificar;
+  function borrarUltima() {   // ⌫ quita la última letra puesta (lo llama el botón BORRAR de la columna de acciones)
+    if (verified) return;
+    setSlots((prev) => { const n = prev.slice(); for (let i = n.length - 1; i >= 0; i--) { if (n[i] !== null) { n[i] = null; break; } } return n; });
+  }
+  eraseRef.current = borrarUltima;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 44 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Escribe la capital de</div>
-        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff" }}>{b.item.e} {b.item.prov}</div>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>¿Cuál es la capital de {b.item.prov}?</span>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, minHeight: 0, width: "100%" }}>
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-          {slots.map((id, i) => {
-            const ch = id === null ? "" : trayById[id].ch;
-            let border = "#f2c260", bg = "rgba(255,255,255,0.12)";
-            if (verified) { const good = ch !== "" && b.word[i] === ch; border = good ? "#2ecc8f" : "#ff6b6b"; bg = good ? "rgba(46,204,143,0.30)" : "rgba(255,107,107,0.28)"; }
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", minHeight: 0, width: "100%", paddingBottom: 8 }}>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        {slots.map((id, i) => {
+          const ch = id === null ? "" : trayById[id].ch;
+          let border = "#f2c260", bg = "rgba(255,255,255,0.12)";
+          if (verified) { const good = ch !== "" && b.word[i] === ch; border = good ? "#2ecc8f" : "#ff6b6b"; bg = good ? "rgba(46,204,143,0.30)" : "rgba(255,107,107,0.28)"; }
+          return (
+            <button key={i} onClick={() => tapSlot(i)} disabled={verified}
+              style={{ width: 52, height: 62, borderRadius: 12, border: `3px ${ch === "" ? "dashed" : "solid"} ${border}`, background: bg, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 28, cursor: verified ? "default" : "pointer", boxShadow: ch !== "" ? "0 4px 10px rgba(0,0,0,0.3)" : "none" }}>{ch}</button>
+          );
+        })}
+      </div>
+      {verified && assembled !== b.word && (
+        <div style={{ background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "2px solid #e0a72c", borderRadius: 999, padding: "3px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: "#5a3d0a", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>Va: {b.word}</div>
+      )}
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "nowrap" }}>
+        {b.tiles.map((t) => {
+          const isUsed = used.has(t.id);
+          return (
+            <button key={t.id} onClick={() => tapTile(t.id)} disabled={verified || isUsed}
+              style={{ width: 44, height: 54, flexShrink: 0, borderRadius: 12, border: "2px solid #e0a72c", background: isUsed ? "rgba(255,255,255,0.06)" : "linear-gradient(180deg,#fff8e6,#f7e3a8)", color: isUsed ? "transparent" : "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 23, cursor: verified || isUsed ? "default" : "pointer", opacity: isUsed ? 0.4 : 1, boxShadow: isUsed ? "none" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.3)" }}>{isUsed ? "" : t.ch}</button>
+          );
+        })}
+      </div>
+      </div>
+    </div>
+  );
+}
+
+// ── R3: ROMPECABEZAS DEL MAPA — ubica en el mapa las provincias que faltan (mecánica nueva) ──
+// Mapa ESQUEMÁTICO del Ecuador dibujado en código (no IA). 6 provincias del Oriente; 3 van
+// FIJAS como referencia y el niño coloca las otras 3 (toca la ficha → toca su "?" en el mapa).
+// Rota qué 3 faltan (anti-repetición). ¡VERIFICAR!: ✓/✗ y revela la correcta.
+const L5T2_R3M_KEY = "edinun_juego6_l5t2_r3map_v1";
+const L5T2_MAPA = [
+  { id: "sucumbios", t: "Sucumbíos", x: 214, y: 78 },
+  { id: "orellana", t: "Orellana", x: 244, y: 140 },
+  { id: "napo", t: "Napo", x: 166, y: 160 },
+  { id: "pastaza", t: "Pastaza", x: 228, y: 204 },
+  { id: "morona", t: "Morona S.", x: 198, y: 258 },
+  { id: "zamora", t: "Zamora Ch.", x: 180, y: 308 },
+];
+function l5t2MapProv(id) { const p = L5T2_MAPA.find((m) => m.id === id); return p ? p.t : id; }
+function l5t2R3MapBuild() {
+  const recent = new Set(l3t2Recent(L5T2_R3M_KEY)), all = L5T2_MAPA.map((_, i) => i);
+  const miss = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i)))).slice(0, 3);
+  miss.forEach((i) => l3t2Push(L5T2_R3M_KEY, i, 3));
+  const missingIds = miss.map((i) => L5T2_MAPA[i].id);
+  return { missingIds, tiles: l3Shuffle(missingIds.slice()) };
+}
+
+function PR3Mapa({ onSolve, verifyRef }) {
+  const MW = 300, MH = 322, SX = MW / 320, SY = MH / 340;
+  const [build] = useStateG(() => l5t2R3MapBuild());
+  const missing = build.missingIds;
+  const [sel, setSel] = useStateG(null);
+  const [placed, setPlaced] = useStateG({});      // regionId -> provinceId colocada
+  const [verified, setVerified] = useStateG(false);
+  const placedProvs = new Set(Object.values(placed));
+  function tapTile(pid) { if (verified || placedProvs.has(pid)) return; setSel(pid === sel ? null : pid); }
+  function tapRegion(rid) {
+    if (verified) return;
+    if (placed[rid] !== undefined) { setPlaced((p) => { const n = { ...p }; delete n[rid]; return n; }); setSel(null); return; }
+    if (sel === null) return;
+    setPlaced((p) => { const n = {}; Object.keys(p).forEach((k) => { if (p[k] !== sel) n[k] = p[k]; }); n[rid] = sel; return n; });
+    setSel(null);
+  }
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const ok = missing.every((rid) => placed[rid] === rid);
+    onSolve(ok, { emoji: "🗺️", a: "Ubica las provincias de la Amazonía", userAnswer: missing.map((rid) => `${l5t2MapProv(rid)} → ${placed[rid] ? l5t2MapProv(placed[rid]) : "?"}`).join(", "), correctAnswer: missing.map((rid) => l5t2MapProv(rid)).join(", ") });
+  }
+  verifyRef.current = verificar;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 8 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>¿Dónde va cada provincia?</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 16, minHeight: 0, width: "100%" }}>
+        <div style={{ position: "relative", width: MW, height: MH, flexShrink: 0 }}>
+          <svg width={MW} height={MH} viewBox="0 0 320 340" style={{ display: "block" }}>
+            <path d="M 64 62 Q 130 40 190 52 L 252 72 Q 288 98 276 146 L 266 206 Q 258 262 220 304 L 176 324 Q 120 316 96 276 L 70 212 Q 56 150 64 100 Z" fill="#1f7d5c" stroke="#f2c260" strokeWidth="3" />
+            <path d="M 64 62 Q 130 40 150 52 L 150 320 Q 118 315 96 276 L 70 212 Q 56 150 64 100 Z" fill="rgba(0,0,0,0.24)" />
+            <text x="104" y="196" fill="rgba(255,255,255,0.55)" fontSize="11" fontFamily="sans-serif" transform="rotate(-90 104 196)" textAnchor="middle">Sierra y Costa</text>
+          </svg>
+          {L5T2_MAPA.map((m) => {
+            const isMissing = missing.indexOf(m.id) !== -1, left = m.x * SX, top = m.y * SY;
+            if (!isMissing) {
+              return <div key={m.id} style={{ position: "absolute", left, top, transform: "translate(-50%,-50%)", background: "rgba(9,50,36,0.92)", border: "2px solid #f2c260", borderRadius: 999, padding: "3px 9px", whiteSpace: "nowrap", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: "#fce9a8", pointerEvents: "none" }}>{m.t}</div>;
+            }
+            const there = placed[m.id], correct = verified && there === m.id, wrong = verified && !correct;
+            let bg = there ? "rgba(79,143,239,0.92)" : "rgba(255,255,255,0.14)", border = there ? "#2773d8" : "#f2c260";
+            if (verified) { border = correct ? "#2ecc8f" : "#ff6b6b"; bg = correct ? "rgba(46,204,143,0.92)" : "rgba(255,107,107,0.88)"; }
             return (
-              <button key={i} onClick={() => tapSlot(i)} disabled={verified}
-                style={{ width: 48, height: 58, borderRadius: 12, border: `3px ${ch === "" ? "dashed" : "solid"} ${border}`, background: bg, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 26, cursor: verified ? "default" : "pointer", boxShadow: ch !== "" ? "0 4px 10px rgba(0,0,0,0.3)" : "none" }}>{ch}</button>
+              <button key={m.id} onClick={() => tapRegion(m.id)} disabled={verified}
+                style={{ position: "absolute", left, top, transform: "translate(-50%,-50%)", minWidth: 42, height: 30, borderRadius: 999, border: `3px ${there || verified ? "solid" : "dashed"} ${border}`, background: bg, padding: "0 9px", whiteSpace: "nowrap", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: "#fff", cursor: verified ? "default" : "pointer", boxShadow: "0 3px 8px rgba(0,0,0,0.4)" }}>
+                {there ? l5t2MapProv(there) : (verified ? "" : "?")}
+                {verified && <span style={{ position: "absolute", top: -11, right: -9, fontSize: 13, fontWeight: 900, color: "#fff", background: correct ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>{correct ? "✓" : "✗"}</span>}
+                {wrong && <span style={{ position: "absolute", bottom: -15, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "0 7px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, color: "#5a3d0a" }}>{m.t}</span>}
+              </button>
             );
           })}
         </div>
-        {verified && assembled !== b.word && (
-          <div style={{ background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "2px solid #e0a72c", borderRadius: 999, padding: "3px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: "#5a3d0a", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>Va: {b.word}</div>
-        )}
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 440 }}>
-          {b.tiles.map((t) => {
-            const isUsed = used.has(t.id);
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, flexShrink: 0 }}>
+          {build.tiles.map((pid) => {
+            const isPlaced = placedProvs.has(pid), selected = sel === pid;
             return (
-              <button key={t.id} onClick={() => tapTile(t.id)} disabled={verified || isUsed}
-                style={{ width: 46, height: 54, borderRadius: 12, border: "2px solid #e0a72c", background: isUsed ? "rgba(255,255,255,0.06)" : "linear-gradient(180deg,#fff8e6,#f7e3a8)", color: isUsed ? "transparent" : "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, cursor: verified || isUsed ? "default" : "pointer", opacity: isUsed ? 0.4 : 1, boxShadow: isUsed ? "none" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.3)" }}>{isUsed ? "" : t.ch}</button>
+              <button key={pid} onClick={() => tapTile(pid)} disabled={verified || isPlaced}
+                style={{ minWidth: 124, height: 46, borderRadius: 12, border: `3px solid ${selected ? "#4fd8ff" : "#e0a72c"}`, background: isPlaced ? "rgba(255,255,255,0.08)" : "linear-gradient(180deg,#fff8e6,#f7e3a8)", color: isPlaced ? "rgba(255,255,255,0.4)" : "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, cursor: verified || isPlaced ? "default" : "pointer", opacity: isPlaced ? 0.5 : 1, transform: selected ? "scale(1.05)" : "none", boxShadow: isPlaced ? "none" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.3)", transition: "transform 0.12s ease" }}>{l5t2MapProv(pid)}</button>
             );
           })}
         </div>
@@ -2777,12 +2857,105 @@ function PR3Palabra({ onSolve, verifyRef }) {
   );
 }
 
-// Arreglo de rondas del Tema 2 — las 3 mecánicas elegidas por la autora, cada una distinta:
-// R1 tocar la capital · R2 explorar con la lupa · R3 armar la palabra. `verify` = usa ¡VERIFICAR!.
+// ── R3: PESCA EN EL RÍO — las provincias pasan flotando por el río y el niño TOCA solo las
+// amazónicas antes de que se vayan (arcade). Amazónicas = acierto; intrusas (Sierra/Costa) =
+// dejarlas pasar. Se autoevalúa cuando todas salieron o fueron tocadas. Anti-repetición de amazónicas.
+const L5T2_PESCA_KEY = "edinun_juego6_l5t2_pesca_v1";
+const L5T2_AMAZ = ["Sucumbíos", "Orellana", "Napo", "Pastaza", "Morona Santiago", "Zamora Chinchipe"];
+const L5T2_NO_AMAZ = ["Pichincha", "Guayas", "Azuay", "Manabí", "Cotopaxi", "El Oro", "Chimborazo", "Los Ríos"];
+function l5t2PescaShort(n) { return n === "Morona Santiago" ? "Morona S." : n === "Zamora Chinchipe" ? "Zamora Ch." : n; }
+function l5t2PescaBuild() {
+  const recent = new Set(l3t2Recent(L5T2_PESCA_KEY));
+  const amaz = l3Shuffle(L5T2_AMAZ.filter((a) => !recent.has(a))).concat(l3Shuffle(L5T2_AMAZ.filter((a) => recent.has(a)))).slice(0, 3);
+  // cap 2 (no 3): con cap 3 y 6 provincias el set se partía en 2 grupos fijos y alternaba
+  // idéntico cada recarga; recordando solo 2 el trío cambia de verdad cada vez.
+  amaz.forEach((a) => l3t2Push(L5T2_PESCA_KEY, a, 2));
+  const intr = l3Shuffle(L5T2_NO_AMAZ).slice(0, 3);
+  const cards = l3Shuffle(amaz.map((p) => ({ prov: p, amazon: true })).concat(intr.map((p) => ({ prov: p, amazon: false }))));
+  return cards.map((c, i) => ({ ...c, id: i, t0: i * 1600, lane: i % 3 }));
+}
+
+function PR3Pesca({ onSolve }) {
+  const RW = 460, RH = 264, DUR = 6000, SPEED = (RW + 140) / (DUR / 1000);
+  const LANES = [22, 108, 194];
+  const [cards] = useStateG(() => l5t2PescaBuild());
+  const [elapsed, setElapsed] = useStateG(0);
+  const [taps, setTaps] = useStateG({});
+  const [wrongId, setWrongId] = useStateG(null);
+  const tapsRef = useRefG({}), endedRef = useRefG(false), startRef = useRefG(Date.now());
+  const amazTotal = cards.filter((c) => c.amazon).length;
+  const caughtAmaz = cards.filter((c) => c.amazon && taps[c.id]).length;
+  useEffectG(() => {
+    const t = setInterval(() => {
+      if (endedRef.current) return;   // congelado (por acierto total o por tocar una intrusa)
+      const e = Date.now() - startRef.current; setElapsed(e);
+      const tp = tapsRef.current;
+      const okNow = cards.filter((c) => c.amazon && tp[c.id]).length;
+      // Termina en cuanto pesca TODAS las amazónicas (ya no hace falta esperar a que pasen las intrusas)
+      if (!endedRef.current && (okNow === amazTotal || cards.every((c) => tp[c.id] || e - c.t0 > DUR))) {
+        endedRef.current = true; clearInterval(t);
+        const okAmaz = cards.filter((c) => c.amazon && tp[c.id]).length, badIntr = cards.filter((c) => !c.amazon && tp[c.id]).length;
+        onSolve(okAmaz === amazTotal && badIntr === 0, { emoji: "🎣", a: "Pesca las provincias de la Amazonía", userAnswer: cards.filter((c) => tp[c.id]).map((c) => c.prov).join(", ") || "—", correctAnswer: cards.filter((c) => c.amazon).map((c) => c.prov).join(", ") });
+      }
+    }, 40);
+    return () => clearInterval(t);
+  }, []);
+  function tap(c) {
+    if (tapsRef.current[c.id] || endedRef.current) return;
+    tapsRef.current = Object.assign({}, tapsRef.current, { [c.id]: true });
+    setTaps(Object.assign({}, tapsRef.current));
+    if (!c.amazon) {
+      // Tocó una que NO es de la Amazonía → error al instante: se congela el río, esa carta se marca
+      // en rojo ✗ (y las amazónicas visibles en verde ✓) y sale ¡UPS!. Una mal = incorrecto.
+      // onSolve va de una: el orquestador ya deja ~1.8 s viendo el error antes del ¡UPS! (como las demás rondas).
+      endedRef.current = true; setWrongId(c.id);
+      const tp = tapsRef.current;
+      onSolve(false, { emoji: "🎣", a: "Pesca las provincias de la Amazonía", userAnswer: cards.filter((x) => tp[x.id]).map((x) => x.prov).join(", ") || "—", correctAnswer: cards.filter((x) => x.amazon).map((x) => x.prov).join(", ") });
+    }
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>¿Cuáles son las provincias de la Amazonía?</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div style={{ position: "relative", width: RW, height: RH, borderRadius: 20, overflow: "hidden", border: "3px solid #4fb0e0", background: "linear-gradient(180deg, #2a7fb8, #1a5f92 60%, #134b73)", boxShadow: "inset 0 0 40px rgba(0,0,0,0.35), 0 12px 28px rgba(0,0,0,0.4)" }}>
+          <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 14px, transparent 14px 42px)", pointerEvents: "none" }} />
+          {cards.map((c) => {
+            const isWrong = wrongId === c.id;
+            const reveal = wrongId !== null;
+            const showGreen = reveal && c.amazon && !taps[c.id];   // amazónica aún en el río → se revela en verde
+            // la carta mala se queda fija en su sitio; las demás desaparecen al tocarlas o al pasar
+            if (!isWrong && (taps[c.id] || elapsed - c.t0 > DUR)) return null;
+            const x0 = RW - SPEED * ((elapsed - c.t0) / 1000);
+            if (!isWrong && (x0 > RW + 20 || x0 < -140)) return null;
+            // La carta mala se congela; si quedó pegada a un borde, se mete completa a la vista para que el ✗ se lea.
+            const x = isWrong ? Math.max(8, Math.min(x0, RW - 138)) : x0;
+            const bd = isWrong ? "#ff6b6b" : showGreen ? "#2ecc8f" : "#f2c260";
+            const bgc = isWrong ? "rgba(255,107,107,0.95)" : showGreen ? "rgba(46,204,143,0.95)" : "linear-gradient(180deg,#fff8e6,#f7e3a8)";
+            const col = (isWrong || showGreen) ? "#fff" : "#3a2608";
+            return (
+              <button key={c.id} onClick={() => tap(c)} disabled={reveal}
+                style={{ position: "absolute", left: x, top: LANES[c.lane], width: 130, height: 46, borderRadius: 12, border: `3px solid ${bd}`, background: bgc, color: col, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, cursor: reveal ? "default" : "pointer", boxShadow: "0 5px 12px rgba(0,0,0,0.35)", whiteSpace: "nowrap", padding: "0 6px" }}>
+                {l5t2PescaShort(c.prov)}
+                {isWrong && <span style={{ position: "absolute", top: -11, right: -9, fontSize: 14, fontWeight: 900, color: "#fff", background: "#c0392b", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>✗</span>}
+                {showGreen && <span style={{ position: "absolute", top: -11, right: -9, fontSize: 14, fontWeight: 900, color: "#fff", background: "#1f8a54", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</span>}
+              </button>
+            );
+          })}
+          <div style={{ position: "absolute", top: 8, right: 10, background: "rgba(0,0,0,0.4)", borderRadius: 999, padding: "4px 12px", color: "#fce9a8", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, pointerEvents: "none" }}>🎣 {caughtAmaz}/{amazTotal}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Arreglo de rondas del Tema 2 (mecánicas elegidas por la autora, cada una distinta):
+// R1 armar la palabra · R2 explorar con la lupa (imagen real) · R3 rompecabezas del mapa.
 const L5T2_ROUNDS = [
-  { C: PR1Capital, verify: false, bubble: (<>Toca su<br />capital.</>) },
+  { C: PR3Palabra, verify: true, erase: true, bubble: (<>Toca las letras<br />en orden.</>) },
   { C: PR2Lupa, verify: false, bubble: (<>Mueve la lupa<br />por la selva.</>) },
-  { C: PR3Palabra, verify: true, bubble: (<>Arma la<br />capital.</>) },
+  { C: PR3Pesca, verify: false, bubble: (<>Tócalas cuando<br />pasen por el río.</>) },
 ];
 
 function AmazoniaGame({ app, setApp, go }) {
@@ -2790,6 +2963,7 @@ function AmazoniaGame({ app, setApp, go }) {
   const catLabel = app.currentCatLabel || "La región amazónica";
   const ROUNDS = L5T2_ROUNDS;
   const TOTAL = ROUNDS.length;
+  const eraseRef = useRefG(null);
   const [round, setRound] = useStateG(0);
   const [stars, setStars] = useStateG(0);
   const [log, setLog] = useStateG([]);
@@ -2870,7 +3044,425 @@ function AmazoniaGame({ app, setApp, go }) {
       </div>
 
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
-        <Comp key={`p${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />
+        <Comp key={`p${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} eraseRef={eraseRef} />
+      </div>
+
+      <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
+        {ROUNDS[round].verify && !busy && (
+          <button className="ed-btn" onClick={() => verifyRef.current && verifyRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none" }}>¡VERIFICAR!</button>
+        )}
+        {ROUNDS[round].erase && !busy && (
+          <button className="ed-btn ed-btn-erase" onClick={() => eraseRef.current && eraseRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>BORRAR</button>
+        )}
+        <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
+        <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+      </div>
+
+      {feedback && (
+        <PortalToBody>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(3px)", animation: "ed-pop-in 0.3s" }}>
+            <div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(56px, 11vmin, 120px)", color: feedback === "ok" ? "#2ecc8f" : "#ff6b6b", textShadow: "0 4px 0 rgba(0,0,0,0.45), 0 0 60px currentColor" }}>{feedback === "ok" ? "¡EXCELENTE!" : "¡UPS!"}</div>
+            {feedbackMsg && (<div style={{ fontFamily: "'Fredoka','Baloo 2',system-ui,sans-serif", fontWeight: 700, fontSize: "clamp(18px, 2.6vmin, 30px)", color: feedback === "ok" ? "#fce9a8" : "#fff", background: "rgba(0,0,0,0.55)", padding: "8px 26px", borderRadius: 999, textShadow: "0 2px 6px rgba(0,0,0,0.6)", textAlign: "center" }}>{feedback === "err" ? `${feedbackMsg} — ${char.name}` : feedbackMsg}</div>)}
+          </div>
+        </PortalToBody>
+      )}
+
+      {confirmingExit && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(255,107,107,0.3)" }}>
+              <div className="ed-label" style={{ color: "#ff8b8b", marginBottom: 6 }}>Salir del juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Volver al inicio?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={() => { setConfirmingExit(false); go("home"); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, SALIR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+
+      {confirmingRestart && (
+        <PortalToBody>
+          <div onClick={() => setConfirmingRestart(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+            <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
+              <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
+              <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar {TOTAL === 1 ? "la ronda" : `las ${TOTAL} rondas`} otra vez.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
+                <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
+              </div>
+            </div>
+          </div>
+        </PortalToBody>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════ Libro 6 · Tema 1 · "La Amazonía, nido de vida silvestre" (SilvestreGame, 10 años) ═══════════════
+// 3 rondas con 3 VERBOS distintos (arrastrar · marcar varios · tocar 1 de 4). Todo el
+// contenido es textual del TEMA 2 del Libro 6. Diseño: `.planning/libro-6-tema-1-design.md`.
+// ⚠ No repite lo del Libro 5·T2 (capital / lupa / armar palabra) ni lo del Libro 3·T3
+// (límites del Ecuador): este tema va por la CUENCA, el RELIEVE y las NACIONALIDADES.
+// ⚠ Datos que el libro se contradice a sí mismo y por eso NO son respuesta: la extensión
+// (115 613 km² en el texto vs 120 000 en el cuaderno), cuántas nacionalidades son (dice
+// siete y nombra nueve) y la ortografía Zumaco/Sumaco (se ordena por altura, no se escribe).
+
+// R1 — tres "escaleras" que rotan. `items` va SIEMPRE en el orden correcto (arriba→abajo);
+// el dato `d` solo se muestra AL VERIFICAR: con el número a la vista, ordenar sería leer.
+// `rep` = título CORTO para la tabla del reporte: esa columna es angosta y con el
+// subtítulo largo cada fila ocupaba 3 líneas y solo se veía una de las 3 rondas.
+const L6T1_ESCALERAS = [
+  { id: "relieve", enun: "Ordena las zonas de la más alta a la más baja.", sub: "El relieve baja de los Andes hacia el Este", rep: "Zonas del relieve", top: "⬆ MÁS ALTO", bottom: "⬇ MÁS BAJO",
+    items: [{ t: "La subandina", d: "2 500 – 500 m" }, { t: "El piedemonte", d: "1 500 – 300 m" }, { t: "Llanuras aluviales", d: "250 – 300 m" }] },
+  { id: "volcanes", enun: "Ordena los volcanes del más alto al más bajo.", sub: "Volcanes de la zona subandina", rep: "Volcanes por altura", top: "⬆ MÁS ALTO", bottom: "⬇ MÁS BAJO",
+    items: [{ t: "Zumaco", d: "3 990 m" }, { t: "Reventador", d: "3 562 m" }, { t: "Pan de Azúcar", d: "3 482 m" }] },
+  { id: "clima", enun: "Ordena los lugares del más frío al más caliente.", sub: "La temperatura cambia con la altura", rep: "Temperatura y altura", top: "⬆ MÁS FRÍO", bottom: "⬇ MÁS CALIENTE",
+    items: [{ t: "Papallacta", d: "9 °C" }, { t: "Putumayo", d: "25 °C" }, { t: "Llanura amazónica", d: "40 °C" }] },
+];
+
+// R2 — los 8 países que baña el Amazonas son TEXTUALES del libro; los intrusos son
+// contrastes obvios (no del libro), como en el banco del Libro 2.
+const L6T1_CUENCA = ["Ecuador", "Colombia", "Perú", "Bolivia", "Brasil", "Guyana Francesa", "Surinam", "Venezuela"];
+const L6T1_INTRUSOS = ["Chile", "Argentina", "Uruguay", "Paraguay", "México", "Panamá", "Costa Rica", "Cuba"];
+
+// R3 — pistas de la tabla "Nacionalidades indígenas" y de la actividad 2 del cuaderno
+// (esa actividad trae la clave del propio libro, que es lo que desempata Secoya vs Siona:
+// las dos viven en Shushufindi, pero el libro asigna el río Aguarico a los Secoya).
+const L6T1_NACIONALIDADES = ["Kichwa", "Cofán", "Secoya", "Siona", "Huaorani", "Shuar"];
+// Foto OPCIONAL de cada nacionalidad en `assets/l6-nac-<slug>.(jpg|png|jpeg|webp)`, que
+// salen de la columna "Iconografía" de la tabla del libro. ⚠ Son PERSONAS REALES: no se
+// generan con IA. Si el archivo no está, la tarjeta se queda solo con el nombre y la
+// ronda funciona igual (hoy no hay ninguna subida).
+const L6T1_NAC_SLUG = { "Kichwa": "kichwa", "Cofán": "cofan", "Secoya": "secoya", "Siona": "siona", "Huaorani": "huaorani", "Shuar": "shuar" };
+// `hi` = el dato que decide la respuesta; se pinta en dorado dentro de la pista para que
+// el niño sepa DÓNDE mirar (petición de la autora: "que sea más fácil adivinarlo").
+const L6T1_PISTAS = [
+  { p: "Están en la zona alta de las provincias de Napo y Sucumbíos.", hi: "Napo y Sucumbíos", n: "Kichwa" },
+  { p: "Viven en la parte noroccidental de la región amazónica.", hi: "noroccidental", n: "Kichwa" },
+  { p: "Viven cerca de Lago Agrio, en la provincia de Sucumbíos.", hi: "Lago Agrio", n: "Cofán" },
+  { p: "Su nación es una de las más pequeñas del mundo: unas 1 000 personas.", hi: "1 000 personas", n: "Cofán" },
+  { p: "Se ubican en las riberas del río Aguarico.", hi: "río Aguarico", n: "Secoya" },
+  { p: "Se encuentran en Sucumbíos, en el cantón Shushufindi.", hi: "cantón Shushufindi", n: "Siona" },
+  { p: "Van desde el río Napo, al Norte, hasta el Curaray, al Sur.", hi: "Curaray", n: "Huaorani" },
+  { p: "Están en la provincia de Pastaza y en parte de Orellana.", hi: "Pastaza", n: "Huaorani" },
+  { p: "Viven en Morona Santiago, Pastaza y Zamora Chinchipe.", hi: "Morona Santiago", n: "Shuar" },
+];
+
+const L6T1_R1_KEY = "edinun_juego6_l6t1_r1_v1";
+const L6T1_R2_KEY = "edinun_juego6_l6t1_r2_v1";
+const L6T1_R3_KEY = "edinun_juego6_l6t1_r3_v1";
+
+function l6t1BuildR1() {
+  const recent = l3t2Recent(L6T1_R1_KEY);
+  const fresh = L6T1_ESCALERAS.filter((e) => recent.indexOf(e.id) === -1);
+  const pool = fresh.length ? fresh : L6T1_ESCALERAS;
+  const esc = pool[Math.floor(Math.random() * pool.length)];
+  l3t2Push(L6T1_R1_KEY, esc.id, 2);   // cap 2 sobre 3 → rotación estricta
+  return esc;
+}
+
+// ⚠ El cap DEBE ser menor que (banco − elegidos), o la ronda se vuelve un péndulo:
+// con banco 8, elegir 4 y cap 4 dejaba justo los otros 4 como "frescos", así que la
+// partida siguiente los elegía SIEMPRE a todos → solo 2 tableros posibles, alternando.
+// Con cap 2 quedan 6 frescos → C(6,4) = 15 grupos por partida (medido: 26 de 30 distintos).
+function l6t1BuildR2() {
+  const recent = new Set(l3t2Recent(L6T1_R2_KEY));
+  const frescos = l3Shuffle(L6T1_CUENCA.filter((p) => !recent.has(p)));
+  const usados = l3Shuffle(L6T1_CUENCA.filter((p) => recent.has(p)));
+  const buenos = frescos.concat(usados).slice(0, 4);
+  buenos.forEach((p) => l3t2Push(L6T1_R2_KEY, p, 2));
+  const malos = l3Shuffle(L6T1_INTRUSOS.slice()).slice(0, 4);
+  return { cards: l3Shuffle(buenos.map((t) => ({ t, ok: true })).concat(malos.map((t) => ({ t, ok: false })))), buenos };
+}
+
+function l6t1BuildR3() {
+  const recent = l3t2Recent(L6T1_R3_KEY);
+  const fresh = L6T1_PISTAS.filter((x) => recent.indexOf(x.p) === -1);
+  const pool = fresh.length ? fresh : L6T1_PISTAS;
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  l3t2Push(L6T1_R3_KEY, q.p, 4);
+  const otras = l3Shuffle(L6T1_NACIONALIDADES.filter((n) => n !== q.n)).slice(0, 3);
+  return { q, opts: l3Shuffle(otras.concat([q.n])) };
+}
+
+// ── R1: el descenso — ordenar 3 fichas ARRASTRANDO (reusa el patrón de PR2OrdenNS) ──
+// Sin dibujo del corte del terreno: se probó un perfil SVG al lado de las fichas y la
+// autora lo mandó quitar ("está bien feo, solo deja las opciones"). Las etiquetas
+// ⬆ MÁS ALTO / ⬇ MÁS BAJO ya dicen para dónde va la escalera.
+function SR1Descenso({ onSolve, verifyRef }) {
+  const [esc] = useStateG(() => l6t1BuildR1());
+  const cards = esc.items;
+  const [order, setOrder] = useStateG(() => { let o = l3Shuffle([0, 1, 2]); if (o[0] === 0 && o[1] === 1 && o[2] === 2) o = [o[1], o[0], o[2]]; return o; });
+  const [verified, setVerified] = useStateG(false);
+  const [revealSol, setRevealSol] = useStateG(false);
+  const [dragPos, setDragPos] = useStateG(null);
+  const [dxy, setDxy] = useStateG({ x: 0, y: 0 });
+  const colRef = useRefG(null), startRef = useRefG({ x: 0, y: 0 }), slotCentersRef = useRefG([]);
+  function down(e, pos) { if (verified) return; startRef.current = { x: e.clientX, y: e.clientY }; const col = colRef.current; slotCentersRef.current = col ? [...col.querySelectorAll("[data-slot]")].map((s) => { const r = s.getBoundingClientRect(); return r.top + r.height / 2; }) : []; setDragPos(pos); setDxy({ x: 0, y: 0 }); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }
+  function move(e) { if (dragPos === null) return; const cy = slotCentersRef.current; let target = 0; for (let i = 0; i < cy.length; i++) if (e.clientY > cy[i] - 6) target = i; if (cy.length && target !== dragPos) { setOrder((prev) => { const a = prev.slice(); const [m] = a.splice(dragPos, 1); a.splice(target, 0, m); return a; }); startRef.current = { x: startRef.current.x, y: cy[target] }; setDragPos(target); setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - cy[target] }); return; } setDxy({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y }); }
+  function up() { if (dragPos === null) return; setDragPos(null); setDxy({ x: 0, y: 0 }); }
+  function verificar() {
+    if (verified) return;
+    const isCorrect = order[0] === 0 && order[1] === 1 && order[2] === 2;
+    setVerified(true);
+    if (!isCorrect) setTimeout(() => setRevealSol(true), 1000);
+    onSolve(isCorrect, { emoji: "⛰️", a: esc.rep, userAnswer: order.map((i) => cards[i].t).join(" › "), correctAnswer: cards.map((c) => c.t).join(" › ") });
+  }
+  verifyRef.current = verificar;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>{esc.enun}</div>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 3 }}>{esc.sub}</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{esc.top}</div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div ref={colRef} style={{ display: "flex", flexDirection: "column", gap: 18, touchAction: "none", transform: revealSol ? "translateX(-70px)" : "none", transition: "transform 0.3s ease" }}>
+            {order.map((cardIdx, pos) => {
+              const c = cards[cardIdx], dragging = dragPos === pos, okPos = verified && order[pos] === pos;
+              const pal = L3T2_CARD_COLORS[cardIdx % 3];
+              let border = pal.border, bg = pal.bg;
+              if (verified) { border = okPos ? "#2ecc8f" : "#ff6b6b"; bg = okPos ? "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))" : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; }
+              const inkMain = verified ? (okPos ? "#06381f" : "#fff") : pal.ink;
+              return (
+                <div key={cardIdx} data-slot onPointerDown={(e) => down(e, pos)} onPointerMove={move} onPointerUp={up}
+                  style={{ position: "relative", width: 214, height: 60, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "grab", touchAction: "none", userSelect: "none", boxShadow: dragging ? "0 16px 30px rgba(0,0,0,0.5)" : "inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.3)", transform: dragging ? `translate(${dxy.x}px, ${dxy.y}px) scale(1.04)` : "none", transition: dragging ? "none" : "transform 0.15s ease", zIndex: dragging ? 50 : 1 }}>
+                  <span style={{ fontSize: verified ? 22 : 17, fontWeight: 900, color: verified ? inkMain : pal.handle, width: 20, textAlign: "center", flexShrink: 0 }}>{verified ? (okPos ? "✓" : "✗") : "⠿"}</span>
+                  <div style={{ textAlign: "center", lineHeight: 1.05 }}>
+                    <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: inkMain }}>{c.t}</div>
+                    {verified && <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 11, color: inkMain, opacity: 0.85 }}>{c.d}</div>}
+                  </div>
+                  {revealSol && order[pos] !== pos && (
+                    <div style={{ position: "absolute", left: "calc(100% + 12px)", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 7, whiteSpace: "nowrap", background: "linear-gradient(180deg, #ffe6a1, #f1c153)", border: "2px solid #e0a72c", borderRadius: 12, padding: "4px 12px", boxShadow: "0 5px 12px rgba(0,0,0,0.4)" }}>
+                      <span style={{ fontSize: 15, fontWeight: 900, color: "#1f8a54" }}>✓</span>
+                      <div style={{ textAlign: "left", lineHeight: 1.05 }}>
+                        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(90,61,10,0.7)" }}>aquí va</div>
+                        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#5a3d0a" }}>{cards[pos].t}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="ed-label" style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{esc.bottom}</div>
+      </div>
+    </div>
+  );
+}
+
+// ── R2: la cuenca del Amazonas — MARCAR VARIOS (○ / ●) + ¡VERIFICAR! ──
+// Mismo lenguaje de marcas y de revelado que la R3 del Libro 3 · Tema 2: ✓ en las bien
+// marcadas, ✗ en las intrusas marcadas y "faltó" en las correctas que dejó fuera.
+function SR2Cuenca({ onSolve, verifyRef }) {
+  const [built] = useStateG(() => l6t1BuildR2());
+  const [picked, setPicked] = useStateG({});
+  const [verified, setVerified] = useStateG(false);
+  function toggle(t) { if (verified) return; setPicked((p) => Object.assign({}, p, { [t]: !p[t] })); }
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const isCorrect = built.cards.every((c) => (c.ok ? !!picked[c.t] : !picked[c.t]));
+    const marcados = built.cards.filter((c) => picked[c.t]).map((c) => c.t);
+    onSolve(isCorrect, { emoji: "🌊", a: "Países de la cuenca", userAnswer: marcados.length ? marcados.join(", ") : "ninguno", correctAnswer: built.buenos.join(", ") });
+  }
+  verifyRef.current = verificar;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        {/* Sin la línea "Son cuatro": la autora la mandó quitar. El número no se dice ni
+            aquí ni en el bocadillo — el niño decide cuántos marca y ✓/✗/"faltó" se lo
+            muestran al verificar. */}
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>Toca los países que baña el río Amazonas.</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 400 }}>
+        {built.cards.map((c) => {
+          const on = !!picked[c.t];
+          // Elegido = tarjeta VIOLETA con texto blanco (gradiente 4º del estándar), no un
+          // crema un poco más oscuro: la autora no distinguía cuáles había tocado. El
+          // verde y el rojo quedan reservados para el ✓/✗ de la verificación.
+          let border = on ? "#f2c260" : "rgba(242,194,96,0.55)";
+          let bg = on ? "linear-gradient(180deg, #b48aff, #6f3fe0)" : "linear-gradient(180deg, rgba(255,248,230,0.92), rgba(247,227,168,0.88))";
+          let ink = on ? "#fff" : "#3a2608";
+          if (verified) {
+            if (c.ok && on) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; ink = "#06381f"; }
+            else if (!c.ok && on) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; ink = "#fff"; }
+            else if (c.ok && !on) { border = "#c98a1e"; bg = "linear-gradient(180deg, #fff2d0, #f4d693)"; }
+          }
+          return (
+            <button key={c.t} onClick={() => toggle(c.t)} disabled={verified}
+              style={{ position: "relative", height: 50, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: verified ? "default" : "pointer", transform: on && !verified ? "scale(1.04)" : "none", transition: "transform 0.12s ease", boxShadow: on && !verified ? "0 0 0 3px rgba(242,194,96,0.55), 0 8px 18px rgba(0,0,0,0.38)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
+              <span style={{ fontSize: 15, fontWeight: 900, color: ink, width: 16, textAlign: "center", flexShrink: 0 }}>{verified ? (on ? (c.ok ? "✓" : "✗") : "") : (on ? "●" : "○")}</span>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 16, color: ink, lineHeight: 1.05 }}>{c.t}</span>
+              {verified && c.ok && !on && (
+                <span style={{ position: "absolute", top: -9, right: -7, background: "#c98a1e", color: "#fff", fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 10, padding: "2px 8px", borderRadius: 999, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>faltó</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── R3: ¿quiénes viven aquí? — TOCAR 1 de 4 (valida al tocar, sin ¡VERIFICAR!) ──
+function SR3Nacionalidad({ onSolve }) {
+  const [b] = useStateG(() => l6t1BuildR3());
+  const [picked, setPicked] = useStateG(null);
+  function tap(n) {
+    if (picked) return;
+    setPicked(n);
+    onSolve(n === b.q.n, { emoji: "📍", a: b.q.p, userAnswer: n, correctAnswer: b.q.n });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", height: "100%", width: "100%" }}>
+      <div style={{ textAlign: "center", pointerEvents: "none" }}>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 21, color: "#fff", textShadow: "0 2px 6px rgba(0,0,0,0.55)" }}>¿Qué nacionalidad vive aquí?</div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 18, padding: "16px 20px", maxWidth: 440, boxShadow: "0 12px 28px rgba(0,0,0,0.4)" }}>
+        <span style={{ fontSize: 30, lineHeight: 1, flexShrink: 0 }}>📍</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 17, color: "#3a2608", lineHeight: 1.2, textAlign: "left" }}>
+          {(() => {
+            // Parte la pista en tres para pintar el dato clave; si `hi` no estuviera,
+            // se muestra la frase entera tal cual (nunca se pierde texto).
+            const i = b.q.hi ? b.q.p.indexOf(b.q.hi) : -1;
+            if (i === -1) return b.q.p;
+            return (<>{b.q.p.slice(0, i)}<span style={{ color: "#a8621a", background: "rgba(242,194,96,0.45)", borderRadius: 6, padding: "0 4px" }}>{b.q.hi}</span>{b.q.p.slice(i + b.q.hi.length)}</>);
+          })()}
+        </span>
+      </div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "nowrap" }}>
+        {b.opts.map((n) => {
+          const isCorrect = n === b.q.n, isPicked = n === picked;
+          let border = "rgba(242,194,96,0.7)", bg = "linear-gradient(180deg, #fff8e6, #f7e3a8)", ink = "#3a2608";
+          if (picked) {
+            if (isCorrect) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(72,224,154,0.95), rgba(26,143,95,0.92))"; ink = "#06381f"; }
+            else if (isPicked) { border = "#ff6b6b"; bg = "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))"; ink = "#fff"; }
+            else { bg = "linear-gradient(180deg, rgba(255,248,230,0.5), rgba(247,227,168,0.5))"; }
+          }
+          return (
+            <button key={n} onClick={() => tap(n)} disabled={!!picked}
+              style={{ position: "relative", width: 106, minHeight: 52, borderRadius: 14, border: `3px solid ${border}`, background: bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 6px", cursor: picked ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 5px 12px rgba(0,0,0,0.28)" }}>
+              {/* ✓ / ✗ explícitos al responder (lo pidió la autora): el color solo no basta.
+                  ⚠ La tarjeta NO lleva overflow:hidden — el recorte va dentro de la foto —
+                  o estos badges saldrían cortados, como pasó en la R3 del Libro 5. */}
+              {picked && (isCorrect || isPicked) && (
+                <span style={{ position: "absolute", top: -10, right: -8, zIndex: 3, width: 26, height: 26, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900, color: isCorrect ? "#1f8a54" : "#c0392b", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{isCorrect ? "✓" : "✗"}</span>
+              )}
+              {/* La foto solo aparece si el archivo existe (L3T3Foto con fallback null no
+                  dibuja nada al fallar) → sin fotos, la tarjeta queda como antes. */}
+              <L3T3Foto cands={[{ p: "l6-nac", s: L6T1_NAC_SLUG[n] }]} fallback={null} w={86} h={86} radius={11} />
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: ink, lineHeight: 1.05 }}>{n}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const L6T1_ROUNDS = [
+  { C: SR1Descenso, verify: true, bubble: (<>Arrastra cada ficha<br />a su lugar.</>) },
+  { C: SR2Cuenca, verify: true, bubble: (<>Elige con calma<br />y comprueba.</>) },
+  { C: SR3Nacionalidad, verify: false, bubble: (<>Toca la nacionalidad<br />correcta.</>) },
+];
+
+function SilvestreGame({ app, setApp, go }) {
+  const char = CHARACTERS.find((c) => c.id === app.character) || CHARACTERS[0];
+  const catLabel = app.currentCatLabel || "La Amazonía, nido de vida silvestre";
+  const ROUNDS = L6T1_ROUNDS;
+  const TOTAL = ROUNDS.length;
+  const [round, setRound] = useStateG(0);
+  const [stars, setStars] = useStateG(0);
+  const [log, setLog] = useStateG([]);
+  const [elapsed, setElapsed] = useStateG(0);
+  const [feedback, setFeedback] = useStateG(null);
+  const [feedbackMsg, setFeedbackMsg] = useStateG("");
+  const [confirmingExit, setConfirmingExit] = useStateG(false);
+  const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [rk, setRk] = useStateG(0);
+  const [busy, setBusy] = useStateG(false);
+  const started = useRefG(Date.now());
+  const advancing = useRefG(false);
+  const verifyRef = useRefG(null);
+
+  useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
+  function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
+
+  function onSolve(isCorrect, entry) {
+    if (advancing.current) return;
+    advancing.current = true; setBusy(true);
+    if (typeof markFirstAttempt === "function") markFirstAttempt();
+    const newLog = [...log, { idx: round + 1, isCorrect, ...entry }];
+    const newStars = stars + (isCorrect ? 1 : 0);
+    setLog(newLog); setStars(newStars);
+    if (isCorrect) setApp((s) => ({ ...s, stars: (s.stars || 0) + 1 }));
+    // Al fallar se deja ver la respuesta correcta antes del cartel (más tiempo si la
+    // ronda revela con la pastilla "AQUÍ VA", que aparece 1 s después de verificar).
+    // Al acertar se esperan 500 ms para que dé tiempo a VER el ✓ en la tarjeta antes de
+    // que el "¡EXCELENTE!" tape la pantalla (petición de la autora: que se vea la marca).
+    const showFbAt = isCorrect ? 500 : (ROUNDS[round].verify ? 2300 : 1800);
+    const advanceAt = showFbAt + (isCorrect ? 1150 : 1000);
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? "+1 ⭐" : L3_ANIMOS[round % L3_ANIMOS.length]); }, showFbAt);
+    setTimeout(() => {
+      setFeedback(null); setFeedbackMsg("");
+      if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
+      else {
+        const solved = newLog.filter((e) => e.isCorrect).length;
+        setApp((s) => ({ ...s, stars: newStars, lastResult: { category: catLabel, solved, total: TOTAL, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog } }));
+        if (typeof incrementGamesCompleted === "function") incrementGamesCompleted();
+        go("results");
+      }
+    }, advanceAt);
+  }
+
+  function confirmRestart() {
+    setConfirmingRestart(false); advancing.current = false; setBusy(false);
+    setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    started.current = Date.now();
+  }
+
+  const Comp = ROUNDS[round].C;
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 10, left: 16, right: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <EdinunLogoMini size={64} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-mono)", fontSize: 13, color: "#fce9a8" }}>⏱ {formatTime(elapsed)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "6px 12px", border: "1px solid rgba(242,194,96,0.4)", fontFamily: "var(--ed-font-display)", fontWeight: 600, color: "#fce9a8" }}>⭐ {stars}</div>
+        </div>
+      </div>
+
+      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
+        {Array.from({ length: TOTAL }).map((_, i) => {
+          const done = i < log.length, ok = done && log[i] && log[i].isCorrect;
+          return <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: done ? (ok ? "#fce9a8" : "#ff6b6b") : (i === round ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"), boxShadow: done ? "0 0 8px currentColor" : "none", color: ok ? "#fce9a8" : "#ff6b6b" }} />;
+        })}
+      </div>
+
+      <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
+        <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {ROUNDS[round].bubble}
+            <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)", width: 140, height: 16, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(242,194,96,0.45), transparent 70%)", filter: "blur(5px)" }} />
+          <char.Component size={186} floating />
+        </div>
+        <div style={{ marginTop: -2, fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, color: "#fce9a8", letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>{char.name}</div>
+      </div>
+
+      <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
+        <Comp key={`s${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />
       </div>
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
@@ -2912,7 +3504,7 @@ function AmazoniaGame({ app, setApp, go }) {
             <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(155,123,232,0.3)" }}>
               <div className="ed-label" style={{ color: "#c4a8ff", marginBottom: 6 }}>Reiniciar juego</div>
               <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Empezar de nuevo?</h2>
-              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar {TOTAL === 1 ? "la ronda" : `las ${TOTAL} rondas`} otra vez.</p>
+              <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a jugar las {TOTAL} rondas otra vez.</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingRestart(false)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR JUGANDO</button>
                 <button className="ed-btn ed-btn-primary" onClick={confirmRestart} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, REINICIAR</button>
@@ -2965,7 +3557,7 @@ function SwitchTemaModal({ tema, onCancel, onConfirm }) {
 // con modal de confirmación. Al implementar un tema nuevo: mapear su componente en `pick`.
 function GameScreen({ app, setApp, go }) {
   const libro = typeof LIBROS !== "undefined" ? LIBROS.find((l) => l.id === app.libro) : null;
-  const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame, "l3-t3": ViajeGame, "l5-t1": InterandinaGame, "l5-t2": AmazoniaGame };
+  const pick = { "l2-t1": ReconoceGame, "l3-t1": VentanasGame, "l3-t2": TerritorioGame, "l3-t3": ViajeGame, "l5-t1": InterandinaGame, "l5-t2": AmazoniaGame, "l6-t1": SilvestreGame };
   const Game = pick[app.currentCategory] || PlaceholderGame;
   const [pendingTema, setPendingTema] = useStateG(null);
   function requestSwitch(t) { if (!libro || t.id === app.currentCategory) return; setPendingTema(t); }

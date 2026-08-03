@@ -203,6 +203,56 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   De paso: al decidir en `pointerup`, medir con la **ref del elemento**, no con
   `e.currentTarget` (con capture no siempre es el que se cree).
 
+## Libro 6 · Tema 1 · "La Amazonía, nido de vida silvestre" (10 años)
+
+- La autora pidió "un juego nuevo" y eligió: **tema nuevo dentro del hub**, en el
+  **Libro 6** (el último botón que quedaba en construcción). Con esto el hub queda
+  **completo: 7 temas, 0 placeholders**.
+- **La pregunta clave la hizo ella:** *"si se supone que vamos a recargar la página y que
+  no me salga lo mismo, ¿qué opciones más vamos a tener por cada ronda?"*. Se contaron los
+  ejercicios distintos de cada propuesta ANTES de codear, y eso **descartó una mecánica
+  entera** (la del mapa: sus tres rondas eran de contenido fijo y repetían ya en la 2ª
+  partida). **Aprendizaje: contar el banco por ronda es parte del diseño, no del QA.**
+- Luego dijo *"haz lo que creas conveniente"* y se armó la mezcla: R1 de una propuesta +
+  las dos rondas más variadas de otra. Verbos distintos a propósito (arrastrar · marcar
+  varios · tocar 1 de 4), porque ella misma notó en el Libro 3 que dos rondas seguidas de
+  arrastrar se sienten iguales.
+- **Riesgo evitado:** el hub ya tenía dos temas de Amazonía (Libro 5·T2 con capitales/lupa/
+  palabra y Libro 3·T3 con los límites del Ecuador — que es justo el ejercicio "Delimita y
+  pinta" de este cuaderno). Este tema se construyó sobre lo suyo: **cuenca · relieve ·
+  nacionalidades**.
+- **El libro se contradice a sí mismo en 4 datos** (extensión 115 613 vs 120 000 km²;
+  "siete nacionalidades" y nombra nueve; Zumaco vs Sumaco; el cuaderno pone "Tena" como
+  provincia y omite Pastaza). Ninguno se usa como respuesta — mismo criterio que con la
+  doble altura del Chimborazo.
+- **Verificado:** e2e perfecto 3/3 · 100 % · 3 ⭐ en 4 viewports, e2e con fallos (revela
+  "AQUÍ VA" y "faltó"), overflow 0, colchón 47 px, anti-repetición 0 consecutivas en 5
+  recargas, format-lint 15/15.
+- **Las fotos de la R3 salieron del PDF del libro** (2026-08-03). La autora preguntó si yo
+  podía sacarlas de las capturas del chat: **no** (una imagen pegada en el chat no es un
+  archivo que se pueda guardar), pero sí del **PDF** que dejó en `juegos/juego-6/PDF/`.
+  Receta, porque esta máquina **no tiene poppler, ImageMagick ni PIL**: volcar los JPEG
+  incrustados cortando el binario entre `FFD8`…`FFD9` → recortar a cuadrado con un
+  `<canvas>` en Chromium (Playwright), pasando la imagen como `data:` URL porque desde
+  `about:blank` no se puede leer `file://` → **verificar** renderizando la página con
+  **pdf.js** desde CDN. Lo tercero no es opcional: el orden de los JPEG dentro del PDF no
+  tiene por qué ser el de la tabla, y etiquetar mal una nacionalidad sería un error de
+  contenido escolar. (Aquí coincidía, pero eso se supo *después* de comprobarlo.)
+- **Lo que la autora corrigió jugando la R2 y la R3** (2026-08-03): (1) fuera la línea
+  "Son cuatro" — no se dice cuántos son; (2) la marca **○→● sobre crema no se distingue**:
+  el elegido pasó a **violeta con texto blanco** + anillo dorado + un pelín más grande;
+  (3) en la R3 **faltaban el ✓ y la ✗** en las tarjetas — el color de fondo solo no
+  bastaba — y de paso el "¡EXCELENTE!" del acierto se retrasó 500 ms, porque tapaba la
+  pantalla antes de que se viera la marca. **Aprendizaje: el estado "elegido" necesita un
+  salto de COLOR, no un cambio de glifo; y todo veredicto lleva su ✓/✗ explícito.**
+- 🐛 **Un archivo de imagen sin extensión no carga.** La autora guardó su foto de Kichwa
+  como `l6-nac-kichwa` (sin `.jpg`) y por eso no aparecía. Renombrada. **Al pedirle fotos,
+  decir siempre el nombre COMPLETO con extensión y en minúscula.**
+- **Observación (NO es de este tema):** la tabla del reporte muestra ~1 fila y hace
+  scroll. Se midió en el Libro 5·T1 y le pasa igual (filas de 107 px en una caja de 117).
+  Es un rasgo del `ResultsScreen` de juego-6, que comparten los 7 temas → tocarlo hay que
+  acordarlo con la autora.
+
 ## Aprendizajes
 
 - La autora prefiere ver los **bosquejos de mecánica dibujados en el propio chat**
@@ -224,6 +274,15 @@ Home (4 libros) → pantalla del libro (sus temas) → personaje → juego → r
   unión en la R3 del Libro 5, la autora pidió quitar los números de pareja (*"si ya ponemos
   las líneas de unir entonces quitemos los números"*). La línea + el color del borde + el
   puntito ya dicen con quién está unida cada tarjeta.
+- 🐛 **El `cap` del FIFO puede convertir la anti-repetición en un péndulo.** En una ronda
+  que elige **k de N**, si `cap ≥ N − k` los "frescos" que quedan son *exactamente* los que
+  faltan, así que la partida siguiente los elige a todos: el juego alterna entre 2 tableros
+  y nada más. Pasó en la R2 del Libro 6 (4 de 8 con cap 4 → **2 grupos distintos en 30
+  partidas**, midiendo). Con cap 2 → 26 de 30. **Regla: `cap < N − k`.** Ojo, C(8,4)=4 900
+  combinaciones teóricas no dicen nada: hay que **medir**, no calcular. El test rápido es
+  llamar el `build()` N veces seguidas en la consola de la página (el `localStorage` hace
+  que cada llamada equivalga a una recarga) y contar distintos, repetidos seguidos y el más
+  frecuente. Las rondas que eligen **1 de N** no tienen este problema mientras `cap < N`.
 - 🐛 **`overflow:hidden` en una tarjeta con badges salientes los corta.** En la R3 del
   Libro 5 el botón recortaba la foto y, de paso, el ✓/✗ y la etiqueta dorada del pueblo
   correcto → al fallar no se leía la respuesta buena (rompía la invariante del repo).

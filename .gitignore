@@ -20,3 +20,6 @@ juegos/*/visits.txt
 # Láminas fuente del Mundial (~21 MB c/u); el juego usa mundial/equipos/*.jpg (livianas)
 mundial/Alineaciones-*.png
 mundial/visits.txt
+# PDFs del libro que la autora pasa como FUENTE (p. ej. juegos/juego-6/PDF/): de ahí se
+# extraen las fotos que sí se versionan (assets/), pero el PDF no es parte del juego.
+juegos/*/PDF/

@@ -145,7 +145,7 @@ const LIBROS = [
     { id: "l3-t3", label: "Viajando por mi país", desc: "Viajando por mi país con mi familia" },
   ] },
   { id: "libro-5", label: "Libro 5", temas: [{ id: "l5-t1", label: "Región Interandina" }, { id: "l5-t2", label: "La región amazónica" }] },
-  { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "Tema 1" }] },
+  { id: "libro-6", label: "Libro 6", temas: [{ id: "l6-t1", label: "La Amazonía, nido de vida silvestre", desc: "La Amazonía, nido de vida silvestre" }] },
 ];
 
 // Personaje guía por defecto de cada libro (preseleccionado en CharacterScreen; el
