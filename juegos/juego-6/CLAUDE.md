@@ -10,7 +10,7 @@ tocar uno, se abre su pantalla de **TEMAS**. Cada libro tiene su propio número 
 |-------|-------|--------|
 | Libro 2 | **1 tema** — "Reconociendo mi país" (6 años) | ✅ hecho |
 | Libro 3 | **3 temas** — T1 "Hechos históricos" · T2 "Identidad territorial" · T3 "Viajando por mi país" (7) | ✅ los 3 |
-| Libro 5 | **2 temas** — T1 "Región Interandina" (9) · T2 | 🟡 T1 ✅ · T2 ⏳ |
+| Libro 5 | **2 temas** — T1 "Región Interandina" · T2 "La región amazónica" (9) | ✅ los 2 |
 | Libro 6 | **1 tema** | ⏳ placeholder |
 
 > Historial: juego-6 fue antes "Explora el Ecuador" (provincias del Ecuador). La autora
@@ -43,7 +43,8 @@ results`). En `screens.jsx`:
 - `"l3-t2"` → **`TerritorioGame`** (Libro 3 · Tema 2, 3 rondas).
 - `"l3-t3"` → **`ViajeGame`** (Libro 3 · Tema 3, 3 rondas).
 - `"l5-t1"` → **`InterandinaGame`** (Libro 5 · Tema 1, 3 rondas).
-- cualquier otro (l5-t2, l6-t1) → **`PlaceholderGame`**
+- `"l5-t2"` → **`AmazoniaGame`** (Libro 5 · Tema 2, 3 rondas).
+- cualquier otro (l6-t1) → **`PlaceholderGame`**
   ("en construcción · {libro · tema}") — mismo chrome EDINUN, hasta implementar su juego.
 - `ResultsScreen`/`PrintableReport` sirven a todos (log vacío en placeholder).
 
@@ -250,6 +251,42 @@ nueva, marcar ese lugar con `foto: true` en `L5_LUGARES` para que entre. ⚠ Nom
 distintas** (6263 y 6310 m) → **no se usa la altura exacta** como respuesta. **Verificado:**
 overflow 0 en las 3 rondas; e2e (R1→R2→R3→reporte) sin errores; anti-repetición 0
 repeticiones consecutivas; format-lint 15/15.
+
+### Libro 5 · Tema 2 · "La región amazónica" (`AmazoniaGame`, 9 años)
+
+**3 rondas encadenadas con mecánicas DISTINTAS y frescas** del tema del libro *"La región
+amazónica"* (las 6 provincias del Oriente). Orquestadas por `AmazoniaGame`, que usa un
+**arreglo `L5T2_ROUNDS`** de `{ C, verify, bubble }` (`TOTAL = ROUNDS.length`) — así el
+tema pudo crecer de 1 a 3 rondas sin refactor. Mismo chrome que `InterandinaGame`. Guía por
+defecto **Andi**. **La autora eligió cada mecánica viendo bocetos ASCII en el chat, ronda
+por ronda.** Sub-componentes:
+
+- **R1 `PR1Capital` — TOCAR 1 de 4.** "¿Cuál es la capital de {provincia}?": tarjeta con la
+  provincia (foto opcional + nombre) y 4 capitales (la correcta + 3 distractoras). Banco
+  `L5T2_PROVINCIAS` (6, textual del libro). Foto opcional `assets/l5t2-<slug>.jpg` (`L5Foto`
+  con el nuevo parámetro `prefix`), respaldo al emoji del tesoro de cada provincia.
+- **R2 `PR2Lupa` — EXPLORAR CON LA LUPA (mecánica nueva en el hub).** La selva está a
+  oscuras (emojis tenues + blur); la **lupa sigue el puntero** (`onPointerMove`, coords en
+  px lógicos dividiendo por la escala del lienzo) y revela lo que hay debajo. El niño busca
+  y **toca** lo pedido (enunciado = QUÉ: "Encuentra {tesoro}"; bocadillo = CÓMO: "Mueve la
+  lupa por la selva."). Escena `L5T2_FAUNA` (6 tesoros del libro, uno por provincia) +
+  `L5T2_DECOYS` (5 NO amazónicos: 🦙🐧🐢⛵🏔️) → tocar un intruso = fallo (se revela el
+  correcto en verde y el tocado en rojo). Sin imágenes: emojis + CSS.
+- **R3 `PR3Palabra` — ARMAR LA PALABRA (mecánica nueva en el hub), CON DIFICULTAD.** Ordena
+  las letras en las casillas para escribir la capital + ¡VERIFICAR!. **Dificultad
+  (pedida por la autora):** la bandeja trae las letras de la capital **+ 2 letras señuelo**
+  que no van, todo barajado; hay que elegir las correctas y ponerlas en orden. Tocar una
+  ficha la coloca en la siguiente casilla; tocar una casilla llena devuelve la letra. Banco
+  `L5T2_CAPITALES` (5 capitales de UNA palabra: TENA/PUYO/MACAS/ZAMORA/COCA; Nueva Loja
+  queda para R1 por tener dos palabras). Al fallar: casillas ✓/✗ + pastilla dorada "Va:
+  {palabra}".
+
+Anti-repetición por ronda (`L5T2_R1_KEY` cap 4 · `L5T2_R2_KEY` cap 3 · `L5T2_R3_KEY` cap
+3, sobre el FIFO `l3t2Recent/Push`). **Ninguna ronda necesita imágenes generadas** (R2 =
+emojis+CSS, R3 = letras; R1 con foto opcional). Diseño en
+`.planning/libro-5-tema-2-design.md`. **Verificado:** overflow 0 en las 3 rondas; e2e
+(R1→R2→R3→reporte 3/3) sin errores; anti-repetición 0 repes en 5 recargas (R2 objetivo y R3
+palabra); format-lint 15/15.
 
 ## Personajes
 

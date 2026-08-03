@@ -3192,10 +3192,174 @@ function PR1Capital({ onSolve }) {
   );
 }
 
-// Arreglo de rondas del Tema 2. Empieza con R1; R2 (arrastrar a la selva) y R3 (ubicar en
-// el mapa) se suman aquí a medida que se construyen. `verify` = usa el botón ¡VERIFICAR!.
+// ── R2: EXPLORA CON LA LUPA — mover la lupa por la selva oscura y TOCAR lo pedido ──
+// La selva empieza a oscuras (emojis tenues); la lupa (sigue el puntero) revela lo que hay
+// debajo. Cada provincia aporta su tesoro (posible objetivo) + decoys que NO son amazónicos
+// (buscar el correcto entre intrusos enseña). Sin imágenes: emojis + CSS.
+const L5T2_R2_KEY = "edinun_juego6_l5t2_r2_v1";
+const L5T2_FAUNA = [
+  { id: "delfin", name: "el delfín rosado", e: "🐬" },
+  { id: "oso", name: "el oso de anteojos", e: "🐻" },
+  { id: "aves", name: "las aves exóticas", e: "🦜" },
+  { id: "cascada", name: "la cascada San Rafael", e: "💧" },
+  { id: "tayos", name: "las cuevas de los Tayos", e: "🕳️" },
+  { id: "yasuni", name: "el Parque Yasuní", e: "🌳" },
+];
+const L5T2_DECOYS = [
+  { id: "llama", e: "🦙" }, { id: "pinguino", e: "🐧" }, { id: "tortuga", e: "🐢" }, { id: "barco", e: "⛵" }, { id: "nieve", e: "🏔️" },
+];
+function l5t2R2Build() {
+  const recent = new Set(l3t2Recent(L5T2_R2_KEY)), all = L5T2_FAUNA.map((_, i) => i);
+  const tIdx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
+  l3t2Push(L5T2_R2_KEY, tIdx, 3);
+  const target = L5T2_FAUNA[tIdx];
+  const otros = l3Shuffle(L5T2_FAUNA.filter((_, i) => i !== tIdx)).slice(0, 3);
+  const dec = l3Shuffle(L5T2_DECOYS).slice(0, 3);
+  const chosen = l3Shuffle([target].concat(otros).concat(dec));
+  const cols = [72, 178, 284, 388], rows = [82, 212];
+  const cells = l3Shuffle(cols.flatMap((x) => rows.map((y) => ({ x, y }))));
+  const items = chosen.map((it, i) => ({ ...it, x: Math.round(cells[i].x + (Math.random() * 28 - 14)), y: Math.round(cells[i].y + (Math.random() * 24 - 12)) }));
+  return { target, items };
+}
+
+function PR2Lupa({ onSolve }) {
+  const [b] = useStateG(() => l5t2R2Build());
+  const [lupa, setLupa] = useStateG(null);
+  const [picked, setPicked] = useStateG(null);
+  const answered = picked !== null;
+  const R = 84;
+  const sceneRef = useRefG(null);
+  function move(e) {
+    if (answered) return;
+    const el = sceneRef.current; if (!el) return;
+    const r = el.getBoundingClientRect(), sc = r.width / 450;
+    setLupa({ x: (e.clientX - r.left) / sc, y: (e.clientY - r.top) / sc });
+  }
+  function tap(it) {
+    if (answered) return;
+    setPicked(it.id);
+    onSolve(it.id === b.target.id, { emoji: it.e, a: `Encuentra ${b.target.name}`, userAnswer: `${it.e}`, correctAnswer: `${b.target.e} ${b.target.name}` });
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 8 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>Encuentra {b.target.name} {b.target.e}</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div ref={sceneRef} onPointerMove={move} onPointerLeave={() => { if (!answered) setLupa(null); }}
+          style={{ position: "relative", width: 450, height: 300, borderRadius: 20, overflow: "hidden", border: "3px solid #f2c260", cursor: answered ? "default" : "none", background: "radial-gradient(120% 120% at 50% 30%, #10402f, #06251a 68%, #04140e)", boxShadow: "inset 0 0 60px rgba(0,0,0,0.65), 0 12px 28px rgba(0,0,0,0.4)", touchAction: "none" }}>
+          {b.items.map((it) => {
+            const near = lupa && Math.hypot(lupa.x - it.x, lupa.y - it.y) < R;
+            const show = answered || near;
+            const isTarget = it.id === b.target.id, isPicked = it.id === picked;
+            return (
+              <button key={it.id} onClick={() => tap(it)} disabled={answered}
+                style={{ position: "absolute", left: it.x, top: it.y, transform: "translate(-50%,-50%)", width: 66, height: 66, borderRadius: 16, padding: 0, cursor: answered ? "default" : "pointer",
+                  border: answered && (isTarget || isPicked) ? `3px solid ${isTarget ? "#2ecc8f" : "#ff6b6b"}` : "3px solid transparent",
+                  background: answered && isTarget ? "rgba(46,204,143,0.25)" : (answered && isPicked ? "rgba(255,107,107,0.25)" : "transparent"),
+                  display: "flex", alignItems: "center", justifyContent: "center", opacity: show ? 1 : 0.08, filter: show ? "none" : "blur(2.5px)", transition: "opacity 0.12s ease, filter 0.12s ease" }}>
+                <span style={{ fontSize: 40, lineHeight: 1 }}>{it.e}</span>
+                {answered && (isTarget || (isPicked && !isTarget)) && (
+                  <span style={{ position: "absolute", top: -9, right: -7, fontSize: 16, fontWeight: 900, color: "#fff", background: isTarget ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center" }}>{isTarget ? "✓" : "✗"}</span>
+                )}
+              </button>
+            );
+          })}
+          {lupa && !answered && (
+            <div style={{ position: "absolute", left: lupa.x, top: lupa.y, width: R * 2, height: R * 2, transform: "translate(-50%,-50%)", borderRadius: "50%", border: "3px solid rgba(255,255,255,0.85)", boxShadow: "0 0 0 2px rgba(0,0,0,0.4), 0 0 22px rgba(255,255,255,0.35), inset 0 0 34px rgba(255,255,255,0.14)", background: "radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0.03) 68%, transparent)", pointerEvents: "none" }} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── R3: ARMA LA PALABRA — ordena las letras para escribir la capital (con dificultad) ──
+// Dificultad: la bandeja trae las letras de la capital MÁS 2 letras señuelo (que no van), todo
+// barajado; el niño coloca las letras EN ORDEN en las casillas y ¡VERIFICA!. Solo capitales de
+// una palabra (Sucumbíos/Nueva Loja queda para R1). Anti-repetición por capital.
+const L5T2_R3_KEY = "edinun_juego6_l5t2_r3_v1";
+const L5T2_CAPITALES = [
+  { prov: "Napo", cap: "TENA", e: "💧" },
+  { prov: "Pastaza", cap: "PUYO", e: "🦜" },
+  { prov: "Morona Santiago", cap: "MACAS", e: "🕳️" },
+  { prov: "Zamora Chinchipe", cap: "ZAMORA", e: "🐻" },
+  { prov: "Orellana", cap: "COCA", e: "🌳" },
+];
+const L5T2_ABC = "ABCDEFGHIJLMNOPRSTUVY".split("");
+function l5t2R3Build() {
+  const recent = new Set(l3t2Recent(L5T2_R3_KEY)), all = L5T2_CAPITALES.map((_, i) => i);
+  const idx = l3Shuffle(all.filter((i) => !recent.has(i))).concat(l3Shuffle(all.filter((i) => recent.has(i))))[0];
+  l3t2Push(L5T2_R3_KEY, idx, 3);
+  const item = L5T2_CAPITALES[idx], letters = item.cap.split("");
+  // 3 letras señuelo (dificultad: más letras que descartar antes de ordenar).
+  const decoys = l3Shuffle(L5T2_ABC.filter((c) => letters.indexOf(c) === -1)).slice(0, 3);
+  const tiles = l3Shuffle(letters.concat(decoys)).map((ch, i) => ({ id: i, ch }));
+  return { item, word: item.cap, tiles };
+}
+
+function PR3Palabra({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => l5t2R3Build());
+  const [slots, setSlots] = useStateG(() => Array(b.word.length).fill(null));
+  const [verified, setVerified] = useStateG(false);
+  const trayById = {}; b.tiles.forEach((t) => (trayById[t.id] = t));
+  const used = new Set(slots.filter((x) => x !== null));
+  function tapTile(id) {
+    if (verified || used.has(id)) return;
+    setSlots((prev) => { const i = prev.indexOf(null); if (i === -1) return prev; const n = prev.slice(); n[i] = id; return n; });
+  }
+  function tapSlot(i) {
+    if (verified || slots[i] === null) return;
+    setSlots((prev) => { const n = prev.slice(); n[i] = null; return n; });
+  }
+  const assembled = slots.map((id) => (id === null ? "" : trayById[id].ch)).join("");
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    onSolve(assembled === b.word, { emoji: "🔡", a: `Escribe la capital de ${b.item.prov}`, userAnswer: assembled || "—", correctAnswer: b.word });
+  }
+  verifyRef.current = verificar;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 10 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <div className="ed-label" style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginBottom: 3 }}>Escribe la capital de</div>
+        <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, color: "#fff" }}>{b.item.e} {b.item.prov}</div>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, minHeight: 0, width: "100%" }}>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          {slots.map((id, i) => {
+            const ch = id === null ? "" : trayById[id].ch;
+            let border = "#f2c260", bg = "rgba(255,255,255,0.12)";
+            if (verified) { const good = ch !== "" && b.word[i] === ch; border = good ? "#2ecc8f" : "#ff6b6b"; bg = good ? "rgba(46,204,143,0.30)" : "rgba(255,107,107,0.28)"; }
+            return (
+              <button key={i} onClick={() => tapSlot(i)} disabled={verified}
+                style={{ width: 48, height: 58, borderRadius: 12, border: `3px ${ch === "" ? "dashed" : "solid"} ${border}`, background: bg, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 26, cursor: verified ? "default" : "pointer", boxShadow: ch !== "" ? "0 4px 10px rgba(0,0,0,0.3)" : "none" }}>{ch}</button>
+            );
+          })}
+        </div>
+        {verified && assembled !== b.word && (
+          <div style={{ background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "2px solid #e0a72c", borderRadius: 999, padding: "3px 16px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, color: "#5a3d0a", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>Va: {b.word}</div>
+        )}
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", maxWidth: 440 }}>
+          {b.tiles.map((t) => {
+            const isUsed = used.has(t.id);
+            return (
+              <button key={t.id} onClick={() => tapTile(t.id)} disabled={verified || isUsed}
+                style={{ width: 46, height: 54, borderRadius: 12, border: "2px solid #e0a72c", background: isUsed ? "rgba(255,255,255,0.06)" : "linear-gradient(180deg,#fff8e6,#f7e3a8)", color: isUsed ? "transparent" : "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 24, cursor: verified || isUsed ? "default" : "pointer", opacity: isUsed ? 0.4 : 1, boxShadow: isUsed ? "none" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.3)" }}>{isUsed ? "" : t.ch}</button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Arreglo de rondas del Tema 2 — las 3 mecánicas elegidas por la autora, cada una distinta:
+// R1 tocar la capital · R2 explorar con la lupa · R3 armar la palabra. `verify` = usa ¡VERIFICAR!.
 const L5T2_ROUNDS = [
   { C: PR1Capital, verify: false, bubble: (<>Toca su<br />capital.</>) },
+  { C: PR2Lupa, verify: false, bubble: (<>Mueve la lupa<br />por la selva.</>) },
+  { C: PR3Palabra, verify: true, bubble: (<>Arma la<br />capital.</>) },
 ];
 
 function AmazoniaGame({ app, setApp, go }) {
