@@ -5,6 +5,7 @@ auto-memoria de Claude Code que es per-máquina).
 
 - [Audiencia por juego](audiencia_por_juego.md) — edad objetivo de cada juego de Estudios Sociales (depende del tema).
 - [Aprendizajes de diseño](aprendizajes-de-diseno.md) — invariantes EDINUN heredadas (no penalizar al fallar, revelar respuesta, modal para salir, no mostrar nombres internos).
+- [Orden del elenco](orden-personajes.md) — qué guía protagoniza cada juego: ciclo Domi → Yaku → Sisa → Andi por ordinal del slug (N mod 4).
 
 > **Pendiente de diseño #1:** re-tematizar el elenco de personajes (heredado de la
 > línea Ciencias Naturales como placeholder) a Estudios Sociales — nombres, roles
