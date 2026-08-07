@@ -180,26 +180,33 @@ decisión de la autora, con el pedido explícito de que **no sea aburrido**.
 2 del cuaderno (p. 86); **las actividades 3 y 4 son de respuesta abierta** (conversar,
 reflexionar) → no se gamifican.
 
-- **R1 `T3R1Muro` — DESLIZAR** (patrón 14). 5 cartas de a una: izquierda **LA ATACA**,
+- **R1 `T3R1Muro` — DESLIZAR** (patrón 14). 2 cartas de a una: izquierda **LA ATACA**,
   derecha **LA ENRIQUECE**. La carta se inclina al arrastrar (`rotate` ∝ desplazamiento),
   umbral **70 px**, y los dos rótulos laterales son **botones (respaldo tap)**. **Valida
   al soltar, sin ¡VERIFICAR!**: la carta sale volando **siempre hacia el lado correcto**,
-  con pastilla `Va en: …` si se falló. Reparto **3+2 o 2+3**, nunca 5 del mismo lado.
-  Bancos `J13_DIV_PRO` (14 ideas que valoran) y `J13_DIV_CON` (8 que atacan, textuales de
-  los distractores del cuaderno). ⭐ +1 por carta.
+  con pastilla `Va en: …` si se falló. Las 2 salen del banco combinado `J13_DIV_IDEAS`
+  (22 = 14 que valoran + 8 que atacan, textuales de los distractores del cuaderno) y
+  **pueden caer las dos del mismo lado**: forzar "una de cada" regalaría la segunda.
+  ⭐ +1 por carta.
+  ⚠ Dos cosas que NO se pueden tocar: los rótulos son **rieles de alto completo con su
+  color siempre puesto** (a baja opacidad el rojo se veía marrón sobre el fondo verde), y
+  el contenedor lleva **`overflow:hidden`** — la carta vuela 520 px en una zona de 470 y
+  sin recorte aterrizaba sobre REINICIAR/SALIR.
 - **R2 `T3R2Memoria` — VOLTEAR** (patrón 10, variante memoria). 8 cartas en 4×2, **10
   intentos**. Dos tableros que alternan: `lugar` (cultura ↔ país) y `signif` (cultura ↔ lo
   que representa). Al agotar los intentos **se destapa todo** y las parejas no resueltas se
-  marcan con **color + forma** (`J13_DIV_PARCOL`) — ⚠ el primer intento ponía "era pareja"
+  marcan con **color + forma** (`J13_DIV_PARCOL`, con "mismo color = pareja" al pie) — ⚠ el primer intento ponía "era pareja"
   en las 8 cartas y **no dejaba ver cuál iba con cuál**; verde y rojo quedan fuera de esa
   paleta porque significan acertó/falló en todo el juego. ⭐ +1 por pareja.
 - **R3 `T3R3Lluvia` — ATRAPAR** (patrón 13). 10 palabras por 3 carriles (aparecen cada
-  1450 ms, caen en 3400 ms): **6 que la diversidad aporta + 4 que no**. Tocar una mala
+  1450 ms, caen en 3400 ms). ⚠ **La caída la anima CSS** (`@keyframes j13cae` en un
+  `<style>` del propio componente, NO en `styles.css` que es del shell) porque animarla
+  repintando con React cada 50 ms se veía a tirones: **6 que la diversidad aporta + 4 que no**. Tocar una mala
   marca ✗ pero **no resta**; dejarla caer es lo correcto. Al final, cartel con **las buenas
   que se escaparon**. Bancos `J13_DIV_APORTA` (13) y `J13_DIV_NOAPORTA` (6). ⭐ +1 por
   palabra buena.
 
-**⭐ del Tema 3:** 5 + 4 + 6 = **máximo 15**. Las tres rondas van **`verify:false`** (se
+**⭐ del Tema 3:** 2 + 4 + 6 = **máximo 12**. Las tres rondas van **`verify:false`** (se
 autovalidan): la columna derecha solo muestra REINICIAR y SALIR.
 
 ⚠ **Por qué la R2 es una memoria y no el "Pasaporte cultural"** que llegó a aprobarse:

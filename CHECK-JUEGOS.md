@@ -36,9 +36,17 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 - **Tema 3 "La diversidad cultural de la población mundial"** ✅ **3 rondas** (el muro ·
   memoria cultural · lluvia de palabras), **13 años**. Verificado con un e2e propio que lo
   selecciona en el Home: partida completa 3/3 en los dos caminos (memoria resuelta 4/4 y
-  memoria agotada 0/4 con el tablero destapado), sin overflow en las 3 rondas, 0 errores de
-  consola, reporte correcto. ⏳ **Faltan las 4 ilustraciones de la R2** (las genera la
-  autora); corre con emoji mientras tanto.
+  memoria agotada 0/4 con el tablero destapado), sin overflow en las 3 rondas ni **durante
+  el vuelo de la carta**, los 6 viewports con colchón de 47 px, caída de la R3 animada por
+  CSS (`j13cae`, 3.4 s linear), "¡UPS!" sin estrellas en 5 capturas, 0 errores de consola.
+  ⏳ **Faltan las 4 ilustraciones de la R2** (las genera la autora); corre con emoji.
+
+> ⚠️ **Dos trampas al medir estos juegos con Playwright** (cuestan una hora cada una):
+> 1. **`document.body.textContent` incluye el JSX inline** del `<script type="text/babel">`.
+>    Buscar ahí "¡UPS!" o "+2 ⭐" da falsos positivos: hay que leer el nodo del overlay
+>    (`position:fixed; zIndex:1000`).
+> 2. **Medir el overflow solo al inicio de la ronda no basta.** Una carta que sale volando
+>    se escapa del lienzo a los ~100 ms y la medición estática no lo ve.
 
 > ⚠️ **Antes de tocar cualquier tema de juego-13:** los 3 temas usan **9 verbos distintos**
 > y ninguno puede repetirse. Releer los tres arreglos de rondas antes de diseñar — el

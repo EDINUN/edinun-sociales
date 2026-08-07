@@ -1671,21 +1671,17 @@ const J13_DIV_CON = [
   { t: "Hay culturas mejores que otras." },
 ];
 
-const J13_T3R1PRO_KEY = "edinun_j13_t3r1pro_v1";
-const J13_T3R1CON_KEY = "edinun_j13_t3r1con_v1";
+// Banco ÚNICO de 22 ideas (14 que valoran + 8 que atacan) con una sola clave FIFO.
+// ⚠ Se sortean las 2 del mismo pozo A PROPÓSITO, pudiendo salir las dos del mismo lado:
+// con 2 cartas, forzar "una de cada" regalaría la segunda (si la 1ª ataca, la 2ª enriquece).
+const J13_DIV_IDEAS = J13_DIV_PRO.map((x) => ({ t: x.t, v: 1 })).concat(J13_DIV_CON.map((x) => ({ t: x.t, v: -1 })));
+const J13_T3R1_KEY = "edinun_j13_t3r1_v1";
+const J13_T3R1_N = 2;
 
-// 5 cartas por ronda, SIEMPRE 3+2 o 2+3: nunca las 5 del mismo lado (se resolvería por
-// inercia, sin leer). Cap de subconjunto: pro 3 de 14 → 8 · con 2 de 8 → 4 (cap < N−K).
 function j13T3R1Build() {
-  const nPro = Math.random() < 0.5 ? 3 : 2;
-  const nCon = 5 - nPro;
-  const pi = j13PickIdx(J13_DIV_PRO, nPro, J13_T3R1PRO_KEY);
-  const ci = j13PickIdx(J13_DIV_CON, nCon, J13_T3R1CON_KEY);
-  j13Commit(J13_T3R1PRO_KEY, pi, 8);
-  j13Commit(J13_T3R1CON_KEY, ci, 4);
-  const cartas = j13Shuffle(
-    pi.map((i) => ({ t: J13_DIV_PRO[i].t, v: 1 })).concat(ci.map((i) => ({ t: J13_DIV_CON[i].t, v: -1 })))
-  ).map((c, n) => Object.assign({}, c, { id: n }));
+  const idx = j13PickIdx(J13_DIV_IDEAS, J13_T3R1_N, J13_T3R1_KEY);
+  j13Commit(J13_T3R1_KEY, idx, 12);        // subconjunto de 2 sobre 22 → cap 12 (< 22−2)
+  const cartas = idx.map((i, n) => Object.assign({}, J13_DIV_IDEAS[i], { id: n }));
   return { cartas };
 }
 
@@ -1739,21 +1735,33 @@ function T3R1Muro({ onSolve }) {
   }
 
   // El lado al que apunta el arrastre se enciende; tras decidir, se enciende el CORRECTO.
+  // Los dos rótulos van SIEMPRE con su color (rieles del muro), no solo al apuntarlos: la
+  // autora los pidió mucho más evidentes porque en verde sobre verde no se leían.
   const apunta = fallo ? carta.v : (Math.abs(dx) >= J13_T3R1_TH ? (dx > 0 ? 1 : -1) : 0);
   function rotulo(v) {
     const on = apunta === v, txt = lado(v);
     const col = v > 0 ? "#2ecc8f" : "#ff6b6b";
+    // ⚠ Opacidad alta a propósito: a 0.42 el rojo sobre el fondo verde del juego se veía
+    // MARRÓN y el rótulo no se distinguía. Tienen que leerse rojo y verde de una.
+    const base = v > 0
+      ? "linear-gradient(180deg, rgba(38,175,116,0.75), rgba(16,95,62,0.85))"
+      : "linear-gradient(180deg, rgba(214,63,63,0.75), rgba(138,26,26,0.85))";
+    const alto = v > 0
+      ? "linear-gradient(180deg, rgba(72,224,154,0.92), rgba(26,143,95,0.9))"
+      : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))";
     return (
       <button onClick={() => decidir(v)} disabled={!!fallo}
-        style={{ flexShrink: 0, width: 96, minHeight: 76, borderRadius: 14, border: `2.5px solid ${on ? col : "rgba(255,255,255,0.28)"}`, background: on ? (v > 0 ? "rgba(46,204,143,0.28)" : "rgba(255,107,107,0.28)") : "rgba(0,0,0,0.3)", color: on ? "#fff" : "rgba(255,255,255,0.72)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, padding: "8px 6px", cursor: fallo ? "default" : "pointer", boxShadow: on ? `0 0 18px ${col}` : "none", transition: "all 0.15s ease" }}>
-        <div style={{ fontSize: 17, marginBottom: 2 }}>{v > 0 ? "▶" : "◀"}</div>
+        style={{ flexShrink: 0, alignSelf: "stretch", width: 104, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16, border: `3px solid ${on ? "#fff" : col}`, background: on ? alto : base, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14, lineHeight: 1.15, letterSpacing: "0.03em", padding: "10px 6px", cursor: fallo ? "default" : "pointer", textShadow: "0 2px 6px rgba(0,0,0,0.55)", boxShadow: on ? `0 0 26px ${col}, inset 0 1px 0 rgba(255,255,255,0.35)` : `0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22)`, transform: on ? "scale(1.05)" : "none", transition: "all 0.15s ease" }}>
+        <span style={{ fontSize: 26, lineHeight: 1 }}>{v > 0 ? "▶" : "◀"}</span>
         {txt}
       </button>
     );
   }
 
+  // ⚠ `overflow:hidden` es OBLIGATORIO: la carta decidida sale volando 520 px y la zona de
+  // juego mide 470 — sin recorte se escapaba del lienzo y aterrizaba sobre REINICIAR/SALIR.
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30, overflow: "hidden" }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Esta idea enriquece la diversidad cultural o la ataca?</span>
       </div>
@@ -1984,22 +1992,27 @@ function j13T3R3Build() {
 // ══════════════════════════════════════════════════════════════════
 function T3R3Lluvia({ onSolve }) {
   const [b] = useStateG(() => j13T3R3Build());
-  const [ms, setMs] = useStateG(0);
   const [tomadas, setTomadas] = useStateG({});    // id -> true (atrapada)
   const [erradas, setErradas] = useStateG({});    // id -> true (mala tocada)
   const [fin, setFin] = useStateG(false);
-  const t0 = useRefG(Date.now());
   const cerrado = useRefG(false);
+  const marcadas = useRefG({});                   // espejo sin re-render, para `tocar`
 
+  // ⚠ La caída la anima CSS (@keyframes + animationDelay), NO React. El primer intento
+  // repintaba la posición con un setInterval de 50 ms = 20 fps y se veía a tirones; ahora
+  // el compositor la lleva a 60 fps y React solo re-renderiza al tocar una palabra.
+  // Un único timeout cierra la ronda: no hace falta saber dónde va cada palabra.
   useEffectG(() => {
-    const iv = setInterval(() => setMs(Date.now() - t0.current), 50);
-    return () => clearInterval(iv);
+    const t = setTimeout(() => {
+      if (cerrado.current) return;
+      cerrado.current = true;
+      setFin(true);
+    }, b.fin);
+    return () => clearTimeout(t);
   }, []);
 
   useEffectG(() => {
-    if (fin || ms < b.fin || cerrado.current) return;
-    cerrado.current = true;
-    setFin(true);
+    if (!fin) return;
     const buenas = b.palabras.filter((p) => p.good);
     const atrapadas = buenas.filter((p) => tomadas[p.id]);
     const malasTocadas = b.palabras.filter((p) => !p.good && erradas[p.id]);
@@ -2008,10 +2021,11 @@ function T3R3Lluvia({ onSolve }) {
       userAnswer: atrapadas.length ? atrapadas.map((p) => p.txt).join(", ") : "no atrapó ninguna",
       correctAnswer: buenas.map((p) => p.txt).join(", "),
     }, atrapadas.length);
-  }, [ms, fin]);
+  }, [fin]);
 
   function tocar(p) {
-    if (fin || tomadas[p.id] || erradas[p.id]) return;
+    if (fin || marcadas.current[p.id]) return;
+    marcadas.current[p.id] = true;
     if (p.good) setTomadas((s) => Object.assign({}, s, { [p.id]: true }));
     else setErradas((s) => Object.assign({}, s, { [p.id]: true }));
   }
@@ -2028,16 +2042,15 @@ function T3R3Lluvia({ onSolve }) {
       </div>
 
       <div style={{ position: "relative", width: "100%", height: PISTA, marginTop: 10, borderRadius: 14, border: "2px solid rgba(242,194,96,0.35)", background: "linear-gradient(180deg, rgba(10,6,35,0.35), rgba(10,6,35,0.05))", overflow: "hidden" }}>
+        {/* La animación de caída vive aquí y no en styles.css: styles.css es del SHELL y
+            tocarlo obliga a propagarlo a todos los juegos del repo. */}
+        <style>{`@keyframes j13cae { from { transform: translateY(0); } to { transform: translateY(${PISTA + 4}px); } }`}</style>
         {b.palabras.map((p) => {
-          const prog = (ms - p.t0) / J13_T3R3_CAIDA;
-          const quieta = tomadas[p.id] || erradas[p.id];
-          if (prog < 0 || (prog > 1 && !quieta)) return null;
-          if (quieta && prog > 1.35) return null;
-          const y = Math.min(prog, 1) * (PISTA - 40);
+          const quieta = !!(tomadas[p.id] || erradas[p.id]);
           const marcada = tomadas[p.id] ? "#2ecc8f" : erradas[p.id] ? "#ff6b6b" : null;
           return (
-            <button key={p.id} onClick={() => tocar(p)} disabled={fin || !!quieta}
-              style={{ position: "absolute", left: `${4 + p.carril * 32.6}%`, top: y, width: "30%", minHeight: 36, borderRadius: 11, border: `2.5px solid ${marcada || "#f2c260"}`, background: marcada ? (tomadas[p.id] ? "rgba(46,204,143,0.9)" : "rgba(255,107,107,0.9)") : "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,235,225,0.93))", color: marcada ? "#fff" : "#2a2118", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, lineHeight: 1.15, padding: "5px 6px", cursor: quieta || fin ? "default" : "pointer", boxShadow: "0 5px 14px rgba(0,0,0,0.35)", transform: quieta ? "scale(1.08)" : "none", transition: "transform 0.15s ease" }}>
+            <button key={p.id} onClick={() => tocar(p)} disabled={fin || quieta}
+              style={{ position: "absolute", left: `${4 + p.carril * 32.6}%`, top: -42, width: "30%", minHeight: 36, borderRadius: 11, border: `2.5px solid ${marcada || "#f2c260"}`, background: marcada ? (tomadas[p.id] ? "rgba(46,204,143,0.92)" : "rgba(255,107,107,0.92)") : "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,235,225,0.93))", color: marcada ? "#fff" : "#2a2118", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, lineHeight: 1.15, padding: "5px 6px", cursor: quieta || fin ? "default" : "pointer", boxShadow: "0 5px 14px rgba(0,0,0,0.35)", opacity: quieta ? 0 : 1, animation: `j13cae ${J13_T3R3_CAIDA}ms linear ${p.t0}ms both`, animationPlayState: quieta ? "paused" : "running", transition: "opacity 0.45s ease 0.35s, background 0.15s ease, border-color 0.15s ease", willChange: "transform" }}>
               {p.txt}
             </button>
           );
@@ -2109,7 +2122,11 @@ function J13Game({ app, setApp, go, rounds }) {
     if (g > 0) setApp((s) => ({ ...s, stars: (s.stars || 0) + g }));
     const showFbAt = isCorrect ? 900 : 2400;
     const advanceAt = showFbAt + (isCorrect ? 1100 : 1000);
-    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(g > 0 ? `+${g} ⭐` : ANIMOS[round % ANIMOS.length]); }, showFbAt);
+    // ⚠ En "¡UPS!" NUNCA se muestran estrellas, aunque la ronda haya dado algunas: se veía
+    // "¡UPS!" con "+2 ⭐" debajo, que es contradictorio. Convención de todos los juegos del
+    // repo (juego-5, 6, 8 y _PLANTILLA): acierto → "+N ⭐" · fallo → frase de ánimo. Lo
+    // ganado igual se suma y se ve subir en el ⭐ del HUD.
+    setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? `+${g} ⭐` : ANIMOS[round % ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
       if (round + 1 < total) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }

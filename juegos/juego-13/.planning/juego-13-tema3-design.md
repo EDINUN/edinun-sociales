@@ -48,17 +48,24 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 
 ### R1 · "El muro" — DESLIZAR CARTAS (patrón 14) · verbo: **deslizar**
 
-- **5 cartas** por ronda, una a una. Cada carta trae una idea sobre la diversidad
+- **2 cartas** por ronda, una a una (la autora las bajó de 5 a 2: con 5 la ronda se hacía larga). Cada carta trae una idea sobre la diversidad
   cultural; se arrastra a la **izquierda = LA ATACA** o a la **derecha = LA ENRIQUECE**.
 - La carta **se inclina** mientras se arrastra (`rotate` proporcional al desplazamiento)
   y el rótulo del lado apuntado se enciende. Umbral: **70 px**.
 - **Respaldo tap:** los dos rótulos laterales son botones — tocarlos decide igual (misma
   tradición que el respaldo tap de R1 del Tema 1).
-- **Validación al soltar**, sin ¡VERIFICAR! (una ronda son 5 jugadas encadenadas): ✓
+- **Validación al soltar**, sin ¡VERIFICAR! (una ronda son 2 jugadas encadenadas): ✓
   verde o ✗ rojo al instante y la carta **sale volando hacia el lado correcto**, con
   pastilla `Va en: LA ENRIQUECE` cuando falló → ve su error y la respuesta juntos.
-- **Reparto:** siempre 3+2 o 2+3 (nunca 5 del mismo lado, que se resolvería por inercia).
-- Bancos: `J13_DIV_PRO` (14 ideas que valoran) · `J13_DIV_CON` (8 que atacan).
+- **Los dos rótulos son rieles de alto completo y van SIEMPRE con su color** (rojo /
+  verde, opacidad alta). ⚠ Al principio eran cajitas translúcidas que solo se encendían
+  al apuntarlas: sobre el fondo verde del juego no se distinguían, y en un primer intento
+  de corrección el rojo a 0.42 de opacidad se veía **marrón**.
+- ⚠ El contenedor de la ronda lleva **`overflow:hidden` obligatorio**: la carta decidida
+  vuela 520 px y la zona mide 470 — sin recorte se salía del lienzo y caía encima de
+  REINICIAR/SALIR.
+- **Reparto:** las 2 salen del MISMO banco combinado de 22 y pueden caer las dos del mismo lado — forzar "una de cada" regalaría la segunda.
+- Banco: `J13_DIV_IDEAS` = 14 que valoran + 8 que atacan, con una sola clave FIFO.
 
 ### R2 · "Memoria cultural" — VOLTEAR CARTAS (patrón 10, variante memoria) · verbo: **voltear**
 
@@ -66,7 +73,11 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
   Pareja acertada → se quedan boca arriba con ✓ y **+1 ⭐**. Pareja fallada → vuelven a
   taparse a los 900 ms.
 - **Límite: 10 intentos.** Al agotarlos (o al encontrar las 4), **se destapan las
-  parejas que faltaban** marcadas en ámbar — invariante EDINUN de revelar la respuesta.
+  parejas que faltaban**, cada una con **color + forma** (● ▲ ■ ◆) e "mismo color =
+  pareja" al pie — invariante EDINUN de revelar la respuesta. ⚠ El primer intento ponía
+  "era pareja" en las 8 cartas y no dejaba ver **cuál iba con cuál**; verde y rojo no
+  entran en esa paleta (son acertó/falló en todo el juego) y tampoco se usan números
+  (la autora los quitó en juego-6).
 - **Dos tableros que alternan** (anti-repetición 1 de 2, cap 1), para que no sea siempre
   el mismo cartón:
   - **`lugar`** — cultura ↔ país: Taegeukgi/Corea del Sur · Holi/India ·
@@ -86,6 +97,11 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 
 - **10 palabras** caen por **3 carriles** (aparecen cada 1450 ms, tardan 3400 ms en
   caer): **6 que la diversidad aporta** + **4 que no**.
+- ⚠ **La caída la anima CSS** (`@keyframes j13cae` + `animationDelay` por palabra), no
+  React: el primer intento repintaba la posición con un `setInterval` de 50 ms = 20 fps y
+  **se veía a tirones**. Ahora React solo re-renderiza cuando se toca una palabra, y un
+  único `setTimeout` cierra la ronda. La keyframe vive en un `<style>` del componente y
+  **no** en `styles.css`, que es del shell y obligaría a propagarlo a todos los juegos.
 - Tocar una buena → ✓ y **+1 ⭐** (hasta 6). Tocar una mala → ✗ y **no resta** lo ya
   ganado. Dejar caer una mala es lo correcto.
 - Al terminar, cartel de cierre con **las buenas que se escaparon** (revelado).
@@ -93,8 +109,8 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 
 ### Estrellas
 
-**+1 ⭐ por elemento**, como el resto del juego: R1 hasta 5 (cartas) · R2 hasta 4
-(parejas) · R3 hasta 6 (palabras) → **máximo 15 ⭐**. `isCorrect` de la ronda (dot del
+**+1 ⭐ por elemento**, como el resto del juego: R1 hasta 2 (cartas) · R2 hasta 4
+(parejas) · R3 hasta 6 (palabras) → **máximo 12 ⭐**. `isCorrect` de la ronda (dot del
 HUD y reporte) = ronda perfecta. **Fallar nunca resta.**
 
 ### Anti-repetición
@@ -104,8 +120,7 @@ sobre N, `cap < N − K`):
 
 | Clave | Elige | Cap |
 |---|---|:--:|
-| `edinun_j13_t3r1pro_v1` | 2-3 de 14 | 8 |
-| `edinun_j13_t3r1con_v1` | 2-3 de 8 | 4 |
+| `edinun_j13_t3r1_v1` | 2 de 22 | 12 |
 | `edinun_j13_t3r2_v1` | 1 de 2 tableros | 1 |
 | `edinun_j13_t3r3ap_v1` | 6 de 13 | 6 |
 | `edinun_j13_t3r3no_v1` | 4 de 6 | 1 |

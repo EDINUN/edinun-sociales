@@ -152,3 +152,33 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
    juego-6. Verde y rojo quedan fuera de esa paleta: significan acertó/falló.
 2. **Las 4 ilustraciones quedaron pendientes** (las genera la autora). Las cartas ya
    aceptan `img`; mientras tanto corren con emoji y el juego está completo igual.
+
+### Ajustes pedidos por la autora al probarlo (mismo día)
+
+1. **La R1 pasó de 5 cartas a 2.** "Con 2 de estas tarjetas es suficiente". El banco se
+   unificó en `J13_DIV_IDEAS` (22 ideas, una sola clave FIFO) y se quitó el reparto 3+2:
+   con 2 cartas, forzar "una de cada lado" **regalaría la segunda**. ⭐ del tema: 12.
+2. **Los rótulos LA ATACA / LA ENRIQUECE tenían que verse mucho más.** Eran cajitas
+   translúcidas que solo se encendían al apuntarlas y sobre el fondo verde del juego se
+   perdían. Ahora son **rieles de alto completo con su color siempre puesto**. ⚠ En el
+   primer intento el rojo quedó a 0.42 de opacidad y **se veía marrón**: hay que
+   mantenerlos saturados (0.75-0.85).
+3. **Bug: la carta decidida se salía del lienzo.** Vuela 520 px y la zona mide 470, así que
+   aterrizaba **encima de REINICIAR/SALIR**. Faltaba `overflow:hidden` en el contenedor de
+   la ronda. ⚠ Mi QA no lo cazó porque medía el overflow **al inicio de la ronda**, nunca
+   durante el vuelo: ahora la prueba mide 120 ms después de decidir.
+4. **Bug: la lluvia de la R3 caía a tirones.** Estaba animada repintando con React desde un
+   `setInterval` de 50 ms = **20 fps**. Se pasó a **CSS** (`@keyframes j13cae` +
+   `animationDelay` por palabra, `animationPlayState:paused` al atraparla): la mueve el
+   compositor a 60 fps y React solo re-renderiza al tocar. La keyframe va en un `<style>`
+   del componente — `styles.css` es del shell y tocarlo obliga a propagar a todos los juegos.
+5. **Bug del orquestador (afecta a los 3 temas): "¡UPS!" mostraba "+2 ⭐".** Con estrellas
+   por elemento, una ronda imperfecta igual suma, y el cartel quedaba contradictorio. La
+   convención de todos los juegos del repo (5, 6, 8 y _PLANTILLA) es **acierto → "+N ⭐" ·
+   fallo → frase de ánimo**; lo ganado se ve subir en el ⭐ del HUD igual.
+
+> ⚠ **Trampa del e2e de este tema:** `document.body.textContent` **incluye el JSX inline**
+> del `<script type="text/babel">`, así que buscar "¡UPS!" o "+2 ⭐" ahí da falsos
+> positivos (llegó a encontrar un comentario del código). Hay que leer el **nodo del
+> overlay** (`position:fixed; zIndex:1000`). Y el overlay solo aparece **al cerrar la
+> ronda**, no tras cada carta.
