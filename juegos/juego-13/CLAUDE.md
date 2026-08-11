@@ -243,27 +243,6 @@ DIVERSIDAD) que permiten **saltar de tema sin volver al Home**. Patrón copiado 
   pastillas — como en el juego de matemáticas — y el lint lo rechazó. Las pastillas van
   encima, en `top: 14`; los dos bloques centrados conviven sin solaparse (44 → 52).
 
-## Salir a la lista de juegos ("← JUEGOS")
-
-El Home lleva arriba a la izquierda un **"← JUEGOS"** que saca al niño del juego y lo
-deja en el landing de EDINUN. Vive en `screens.jsx`: constante **`JUEGOS_URL`** +
-función **`irAJuegos()`**.
-
-- `JUEGOS_URL` es **relativa** (`../../index.html`): dos niveles arriba del juego está el
-  landing. Sirve con doble clic, con servidor local y si se sube el repo entero.
-  ⚠ En producción los juegos se suben **carpeta por carpeta**: si el landing no queda dos
-  niveles arriba, hay que poner ahí la **URL absoluta** de edinun.com.
-- ⚠ **Navega `window.top`, no `window.location`**: el juego va dentro de un `<iframe>` en
-  una página envoltorio, y navegar el marco dejaría la web de EDINUN metida dentro del
-  juego. Si el envoltorio fuera de otro dominio, el acceso a `window.top` lanza y cae al
-  comportamiento normal (try/catch).
-- Verificado suelto y dentro de un iframe real: en los dos casos termina en el landing y,
-  embebido, es la ventana de ARRIBA la que navega.
-
-⚠ Este botón **hoy solo existe en juego-13**. Ningún otro juego del repo (ni los de
-matemáticas o lengua) lo tiene: si se quiere en todos, hay que replicarlo en cada
-`screens.jsx` y re-empaquetar.
-
 ## Contrato del shell
 
 - `app.jsx` (shell, NO tocar): enruta `home → character → game → results`.

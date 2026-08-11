@@ -257,31 +257,6 @@ const { useState, useEffect, useRef, useMemo } = React;
 //     3 rondas). Ya no hay temas en "Próximamente".
 // Gradientes POR POSICIÓN (1º naranja · 2º amarillo · 3º azul), nunca por temática.
 // ─────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────
-// Salida del juego hacia la LISTA DE JUEGOS de EDINUN (botón "← JUEGOS" del Home).
-//
-// `JUEGOS_URL` es RELATIVA a la carpeta del juego: dos niveles arriba está el landing
-// (juegos/<slug>/index.html → index.html de la raíz). Así funciona con doble clic, con un
-// servidor local y si se sube el repo entero.
-// ⚠ En producción los juegos se suben CARPETA POR CARPETA (ver SUBIR-A-SERVIDOR.md): si
-// el landing no queda dos niveles arriba, poner aquí la URL absoluta de edinun.com.
-//
-// ⚠ El juego se incrusta en un <iframe> desde una página envoltorio: navegar `window.location`
-// solo cambiaría el marco y el niño quedaría con la web de EDINUN metida dentro del juego.
-// Por eso se navega la ventana de ARRIBA. Si el envoltorio fuera de otro dominio, el acceso
-// a `window.top.location` lanza y se cae al comportamiento normal (try/catch).
-// ─────────────────────────────────────────────────────────────
-const JUEGOS_URL = "../../index.html";
-
-function irAJuegos() {
-  let destino = JUEGOS_URL;
-  try { destino = new URL(JUEGOS_URL, window.location.href).href; } catch (e) {}
-  try {
-    if (window.top && window.top !== window.self) { window.top.location.href = destino; return; }
-  } catch (e) {}
-  window.location.href = destino;
-}
-
 const LEVELS_CFG = [
   {
     id: "continentes",
@@ -491,12 +466,6 @@ function HomeScreen({ app, setApp, go }) {
 
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-      {/* Salida a la lista de juegos EDINUN (arriba izq.). Ver JUEGOS_URL / irAJuegos. */}
-      <button className="ed-btn ed-btn-ghost" onClick={irAJuegos}
-        style={{ position: "absolute", top: 18, left: 24, padding: "8px 14px", fontWeight: 800, letterSpacing: "0.04em", zIndex: 5 }}>
-        ← JUEGOS
-      </button>
-
       {/* Contador de visitantes */}
       <div style={{ position: "absolute", bottom: 18, right: 22, display: "flex", alignItems: "center", gap: 8, background: "rgba(10,6,35,0.55)", border: "1px solid rgba(242,194,96,0.3)", borderRadius: 999, padding: "6px 12px", backdropFilter: "blur(8px)" }}>
         <PeopleIcon size={16} color="#fce9a8" />

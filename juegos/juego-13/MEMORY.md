@@ -254,3 +254,10 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     el ✓/✗ escondido detrás y el texto cortado ("pausado a medias"). Ahora vuelve al centro
     y el ✓/✗ va DENTRO de la carta. La dirección ya la dicen el riel encendido y la
     pastilla "Va en: …", así que la carta no necesita desplazarse.
+
+18. **Se quitó el botón "← JUEGOS" del Home** que se había añadido en e269c95. No lo
+    pidió la autora: salió de una pregunta mal planteada mía (le ofrecí tres opciones para
+    "los botones de arriba" y ninguna era la que quería, que eran las pastillas de tema).
+    Lección: cuando la autora señala algo de una captura, **preguntar mostrando lo que hay
+    hoy** en vez de ofrecer opciones inventadas; o pedirle que marque en la imagen.
+    El código vive en el historial si algún día se quiere una salida al landing.
