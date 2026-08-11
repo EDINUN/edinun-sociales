@@ -212,3 +212,18 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
 
 > ⚠ **Al arrastrar se seleccionaba el texto de la carta** (se veía el resaltado azul):
 > `userSelect:none` en cualquier elemento que sea arrastrable.
+
+### Tercera tanda (copy y navegación)
+
+12. **"IDH" aparecía como sigla suelta** en el enunciado de un tablero del T2 R3. El juego
+    SÍ la define… pero en **otro** tablero de la misma ronda, y los tableros salen al azar:
+    el niño podía caer en este sin haber visto nunca la definición. Ahora dice
+    **"…su país de mayor desarrollo humano (IDH)"**. Regla general: **ninguna sigla sola**
+    en un enunciado si su definición vive en otra pantalla que puede no salir.
+13. **Bocadillo del T2 R3:** "Toca a un lado y luego al otro" no explicaba nada →
+    **"Toca una tarjeta y luego su pareja"**.
+14. **Botón "← JUEGOS" en el Home** (`JUEGOS_URL` + `irAJuegos()` en `screens.jsx`) para
+    salir del juego al landing. ⚠ Navega **`window.top`**, no `window.location`: el juego
+    va en un `<iframe>` y navegar el marco dejaría la web de EDINUN dentro del juego.
+    Probado suelto y dentro de un iframe real. **Solo lo tiene juego-13**: ningún otro
+    juego del repo (ni los de matemáticas/lengua) tiene salida a la lista de juegos.

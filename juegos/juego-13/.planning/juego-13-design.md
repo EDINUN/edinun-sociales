@@ -323,7 +323,7 @@ calcado de `PR3Empareja` de juego-6). **Sin número de pareja**: la línea ya lo
 | Bocadillo R1 (CÓMO) | Toca una opción / en cada línea. |
 | Enunciado R2 (QUÉ) | Calcula la tasa de crecimiento de este país. |
 | Enunciado R3 (QUÉ) | Une cada región con su `<dato>`. · Une cada instrumento con lo que mide. |
-| Bocadillo R3 (CÓMO) | Toca a un lado / y luego al otro. |
+| Bocadillo R3 (CÓMO) | Toca una tarjeta / y luego su pareja. |
 | Bocadillo R2 (CÓMO) | Usa la fórmula / de la ficha. |
 
 ## 9.5 Anti-repetición

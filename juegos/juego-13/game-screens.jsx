@@ -764,7 +764,10 @@ const J13_AM_TABLEROS = [
     ],
   },
   {
-    enun: "Une cada región con su país de mayor IDH.", emoji: "🏅",  // actividad 4 d/e/f
+    // ⚠ La sigla NO va sola: los tableros salen al azar, así que el niño puede caer aquí
+    // sin haber visto nunca el tablero que la define ("Índice de Desarrollo Humano ↔ El
+    // bienestar: educación, salud e ingresos"). Se dice en claro y la sigla va detrás.
+    enun: "Une cada región con su país de mayor desarrollo humano (IDH).", emoji: "🏅",  // actividad 4 d/e/f
     pares: [
       { a: "América del Norte", b: "Canadá" },
       { a: "América Central y el Caribe", b: "Cuba" },
@@ -960,7 +963,7 @@ const J13_AM_ROUNDS = [
   // fórmula de la ficha" no dejaba claro que se escribe con el teclado. La fórmula ya está
   // impresa en la ficha, a la vista.
   { C: T2R2Calculadora, verify: true, bubble: (<>Escribe el resultado<br />con los números.</>) },
-  { C: T2R3SalaDatos, verify: true, bubble: (<>Toca a un lado<br />y luego al otro.</>) },
+  { C: T2R3SalaDatos, verify: true, bubble: (<>Toca una tarjeta<br />y luego su pareja.</>) },
 ];
 
 // ══════════════════════════════════════════════════════════════════
