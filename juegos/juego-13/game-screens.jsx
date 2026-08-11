@@ -673,7 +673,14 @@ function T2R2Calculadora({ onSolve, verifyRef }) {
 
   function tap(k) {
     if (verified) return;
-    if (k === "del") { setVal((v) => v.slice(0, -1)); return; }
+    // ⌫ borra de derecha a izquierda como un campo de texto: primero los dígitos y, cuando
+    // ya no queda ninguno, el signo −. ⚠ Antes solo recortaba `val`: puesto el signo, el ⌫
+    // no lo quitaba nunca y había que adivinar que se saca volviendo a tocar la tecla −.
+    if (k === "del") {
+      if (val === "") { setNeg(false); return; }
+      setVal(val.slice(0, -1));
+      return;
+    }
     if (k === "neg") { setNeg((n) => !n); return; }
     setVal((v) => (v.length >= 3 ? v : (v === "0" ? k : v + k)));
   }

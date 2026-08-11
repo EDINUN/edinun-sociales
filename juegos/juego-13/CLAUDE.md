@@ -128,7 +128,7 @@ Tema 1 (allá se arrastra, se intercambia y se caza).
 - **R2 `T2R2Calculadora` — TECLEAR + ¡VERIFICAR!** (patrón 3: respuesta única en teclado).
   Es la **actividad 5 del libro**: aplicar `((Pf − Pi) / Pi) × 100`. La ficha muestra los
   dos censos y **la fórmula siempre visible** (el libro la da en su recuadro): se ejercita
-  aplicarla, no memorizarla. Teclado 3×4 con **tecla −** (el libro enseña el decrecimiento:
+  aplicarla, no memorizarla. ⌫ **borra de derecha a izquierda como un campo de texto**: primero los dígitos y, cuando no queda ninguno, el signo − (antes el ⌫ solo recortaba los dígitos y el signo no había forma de quitarlo salvo volviendo a tocar la tecla −). Teclado 3×4 con **tecla −** (el libro enseña el decrecimiento:
   Ecuador −1,2 % en 2021) y ⌫; visor de máximo 3 dígitos. Al verificar se revela **el
   desarrollo con las cifras puestas** en verde y, si falló, "Tu respuesta: N %" en rojo.
 - **R3 `T2R3SalaDatos` — UNIR CON LÍNEAS + ¡VERIFICAR!** (patrón 10: conectar columnas).

@@ -237,3 +237,14 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     darle aire. **El format-lint lo rechaza**: `estandar-visual` §1.1 fija `Ronda` centrado
     en `top: 52` y es una de las 19 comprobaciones. Las pastillas van encima y ya.
     ⚠ Este selector **solo lo tiene juego-13** en todo el repo de sociales.
+
+16. **El ⌫ de la calculadora (T2 R2) no borraba el signo −.** Solo recortaba los dígitos;
+    puesto el −, la única forma de sacarlo era volver a tocar la tecla −, cosa que nadie
+    adivina. Ahora borra de derecha a izquierda como un campo de texto y, sin dígitos, se
+    lleva el signo. Probado: − → −1 → −15 → ⌫ → −1 → ⌫ → − → ⌫ → vacío, y un ⌫ de más no
+    rompe nada.
+
+> ⚠ **Trampa del e2e con las pastillas de tema:** el contenedor de las pastillas es
+>  con , igual que las filas de opciones del Pasaporte (T2 R1). Un
+> selector por ese estilo las atrapa, dispara el modal de cambio de tema y su fondo bloquea
+> el ¡VERIFICAR!. Acotar siempre la búsqueda a la ZONA DE JUEGO ().
