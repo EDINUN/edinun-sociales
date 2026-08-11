@@ -55,10 +55,13 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 - **Respaldo tap:** los dos rótulos laterales son botones — tocarlos decide igual (misma
   tradición que el respaldo tap de R1 del Tema 1).
 - **Validación al soltar**, sin ¡VERIFICAR! (una ronda son 2 jugadas encadenadas): ✓
-  verde o ✗ rojo al instante y la carta **queda inclinada hacia el lado que eligió el niño**
-  (40 px), con el riel correcto encendido y la pastilla `Va en: LA ENRIQUECE` cuando falló
-  → ve su error y la respuesta juntos. ⚠ **No se va de la pantalla**: volaba 520 px y en la
-  última carta el centro quedaba vacío los ~2,4 s del cartel, y parecía colgado.
+  verde o ✗ rojo al instante y **la carta se queda en el centro**, con el riel correcto
+  encendido y la pastilla `Va en: LA ENRIQUECE` cuando falló → ve su error y la
+  respuesta juntos. ⚠ **Dos intentos fallidos antes de esto:** (1) volaba 520 px y
+  desaparecía, así que en la última carta el centro quedaba vacío los ~2,4 s del cartel y
+  parecía colgado; (2) se quedaba desplazada 40 px y **se montaba sobre el riel** — que se
+  pinta después y va encima — con el ✓/✗ escondido detrás y el texto cortado. El ✓/✗ va
+  **dentro** de la carta por lo mismo.
 - **Los dos rótulos son rieles de 104×132 y van SIEMPRE con su color** (rojo / verde,
   opacidad 0.75-0.85). ⚠ Tres iteraciones hasta acertar: eran cajitas translúcidas que
   solo se encendían al apuntarlas (sobre el fondo verde no se distinguían); luego el rojo

@@ -245,6 +245,12 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     rompe nada.
 
 > ⚠ **Trampa del e2e con las pastillas de tema:** el contenedor de las pastillas es
->  con , igual que las filas de opciones del Pasaporte (T2 R1). Un
+> `display:flex` con `gap: 8px`, igual que las filas de opciones del Pasaporte (T2 R1). Un
 > selector por ese estilo las atrapa, dispara el modal de cambio de tema y su fondo bloquea
-> el ¡VERIFICAR!. Acotar siempre la búsqueda a la ZONA DE JUEGO ().
+> el ¡VERIFICAR!. Acotar siempre la búsqueda a la ZONA DE JUEGO (`left:215px`).
+
+17. **La carta decidida de la R1 ya no se mueve.** Tras quitarle el vuelo de 520 px se
+    quedó desplazada 40 px… y se montaba sobre el riel, que se pinta después y va encima:
+    el ✓/✗ escondido detrás y el texto cortado ("pausado a medias"). Ahora vuelve al centro
+    y el ✓/✗ va DENTRO de la carta. La dirección ya la dicen el riel encendido y la
+    pastilla "Va en: …", así que la carta no necesita desplazarse.

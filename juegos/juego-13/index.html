@@ -1759,13 +1759,15 @@ function T3R1Muro({ onSolve }) {
     const ok = v === carta.v;
     hechas.current = hechas.current.concat([{ t: carta.t, v: carta.v, elegido: v, ok }]);
     setFallo({ v, ok });
-    // La carta queda inclinada hacia el lado QUE ELIGIÓ EL NIÑO (no hacia el correcto):
-    // así ve su respuesta, y al lado el riel correcto encendido + la pastilla "Va en: …"
-    // — invariante EDINUN de revelar la correcta sin ocultar lo que eligió.
-    // ⚠ NO se va de la pantalla. Antes volaba 520 px y desaparecía: en la última carta el
-    // centro quedaba VACÍO los ~2,4 s que tarda en salir el cartel y parecía colgado.
-    // 40 px alcanza para leer la dirección; más tapa el riel del otro lado.
-    setDx(v > 0 ? 40 : -40);
+    // ⚠ Al decidir, la carta VUELVE AL CENTRO. Dos intentos fallidos antes de esto:
+    //   1. Volaba 520 px y desaparecía → en la última carta el centro quedaba vacío los
+    //      ~2,4 s que tarda en salir el cartel y parecía que el juego se había colgado.
+    //   2. Se quedaba desplazada 40 px → se montaba sobre el riel (que se pinta después y
+    //      va encima): el ✓/✗ quedaba escondido detrás y el texto cortado. "Pausado a
+    //      medias", en palabras de la autora.
+    // La dirección ya la comunican el riel correcto ENCENDIDO y la pastilla "Va en: …",
+    // así que la carta no necesita moverse.
+    setDx(0);
     setTimeout(() => {
       if (i + 1 < b.cartas.length) { setI(i + 1); setDx(0); setFallo(null); return; }
       if (cerrado.current) return;
@@ -1828,7 +1830,8 @@ function T3R1Muro({ onSolve }) {
               <span style={{ fontSize: 22, lineHeight: 1 }}>💬</span>
               <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, lineHeight: 1.28, color: "#2a2118", textAlign: "center" }}>{carta.t}</span>
               {fallo && (
-                <span style={{ position: "absolute", top: -12, right: -10, fontSize: 15, fontWeight: 900, color: "#fff", background: fallo.ok ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 8px rgba(0,0,0,0.4)" }}>{fallo.ok ? "✓" : "✗"}</span>
+                /* El ✓/✗ va DENTRO de la carta: asomando por el borde quedaba tapado por el riel. */
+                <span style={{ position: "absolute", top: 9, right: 9, fontSize: 15, fontWeight: 900, color: "#fff", background: fallo.ok ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 8px rgba(0,0,0,0.4)" }}>{fallo.ok ? "✓" : "✗"}</span>
               )}
               {fallo && !fallo.ok && (
                 <span style={{ position: "absolute", bottom: -13, left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "3px 12px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: "#5a3d0a" }}>Va en: {lado(carta.v)}</span>
