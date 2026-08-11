@@ -1466,6 +1466,7 @@ function J13Game({ app, setApp, go, rounds }) {
   const [feedbackMsg, setFeedbackMsg] = useStateG("");
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
+  const [pendingTema, setPendingTema] = useStateG(null);   // id del tema al que se quiere saltar
   const [rk, setRk] = useStateG(0);
   const [busy, setBusy] = useStateG(false);
   const started = useRefG(Date.now());
@@ -1520,6 +1521,26 @@ function J13Game({ app, setApp, go, rounds }) {
         </div>
       </div>
 
+      {/* Selector de TEMA en el HUD (patrón BÁSICO/MEDIO/AVANZADO de edinun-games ·
+          operaciones-basicas): permite saltar de tema SIN volver al Home. Tocar uno
+          distinto abre modal de confirmación — cambiar de tema tira la ronda en curso, y
+          las acciones destructivas siempre se confirman. Usa `short` de LEVELS_CFG: los
+          labels completos ("Las Américas y su geografía") no caben en la barra. */}
+      <div style={{ position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        {LEVELS_CFG.filter((lv) => lv.enabled).map((lv) => {
+          const activo = lv.id === (app.currentCategory || "continentes");
+          return (
+            <button key={lv.id} onClick={() => { if (!activo && !busy) setPendingTema(lv.id); }} disabled={activo}
+              style={{ padding: "6px 13px", borderRadius: 999, background: activo ? lv.grad : "rgba(0,0,0,0.32)", color: activo ? lv.ink : "rgba(255,255,255,0.82)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, letterSpacing: "0.04em", border: activo ? "2px solid rgba(255,255,255,0.55)" : "2px solid rgba(255,255,255,0.2)", boxShadow: activo ? "0 0 14px rgba(252,233,168,0.45)" : "none", cursor: activo ? "default" : "pointer", transition: "all 0.15s ease" }}>
+              {lv.short || lv.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ⚠ El bloque Ronda va SIEMPRE centrado en `top: 52` (estandar-visual §1.1, y el
+          format-lint lo verifica). Se probó moverlo junto al logo para dejarle aire a las
+          pastillas y el lint lo rechazó: las pastillas van encima, en `top: 14`. */}
       <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
         <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
         {Array.from({ length: total }).map((_, i) => {
@@ -1563,6 +1584,27 @@ function J13Game({ app, setApp, go, rounds }) {
         </PortalToBody>
       )}
 
+      {pendingTema && (() => {
+        const cfg = LEVELS_CFG.find((l) => l.id === pendingTema) || LEVELS_CFG[0];
+        return (
+          <PortalToBody>
+            <div onClick={() => setPendingTema(null)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
+              <div onClick={(e) => e.stopPropagation()} className="ed-card" style={{ padding: 24, maxWidth: 440, textAlign: "center", boxShadow: "var(--ed-shadow-card), 0 0 40px rgba(79,216,255,0.28)" }}>
+                <div className="ed-label" style={{ color: "#4fd8ff", marginBottom: 6 }}>Cambiar de tema</div>
+                <h2 className="ed-h1" style={{ fontSize: 22, lineHeight: 1.15, marginBottom: 8 }}>¿Ir a "{cfg.label}"?</h2>
+                <p className="ed-body" style={{ marginBottom: 16, fontSize: 14 }}>Vas a perder lo de esta ronda.</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <button className="ed-btn ed-btn-ghost" onClick={() => setPendingTema(null)} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SEGUIR AQUÍ</button>
+                  {/* Cambiar `currentCategory` basta: GameScreen monta J13Game con key={cat},
+                      así que el tema nuevo entra con el estado en cero (ronda 1, sin ⭐). */}
+                  <button className="ed-btn ed-btn-primary" onClick={() => { setPendingTema(null); setApp((s) => ({ ...s, currentCategory: cfg.id, currentCatLabel: cfg.catLabel })); }} style={{ height: 44, fontWeight: 800, letterSpacing: "0.04em" }}>SÍ, CAMBIAR</button>
+                </div>
+              </div>
+            </div>
+          </PortalToBody>
+        );
+      })()}
+
       {confirmingExit && (
         <PortalToBody>
           <div onClick={() => setConfirmingExit(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.62)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", animation: "ed-pop-in 0.18s", padding: 16 }}>
@@ -1603,7 +1645,9 @@ function J13Game({ app, setApp, go, rounds }) {
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "continentes";
   const rounds = cat === "americas" ? J13_AM_ROUNDS : cat === "diversidad" ? J13_DIV_ROUNDS : J13_ROUNDS;
-  return <J13Game app={app} setApp={setApp} go={go} rounds={rounds} />;
+  // `key={cat}`: al saltar de tema desde las pastillas del HUD, J13Game se REMONTA y el
+  // tema nuevo arranca limpio (ronda 1, sin ⭐ ni log de la partida anterior).
+  return <J13Game key={cat} app={app} setApp={setApp} go={go} rounds={rounds} />;
 }
 
 // ─────────────────────────────────────────────────────────────

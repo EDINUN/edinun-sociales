@@ -227,3 +227,13 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     va en un `<iframe>` y navegar el marco dejaría la web de EDINUN dentro del juego.
     Probado suelto y dentro de un iframe real. **Solo lo tiene juego-13**: ningún otro
     juego del repo (ni los de matemáticas/lengua) tiene salida a la lista de juegos.
+
+15. **Pastillas de tema en el HUD** (CONTINENTES · AMÉRICAS · DIVERSIDAD, `top:14`): la
+    autora mandó una captura del juego de matemáticas con el selector BÁSICO/MEDIO/AVANZADO
+    subrayado — "nos falta en este juego". Se copió ese patrón: cambio de tema **sin volver
+    al Home**, con modal de confirmación, y `GameScreen` remonta `J13Game` con `key={cat}`
+    para que el tema nuevo arranque en cero.
+    ⚠ **Intento fallido:** mover el bloque `Ronda` junto al logo (como en matemáticas) para
+    darle aire. **El format-lint lo rechaza**: `estandar-visual` §1.1 fija `Ronda` centrado
+    en `top: 52` y es una de las 19 comprobaciones. Las pastillas van encima y ya.
+    ⚠ Este selector **solo lo tiene juego-13** en todo el repo de sociales.

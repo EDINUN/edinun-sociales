@@ -226,6 +226,23 @@ elementos culturales, no retratos. El pueblo **Padaung** es el caso delicado —
 describe por el largo del cuello de las mujeres; se usa la formulación del libro, sin
 adjetivos añadidos.
 
+## Selector de TEMA en el HUD (pastillas)
+
+Arriba al centro, en `top: 14`, van **tres pastillas** (CONTINENTES · AMÉRICAS ·
+DIVERSIDAD) que permiten **saltar de tema sin volver al Home**. Patrón copiado de
+`edinun-games/juegos/operaciones-basicas` (allá son BÁSICO / MEDIO / AVANZADO).
+
+- Usan el campo **`short`** de `LEVELS_CFG`: los labels completos ("Las Américas y su
+  geografía") no caben en la barra. La activa se pinta con el `grad`/`ink` de su tema.
+- Tocar otra abre **modal de confirmación** ("Vas a perder lo de esta ronda"): cambiar de
+  tema descarta la partida en curso y las acciones destructivas siempre se confirman.
+- Al aceptar solo se cambia `app.currentCategory`; como `GameScreen` monta
+  `<J13Game key={cat}>`, el componente **se remonta** y el tema nuevo entra en cero.
+- ⚠ **El bloque `Ronda` NO se puede mover de `top: 52`** (estandar-visual §1.1, y el
+  `format-lint` lo comprueba). Se intentó llevarlo junto al logo para darle aire a las
+  pastillas — como en el juego de matemáticas — y el lint lo rechazó. Las pastillas van
+  encima, en `top: 14`; los dos bloques centrados conviven sin solaparse (44 → 52).
+
 ## Salir a la lista de juegos ("← JUEGOS")
 
 El Home lleva arriba a la izquierda un **"← JUEGOS"** que saca al niño del juego y lo

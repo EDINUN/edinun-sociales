@@ -45,6 +45,7 @@ const LEVELS_CFG = [
   {
     id: "continentes",
     label: "Los continentes",
+    short: "CONTINENTES",     // pastilla del HUD (el label completo no cabe)
     grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
     ink: "#3a2608",
     description: "Explora África, Asia, Europa y Oceanía.",
@@ -54,6 +55,7 @@ const LEVELS_CFG = [
   {
     id: "americas",
     label: "Las Américas y su geografía",
+    short: "AMÉRICAS",
     grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
     ink: "#3a2608",
     description: "Recorre América del Norte, Central y del Sur.",
@@ -63,6 +65,7 @@ const LEVELS_CFG = [
   {
     id: "diversidad",
     label: "La diversidad cultural",
+    short: "DIVERSIDAD",
     grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
     ink: "#08264d",
     description: "Culturas del mundo: conocerlas, valorarlas y respetarlas.",
