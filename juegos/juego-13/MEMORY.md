@@ -261,3 +261,10 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     Lección: cuando la autora señala algo de una captura, **preguntar mostrando lo que hay
     hoy** en vez de ofrecer opciones inventadas; o pedirle que marque en la imagen.
     El código vive en el historial si algún día se quiere una salida al landing.
+
+19. **Los glifos del fondo no representaban al Tema 3.** Se habían elegido con solo el
+    Tema 1 hecho y eran puramente geográficos. Entraron 🎭 (fiestas) · ☯️ (Taegeuk) · 🎨
+    (Holi) en los dos juegos de glifos, ocupando el sitio de los DUPLICADOS que había
+    (🌍×2, 🗺️×2, ★×2): así no se movió ninguna posición ni cambió el número de glifos
+    (cosmic 15 · chalkboard 10). Al cerrar un juego multi-tema, revisar que el fondo hable
+    de TODOS los temas, no solo del primero que se construyó.

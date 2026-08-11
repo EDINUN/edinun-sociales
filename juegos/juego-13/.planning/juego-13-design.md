@@ -148,8 +148,18 @@ Subtítulo del reporte: **"Reporte académico · Estudios Sociales"** (fijo).
 
 ## 6. Glifos del fondo
 
-`cosmic` (home/character/results, 15): 🌍 🌏 🌎 🗺️ 🧭 ⛰️ 🏔️ 🌊 💧 🏜️ ★ 📊
-`chalkboard` (game, 10): 🌍 🗺️ 🧭 ⛰️ 🏔️ 🌊 💧 🏜️ ★ 📊
+Cubren **los tres temas**, no solo la geografía:
+
+`cosmic` (home/character/results, **15**):
+🌍 🌏 🌎 🗺️ ★ 🧭 🏔️ 🌊 ⛰️ 💧 🏜️ **🎭** 📊 **☯️** **🎨**
+
+`chalkboard` (game, **10**):
+🌍 🗺️ 🧭 **🎭** **☯️** 🌊 ⛰️ 💧 📊 **🎨**
+
+Los tres en negrita son del **Tema 3**: 🎭 fiestas y tradiciones · ☯️ el círculo Taegeuk ·
+🎨 el Festival de Holi. ⚠ Los juegos originales se diseñaron con solo el Tema 1 hecho y
+eran 100 % geográficos. Los culturales entraron **ocupando el sitio de los duplicados**
+(había 🌍×2, 🗺️×2, ★×2), sin mover ninguna posición ni cambiar el número de glifos.
 
 ## 7. Copy
 
