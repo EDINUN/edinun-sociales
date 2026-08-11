@@ -244,7 +244,7 @@ function R1Aduana({ onSolve, verifyRef }) {
 
   const tray = b.items.filter((it) => !placed[it.id]);
   return (
-    <div ref={rootRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
+    <div ref={rootRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿De qué continente es cada uno? Clasifica las 4 fichas.</span>
       </div>
@@ -333,7 +333,7 @@ function R2Podio({ onSolve, verifyRef }) {
   verifyRef.current = verificar;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Arma el podio: {b.p.q}.</span>
       </div>
@@ -422,7 +422,7 @@ function R3Cazador({ onSolve, verifyRef }) {
   verifyRef.current = verificar;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>La ficha de {b.cont.n} tiene 2 errores. Márcalos.</span>
       </div>
@@ -612,7 +612,7 @@ function T2R1Pasaporte({ onSolve, verifyRef }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>Completa el pasaporte de {b.reg.nom}.</span>
       </div>
@@ -697,7 +697,7 @@ function T2R2Calculadora({ onSolve, verifyRef }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>Calcula la tasa de crecimiento de este país.</span>
       </div>
@@ -876,7 +876,7 @@ function T2R3SalaDatos({ onSolve, verifyRef }) {
   const derPorId = (did) => b.der.findIndex((d) => d.id === did);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 22, color: "#fff" }}>{b.tab.enun}</span>
       </div>
@@ -956,7 +956,10 @@ function T2R3SalaDatos({ onSolve, verifyRef }) {
 // ── Arreglo de rondas del TEMA 2 (3 rondas, 3 verbos: elegir · teclear · unir) ──
 const J13_AM_ROUNDS = [
   { C: T2R1Pasaporte, verify: true, bubble: (<>Toca una opción<br />en cada línea.</>) },
-  { C: T2R2Calculadora, verify: true, bubble: (<>Usa la fórmula<br />de la ficha.</>) },
+  // ⚠ El bocadillo dice CÓMO se juega (tocar los números), no qué fórmula usar: "Usa la
+  // fórmula de la ficha" no dejaba claro que se escribe con el teclado. La fórmula ya está
+  // impresa en la ficha, a la vista.
+  { C: T2R2Calculadora, verify: true, bubble: (<>Escribe el resultado<br />con los números.</>) },
   { C: T2R3SalaDatos, verify: true, bubble: (<>Toca a un lado<br />y luego al otro.</>) },
 ];
 
@@ -1049,7 +1052,13 @@ function T3R1Muro({ onSolve }) {
     const ok = v === carta.v;
     hechas.current = hechas.current.concat([{ t: carta.t, v: carta.v, elegido: v, ok }]);
     setFallo({ v, ok });
-    setDx(v > 0 ? 520 : -520);                    // vuela SIEMPRE al lado correcto…
+    // La carta queda inclinada hacia el lado QUE ELIGIÓ EL NIÑO (no hacia el correcto):
+    // así ve su respuesta, y al lado el riel correcto encendido + la pastilla "Va en: …"
+    // — invariante EDINUN de revelar la correcta sin ocultar lo que eligió.
+    // ⚠ NO se va de la pantalla. Antes volaba 520 px y desaparecía: en la última carta el
+    // centro quedaba VACÍO los ~2,4 s que tarda en salir el cartel y parecía colgado.
+    // 40 px alcanza para leer la dirección; más tapa el riel del otro lado.
+    setDx(v > 0 ? 40 : -40);
     setTimeout(() => {
       if (i + 1 < b.cartas.length) { setI(i + 1); setDx(0); setFallo(null); return; }
       if (cerrado.current) return;
@@ -1088,7 +1097,7 @@ function T3R1Muro({ onSolve }) {
       : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))";
     return (
       <button onClick={() => decidir(v)} disabled={!!fallo}
-        style={{ flexShrink: 0, alignSelf: "stretch", width: 104, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16, border: `3px solid ${on ? "#fff" : col}`, background: on ? alto : base, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14, lineHeight: 1.15, letterSpacing: "0.03em", padding: "10px 6px", cursor: fallo ? "default" : "pointer", textShadow: "0 2px 6px rgba(0,0,0,0.55)", boxShadow: on ? `0 0 26px ${col}, inset 0 1px 0 rgba(255,255,255,0.35)` : `0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22)`, transform: on ? "scale(1.05)" : "none", transition: "all 0.15s ease" }}>
+        style={{ flexShrink: 0, width: 104, height: 132, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16, border: `3px solid ${on ? "#fff" : col}`, background: on ? alto : base, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14, lineHeight: 1.15, letterSpacing: "0.03em", padding: "10px 6px", cursor: fallo ? "default" : "pointer", textShadow: "0 2px 6px rgba(0,0,0,0.55)", boxShadow: on ? `0 0 26px ${col}, inset 0 1px 0 rgba(255,255,255,0.35)` : `0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22)`, transform: on ? "scale(1.05)" : "none", transition: "all 0.15s ease" }}>
         <span style={{ fontSize: 26, lineHeight: 1 }}>{v > 0 ? "▶" : "◀"}</span>
         {txt}
       </button>
@@ -1098,7 +1107,7 @@ function T3R1Muro({ onSolve }) {
   // ⚠ `overflow:hidden` es OBLIGATORIO: la carta decidida sale volando 520 px y la zona de
   // juego mide 470 — sin recorte se escapaba del lienzo y aterrizaba sobre REINICIAR/SALIR.
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30, overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 58, overflow: "hidden" }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Esta idea enriquece la diversidad cultural o la ataca?</span>
       </div>
@@ -1108,7 +1117,7 @@ function T3R1Muro({ onSolve }) {
         <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", justifyContent: "center" }}>
           {carta && (
             <div onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-              style={{ position: "relative", width: "100%", maxWidth: 246, minHeight: 168, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "16px 15px", borderRadius: 18, border: `3px solid ${fallo ? (fallo.ok ? "#2ecc8f" : "#ff6b6b") : "#f2c260"}`, background: "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,235,225,0.93))", boxShadow: "0 14px 30px rgba(0,0,0,0.45)", cursor: fallo ? "default" : "grab", touchAction: "none", transform: `translateX(${dx}px) rotate(${dx * 0.05}deg)`, transition: drag.current ? "none" : "transform 0.35s ease, border-color 0.2s ease" }}>
+              style={{ position: "relative", width: "100%", maxWidth: 246, minHeight: 168, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "16px 15px", borderRadius: 18, border: `3px solid ${fallo ? (fallo.ok ? "#2ecc8f" : "#ff6b6b") : "#f2c260"}`, background: "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,235,225,0.93))", boxShadow: "0 14px 30px rgba(0,0,0,0.45)", cursor: fallo ? "default" : "grab", touchAction: "none", userSelect: "none", WebkitUserSelect: "none", transform: `translateX(${dx}px) rotate(${dx * 0.05}deg)`, transition: drag.current ? "none" : "transform 0.35s ease, border-color 0.2s ease" }}>
               <span style={{ fontSize: 22, lineHeight: 1 }}>💬</span>
               <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 15, lineHeight: 1.28, color: "#2a2118", textAlign: "center" }}>{carta.t}</span>
               {fallo && (
@@ -1158,12 +1167,13 @@ const J13_DIV_TABLEROS = [
 ];
 
 const J13_T3R2_KEY = "edinun_j13_t3r2_v1";
-const J13_T3R2_INTENTOS = 10;
+function j13T3R2FueraKey(id) { return "edinun_j13_t3r2fuera_" + id + "_v1"; }
+const J13_T3R2_INTENTOS = 8;
 
 // Marca de las parejas que el niño NO resolvió, al destapar el tablero. Va COLOR + FORMA
-// (no número: la autora los quitó en juego-6) porque con 4 parejas destapadas a la vez el
-// "era pareja" suelto no dejaba ver cuál iba con cuál. Verde y rojo quedan fuera: están
-// reservados a acertó/falló en todo el juego.
+// (no número: la autora los quitó en juego-6) porque con varias parejas destapadas a la
+// vez el "era pareja" suelto no dejaba ver cuál iba con cuál. Verde y rojo quedan fuera:
+// están reservados a acertó/falló en todo el juego.
 const J13_DIV_PARCOL = [
   { c: "#e0a72c", g: "●" },
   { c: "#4f8fef", g: "▲" },
@@ -1175,21 +1185,32 @@ function j13T3R2Build() {
   const ti = j13PickIdx(J13_DIV_TABLEROS, 1, J13_T3R2_KEY)[0];
   j13Commit(J13_T3R2_KEY, [ti], 1);               // 1 de 2 → cap = banco−1
   const tab = J13_DIV_TABLEROS[ti];
+  // De las 4 parejas del tablero juegan 3: se sortea CUÁL SE QUEDA FUERA, con su propia
+  // clave FIFO (1 de 4, cap 3), para que en partidas seguidas no falte siempre la misma y
+  // los 4 casos culturales del libro sigan apareciendo a lo largo de varias partidas.
+  const fk = j13T3R2FueraKey(tab.id);
+  const fuera = j13PickIdx(tab.parejas, 1, fk)[0];
+  j13Commit(fk, [fuera], 3);
+  const parejas = tab.parejas.filter((_, n) => n !== fuera);
   const cartas = [];
-  tab.parejas.forEach((p, n) => {
+  parejas.forEach((p, n) => {
     cartas.push({ id: "a" + n, par: n, cara: "a", e: p.e, img: p.img, t: p.t });
     cartas.push({ id: "b" + n, par: n, cara: "b", e: null, img: null, t: p.r });
   });
-  return { tab, cartas: j13Shuffle(cartas) };
+  return { tab, parejas, cartas: j13Shuffle(cartas) };
 }
 
 // ══════════════════════════════════════════════════════════════════
-// R2 · "Memoria cultural" — VOLTEAR (patrón 10, variante memoria). 8 cartas en 4×2.
+// R2 · "Memoria cultural" — VOLTEAR (patrón 10, variante memoria). 6 cartas en 3×2.
 // ⚠ Se eligió memoria porque el T2 R3 "Sala de datos" ya se llevó UNIR CON LÍNEAS: el
 // "Pasaporte cultural" que estaba aprobado habría repetido mecánica (decisión de la
 // autora: ningún verbo repetido entre temas).
-// Límite de 10 intentos; al agotarlos se DESTAPAN las parejas que faltaban (ámbar).
-// ⭐ +1 por pareja encontrada (hasta 4).
+// ⚠ Empezó con 4 parejas y 10 intentos y la autora la encontró DEMASIADO DIFÍCIL, con
+// razón: aquí no se emparejan dos cartas iguales sino un concepto con su explicación (hay
+// que recordar la posición Y saber el contenido), y sin las ilustraciones las 6 cartas son
+// texto. Se bajó a 3 parejas / 8 intentos por decisión suya.
+// Al agotar los intentos se DESTAPAN las parejas que faltaban (color + forma).
+// ⭐ +1 por pareja encontrada (hasta 3).
 // ══════════════════════════════════════════════════════════════════
 function T3R2Memoria({ onSolve }) {
   const [b] = useStateG(() => j13T3R2Build());
@@ -1204,10 +1225,10 @@ function T3R2Memoria({ onSolve }) {
     if (cerrado.current) return;
     cerrado.current = true;
     setRevelado(true);
-    onSolve(nHechas === b.tab.parejas.length, {
+    onSolve(nHechas === b.parejas.length, {
       emoji: "🎴", a: `Memoria cultural: ${b.tab.rel}`,
-      userAnswer: `${nHechas} de ${b.tab.parejas.length} parejas`,
-      correctAnswer: b.tab.parejas.map((p) => `${p.t} → ${p.r}`).join(" · "),
+      userAnswer: `${nHechas} de ${b.parejas.length} parejas`,
+      correctAnswer: b.parejas.map((p) => `${p.t} → ${p.r}`).join(" · "),
     }, nHechas);
   }
 
@@ -1228,7 +1249,7 @@ function T3R2Memoria({ onSolve }) {
       if (par) {
         const nh = hechas.concat([c.par]);
         setHechas(nh); setVueltas([]); lock.current = false;
-        if (nh.length === b.tab.parejas.length) terminar(nh.length);
+        if (nh.length === b.parejas.length) terminar(nh.length);
       } else {
         setVueltas([]); lock.current = false;
         if (nIntentos >= J13_T3R2_INTENTOS) terminar(hechas.length);
@@ -1245,7 +1266,7 @@ function T3R2Memoria({ onSolve }) {
     const borde = resuelta ? "#2ecc8f" : perdida ? pc.c : "#f2c260";
     return (
       <button key={c.id} onClick={() => tocar(c)} disabled={revelado}
-        style={{ position: "relative", height: 106, borderRadius: 13, border: "none", background: "transparent", padding: 0, cursor: revelado || resuelta ? "default" : "pointer", perspective: 700 }}>
+        style={{ position: "relative", height: 118, borderRadius: 13, border: "none", background: "transparent", padding: 0, cursor: revelado || resuelta ? "default" : "pointer", perspective: 700 }}>
         <div style={{ position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", transition: "transform 0.36s ease", transform: arriba ? "rotateY(180deg)" : "none" }}>
           {/* Dorso */}
           <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", borderRadius: 13, border: "2.5px solid rgba(242,194,96,0.7)", background: "linear-gradient(150deg, rgba(32,20,78,0.96), rgba(12,8,40,0.96))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, color: "rgba(252,233,168,0.85)", boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>🌍</div>
@@ -1267,17 +1288,17 @@ function T3R2Memoria({ onSolve }) {
 
   const restantes = Math.max(0, J13_T3R2_INTENTOS - intentos);
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Encuentra la pareja: {b.tab.rel}.</span>
       </div>
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 106px)", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 142px)", gap: 12 }}>
           {b.cartas.map((c) => cara(c))}
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 14, paddingBottom: 6, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
-        <span>🎴 parejas {hechas.length}/{b.tab.parejas.length}</span>
+        <span>🎴 parejas {hechas.length}/{b.parejas.length}</span>
         {revelado
           ? <span style={{ color: "#fff" }}>Las que faltaron: mismo color = pareja.</span>
           : <span style={{ color: restantes <= 3 ? "#ff9b9b" : "#fce9a8" }}>te quedan {restantes} intentos</span>}
@@ -1373,7 +1394,7 @@ function T3R3Lluvia({ onSolve }) {
   const PISTA = 300;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 58 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Atrapa lo que la diversidad cultural aporta.</span>
       </div>
@@ -1381,7 +1402,10 @@ function T3R3Lluvia({ onSolve }) {
       <div style={{ position: "relative", width: "100%", height: PISTA, marginTop: 10, borderRadius: 14, border: "2px solid rgba(242,194,96,0.35)", background: "linear-gradient(180deg, rgba(10,6,35,0.35), rgba(10,6,35,0.05))", overflow: "hidden" }}>
         {/* La animación de caída vive aquí y no en styles.css: styles.css es del SHELL y
             tocarlo obliga a propagarlo a todos los juegos del repo. */}
-        <style>{`@keyframes j13cae { from { transform: translateY(0); } to { transform: translateY(${PISTA + 4}px); } }`}</style>
+        {/* ⚠ El recorrido llega a PISTA+70, no a PISTA: la ficha empieza en top:-42 y mide
+            ~38, así que con un recorrido corto TERMINABA VISIBLE, clavada en el borde de
+            abajo de la caja. Tiene que salir entera. */}
+        <style>{`@keyframes j13cae { from { transform: translateY(0); } to { transform: translateY(${PISTA + 70}px); } }`}</style>
         {b.palabras.map((p) => {
           const quieta = !!(tomadas[p.id] || erradas[p.id]);
           const marcada = tomadas[p.id] ? "#2ecc8f" : erradas[p.id] ? "#ff6b6b" : null;

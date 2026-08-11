@@ -34,7 +34,7 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
   overflow. ⚠ **`qa-visual.js` solo recorre el tema por defecto** (el 1): el 2 hay que
   probarlo aparte seleccionándolo en el Home.
 - **Tema 3 "La diversidad cultural de la población mundial"** ✅ **3 rondas** (el muro ·
-  memoria cultural · lluvia de palabras), **13 años**. Verificado con un e2e propio que lo
+  memoria cultural · lluvia de palabras), **13 años**, **11 ⭐** (2 + 3 + 6). La memoria va con **3 parejas y 8 intentos**: con 4 parejas la autora la halló demasiado difícil (se empareja concepto ↔ explicación, no dos cartas iguales) — ⚠ **ni juego-1 ni juego-6 ponen tope de intentos** a sus memorias. Verificado con un e2e propio que lo
   selecciona en el Home: partida completa 3/3 en los dos caminos (memoria resuelta 4/4 y
   memoria agotada 0/4 con el tablero destapado), sin overflow en las 3 rondas ni **durante
   el vuelo de la carta**, los 6 viewports con colchón de 47 px, caída de la R3 animada por

@@ -55,31 +55,39 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 - **Respaldo tap:** los dos rótulos laterales son botones — tocarlos decide igual (misma
   tradición que el respaldo tap de R1 del Tema 1).
 - **Validación al soltar**, sin ¡VERIFICAR! (una ronda son 2 jugadas encadenadas): ✓
-  verde o ✗ rojo al instante y la carta **sale volando hacia el lado correcto**, con
-  pastilla `Va en: LA ENRIQUECE` cuando falló → ve su error y la respuesta juntos.
-- **Los dos rótulos son rieles de alto completo y van SIEMPRE con su color** (rojo /
-  verde, opacidad alta). ⚠ Al principio eran cajitas translúcidas que solo se encendían
-  al apuntarlas: sobre el fondo verde del juego no se distinguían, y en un primer intento
-  de corrección el rojo a 0.42 de opacidad se veía **marrón**.
-- ⚠ El contenedor de la ronda lleva **`overflow:hidden` obligatorio**: la carta decidida
-  vuela 520 px y la zona mide 470 — sin recorte se salía del lienzo y caía encima de
-  REINICIAR/SALIR.
+  verde o ✗ rojo al instante y la carta **queda inclinada hacia el lado que eligió el niño**
+  (40 px), con el riel correcto encendido y la pastilla `Va en: LA ENRIQUECE` cuando falló
+  → ve su error y la respuesta juntos. ⚠ **No se va de la pantalla**: volaba 520 px y en la
+  última carta el centro quedaba vacío los ~2,4 s del cartel, y parecía colgado.
+- **Los dos rótulos son rieles de 104×132 y van SIEMPRE con su color** (rojo / verde,
+  opacidad 0.75-0.85). ⚠ Tres iteraciones hasta acertar: eran cajitas translúcidas que
+  solo se encendían al apuntarlas (sobre el fondo verde no se distinguían); luego el rojo
+  a 0.42 se veía **marrón**; y al ponerlos de alto completo quedaron como dos columnas
+  enormes ("eso está horrible"). Alto fijo, a la altura de la carta.
+- El contenedor lleva **`overflow:hidden`** por seguridad (antes la carta volaba 520 px en
+  una zona de 470 y aterrizaba sobre REINICIAR/SALIR).
+- La carta tiene **`userSelect:none`**: al arrastrarla se seleccionaba su texto en azul.
 - **Reparto:** las 2 salen del MISMO banco combinado de 22 y pueden caer las dos del mismo lado — forzar "una de cada" regalaría la segunda.
 - Banco: `J13_DIV_IDEAS` = 14 que valoran + 8 que atacan, con una sola clave FIFO.
 
 ### R2 · "Memoria cultural" — VOLTEAR CARTAS (patrón 10, variante memoria) · verbo: **voltear**
 
-- **8 cartas boca abajo en rejilla 4×2**; se voltean de a dos buscando la pareja.
+- **6 cartas boca abajo en rejilla 3×2**; se voltean de a dos buscando la pareja.
+  ⚠ Empezó con **4 parejas y 10 intentos** y la autora la encontró demasiado difícil, con
+  razón: aquí no se emparejan dos cartas iguales sino **un concepto con su explicación**
+  (hay que recordar la posición Y saber el contenido) y, sin las ilustraciones, todo es
+  texto. Ni juego-1 ni juego-6 ponen tope de intentos a sus memorias.
   Pareja acertada → se quedan boca arriba con ✓ y **+1 ⭐**. Pareja fallada → vuelven a
   taparse a los 900 ms.
-- **Límite: 10 intentos.** Al agotarlos (o al encontrar las 4), **se destapan las
+- **Límite: 8 intentos.** Al agotarlos (o al encontrar las 3), **se destapan las
   parejas que faltaban**, cada una con **color + forma** (● ▲ ■ ◆) e "mismo color =
   pareja" al pie — invariante EDINUN de revelar la respuesta. ⚠ El primer intento ponía
-  "era pareja" en las 8 cartas y no dejaba ver **cuál iba con cuál**; verde y rojo no
+  "era pareja" en todas las cartas y no dejaba ver **cuál iba con cuál**; verde y rojo no
   entran en esa paleta (son acertó/falló en todo el juego) y tampoco se usan números
   (la autora los quitó en juego-6).
-- **Dos tableros que alternan** (anti-repetición 1 de 2, cap 1), para que no sea siempre
-  el mismo cartón:
+- **Dos tableros que alternan** (anti-repetición 1 de 2, cap 1) y, dentro del tablero,
+  **juegan 3 de sus 4 parejas**: se sortea cuál se queda fuera con su propia clave FIFO
+  (1 de 4, cap 3), así no falta siempre la misma y los 4 casos del libro van saliendo.
   - **`lugar`** — cultura ↔ país: Taegeukgi/Corea del Sur · Holi/India ·
     Padaung/Tailandia · Pimampiro/Ecuador.
   - **`signif`** — cultura ↔ lo que representa: círculo Taegeuk/equilibrio entre fuerzas
@@ -109,8 +117,8 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
 
 ### Estrellas
 
-**+1 ⭐ por elemento**, como el resto del juego: R1 hasta 2 (cartas) · R2 hasta 4
-(parejas) · R3 hasta 6 (palabras) → **máximo 12 ⭐**. `isCorrect` de la ronda (dot del
+**+1 ⭐ por elemento**, como el resto del juego: R1 hasta 2 (cartas) · R2 hasta 3
+(parejas) · R3 hasta 6 (palabras) → **máximo 11 ⭐**. `isCorrect` de la ronda (dot del
 HUD y reporte) = ronda perfecta. **Fallar nunca resta.**
 
 ### Anti-repetición
@@ -122,6 +130,7 @@ sobre N, `cap < N − K`):
 |---|---|:--:|
 | `edinun_j13_t3r1_v1` | 2 de 22 | 12 |
 | `edinun_j13_t3r2_v1` | 1 de 2 tableros | 1 |
+| `edinun_j13_t3r2fuera_<tablero>_v1` | la pareja que NO entra, 1 de 4 | 3 |
 | `edinun_j13_t3r3ap_v1` | 6 de 13 | 6 |
 | `edinun_j13_t3r3no_v1` | 4 de 6 | 1 |
 

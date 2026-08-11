@@ -192,9 +192,13 @@ reflexionar) → no se gamifican.
   color siempre puesto** (a baja opacidad el rojo se veía marrón sobre el fondo verde), y
   el contenedor lleva **`overflow:hidden`** — la carta vuela 520 px en una zona de 470 y
   sin recorte aterrizaba sobre REINICIAR/SALIR.
-- **R2 `T3R2Memoria` — VOLTEAR** (patrón 10, variante memoria). 8 cartas en 4×2, **10
-  intentos**. Dos tableros que alternan: `lugar` (cultura ↔ país) y `signif` (cultura ↔ lo
-  que representa). Al agotar los intentos **se destapa todo** y las parejas no resueltas se
+- **R2 `T3R2Memoria` — VOLTEAR** (patrón 10, variante memoria). 6 cartas en 3×2, **8
+  intentos**. ⚠ Empezó en 4 parejas / 10 intentos y la autora la encontró **demasiado
+  difícil**: aquí no se emparejan dos cartas iguales sino un concepto con su explicación
+  (posición + contenido a la vez) y sin ilustraciones todo es texto. Ojo: **ni juego-1 ni
+  juego-6 ponen tope de intentos** a sus memorias — este es el único del repo. Dos tableros que alternan: `lugar` (cultura ↔ país) y `signif` (cultura ↔ lo
+  que representa); de las 4 parejas de cada tablero **juegan 3**, sorteando con su propia
+  clave FIFO cuál se queda fuera. Al agotar los intentos **se destapa todo** y las parejas no resueltas se
   marcan con **color + forma** (`J13_DIV_PARCOL`, con "mismo color = pareja" al pie) — ⚠ el primer intento ponía "era pareja"
   en las 8 cartas y **no dejaba ver cuál iba con cuál**; verde y rojo quedan fuera de esa
   paleta porque significan acertó/falló en todo el juego. ⭐ +1 por pareja.
@@ -206,7 +210,7 @@ reflexionar) → no se gamifican.
   que se escaparon**. Bancos `J13_DIV_APORTA` (13) y `J13_DIV_NOAPORTA` (6). ⭐ +1 por
   palabra buena.
 
-**⭐ del Tema 3:** 2 + 4 + 6 = **máximo 12**. Las tres rondas van **`verify:false`** (se
+**⭐ del Tema 3:** 2 + 3 + 6 = **máximo 11**. Las tres rondas van **`verify:false`** (se
 autovalidan): la columna derecha solo muestra REINICIAR y SALIR.
 
 ⚠ **Por qué la R2 es una memoria y no el "Pasaporte cultural"** que llegó a aprobarse:

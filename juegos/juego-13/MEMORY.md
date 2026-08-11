@@ -182,3 +182,33 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
 > positivos (llegó a encontrar un comentario del código). Hay que leer el **nodo del
 > overlay** (`position:fixed; zIndex:1000`). Y el overlay solo aparece **al cerrar la
 > ronda**, no tras cada carta.
+
+### Segunda tanda de ajustes (probando con la autora)
+
+6. **El enunciado subía demasiado en las 9 rondas** (`paddingTop` 26 en el Tema 1 y 30 en
+   los otros dos, ahora **42 → 58** en todas). Se unificó: quedaba pegado a los puntos de
+   RONDA. Con 58 la ronda más alta (la aduana del Tema 1) todavía deja 36 px abajo.
+7. **Bocadillo de la calculadora (T2 R2):** decía "Usa la fórmula de la ficha", que es
+   contenido, no instrucción. Ahora dice **"Escribe el resultado con los números"** — el
+   bocadillo es el CÓMO, y la fórmula ya está impresa en la ficha.
+8. **Los rieles de la R1 llevaron TRES iteraciones.** Cajitas translúcidas (no se veían)
+   → rojo a 0.42 (se veía **marrón**) → alto completo ("eso está horrible", parecían dos
+   columnas gigantes). Quedaron en **104×132 con color siempre puesto**.
+9. **La carta decidida ya no vuela fuera de la pantalla** (520 px → 40 px). Con la última
+   carta, el centro quedaba VACÍO los ~2,4 s previos al cartel y parecía colgado — la
+   autora lo reportó como "bug". No lo era, pero se veía igual de mal. Además ahora el ✓/✗
+   y el "Va en: …" siguen visibles mientras se leen.
+10. **Las palabras de la R3 se quedaban clavadas en el borde de abajo** de la caja: el
+    recorrido de la keyframe terminaba justo en el borde y, como la ficha mide ~38 px y
+    arranca en `top:-42`, acababa **visible**. Ahora el recorrido llega a `PISTA + 70`.
+11. **La memoria era demasiado difícil** (la autora la jugó y se quedó 0/4). Diagnóstico:
+    no se emparejan dos cartas iguales sino **un concepto con su explicación** — hay que
+    recordar la posición Y saber el contenido — y sin ilustraciones todo es texto largo.
+    Dato que zanjó la discusión: **ni juego-1 ni juego-6 ponen tope de intentos** a sus
+    memorias; el de aquí era el único del repo. La autora eligió **3 parejas / 8 intentos**
+    (6 cartas en 3×2, más grandes). De las 4 parejas del tablero se sortea **cuál se queda
+    fuera**, con su propia clave FIFO, para que los 4 casos del libro sigan apareciendo.
+    ⭐ del tema: **11**.
+
+> ⚠ **Al arrastrar se seleccionaba el texto de la carta** (se veía el resaltado azul):
+> `userSelect:none` en cualquier elemento que sea arrastrable.
