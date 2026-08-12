@@ -218,13 +218,44 @@ el Tema 2 estrenó **unir con líneas** en su R3 mientras se diseñaba este tema
 puso como condición dura que **ningún verbo se repita entre temas**. Antes de tocar este
 tema, revisar qué verbos están tomados en los otros dos.
 
-⚠ **Imágenes:** las cartas de la R2 aceptan `img` (ruta en `assets/`) y **hoy corren con
-emoji** (☯️ Taegeukgi · 🎨 Holi · 💍 Padaung · 🎭 Pimampiro). Al llegar las ilustraciones
-de la autora solo se rellena ese campo. **No se reproducen las fotos del libro ni se
-generan caras de personas reales** (`memory/personas-reales-sin-generar-caras.md`): van
-elementos culturales, no retratos. El pueblo **Padaung** es el caso delicado — el libro lo
-describe por el largo del cuello de las mujeres; se usa la formulación del libro, sin
-adjetivos añadidos.
+⚠ **Ilustraciones de la R2 (2026-08-12):** las 4 cartas llevan
+`assets/cultura-{taegeukgi,holi,padaung,intiraymi}.png`, **todo en minúsculas** (producción
+es Linux y distingue mayúsculas). El emoji (☯️ 🎨 💍 ☀️) sigue en el dato como respaldo si
+falta el archivo.
+
+- **Son ilustraciones generadas por la autora, no fotos.** Primero se probó con fotos de
+  stock y fallaron por tres motivos a la vez: no se leían a ese tamaño, tenían dueño
+  desconocido y la del Padaung era un retrato de personas identificables. **Un personaje
+  ilustrado no es una persona real** — eso sí se puede generar
+  (`memory/personas-reales-sin-generar-caras.md` prohíbe las caras REALES). Las fotos
+  descartadas quedan en `.planning/fotos-originales/*.jpg`.
+- **La ilustración ocupa la CARTA ENTERA y el nombre va encima**, sobre un velo oscuro
+  opaco. En una franja de 62 px arriba, un motivo vertical (la mujer Padaung) salía a
+  54×60 px con medio cuadro vacío a los lados; la autora lo reportó **dos veces**. A sangre
+  sale a ~98×118, el triple de superficie.
+- **Formato que funciona:** apaisado ~2:1, fondo entero plano, **el motivo ocupando casi
+  todo el cuadro**, vector plano con contorno grueso y pocos colores. Nada de
+  fotorrealismo: a este tamaño se vuelve mancha. En el prompt, **"friendly/cheerful/happy"
+  le dibuja caritas a los objetos** — "smiling" solo si hay una persona.
+- **Detalles del render que costaron una iteración cada uno:**
+  · El `overflow:hidden` vive en la capa de la imagen, **no** en la cara de la carta: los
+    distintivos ✓ y ●▲■◆ van pegados por fuera del borde y se recortarían.
+  · El velo es **opaco** (`rgba(10,6,26,0.88→0.95)`), no un degradado suave: el nombre cae
+    sobre zonas clarísimas (la túnica blanca del Padaung) y en blanco sobre blanco no se leía.
+  · `paddingBottom: 13` en el nombre para dejar libre el pie, donde asoma el distintivo.
+  · La bandera va **`contain`** (recortarla le comería los trigramas) y **subida al 10 %**
+    (`objectPosition`), porque centrada le quedaban los dos trigramas de abajo detrás del velo.
+- **Peso:** venían a 1456×720 y ~4 MB entre las cuatro para mostrarse a 142 px. Reescaladas
+  a 640 px de ancho → **1,17 MB**. Los archivos a tamaño completo están en
+  `.planning/fotos-originales/cultura-<caso>-full.png`.
+
+⚠ **El 4º caso cultural es el Inti Raymi, no las "fiestas de Pimampiro"** (cambiado el
+2026-08-12 a pedido de la autora). El libro traía Pimampiro con la sola glosa "herencia de
+las culturas ancestrales de América"; al preguntar ella en qué consisten esas fiestas se le
+respondió con Inti Raymi, San Pedro y los mindaláes **de conocimiento general, no del
+material**, extrapolando de Imbabura al cantón. **Al describirle un caso del libro, separar
+de entrada lo que sale del material de lo que es conocimiento general** — esa advertencia
+no sirve puesta al final. El Inti Raymi sí es contenido documentado y ya se usa en juego-6.
 
 ## Selector de TEMA en el HUD (pastillas)
 

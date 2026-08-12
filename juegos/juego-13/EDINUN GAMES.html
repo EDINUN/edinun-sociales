@@ -1779,7 +1779,7 @@ function T3R1Muro({ onSolve }) {
       : "linear-gradient(180deg, rgba(255,139,139,0.92), rgba(178,47,47,0.9))";
     return (
       <button onClick={() => decidir(v)} disabled={!!fallo}
-        style={{ flexShrink: 0, width: 104, height: 132, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16, border: `3px solid ${on ? "#fff" : col}`, background: on ? alto : base, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14, lineHeight: 1.15, letterSpacing: "0.03em", padding: "10px 6px", cursor: fallo ? "default" : "pointer", textShadow: "0 2px 6px rgba(0,0,0,0.55)", boxShadow: on ? `0 0 26px ${col}, inset 0 1px 0 rgba(255,255,255,0.35)` : `0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22)`, transform: on ? "scale(1.05)" : "none", transition: "all 0.15s ease" }}>
+        style={{ flexShrink: 0, width: 104, height: 132, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16, border: `3px solid ${on ? "#fff" : col}`, background: on ? alto : base, color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14, lineHeight: 1.15, letterSpacing: "0.03em", padding: "10px 6px", cursor: fallo ? "default" : "pointer", textShadow: "0 2px 6px rgba(0,0,0,0.55)", boxShadow: on ? `0 8px 20px rgba(0,0,0,0.45), inset 0 0 22px rgba(255,255,255,0.5)` : `0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22)`, transform: on ? "scale(1.05)" : "none", transition: "all 0.15s ease" }}>
         <span style={{ fontSize: 26, lineHeight: 1 }}>{v > 0 ? "▶" : "◀"}</span>
         {txt}
       </button>
@@ -1794,7 +1794,11 @@ function T3R1Muro({ onSolve }) {
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Esta idea enriquece la diversidad cultural o la ataca?</span>
       </div>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
+      {/* ⚠ `padding: 0 8` obligatorio: al acertar el riel se agranda a scale(1.05) y sin este
+          margen su borde caía justo sobre el `overflow:hidden` de la zona — se veía cortado
+          en recto, como si asomara otra tarjeta detrás. El resplandor exterior se cambió por
+          uno INTERIOR por la misma razón: 26 px de brillo hacia afuera se cortaban en seco. */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 0, width: "100%", paddingLeft: 8, paddingRight: 8, boxSizing: "border-box" }}>
         {rotulo(-1)}
         <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", justifyContent: "center" }}>
           {carta && (
@@ -1832,19 +1836,19 @@ const J13_DIV_TABLEROS = [
   {
     id: "lugar", rel: "cada cultura con su lugar",
     parejas: [
-      { k: "taegeukgi", e: "☯️", img: null, t: "Taegeukgi", r: "🇰🇷 Corea del Sur" },
-      { k: "holi", e: "🎨", img: null, t: "Festival de Holi", r: "🇮🇳 India" },
-      { k: "padaung", e: "💍", img: null, t: "Pueblo Padaung", r: "🇹🇭 Tailandia" },
-      { k: "pimampiro", e: "🎭", img: null, t: "Fiestas de Pimampiro", r: "🇪🇨 Ecuador" },
+      { k: "taegeukgi", e: "☯️", img: "assets/cultura-taegeukgi.png", fit: "contain", t:"Taegeukgi", r: "🇰🇷 Corea del Sur" },
+      { k: "holi", e: "🎨", img: "assets/cultura-holi.png", t: "Festival de Holi", r: "🇮🇳 India" },
+      { k: "padaung", e: "💍", img: "assets/cultura-padaung.png", t: "Pueblo Padaung", r: "🇹🇭 Tailandia" },
+      { k: "intiraymi", e: "☀️", img: "assets/cultura-intiraymi.png", t: "Inti Raymi", r: "🇪🇨 Ecuador" },
     ],
   },
   {
     id: "signif", rel: "cada cultura con lo que representa",
     parejas: [
-      { k: "taegeuk", e: "☯️", img: null, t: "Círculo Taegeuk", r: "El equilibrio entre fuerzas opuestas" },
-      { k: "holi", e: "🎨", img: null, t: "Festival de Holi", r: "La llegada de la primavera" },
-      { k: "padaung", e: "💍", img: null, t: "Pueblo Padaung", r: "La belleza ligada al largo del cuello" },
-      { k: "pimampiro", e: "🎭", img: null, t: "Fiestas de Pimampiro", r: "La herencia de las culturas ancestrales" },
+      { k: "taegeuk", e: "☯️", img: "assets/cultura-taegeukgi.png", fit: "contain", t:"Círculo Taegeuk", r: "El equilibrio entre fuerzas opuestas" },
+      { k: "holi", e: "🎨", img: "assets/cultura-holi.png", t: "Festival de Holi", r: "La llegada de la primavera" },
+      { k: "padaung", e: "💍", img: "assets/cultura-padaung.png", t: "Pueblo Padaung", r: "La belleza ligada al largo del cuello" },
+      { k: "intiraymi", e: "☀️", img: "assets/cultura-intiraymi.png", t: "Inti Raymi", r: "El agradecimiento al Sol por la cosecha" },
     ],
   },
 ];
@@ -1877,7 +1881,7 @@ function j13T3R2Build() {
   const parejas = tab.parejas.filter((_, n) => n !== fuera);
   const cartas = [];
   parejas.forEach((p, n) => {
-    cartas.push({ id: "a" + n, par: n, cara: "a", e: p.e, img: p.img, t: p.t });
+    cartas.push({ id: "a" + n, par: n, cara: "a", e: p.e, img: p.img, fit: p.fit, t: p.t });
     cartas.push({ id: "b" + n, par: n, cara: "b", e: null, img: null, t: p.r });
   });
   return { tab, parejas, cartas: j13Shuffle(cartas) };
@@ -1956,11 +1960,33 @@ function T3R2Memoria({ onSolve }) {
           {/* Frente */}
           <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)", borderRadius: 13, border: `2.5px solid ${borde}`, background: "linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,235,225,0.93))", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "6px 6px", boxShadow: resuelta ? "0 0 14px rgba(46,204,143,0.6)" : "0 6px 16px rgba(0,0,0,0.35)" }}>
             {c.img ? (
-              <img src={c.img} alt={c.t} style={{ width: "100%", height: 46, objectFit: "contain" }} />
-            ) : c.e ? (
-              <span style={{ fontSize: 26, lineHeight: 1 }}>{c.e}</span>
-            ) : null}
-            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: c.t.length > 26 ? 9.5 : 11, lineHeight: 1.18, color: "#2a2118", textAlign: "center" }}>{c.t}</span>
+              /* La ilustración ocupa la CARTA ENTERA y el nombre va encima, sobre un velo
+                 oscuro. En una franja de 62 px arriba, un motivo vertical (la mujer
+                 Padaung) salía a 54×60 px con medio cuadro de fondo vacío a los lados:
+                 la autora lo reportó dos veces como "no se ve nada". A sangre sale a
+                 ~98×118, el triple de superficie.
+                 · Las ilustraciones van `cover` (llenan y recortan por los lados, el motivo
+                   está centrado); la bandera va `contain` sobre blanco porque recortarla
+                   le comería los trigramas de las esquinas.
+                 · El `overflow:hidden` vive en ESTA capa, no en la cara de la carta: los
+                   distintivos ✓ y ●▲■◆ van pegados por fuera del borde y se recortarían. */
+              <div style={{ position: "absolute", inset: 0, borderRadius: 11, overflow: "hidden", display: "flex", alignItems: "flex-end" }}>
+                {/* `contain` se sube al 10 %: centrada, la bandera quedaba con los dos
+                    trigramas de abajo detrás de la banda del nombre. */}
+                <img src={c.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: c.fit || "cover", objectPosition: c.fit === "contain" ? "center 10%" : "center", background: "#fff" }} />
+                {/* Velo OPACO, no un degradado suave: el nombre cae sobre la parte baja de
+                    la ilustración, que puede ser clarísima (la túnica blanca del Padaung,
+                    las frutas del Inti Raymi) y en blanco sobre blanco no se leía. El
+                    `paddingBottom` grande deja libre el pie de la carta, donde asoma el
+                    distintivo ●▲■◆ de la pareja al destapar el tablero. */}
+                <span style={{ position: "relative", width: "100%", padding: "18px 5px 13px", background: "linear-gradient(180deg, rgba(10,6,26,0) 0%, rgba(10,6,26,0.88) 48%, rgba(10,6,26,0.95) 100%)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: c.t.length > 26 ? 9.5 : 11, lineHeight: 1.15, color: "#fff", textAlign: "center", textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>{c.t}</span>
+              </div>
+            ) : (
+              <React.Fragment>
+                {c.e && <span style={{ fontSize: 26, lineHeight: 1 }}>{c.e}</span>}
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: c.t.length > 26 ? 9.5 : 11, lineHeight: 1.18, color: "#2a2118", textAlign: "center" }}>{c.t}</span>
+              </React.Fragment>
+            )}
             {resuelta && <span style={{ position: "absolute", top: -8, right: -6, fontSize: 11, fontWeight: 900, color: "#fff", background: "#1f8a54", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</span>}
             {perdida && <span style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 22, height: 22, borderRadius: "50%", background: pc.c, border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{pc.g}</span>}
           </div>
@@ -2077,7 +2103,9 @@ function T3R3Lluvia({ onSolve }) {
   const PISTA = 300;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 58 }}>
+    /* Única ronda con el enunciado a 46 y no a 58: la pista de caída ocupa casi toda la
+       zona y a 58 el enunciado quedaba pegado al borde de la caja (pedido de la autora). */
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 46 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Atrapa lo que la diversidad cultural aporta.</span>
       </div>

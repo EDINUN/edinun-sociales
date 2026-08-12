@@ -27,8 +27,17 @@ actitudinal. Lo que se ejercita es **criterio**, no memoria de cifras. Lo aprove
 
 **Los 4 casos culturales:** Taegeukgi 🇰🇷 (círculo Taegeuk, equilibrio entre fuerzas
 opuestas, adoptada en 1883, unidad y solidaridad) · Festival de Holi 🇮🇳 (la primavera,
-los colores) · pueblo Padaung 🇹🇭 · fiestas de Pimampiro 🇪🇨 (herencia de las culturas
-ancestrales de América).
+los colores) · pueblo Padaung 🇹🇭 · **Inti Raymi** 🇪🇨 (la fiesta andina del Sol, el
+agradecimiento por la cosecha en el solsticio de junio).
+
+> ⚠ **El 4º caso se cambió el 2026-08-12.** El libro traía *"fiestas de Pimampiro"* con
+> la sola glosa "herencia de las culturas ancestrales de América" — nada más. Al
+> preguntar la autora en qué consisten, se le respondió con Inti Raymi, San Pedro y los
+> mindaláes **de conocimiento general, no del libro**: eso es extrapolar de la región
+> (Imbabura) al cantón, que en un texto escolar no se sostiene. La autora pidió
+> reemplazarlo por el **Inti Raymi**, que sí es contenido documentado y ya se usa en
+> juego-6. **Lección: al describir un caso del libro, decir de entrada qué sale del
+> material y qué es conocimiento general — la advertencia no puede ir al final.**
 
 **Fuera del juego:** las **actividades 3 y 4 son de respuesta abierta** (conversar y
 reflexionar) → no tienen respuesta única, no se gamifican.
@@ -92,10 +101,14 @@ descartó al detectarse la colisión** y se reemplazó por la memoria.
   **juegan 3 de sus 4 parejas**: se sortea cuál se queda fuera con su propia clave FIFO
   (1 de 4, cap 3), así no falta siempre la misma y los 4 casos del libro van saliendo.
   - **`lugar`** — cultura ↔ país: Taegeukgi/Corea del Sur · Holi/India ·
-    Padaung/Tailandia · Pimampiro/Ecuador.
+    Padaung/Tailandia · Inti Raymi/Ecuador.
   - **`signif`** — cultura ↔ lo que representa: círculo Taegeuk/equilibrio entre fuerzas
     opuestas · Holi/la llegada de la primavera · Padaung/la belleza ligada al largo del
-    cuello · Pimampiro/herencia de las culturas ancestrales.
+    cuello · Inti Raymi/el agradecimiento al Sol por la cosecha.
+
+  ⚠ El significado del Inti Raymi es **específico** (como los otros tres), no la glosa
+  genérica "herencia de las culturas ancestrales" que traía Pimampiro: en una memoria de
+  emparejar, una frase que le calza a cualquier carta no enseña ni ayuda a resolver.
 - **Imágenes:** cada carta acepta `img` (ruta en `assets/`). **Hoy corre con emoji de
   placeholder**; la autora va a generar las 4 ilustraciones y entonces solo se rellena
   ese campo — el resto del componente no cambia.
@@ -185,8 +198,32 @@ SALIR — el colchón con la mecánica sigue siendo de 47 px.
 - **Banco de casos culturales corto (4).** El material entregado son 3 páginas y al pie
   de la 126 se ve cortado *"Aplica tu experiencia"*: **falta el resto del tema**. Con
   más casos, la R2 gana tableros sin tocar el componente.
-- **Las 4 ilustraciones de la R2 están pendientes** (las genera la autora). Mientras
-  tanto corren con emoji: ☯️ Taegeukgi · 🎨 Holi · 💍 Padaung · 🎭 Pimampiro.
-- **El pueblo Padaung es el caso más delicado**: el libro lo describe por el largo del
-  cuello de las mujeres. Se usa la formulación del libro, sin adjetivos añadidos, y la
-  ilustración debe evitar el retrato.
+- **Las 4 ilustraciones de la R2 ya están** (`assets/cultura-<caso>.png`, minúsculas), las
+  generó la autora. El emoji queda de respaldo.
+- **El camino largo hasta que se vieran** (tres reportes de la autora, vale la pena no
+  repetirlo en otro juego):
+  1. **Fotos de stock → descartadas.** No se leían al tamaño de la carta, tenían dueño
+     desconocido y la del Padaung era un retrato de personas identificables. Quedan en
+     `.planning/fotos-originales/*.jpg`.
+  2. **Ilustraciones generadas → sí.** Un personaje ilustrado no es una persona real; la
+     regla prohíbe generar caras **reales**. De paso resuelve los derechos.
+  3. **La ilustración ocupa la carta ENTERA**, no una franja arriba. Con 46 px una foto de
+     proporción 1.5 salía en 69 px de ancho; con 62 px la mujer Padaung salía a 54×60 con
+     medio cuadro de fondo vacío. A sangre sale a ~98×118.
+  4. **El velo del nombre es opaco**, no un degradado suave: cae sobre la túnica blanca y
+     en blanco sobre blanco no se leía. Y `paddingBottom: 13` para no chocar con el
+     distintivo ●▲■◆.
+  5. **La bandera es la excepción:** `contain` (recortarla le come los trigramas) y subida
+     al 10 % con `objectPosition`, o los dos trigramas de abajo quedan tras el velo.
+  - ⚠ El `overflow:hidden` va en la capa de la imagen, **no** en la cara de la carta: los
+    distintivos van pegados por fuera del borde y se recortarían.
+  - **Formato que funciona:** apaisado ~2:1, fondo entero plano, **motivo ocupando casi
+    todo el cuadro**, vector plano, contorno grueso, pocos colores. Reescalar a 640 px de
+    ancho antes de subir (venían a 1456 y pesaban 4 MB entre las cuatro).
+- **La R1 arrastró su propio defecto:** la fila de rieles lleva `padding: 0 8` y el
+  resplandor del riel activo es **interior**, no exterior. Al acertar el riel se agranda a
+  `scale(1.05)` y su borde caía justo sobre el `overflow:hidden` de la zona: se veía
+  cortado en recto, como si asomara otra tarjeta detrás. Medido: llegaba a x=688 con el
+  borde de la zona en 685; ahora se queda en 680.
+- **El pueblo Padaung sigue siendo el caso delicado**: el libro lo describe por el largo
+  del cuello de las mujeres. Se usa la formulación del libro, sin adjetivos añadidos.
