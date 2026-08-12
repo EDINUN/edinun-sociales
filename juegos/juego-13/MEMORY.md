@@ -268,3 +268,48 @@ sobre los mismos archivos). Se detectó **antes de escribir código**, releyendo
     (🌍×2, 🗺️×2, ★×2): así no se movió ninguna posición ni cambió el número de glifos
     (cosmic 15 · chalkboard 10). Al cerrar un juego multi-tema, revisar que el fondo hable
     de TODOS los temas, no solo del primero que se construyó.
+
+## 2026-08-12 — Revisión final de espacios (los 3 temas)
+
+Medida la caja del contenido visible en las 7 pantallas jugables, en coordenadas del
+lienzo 900×540 (zona `x 215..685 · y 60..522`):
+
+| Pantalla | arriba | abajo | izq | der |
+|---|:--:|:--:|:--:|:--:|
+| T1 Aduana | 58 | 26 | 8 | 8 |
+| T2 Pasaporte | 58 | 58 | 12 | 12 |
+| T2 Calculadora | 58 | 82 | 9 | 9 |
+| T2 Sala de datos | 58 | 75 | 13 | 13 |
+| T3 El muro | 58 | 4 | 0 | 0 |
+| T3 Memoria | 58 | 6 | 10 | 10 |
+| T3 Lluvia | 53 | 6 | 0 | 0 |
+
+**Izquierda = derecha en las 7** (todo centrado) y el enunciado a la misma altura (58) en
+las 9 rondas. El margen de abajo varía porque cada mecánica tiene su alto y el bloque se
+centra en el espacio que le queda: no es un desajuste. Cero elementos fuera del lienzo.
+
+> ⚠ **Al medir espacios, excluir el HUD:** las pastillas de tema (`top:14`) caen DENTRO del
+> rango horizontal de la zona, así que sin filtrar por `y >= 60` el margen superior sale
+> negativo (−46) en todas las pantallas.
+
+### Hallazgo: el reporte en pantalla solo muestra 1 de las 3 rondas
+
+La tabla trae las 3 filas (**633 px**) pero su contenedor mide **166 px** con
+`overflow:auto` → **467 px tras un scroll** que en un lienzo escalado, y dentro del iframe
+de producción, nadie descubre.
+
+- **No es de este juego:** ese contenedor es idéntico en juego-5, juego-8 y `_PLANTILLA`.
+- **Al imprimir sale completo:** `PrintableReport` recorre todo `res.log` y fluye en la
+  página, así que la copia del docente no pierde nada.
+- **Lo que sí es propio del Tema 3:** sus filas son altísimas porque `userAnswer` /
+  `correctAnswer` son frases completas ("Es fuente de valores y de formas de entender el
+  mundo. → LA ATACA · …"), mientras en el Tema 1 son cortas ("Río Nilo → ÁFRICA").
+  Pendiente de decidir con la autora si se acortan.
+
+### Decisión de la autora: la especialidad de Domi se queda como está
+
+En la pantalla de personaje, Domi dice **"Historia y cultura · ¡Descubramos nuestro
+pasado!"**, que no pega con un juego de geografía y culturas del mundo (la de Sisa,
+"Geografía y mapas · ¡Exploremos el mundo!", encajaría mejor). **Se deja tal cual:** el
+guía lo fija el ciclo del elenco (13 mod 4 = 1 → Domi), no la temática, y `characters.jsx`
+es compartido por los 8 juegos. No volver a plantearlo.

@@ -41,6 +41,11 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
   CSS (`j13cae`, 3.4 s linear), "¡UPS!" sin estrellas en 5 capturas, 0 errores de consola.
   ⏳ **Faltan las 4 ilustraciones de la R2** (las genera la autora); corre con emoji.
 
+> ⚠️ **El reporte en pantalla scrollea:** la tabla de rondas vive en una caja de ~166 px
+> con overflow:auto (idéntica en juego-5, juego-8 y _PLANTILLA), asi que con filas altas
+> solo se ve la primera ronda sin scrollear. **Al imprimir sale completo.** Si las
+> respuestas de una mecánica son frases largas, conviene acortarlas para el reporte.
+
 > ⚠️ **Dos trampas al medir estos juegos con Playwright** (cuestan una hora cada una):
 > 1. **`document.body.textContent` incluye el JSX inline** del `<script type="text/babel">`.
 >    Buscar ahí "¡UPS!" o "+2 ⭐" da falsos positivos: hay que leer el nodo del overlay
