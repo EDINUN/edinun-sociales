@@ -16,7 +16,7 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 
 | # | Juego | HUD | Responsive | Completo | Contenido | Contador | Resultados |
 |---|-------|:---:|:----------:|:--------:|:---------:|:--------:|:----------:|
-| 13 | Explorando el mundo · Tema 1 "Los continentes" | [x] | [x] | [x] | [x] | [ ] | [x] |
+| 13 | Un mundo por descubrir · 3 temas (continentes · Américas · diversidad) | [x] | [x] | [x] | [x] | [ ] | [x] |
 
 ## Notas por juego
 
@@ -58,6 +58,10 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 > "Pasaporte cultural" del Tema 3 se cayó por chocar con la "Sala de datos" del Tema 2,
 > construida en paralelo.
 
-**Pendiente antes de publicar:** (a) **material del Tema 3** e implementarlo — no publicar
-con un botón en "Próximamente" (`estandar-visual.md` §8); (b) probar el contador real con
-PHP (`php -S localhost:8000` desde la carpeta) — en local cae a `localStorage`.
+**Pendiente antes de publicar:** (a) probar el **contador real con PHP**
+(`php -S localhost:8000` desde la carpeta) — en local cae a `localStorage`, y borrar
+`visits.txt`; (b) opcional, las **4 ilustraciones de la memoria** del Tema 3 (el juego
+funciona sin ellas, con emoji).
+
+✅ Los 3 temas están implementados: ya no queda ningún botón en "Próximamente"
+(`estandar-visual.md` §8).
