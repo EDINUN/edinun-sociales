@@ -16,11 +16,48 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 
 | # | Juego | HUD | Responsive | Completo | Contenido | Contador | Resultados |
 |---|-------|:---:|:----------:|:--------:|:---------:|:--------:|:----------:|
+| 10 | Ecuador megadiverso · Tema 1 (recursos naturales) | [x] | [x] | [x] | [ ] | [ ] | [x] |
 | 13 | Un mundo por descubrir · 3 temas (continentes · Américas · diversidad) | [x] | [x] | [x] | [x] | [ ] | [x] |
 
 ## Notas por juego
 
 > Apunta aquí lo que encuentres (bug, ajuste pendiente, idea) por juego.
+
+**juego-10 "Ecuador megadiverso" (2026-08-12)** — ⚠️ **título PROVISIONAL**, lo puso el
+asistente para poder registrar el juego; falta que lo apruebes.
+
+- **Tema 1 "Recursos naturales y los derechos de la Tierra"** (Tema 2 del libro, **8 años**)
+  ✅ **3 rondas** (mapa vivo · ascensor del Ecuador · ficha del descubrimiento), **10 ⭐**
+  (4 + 3 + 3). Guía **Yaku**.
+- **Revisión visual de la autora (2026-08-13), 6 correcciones aplicadas:** fichas de la R1
+  más chicas (138×70 → 104×62) y zonas menos alargadas (176 → 126); el ✓/✗ y la región
+  revelada pasaron **dentro** de la ficha (colgando se montaban sobre la ficha vecina); la
+  R2 quedó en **una sola columna de 6 franjas en crema opaco** (eran blanco translúcido y
+  "casi no se notaban", y la Antártida colgaba en un recuadro suelto); el bocadillo de la R1
+  ya **no dice "el mapa"** (el panel no es una silueta del Ecuador); y la R2 pasó de **2
+  definiciones a 1** — encadenar dos rompía la regla *una ronda = UNA jugada*.
+- **Segunda tanda:** el mapa quedó **anclado abajo** y las zonas arrancan bajitas, así que
+  **crecen hacia arriba** conforme caen las fichas; y el bocadillo de la R3 dejó de decir
+  *"en cada hueco"* (jerga de diseño, no palabra de un niño de 8).
+  ⚠️ **Regla que dejan las dos:** el bocadillo solo puede nombrar **cosas que el niño ve y
+  entiende**. Verificado con format-lint 19/19, qa-visual sin overflow en
+  los 6 viewports y un e2e propio: partida perfecta 3/3 · 9 ⭐ · 100 % con **arrastre real
+  de mouse**, partida fallada con revelado en las 3 rondas usando el **respaldo tap**,
+  ronda parcial (3 bien + 1 mal) que **suma +3 ⭐ sin quitarlas** y "¡UPS!" sin estrellas,
+  6 recargas con 0 repeticiones consecutivas, 0 errores de consola.
+- ⏳ **Temas 2 y 3 en "Próximamente"**: falta su material y su edad. No es un estado final
+  válido (`estandar-visual.md` §8) — el juego se entrega con los 3 botones jugables.
+  Sus verbos no pueden repetir arrastrar-al-mapa · tocar-franja · elegir-en-huecos.
+- ⏳ **"Contenido" sin marcar a propósito:** falta que revises (a) el **criterio de
+  distractores** de la R3 —el dato correcto siempre sale del libro, pero varios distractores
+  son una negación evidente porque el libro no ofrece alternativa— y (b) la lista de **26
+  especies excluidas** del banco de la R1 por estar repetidas en dos regiones del cuadro de
+  la p. 72.
+- ⚠️ **El colchón mecánica↔acciones del panel del mapa (54 px) hay que medirlo aparte.**
+  `qa-visual.js` solo escanea `button`, `img` y elementos `position:absolute`; el panel del
+  mapa es hijo de un flex y **no lo ve** — su "gap 140" es el de las fichas de la bandeja.
+- ⚠️ **Trampa del e2e:** `el.click()` no prueba el arrastre (solo dispara `click`, sin
+  pointer events). Hay que usar el mouse real de Playwright: `move → down → move → up`.
 
 **juego-13 "Un mundo por descubrir" (2026-08-06)** — Título ya definido por la autora.
 
