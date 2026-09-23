@@ -109,6 +109,52 @@ prócer/lugar junto a su imagen. Usan: `lengua/juego-1`, `juego-9`.
 
 ---
 
+## Reglas del arrastre (valen para CUALQUIER mecánica que se arrastre)
+
+Aprendidas a base de correcciones de la autora en juego-10 y juego-13.
+
+1. **Lo que se mueve tiene que VERSE moverse.** Una barra o un recuadro que marque el
+   destino no basta: las piezas que están entre el origen y el destino se **apartan**
+   el hueco que dejó la arrastrada. Si la columna se queda quieta, el niño no percibe
+   que esté reordenando nada.
+2. **Al soltar, la pieza ATERRIZA; no aparece.** Reordenar el arreglo y dejar que la
+   pieza salte a su casilla se lee como un fallo (*"como que salta al lugar en el que
+   le estoy colocando"*). Se cambia el orden **al instante** (el estado nunca queda a
+   medias, así ¡VERIFICAR! lee siempre lo definitivo) y la pieza se anima ~190 ms desde
+   donde quedó el dedo hasta su casilla.
+3. **Ese viaje va con `element.animate()`, no con una transición CSS.** Para que una
+   transición arranque, el navegador tiene que **pintar** el fotograma de partida, y
+   React aplica los dos cambios de estado antes de ese pintado: la pieza llega de un
+   tirón. Medido en juego-10: 0 ms donde el dedo, 30 ms ya en destino. Con
+   `{ duration: 190, easing: "ease-out", fill: "backwards" }` (el `fill` aplica el
+   desplazamiento inverso ya en el primer fotograma) sale bien.
+4. **Empezar otro arrastre CORTA la animación en curso.** Bloquear el gesto mientras
+   algo aterriza parece inofensivo (son 190 ms) pero pierde arrastres encadenados: en
+   juego-10 la partida "perfecta" del e2e bajó de 11 ⭐ a 8. Se cancela la animación (la
+   pieza ya está en su casilla) y se mide sobre los rectángulos reales.
+5. **Mientras una pieza aterriza, las demás van SIN transición.** Cambian de casilla y
+   de desplazamiento a la vez, así que no se mueven ni un píxel; si se animan, saltan
+   un puesto y vuelven.
+6. **Respaldo tap SIEMPRE** (tocar pieza → tocar destino), y el e2e juega **una partida
+   con el arrastre y otra con el respaldo**: en juego-13 el tap no existía en la
+   práctica y la ronda era imposible de acertar sin arrastrar.
+
+## Separaciones: un hueco distinto se lee como un descuido
+
+Dentro de una lista o rejilla, **todos los huecos iguales**. Si un elemento es de otra
+naturaleza, se distingue por su **sitio** (al final), su color o su rótulo — nunca
+dándole más aire. En juego-10 la zona Antártida llevaba 7 px extra a propósito y la
+autora lo reportó como error. Al revés también: dos bloques que son **dos pasos
+distintos** (abrir pistas → elegir lugar) necesitan separarse de verdad (~32 px), si no
+se leen como una sola parrilla.
+
+## Los avisos dentro de la mecánica no usan el verbo interno
+
+El nombre del verbo con el que diseñamos la ronda (*lanzar*, *destapar*, *estirar*) es
+vocabulario de trabajo. El aviso que ve el niño cuenta **lo que pasó**, no cómo lo
+llamamos: ❌ `¡Todas lanzadas! Toca ¡VERIFICAR!` → ✅ `Ya colocaste las cuatro. Toca
+¡VERIFICAR!`. Mismo caso que el `Estira el gráfico` que la autora mandó quitar.
+
 ## Inventar una mecánica nueva
 
 Se anima a crear gamificaciones inéditas — **manteniendo el shell**:

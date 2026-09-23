@@ -59,6 +59,20 @@ fontSize: 15, letterSpacing: "0.02em", lineHeight: 1.1, textAlign: "center",
 > ecosistema (lengua) es `fontSize: 15, padding: "14px 6px"`. **No agrandar los
 > botones por juego.**
 
+### Textos del botón y de la pill de descripción
+
+- **`label` (botón) ≠ `catLabel` (título del tema).** El título completo que da la
+  autora va SIEMPRE en el `catLabel` (lo lee el reporte); en el botón entra entero
+  solo si cabe. Los botones de una fila **comparten altura**: un título largo estira
+  los tres. Medir antes de dar por bueno un `label` de más de ~22 caracteres.
+  > ⚠️ Error real: en juego-10 el título completo del Tema 1 subió la fila de 87 a
+  > 134 px y la autora lo cazó — *"el botón naranja está muy grande"*.
+- **La descripción va en AFIRMATIVO.** Nada de enumerar el contenido empezando por
+  "Qué es…", "En qué se diferencia…", "Cómo funciona…": lee como una pregunta a la
+  que le faltan los signos, y la autora lo reporta.
+  > ✅ `El clima, sus tipos y su diferencia con el tiempo atmosférico.`
+  > ❌ `Qué es el clima, en qué se diferencia del tiempo y sus tipos.`
+
 ### Gradientes por POSICIÓN (byte a byte, del estándar EDINUN)
 
 | Posición | `grad` | `ink` |
@@ -109,6 +123,22 @@ Botón activo: `boxShadow` con anillo blanco `0 0 0 3px rgba(255,255,255,0.85)` 
   encontrada). Mantener SIEMPRE `top: 20`, `ed-label fontSize 11`, dots `11×11`.
 - Si el juego **no tiene rondas discretas** (p. ej. juego-2, ruta única con
   temporizador), el centro del HUD queda vacío: **no inventar dots**.
+
+### 1.2 RONDA cuando el juego lleva pastillas de tema
+
+Si el HUD lleva **pastillas de tema** (`top: 14, left: "50%"`, para saltar de tema sin
+volver al Home), el bloque Ronda **NO cabe en su sitio de siempre**: va debajo, en
+**`top: 74`**. Sin pastillas, se queda en `top: 52`.
+
+```jsx
+{/* con pastillas de tema arriba */}
+<div style={{ position: "absolute", top: 74, left: "50%", transform: "translateX(-50%)", … }}>
+```
+
+> ⚠️ **Error real cometido (cazado por la autora el 2026-09-04 en juego-10):** el `52`
+> es anterior a las pastillas; al añadirlas, RONDA quedaba pegado a ellas y con un
+> hueco grande debajo — *"no está bien distribuido"*. `format-lint.js` lo comprueba solo
+> (mira si existe `top: 14, left: "50%"`) y marca los juegos que sigan en 52.
 
 ---
 
