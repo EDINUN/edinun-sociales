@@ -114,8 +114,14 @@ function lintGame(g) {
 
   // ── §1.1 — indicador de Ronda (solo si el juego lo usa) ──
   if (/>\s*Ronda\s*</.test(game)) {
-    check(has(game, "top: 52,"), "Ronda en top: 52",
-      "el bloque `Ronda` va en `top: 52` (§1.1)");
+    // El bloque Ronda va en `top: 52`... salvo si el juego tiene PASTILLAS DE TEMA.
+    // Esas ocupan 14->44, asi que con 52 el bloque queda a 8 px de ellas y a 51 px del
+    // enunciado: mal repartido (reportado por la autora en juego-10, 2026-09-04). Con
+    // pastillas va en 74 (30 px arriba, 29 abajo). Se exige la que toca segun el caso.
+    const conPastillas = has(game, 'top: 14, left: "50%"');
+    const espRonda = conPastillas ? "top: 74," : "top: 52,";
+    check(has(game, espRonda), "Ronda en " + espRonda.replace(",", "") + (conPastillas ? " (con pastillas)" : " (sin pastillas)"),
+      "con pastillas de tema el bloque Ronda va en top: 74; sin ellas, en top: 52");
     check(has(game, "width: 11, height: 11"), "Ronda con dots 11×11",
       "los dots de ronda son `width: 11, height: 11` (§1.1)");
   }

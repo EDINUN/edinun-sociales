@@ -1,13 +1,23 @@
-// game-screens.jsx — juego-10 (Estudios Sociales · Tema 1 para 8 años).
+// game-screens.jsx — juego-10 (Estudios Sociales · multi-tema, una edad por tema).
 // Juego MULTI-TEMA: `GameScreen` despacha por `app.currentCategory` y cada tema tiene su
 // propio arreglo de rondas; el chrome EDINUN lo comparten todos vía `J10Game`.
 //
-// TEMA 1 · "Recursos naturales y los derechos de la Tierra" (Tema 2 del libro) — J10_ROUNDS:
+// TEMA 1 · "Recursos naturales y derechos de la Tierra" (Tema 2 del libro) — 8 años
+// — J10_ROUNDS:
 //   R1 "Mapa vivo"               — ARRASTRAR 4 especies a su región natural + ¡VERIFICAR!
-//   R2 "El ascensor del Ecuador" — TOCAR la franja del territorio que se describe (2 veces)
+//   R2 "El ascensor del Ecuador" — TOCAR la franja del territorio que se describe
 //   R3 "Ficha del descubrimiento"— ELEGIR la opción correcta en 3 huecos + ¡VERIFICAR!
 //
-// TEMAS 2 y 3: sin material todavía (botones en "Próximamente" en el Home).
+// TEMA 2 · "Inicio del siglo XXI" (Tema 1 del libro) — 11 años — J10_ROUNDS_S21:
+//   R1 "Del sucre al dólar"          — ORDENAR 4 hechos ARRASTRÁNDOLAS (respaldo tap)
+//   R2 "¿Dónde se esconden los gases?" — BUSCAR con lupa en una escena + ¡VERIFICAR!
+//   R3 "Estira el gráfico"           — ARRASTRAR el borde de un pastel / de unas barras
+//
+// TEMA 3 · "El clima de nuestro planeta" (Tema 4 del libro) — 12 años —
+// J10_ROUNDS_CLIMA:
+//   R1 "El noticiero"              — LANZAR la tarjeta a CLIMA o a TIEMPO + ¡VERIFICAR!
+//   R2 "La ruleta de los climas"   — GIRAR el aro hasta la respuesta + ¡VERIFICAR!
+//   R3 "El lugar misterioso"       — DESTAPAR pistas y deducir el lugar + ¡VERIFICAR!
 //
 // CONTRATO: GameScreen/ResultsScreen({app,setApp,go}) en window; markFirstAttempt() en la
 // 1a respuesta; incrementGamesCompleted() al fin. Invariantes EDINUN: fallar NO baja el
@@ -23,7 +33,7 @@ function PortalToBody({ children }) {
   return ReactDOM.createPortal(children, document.body);
 }
 
-const CAT_LABEL = "Recursos naturales y los derechos de la Tierra";
+const CAT_LABEL = "Recursos naturales y derechos de la Tierra";
 const TOTAL = 3;
 
 const ANIMOS = [
@@ -425,14 +435,16 @@ function R2Ascensor({ onSolve }) {
         <div style={{ width: 446, boxSizing: "border-box", borderRadius: 14, border: "3px solid #f2c260", background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", padding: "9px 13px", boxShadow: "0 10px 24px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-ui)", fontSize: 12.5, lineHeight: 1.3, color: "#3a2608", textAlign: "center" }}>
           {target.d}
         </div>
-        {/* Corte vertical, de la órbita al subsuelo. La zona Antártida cierra la lista
-            con un poco más de aire arriba: no es una capa del corte, pero sacarla a un
-            recuadro al costado se veía mal (reportado por la autora). */}
+        {/* Corte vertical, de la órbita al subsuelo. La zona Antártida cierra la lista:
+            no es una capa del corte, pero sacarla a un recuadro al costado se veía mal
+            (reportado por la autora). Llevaba 7 px extra de aire arriba para marcar esa
+            diferencia y la autora lo cazó como un espacio desparejo — separación única
+            para las seis, la Antártida se distingue por su sitio al final, no por el hueco. */}
         {/* 300 px de ancho, no 380: la autora pidió las franjas más angostas. La tarjeta de
             la definición sí se queda en 446 — es el enunciado, no una opción tocable. */}
         <div style={{ width: 300, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 5 }}>
           {J10_CORTE.map((id) => franja(j10Zona(id), 36))}
-          {franja(j10Zona("antartida"), 36, 7)}
+          {franja(j10Zona("antartida"), 36)}
         </div>
       </div>
     </div>
@@ -583,6 +595,1284 @@ function R3Ficha({ onSolve, verifyRef }) {
   );
 }
 
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ TEMA 2 · "Inicio del siglo XXI" — es el TEMA 1 del libro (pp. 112-117 +    ║
+// ║ cuaderno pp. 103-106), que allí se titula "…: globalización, democracia    ║
+// ║ y unidad nacional".                                                        ║
+// ║ Edad objetivo: 11 años (la fija la autora) — de ahí que las tres mecánicas ║
+// ║ sean más exigentes que las del Tema 1, que es para 8.                      ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 verbos NUEVOS (no repiten los del Tema 1, que se llevó         ║
+// ║ arrastrar-al-cajón · tocar-1-de-lista · elegir-entre-dos):                 ║
+// ║   R1 "Del sucre al dólar"          — ORDENAR intercambiando tarjetas       ║
+// ║   R2 "¿Dónde se esconden los gases?" — BUSCAR con lupa dentro de una escena║
+// ║   R3 "Estira el gráfico"           — ARRASTRAR el borde de un gráfico      ║
+// ║                                                                            ║
+// ║ ⭐ +1 por elemento resuelto (4 + 4 + 3) = **11 máximo**.                    ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+// ══════════════════════════════════════════════════════════════════
+// R1 · "Del sucre al dólar" — ORDENAR una línea del tiempo (verbo nuevo).
+// 4 hechos desordenados en columna; se ARRASTRA la tarjeta hasta su lugar (con el toque
+// como respaldo: tocar dos tarjetas las intercambia) y ¡VERIFICAR! valida las 4 de una
+// vez (una ronda = UNA jugada).
+//
+// ⚠ Las tarjetas NO muestran el año mientras se juega: deducir el orden ES el
+// ejercicio. El año aparece al verificar, junto al ✓/✗ — así el revelado enseña.
+//
+// ⚠ BANCO: 9 hechos, todos con año EXPLÍCITO en el libro y todos con año DISTINTO
+// (si dos compartieran año habría dos ordenaciones correctas). Por eso quedan fuera:
+//   · el feriado bancario — el libro lo fecha como "finales del siglo XX", sin año;
+//     con 1994 (MERCOSUR) en el banco el orden sería ambiguo. Entra si la autora
+//     confirma el año.
+//   · la deuda de 48 129 millones (febrero 2023) — chocaría con las monedas de
+//     diciembre de 2023.
+// Se eligen 4 de 9 → 126 combinaciones, cap 4 (deja siempre ≥5 libres).
+// ══════════════════════════════════════════════════════════════════
+const J10_HITOS = [
+  { id: "sucre", y: 1884, e: "💵", t: "Empieza a circular el sucre, la moneda del Ecuador." },
+  { id: "aladi", y: 1960, e: "🤝", t: "Nace la ALADI, el organismo de integración más antiguo de la región." },
+  { id: "can", y: 1969, e: "🏔️", t: "Se funda la CAN, la Comunidad Andina." },
+  { id: "sela", y: 1975, e: "⚖️", t: "Se crea el SELA, formado por 26 países." },
+  { id: "mercosur", y: 1994, e: "📦", t: "Surge el MERCOSUR, un espacio común para el comercio." },
+  { id: "dolar", y: 2000, e: "💲", t: "El gobierno cambia el sucre por el dólar." },
+  { id: "celac", y: 2011, e: "🌎", t: "Nace la CELAC, integrada por 33 países." },
+  { id: "paris", y: 2017, e: "🌡️", t: "El Ecuador firma el Acuerdo de París por el clima." },
+  { id: "monedas", y: 2023, e: "🪙", t: "El Banco Central emite monedas con personajes ecuatorianos." },
+];
+
+const J10_S21R1_KEY = "edinun_j10_s21r1_v1";
+function j10S21R1Build() {
+  const idxs = j10PickIdx(J10_HITOS, 4, J10_S21R1_KEY);
+  j10Commit(J10_S21R1_KEY, idxs, 4);
+  const correcto = idxs.map((i) => J10_HITOS[i]).sort((a, z) => a.y - z.y);
+  // El reparto inicial nunca puede venir ya ordenado (la ronda se ganaría sin jugar).
+  let ini = j10Shuffle(correcto);
+  for (let t = 0; t < 10 && ini.every((it, n) => it.id === correcto[n].id); t++) ini = j10Shuffle(correcto);
+  return { correcto, ini };
+}
+
+function R1Linea({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10S21R1Build());
+  const [orden, setOrden] = useStateG(() => b.ini);
+  const [sel, setSel] = useStateG(null);          // respaldo tap: tarjeta "levantada"
+  const [verified, setVerified] = useStateG(false);
+  const [drag, setDrag] = useStateG(null);        // { idx, dy, moved, ins }
+  const [posa, setPosa] = useStateG(null);        // aterrizaje: { id, dy }
+  const listRef = useRefG(null);
+  const cardRefs = useRefG({});
+  const dragInfo = useRefG(null);
+  const vuelo = useRefG(null);                    // animación de aterrizaje en curso
+
+  // ══ ARRASTRAR PARA REORDENAR ══
+  // Pedido de la autora (2026-08-28): "aquí quiero poder arrastrar". Antes solo se podía
+  // tocar dos tarjetas para intercambiarlas; ese toque SIGUE funcionando como respaldo,
+  // igual que la R1 del Tema 1 lleva respaldo tap para el arrastre al cajón.
+  //
+  // ⚠ La columna NO se reordena mientras arrastras: la tarjeta flota siguiendo el dedo y
+  // una BARRA DORADA marca dónde va a caer. Reordenar en vivo movería las tarjetas por
+  // debajo del dedo y habría que recalcular el desplazamiento en cada paso (da tirones).
+  // Los rectángulos de los slots se CONGELAN al empezar el arrastre, así el destino se
+  // calcula siempre contra la misma referencia.
+  function medir() {
+    const cr = listRef.current.getBoundingClientRect(), s = (cr.width / 436) || 1;
+    return { s, slots: orden.map((it) => {
+      const r = cardRefs.current[it.id].getBoundingClientRect();
+      return { mid: (r.top + r.bottom) / 2, top: (r.top - cr.top) / s, bot: (r.bottom - cr.top) / s };
+    }) };
+  }
+  function destino(y, slots) { let k = 0; for (let i = 0; i < slots.length; i++) { if (y > slots[i].mid) k++; } return k; }
+  function mover(from, ins) {
+    setOrden((o) => { const c = o.slice(), it = c.splice(from, 1)[0]; c.splice(ins > from ? ins - 1 : ins, 0, it); return c; });
+  }
+
+  function onDown(e, n) {
+    if (verified) return;
+    // ⚠ Si otra tarjeta sigue aterrizando se CORTA su animación aquí mismo (ya está en su
+    // casilla; cancelar solo quita el desplazamiento). Antes se ignoraba el nuevo arrastre
+    // y la prueba lo cazó: encadenando arrastres rápidos se perdía uno de cada dos. Hace
+    // falta cortarla porque medir() lee rectángulos reales y a media animación darían un
+    // destino equivocado.
+    aterriza(null);
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    const m = medir();
+    dragInfo.current = { idx: n, y0: e.clientY, s: m.s, slots: m.slots, dy: 0 };
+    setDrag({ idx: n, dy: 0, moved: false, ins: n });
+  }
+  function onMove(e) {
+    const di = dragInfo.current; if (!di) return;
+    const sdy = e.clientY - di.y0, moved = Math.abs(sdy) > 6;
+    // ⚠ El desplazamiento se ACOTA al alto de la lista (±20 px): sin tope, arrastrando muy
+    // arriba o muy abajo la tarjeta se salía de la zona de mecánica.
+    const own = di.slots[di.idx], listH = di.slots[di.slots.length - 1].bot;
+    const dy = Math.max(-(own.top + 20), Math.min((listH - own.bot) + 20, sdy / di.s));
+    di.dy = dy;   // se guarda en el ref: el aterrizaje lo necesita al soltar
+    setDrag({ idx: di.idx, dy, moved, ins: moved ? destino(e.clientY, di.slots) : di.idx });
+  }
+  // ⚠ ATERRIZAJE (pedido de la autora, 2026-09-23: "no me gusta que luego de arrastrar
+  // un hecho este como que salta al lugar en el que le estoy colocando"). Antes, al soltar
+  // se reordenaba la columna y la tarjeta aparecía de golpe en su nueva casilla: el salto.
+  // Ahora el orden cambia al instante —el estado nunca queda a medias, así ¡VERIFICAR!
+  // siempre lee el orden definitivo— y el viaje es una animación de la tarjeta: arranca
+  // desde donde quedó el dedo (desplazamiento inverso) y va hasta su casilla.
+  //
+  // ⚠ Va con element.animate(), NO con una transición CSS: para que la transición arranque
+  // haría falta que el navegador PINTARA el frame del desplazamiento inverso, y React
+  // aplica los dos cambios de estado antes de ese pintado — la tarjeta llegaba de un tirón
+  // (medido: 0 ms donde el dedo, 30 ms ya en destino). La animación no depende del render.
+  //
+  // Las demás tarjetas no se animan: ya estaban apartadas justo en su sitio final, así que
+  // cambian de casilla y de desplazamiento a la vez y no se mueven ni un píxel. Por eso
+  // mientras dura el aterrizaje TODA la lista va sin transición (`congelado`): animar ese
+  // cambio simultáneo las hacía saltar un puesto y volver.
+  // Corta el aterrizaje en curso, si lo hay: la tarjeta ya está en su casilla, cancelar
+  // solo le quita el desplazamiento que le quedaba por recorrer.
+  function aterriza(nuevo) {
+    const v = vuelo.current;
+    if (v) { v.cortado = true; if (v.anim) { try { v.anim.cancel(); } catch (err) {} } }
+    vuelo.current = nuevo;
+    if (!nuevo) setPosa(null);
+  }
+  function onUp(e) {
+    const di = dragInfo.current; if (!di) return;
+    const moved = Math.abs(e.clientY - di.y0) > 6;
+    dragInfo.current = null;
+    if (verified) { setDrag(null); return; }
+    if (!moved) { setDrag(null); tap(di.idx); return; }
+    const ins = destino(e.clientY, di.slots), sl = di.slots, own = sl[di.idx];
+    const topFinal = ins <= di.idx ? sl[ins].top : sl[ins - 1].bot - (own.bot - own.top);
+    const salto = (own.top + di.dy) - topFinal;   // px lógicos, como el resto de medidas
+    const id = orden[di.idx].id, v = { id, cortado: false, anim: null };
+    mover(di.idx, ins); setDrag(null); setSel(null); setPosa(id);
+    aterriza(v);
+    requestAnimationFrame(() => {
+      const el = cardRefs.current[id];
+      if (v.cortado) return;
+      if (!el || !el.animate) { aterriza(null); return; }   // navegador sin WAAPI: sin viaje, pero bien colocada
+      // `fill: backwards` = el desplazamiento inverso se aplica ya, antes del primer
+      // fotograma de la animación; sin él, ese fotograma pintaba la tarjeta en la casilla
+      // (un parpadeo) y recién después arrancaba el viaje.
+      v.anim = el.animate([{ transform: `translateY(${salto}px) scale(1.03)` }, { transform: "translateY(0px) scale(1)" }],
+        { duration: 190, easing: "ease-out", fill: "backwards" });
+      v.anim.onfinish = () => { if (vuelo.current === v) aterriza(null); };
+      setTimeout(() => { if (vuelo.current === v) aterriza(null); }, 420);   // red de seguridad
+    });
+  }
+  function endDrag() { dragInfo.current = null; setDrag(null); aterriza(null); }
+
+  function tap(n) {
+    if (verified) return;
+    if (sel === null) { setSel(n); return; }
+    if (sel === n) { setSel(null); return; }
+    setOrden((o) => { const c = o.slice(); const t = c[n]; c[n] = c[sel]; c[sel] = t; return c; });
+    setSel(null);
+  }
+  function posCorrecta(it) { return b.correcto.findIndex((c) => c.id === it.id) + 1; }
+
+  function verificar() {
+    if (verified) return;
+    // ⚠ Hay que soltar la tarjeta levantada ANTES de revelar: si el niño toca una tarjeta
+    // y va directo a ¡VERIFICAR!, esa tarjeta se queda desplazada y su ✗ (que cuelga del
+    // borde) se salía de la zona de mecánica. Cazado por la auditoría de espacios.
+    setSel(null); endDrag();
+    setVerified(true);
+    const aciertos = orden.filter((it, n) => it.id === b.correcto[n].id).length;
+    onSolve(aciertos === orden.length, {
+      emoji: "🕰️", a: "¿En qué orden pasaron estos hechos?",
+      userAnswer: orden.map((it, n) => `${n + 1}º ${it.t.split(",")[0]}`).join(" · "),
+      correctAnswer: b.correcto.map((it, n) => `${n + 1}º ${it.y}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // Alto que libera la tarjeta arrastrada (la suya + el hueco entre tarjetas). Es lo que
+  // se desplazan las demás para abrir sitio.
+  function altoHueco() {
+    const di = dragInfo.current; if (!di) return 0;
+    return di.slots[di.idx].bot - di.slots[di.idx].top + 8;
+  }
+
+  function tarjeta(it, n) {
+    const ok = verified && it.id === b.correcto[n].id;
+    const isSel = sel === n, dragging = drag && drag.idx === n;
+    const posando = posa === it.id, congelado = posa !== null;
+    // ⚠ Las demás tarjetas SE APARTAN mientras arrastras, para que se vea que estás
+    // reordenando (pedido de la autora, 2026-09-04: "cuando muevo las opciones deben
+    // moverse para que se note"). Antes la columna se quedaba quieta y solo aparecía la
+    // barra de destino: no se leía como un cambio de orden.
+    // No se reordena el arreglo: solo se desplazan las tarjetas que hay ENTRE la posición
+    // de origen y la de destino, justo el alto que la arrastrada dejó libre.
+    let aparta = 0;
+    if (drag && drag.moved && !dragging) {
+      const H = altoHueco();
+      if (drag.ins <= n && n < drag.idx) aparta = H;
+      else if (drag.idx < n && n < drag.ins) aparta = -H;
+    }
+    let border = "#d9c48a";
+    if (!verified && (isSel || dragging)) border = "#4fd8ff";
+    if (verified) border = ok ? "#2ecc8f" : "#ff6b6b";
+    return (
+      <button key={it.id} ref={(el) => { cardRefs.current[it.id] = el; }}
+        onPointerDown={(e) => onDown(e, n)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={endDrag}
+        onClick={(e) => e.stopPropagation()} disabled={verified}
+        style={{ position: "relative", width: "100%", minHeight: 62, display: "flex", alignItems: "center", gap: 9, padding: "6px 10px 6px 7px", borderRadius: 13, border: `2.5px solid ${border}`, background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", cursor: verified ? "default" : "grab", touchAction: "none", textAlign: "left", zIndex: (dragging || posando) ? 60 : 1, transform: dragging ? `translateY(${drag.dy}px) scale(1.03)` : (aparta ? `translateY(${aparta}px)` : (isSel ? "translateX(4px) scale(1.01)" : "none")), boxShadow: (dragging || isSel) ? "0 0 18px rgba(79,216,255,0.65)" : "inset 0 1px 0 rgba(255,255,255,0.75), 0 3px 9px rgba(0,0,0,0.24)", transition: (dragging || congelado) ? "none" : "transform 0.17s ease" }}>
+        <span style={{ flexShrink: 0, width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(180deg,#ffe6a1,#e0a72c)", border: "1.5px solid #c58f17", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11.5, color: "#5a3d0a" }}>{n + 1}º</span>
+        {/* ⚠ El emoji es un MARCADOR DE POSICIÓN: aquí van los 9 iconos ilustrados que
+            genera la autora (`assets/hito-<id>.png`, 120×120 con fondo transparente).
+            Cuando lleguen, este <span> se cambia por un <img> del mismo tamaño. */}
+        <span style={{ flexShrink: 0, fontSize: 26, lineHeight: 1, width: 32, textAlign: "center" }}>{it.e}</span>
+        <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontSize: 12.5, lineHeight: 1.22 }}>{it.t}</span>
+        {verified && (
+          <span style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+            <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 13, color: "#5a3d0a", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "0 7px" }}>{it.y}</span>
+            {/* Al fallar se revela DÓNDE iba, sin reordenar la columna: el niño sigue
+                viendo su propia respuesta (invariante EDINUN del revelado). */}
+            {!ok && <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9, color: "#c0392b", letterSpacing: "0.02em" }}>va {posCorrecta(it)}º</span>}
+          </span>
+        )}
+        <span style={{ position: "absolute", top: -8, right: -7, display: verified ? "flex" : "none", fontSize: 11, fontWeight: 900, color: "#fff", background: ok ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 19, height: 19, alignItems: "center", justifyContent: "center", boxShadow: "0 2px 5px rgba(0,0,0,0.35)" }}>{ok ? "✓" : "✗"}</span>
+      </button>
+    );
+  }
+
+  // Y de la barra que marca dónde va a caer la tarjeta, en px lógicos dentro de la lista.
+  // La barra se dibuja DENTRO del hueco que abren las tarjetas al apartarse, no en la
+  // posición original: si no, señalaba un sitio donde ya no está el hueco.
+  function lineaY() {
+    const di = dragInfo.current; if (!di || !drag) return 0;
+    const sl = di.slots, k = drag.ins, H = altoHueco();
+    const arriba = k <= di.idx ? sl[Math.max(0, k)].top : sl[k - 1].bot - H;
+    return arriba + (H - 8) / 2 - 3;
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Ordena los hechos del más antiguo al más reciente.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div ref={listRef} style={{ position: "relative", width: 436, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 8 }}>
+          {drag && drag.moved && (
+            <div style={{ position: "absolute", left: -16, right: -16, top: lineaY(), height: 6, borderRadius: 999, background: "linear-gradient(90deg,#4fd8ff,#ffe6a1,#4fd8ff)", boxShadow: "0 0 16px rgba(79,216,255,0.95)", zIndex: 55, pointerEvents: "none" }} />
+          )}
+          {orden.map((it, n) => tarjeta(it, n))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R2 · "¿Dónde se esconden los gases?" — BUSCAR con lupa (verbo nuevo).
+// Una escena con 9 elementos; 4 calientan el planeta y 5 son decorado. La lupa sigue
+// al dedo y AGRANDA lo que queda debajo. Se marcan 4 y ¡VERIFICAR! valida de una vez.
+//
+// ⚠ Por qué marcar + ¡VERIFICAR! y no "se cierra al encontrar las 4": si la ronda
+// solo terminara al acertar, sería imposible fallar y no habría revelado. Marcando,
+// hay respuesta parcial (+1 por acierto) y camino de error, igual que el resto del repo.
+//
+// ⚠ CRITERIO DE "CALIENTA EL PLANETA": solo las dos causas que el libro nombra —
+// **quema de combustibles fósiles** (fábricas, carros, buses, aviones, tractores,
+// camionetas) y **deforestación** (motosierra, troncos talados, camión maderero,
+// bosque quemado). Deliberadamente NO se usa ganado como respuesta ni como decorado:
+// el metano del ganado no está en el libro y marcar una vaca como "no contamina"
+// sería enseñar algo discutible.
+//
+// ⚠ Los emojis son MARCADORES DE POSICIÓN. Cuando lleguen las ilustraciones, el
+// fondo pasa a ser un <img> de la escena y cada elemento un <img> suelto en la misma
+// coordenada (x/y en % del recuadro, ya definidas abajo).
+//
+// ⚠ FONDO DE UNA SOLA PIEZA. Antes se pintaba en dos bloques —cielo arriba, suelo abajo—
+// y la autora lo rechazó: "¿por qué está de dos colores, celeste y camel? No me gusta"
+// (2026-09-02). Una línea dura a media altura parte el recuadro en dos rectángulos en vez
+// de leerse como un paisaje. Ahora es UN degradado de 5 paradas que va del celeste al
+// tono de tierra sin costura, y como no hay horizonte visible ya no hay elementos
+// "flotando en el cielo". El reparto en TRES FILAS se mantiene: es lo que garantiza los
+// 72 px de separación entre elementos.
+// ══════════════════════════════════════════════════════════════════
+// Cada escena trae su BANCO: 7-8 elementos que calientan y 10 de decorado. Cada partida
+// saca 4 + 5 y los reparte en los 9 huecos, barajados — pedido de la autora (2026-09-02:
+// "me pueden salir emojis variados, no siempre los mismos"). Antes cada escena mostraba
+// SIEMPRE los mismos 9 y solo rotaban las escenas entre sí.
+//
+// Los 9 huecos son fijos y están medidos: 3 filas (16/48/80) por 3 columnas, con la x
+// desplazada por fila para que no se vea una rejilla. Cumplen los 72 px de separación.
+const J10_SLOTS = [
+  { x: 12, y: 16 }, { x: 46, y: 16 }, { x: 84, y: 16 },
+  { x: 16, y: 48 }, { x: 50, y: 48 }, { x: 85, y: 48 },
+  { x: 10, y: 80 }, { x: 45, y: 80 }, { x: 82, y: 80 },
+];
+
+const J10_ESCENAS = [
+  {
+    id: "ciudad", fondo: "linear-gradient(180deg,#9fc9e4 0%,#b8d7e6 34%,#cdcec2 56%,#b9b5a4 78%,#a5a08e 100%)",
+    // Todos son QUEMA DE COMBUSTIBLES FÓSILES, la 1ª causa que nombra el libro.
+    gas: [
+      { id: "fabrica", e: "🏭", n: "La fábrica" },
+      { id: "avion", e: "✈️", n: "El avión" },
+      { id: "carro", e: "🚗", n: "El carro" },
+      { id: "bus", e: "🚌", n: "El bus" },
+      { id: "camion", e: "🚚", n: "El camión" },
+      { id: "moto", e: "🏍️", n: "La moto" },
+      { id: "taxi", e: "🚕", n: "El taxi" },
+      { id: "helicoptero", e: "🚁", n: "El helicóptero" },
+    ],
+    deco: [
+      { id: "edificio", e: "🏢", n: "El edificio" },
+      { id: "casa", e: "🏠", n: "La casa" },
+      { id: "arbol", e: "🌳", n: "El árbol" },
+      { id: "bici", e: "🚲", n: "La bicicleta" },
+      { id: "nube", e: "☁️", n: "La nube" },
+      { id: "escuela", e: "🏫", n: "La escuela" },
+      { id: "fuente", e: "⛲", n: "La fuente" },
+      { id: "patineta", e: "🛴", n: "La patineta" },
+      { id: "semaforo", e: "🚦", n: "El semáforo" },
+      { id: "flores", e: "🌷", n: "Las flores" },
+    ],
+  },
+  {
+    id: "bosque", fondo: "linear-gradient(180deg,#a6d3dd 0%,#bcdcd0 34%,#c2d8b6 56%,#a9c493 78%,#8fae79 100%)",
+    // Todos son DEFORESTACIÓN, la 2ª causa que nombra el libro.
+    gas: [
+      { id: "motosierra", e: "🪚", n: "La motosierra" },
+      { id: "troncos", e: "🪵", n: "Los troncos" },
+      { id: "camionMadera", e: "🚛", n: "El camión" },
+      { id: "fuego", e: "🔥", n: "El fuego" },
+      { id: "hacha", e: "🪓", n: "El hacha" },
+      { id: "camioneta", e: "🛻", n: "La camioneta" },
+      { id: "aserradero", e: "🏭", n: "La fábrica" },
+    ],
+    deco: [
+      { id: "arbol1", e: "🌳", n: "El árbol" },
+      { id: "pino", e: "🌲", n: "El pino" },
+      { id: "pajaro", e: "🐦", n: "El pájaro" },
+      { id: "mariposa", e: "🦋", n: "La mariposa" },
+      { id: "hongo", e: "🍄", n: "El hongo" },
+      { id: "helecho", e: "🌿", n: "El helecho" },
+      { id: "venado", e: "🦌", n: "El venado" },
+      { id: "ardilla", e: "🐿️", n: "La ardilla" },
+      { id: "flor", e: "🌸", n: "La flor" },
+      { id: "arroyo", e: "💧", n: "El arroyo" },
+    ],
+  },
+  {
+    id: "campo", fondo: "linear-gradient(180deg,#a9cfe2 0%,#c3d9c9 34%,#d8caa2 56%,#c9b47f 78%,#b5a066 100%)",
+    // ⚠ NADA DE GANADO, ni como respuesta ni como decorado: el metano del ganado no está
+    // en el libro y marcar una vaca como "no contamina" sería enseñar algo discutible.
+    gas: [
+      { id: "tractor", e: "🚜", n: "El tractor" },
+      { id: "camioneta2", e: "🛻", n: "La camioneta" },
+      { id: "fabrica2", e: "🏭", n: "La fábrica" },
+      { id: "sierra2", e: "🪚", n: "La motosierra" },
+      { id: "camion2", e: "🚛", n: "El camión" },
+      { id: "hacha2", e: "🪓", n: "El hacha" },
+      { id: "avion2", e: "✈️", n: "El avión" },
+    ],
+    deco: [
+      { id: "trigo", e: "🌾", n: "El trigo" },
+      { id: "maiz", e: "🌽", n: "El maíz" },
+      { id: "girasol", e: "🌻", n: "El girasol" },
+      { id: "casa2", e: "🏡", n: "La casa" },
+      { id: "rio", e: "💧", n: "El río" },
+      { id: "zanahoria", e: "🥕", n: "La zanahoria" },
+      { id: "tomate", e: "🍅", n: "El tomate" },
+      { id: "brote", e: "🌱", n: "El brote" },
+      { id: "mariposa2", e: "🦋", n: "La mariposa" },
+      { id: "nube2", e: "☁️", n: "La nube" },
+    ],
+  },
+];
+const J10_S21R2_KEY = "edinun_j10_s21r2_v1";
+const J10_ESC_W = 458, J10_ESC_H = 326, J10_LUPA_R = 58;
+function j10S21R2Build() {
+  const i = j10PickIdx(J10_ESCENAS, 1, J10_S21R2_KEY)[0];
+  j10Commit(J10_S21R2_KEY, [i], 2);
+  const esc = J10_ESCENAS[i];
+  // Anti-repeticion TAMBIEN dentro de la escena: 4 de sus gases y 5 de su decorado, cada
+  // banco con su propia clave FIFO. WARN Regla del repo: para un subconjunto de K, el cap
+  // tiene que dejar libres MAS de K (si no, el banco se parte en grupos fijos que alternan
+  // identicos en cada recarga). De ahi `N - K - 1`.
+  const kg = "edinun_j10_s21r2g_" + esc.id + "_v1", kd = "edinun_j10_s21r2d_" + esc.id + "_v1";
+  const gi = j10PickIdx(esc.gas, 4, kg); j10Commit(kg, gi, Math.max(1, esc.gas.length - 5));
+  const di = j10PickIdx(esc.deco, 5, kd); j10Commit(kd, di, Math.max(1, esc.deco.length - 6));
+  const elegidos = j10Shuffle(
+    gi.map((k) => Object.assign({}, esc.gas[k], { gas: true }))
+      .concat(di.map((k) => Object.assign({}, esc.deco[k], { gas: false })))
+  );
+  return { esc, items: elegidos.map((it, n) => Object.assign({}, it, J10_SLOTS[n])) };
+}
+
+function R2Lupa({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10S21R2Build());
+  const [marks, setMarks] = useStateG([]);         // ids marcados (máximo 4)
+  const [verified, setVerified] = useStateG(false);
+  const [lupa, setLupa] = useStateG({ x: J10_ESC_W / 2, y: J10_ESC_H / 2 });
+  const boxRef = useRefG(null);
+  const META = b.items.filter((it) => it.gas).length;
+
+  // El lienzo lógico va escalado con `transform: scale()`, así que hay que dividir por
+  // la escala real del recuadro para volver a coordenadas de diseño.
+  function move(e) {
+    const el = boxRef.current; if (!el || verified) return;
+    const r = el.getBoundingClientRect(), s = (r.width / J10_ESC_W) || 1;
+    setLupa({ x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s });
+  }
+  function toggle(id) {
+    if (verified) return;
+    setMarks((m) => (m.indexOf(id) !== -1 ? m.filter((x) => x !== id) : (m.length >= META ? m : m.concat([id]))));
+  }
+
+  function verificar() {
+    if (verified || marks.length !== META) return;
+    setVerified(true);
+    const aciertos = b.items.filter((it) => it.gas && marks.indexOf(it.id) !== -1).length;
+    onSolve(aciertos === META, {
+      emoji: "🔍", a: "¿Qué cosas de la escena calientan el planeta?",
+      userAnswer: marks.map((id) => (b.items.find((it) => it.id === id) || {}).n).join(", "),
+      correctAnswer: b.items.filter((it) => it.gas).map((it) => it.n).join(", "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // ⚠ La lupa amplía UN SOLO elemento: el más cercano dentro del aro. Ampliar a todos
+  // los que caían dentro hacía que dos vecinos crecieran a la vez y se taparan entre sí.
+  // Además, una lupa que enfoca una cosa es lo que el niño espera de una lupa.
+  const foco = (() => {
+    if (verified) return null;
+    let mejor = null, dmin = J10_LUPA_R;
+    b.items.forEach((it) => {
+      const d = Math.hypot((it.x / 100) * J10_ESC_W - lupa.x, (it.y / 100) * J10_ESC_H - lupa.y);
+      if (d < dmin) { dmin = d; mejor = it.id; }
+    });
+    return mejor;
+  })();
+
+  function elemento(it) {
+    const cerca = foco === it.id;
+    const marcado = marks.indexOf(it.id) !== -1;
+    // ⚠ En la fila de adelante el rótulo del revelado no cabe debajo del elemento y se
+    // salía de la escena: ahí se dibuja ARRIBA.
+    const abajoNoCabe = (it.y / 100) * J10_ESC_H + 29 + 32 > J10_ESC_H - 2;
+    // WARN Cada elemento va sobre una PLACA clara con borde y sombra. Sueltos sobre el
+    // degradado, los emojis palidos (la nube, la fuente, la casa) se fundian con el fondo
+    // -- reportado por la autora (2026-09-04: "ese fondo no me gusta porque se pierden
+    // mucho"). La placa da contraste a los claros Y a los oscuros, sin depender del color
+    // del fondo, y de paso avisa de que el elemento se puede tocar.
+    let ring = "rgba(58,38,8,0.20)", bg = "rgba(255,255,255,0.66)", badge = null, rotulo = null;
+    if (!verified && marcado) { ring = "#4fd8ff"; bg = "rgba(79,216,255,0.22)"; }
+    if (verified) {
+      if (marcado && it.gas) { ring = "#2ecc8f"; bg = "rgba(46,204,143,0.3)"; badge = "✓"; rotulo = it.n; }
+      else if (marcado) { ring = "#ff6b6b"; bg = "rgba(255,107,107,0.3)"; badge = "✗"; }
+      else if (it.gas) { ring = "#f2c260"; bg = "rgba(242,194,96,0.28)"; rotulo = it.n; }
+    }
+    return (
+      <button key={it.id} onClick={() => toggle(it.id)} disabled={verified}
+        style={{ position: "absolute", left: `${it.x}%`, top: `${it.y}%`, width: 58, height: 58, marginLeft: -29, marginTop: -29, borderRadius: "50%", border: `3px ${verified && !marcado && it.gas ? "dashed" : "solid"} ${ring}`, background: bg, padding: 0, cursor: verified ? "default" : "pointer", zIndex: cerca ? 30 : (marcado || (verified && it.gas) ? 20 : 10), transform: `scale(${cerca ? 1.45 : 1})`, boxShadow: "0 3px 8px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.7)", transition: "transform 0.12s ease, background 0.15s ease", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontSize: 38, lineHeight: 1, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.35))" }}>{it.e}</span>
+        {badge && <span style={{ position: "absolute", top: -7, right: -5, fontSize: 11, fontWeight: 900, color: "#fff", background: badge === "✓" ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 19, height: 19, display: "flex", alignItems: "center", justifyContent: "center" }}>{badge}</span>}
+        {rotulo && <span style={{ position: "absolute", ...(abajoNoCabe ? { bottom: "100%", marginBottom: 2 } : { top: "100%", marginTop: 2 }), left: "50%", transform: "translateX(-50%)", width: 96, boxSizing: "border-box", textAlign: "center", lineHeight: 1.15, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9.5, color: "#3a2608", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 9, padding: "1px 4px" }}>{rotulo}</span>}
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Encuentra las cuatro cosas que calientan el planeta.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
+        <div ref={boxRef} onPointerMove={move} onPointerDown={move}
+          style={{ position: "relative", width: J10_ESC_W, height: J10_ESC_H, flexShrink: 0, borderRadius: 16, border: "3px solid #f2c260", background: b.esc.fondo, overflow: "hidden", touchAction: "none", cursor: verified ? "default" : "crosshair", boxShadow: "0 12px 28px rgba(0,0,0,0.42)" }}>
+          {b.items.map((it) => elemento(it))}
+          {/* La lupa: aro que sigue al dedo. `pointerEvents: none` para que el toque
+              llegue al elemento que hay debajo y no al aro. */}
+          {!verified && (
+            <div style={{ position: "absolute", left: lupa.x, top: lupa.y, width: J10_LUPA_R * 2, height: J10_LUPA_R * 2, marginLeft: -J10_LUPA_R, marginTop: -J10_LUPA_R, borderRadius: "50%", border: "4px solid rgba(242,194,96,0.95)", background: "radial-gradient(circle, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 70%)", boxShadow: "0 0 0 2px rgba(0,0,0,0.25), 0 6px 16px rgba(0,0,0,0.35)", pointerEvents: "none", zIndex: 25 }} />
+          )}
+        </div>
+        {/* Cuatro puntos = las cuatro que pide el enunciado. Sin rótulo: el estándar no
+            admite texto visible inventado. */}
+        <div style={{ display: "flex", gap: 7 }}>
+          {Array.from({ length: META }).map((_, i) => (
+            <div key={i} style={{ width: 11, height: 11, borderRadius: "50%", background: i < marks.length ? "#4fd8ff" : "rgba(255,255,255,0.22)", boxShadow: i < marks.length ? "0 0 8px #4fd8ff" : "none" }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R3 · "Estira el gráfico" — ARRASTRAR el borde de un gráfico (verbo nuevo).
+// Dos tipos de gráfico con el MISMO gesto, para que la ronda no se repita al recargar
+// (el pastel de la deuda es un único ejercicio; con las barras de bloques son 5):
+//   · PASTEL — la deuda del Ecuador con los organismos (p. 114).
+//   · BARRAS — cuántos países integran cada bloque regional (p. 116).
+//
+// ⚠ INCONSISTENCIA DEL LIBRO (avisada a la autora): la p. 114 dice que la deuda total
+// es de 48 129 millones y que los 8 100 del FMI "equivalen al 33,3 %", pero 8 100 de
+// 48 129 es el 17 %. El 33,3 % solo cuadra sobre la deuda con ORGANISMOS
+// MULTILATERALES, así que el gráfico se rotula así y usa únicamente porcentajes: no se
+// mezclan los millones para no enseñar una cuenta que no cierra.
+//
+// ⚠ Los números objetivo se muestran DESORDENADOS arriba: el ejercicio es decidir cuál
+// va en cada categoría, no recordar la cifra exacta de memoria (11 años).
+// ══════════════════════════════════════════════════════════════════
+const J10_DEUDA = {
+  titulo: "La deuda del Ecuador con los organismos",
+  partes: [
+    { id: "fmi", n: "FMI", v: 33, col: "#e4881a" },
+    { id: "bid", n: "BID y CAF", v: 49, col: "#3f8ee0" },
+    { id: "otros", n: "Los demás", v: 18, col: "#9b6fe0" },
+  ],
+};
+const J10_BLOQUES = [
+  { id: "aladi", n: "ALADI", v: 13, col: "#e4881a" },
+  { id: "sela", n: "SELA", v: 26, col: "#9b6fe0" },
+  { id: "can", n: "CAN", v: 5, col: "#2ecc8f" },
+  { id: "celac", n: "CELAC", v: 33, col: "#3f8ee0" },
+];
+const J10_BAR_MAX = 40, J10_BAR_W = 292;
+const J10_GRAFICOS = [
+  { id: "deuda", tipo: "pastel" },
+  { id: "bloq1", tipo: "barras", ids: ["aladi", "sela", "can"] },
+  { id: "bloq2", tipo: "barras", ids: ["aladi", "sela", "celac"] },
+  { id: "bloq3", tipo: "barras", ids: ["aladi", "can", "celac"] },
+  { id: "bloq4", tipo: "barras", ids: ["sela", "can", "celac"] },
+];
+
+const J10_S21R3_KEY = "edinun_j10_s21r3_v1";
+function j10S21R3Build() {
+  const i = j10PickIdx(J10_GRAFICOS, 1, J10_S21R3_KEY)[0];
+  j10Commit(J10_S21R3_KEY, [i], 4);
+  const g = J10_GRAFICOS[i];
+  if (g.tipo === "pastel") {
+    return { tipo: "pastel", titulo: J10_DEUDA.titulo, partes: J10_DEUDA.partes, ini: [20, 45, 35], tol: 3, uni: "%",
+      enunciado: "Reparte la deuda del Ecuador entre quienes le prestaron." };
+  }
+  const partes = g.ids.map((id) => J10_BLOQUES.find((x) => x.id === id));
+  return { tipo: "barras", titulo: "Países que integran cada grupo", partes, ini: partes.map(() => 20), tol: 1, uni: "",
+    enunciado: "Completa cada barra con los países que tiene ese grupo." };
+}
+
+// Sector de pastel entre dos ángulos (0° = arriba, sentido horario).
+function j10Sector(cx, cy, r, a0, a1) {
+  const p = (a) => { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; };
+  const s = p(a0), e = p(a1), grande = (a1 - a0) > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${s[0]} ${s[1]} A ${r} ${r} 0 ${grande} 1 ${e[0]} ${e[1]} Z`;
+}
+
+function R3Grafico({ onSolve, verifyRef, setBubble }) {
+  const [b] = useStateG(() => j10S21R3Build());
+  const [vals, setVals] = useStateG(() => b.ini);
+  const [verified, setVerified] = useStateG(false);
+  const [refs] = useStateG(() => j10Shuffle(b.partes.map((p) => p.v)));
+  const svgRef = useRefG(null);
+  const trackRef = useRefG(null);
+  const dragRef = useRefG(null);
+  const CX = 116, CY = 116, R = 96;
+
+  // El bocadillo dice el CÓMO y tiene que nombrar lo que el niño VE: bolitas blancas, no
+  // "puntos del gráfico". Cambia según el gráfico porque el gesto es distinto en cada uno.
+  useEffectG(() => {
+    if (!setBubble) return;
+    setBubble(b.tipo === "pastel"
+      ? (<>Arrastra las bolitas<br />hasta que cada parte<br />tenga su número.</>)
+      : (<>Arrastra la bolita<br />hasta que cada barra<br />tenga su número.</>));
+  }, []);
+
+  // ── PASTEL: dos manijas sobre el borde; la 3ª porción es lo que queda ──
+  function pctDePuntero(e) {
+    const el = svgRef.current; if (!el) return null;
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    let a = Math.atan2(e.clientX - cx, -(e.clientY - cy)) * 180 / Math.PI;
+    if (a < 0) a += 360;
+    return a / 3.6;
+  }
+  function moverPastel(k, pct) {
+    const c1 = vals[0], c2 = vals[0] + vals[1];
+    if (k === 0) { const v = Math.round(Math.min(Math.max(pct, 5), c2 - 5)); setVals([v, c2 - v, 100 - c2]); }
+    else { const v = Math.round(Math.min(Math.max(pct, c1 + 5), 95)); setVals([c1, v - c1, 100 - v]); }
+  }
+  // ── BARRAS: la manija va en la punta; el valor se redondea a países enteros ──
+  function moverBarra(k, e) {
+    const el = trackRef.current; if (!el) return;
+    const r = el.getBoundingClientRect(), s = (r.width / J10_BAR_W) || 1;
+    const v = Math.round(Math.min(Math.max((e.clientX - r.left) / s, 0), J10_BAR_W) / J10_BAR_W * J10_BAR_MAX);
+    setVals((o) => { const c = o.slice(); c[k] = Math.max(1, v); return c; });
+  }
+  function onDown(e, k) {
+    if (verified) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    dragRef.current = k;
+    if (b.tipo === "barras") moverBarra(k, e);
+  }
+  function onMove(e) {
+    if (dragRef.current === null || dragRef.current === undefined || verified) return;
+    if (b.tipo === "pastel") { const p = pctDePuntero(e); if (p !== null) moverPastel(dragRef.current, p); }
+    else moverBarra(dragRef.current, e);
+  }
+  function onUp() { dragRef.current = null; }
+
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const aciertos = b.partes.filter((p, i) => Math.abs(vals[i] - p.v) <= b.tol).length;
+    onSolve(aciertos === b.partes.length, {
+      emoji: "📊", a: b.titulo,
+      userAnswer: b.partes.map((p, i) => `${p.n} ${vals[i]}${b.uni}`).join(" · "),
+      correctAnswer: b.partes.map((p) => `${p.n} ${p.v}${b.uni}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  const acum = [0, vals[0], vals[0] + vals[1], 100];
+  function manijaPastel(k) {
+    const a = acum[k + 1] * 3.6, t = (a - 90) * Math.PI / 180;
+    const x = CX + R * Math.cos(t), y = CY + R * Math.sin(t);
+    return (
+      <g key={k} onPointerDown={(e) => onDown(e, k)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} style={{ cursor: verified ? "default" : "grab", touchAction: "none" }}>
+        <circle cx={x} cy={y} r={13} fill="rgba(0,0,0,0.001)" />
+        <circle cx={x} cy={y} r={9} fill="#fff8e6" stroke="#e0a72c" strokeWidth={3} />
+      </g>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>{b.enunciado}</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div style={{ width: 452, boxSizing: "border-box", background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", border: "3px solid #f2c260", borderRadius: 18, padding: "10px 14px 13px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)" }}>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13.5, color: "#3a2608", textAlign: "center", borderBottom: "2px solid rgba(224,167,44,0.55)", paddingBottom: 6 }}>{b.titulo}</div>
+          {/* Los tres números que hay que repartir, desordenados. ⚠ Van con rótulo: sin él
+              la autora preguntó "¿qué significan los valores que aparecen? No entiendo"
+              (2026-09-02) — se leían como adorno. El texto es el del boceto que aprobó. */}
+          <div style={{ textAlign: "center", margin: "8px 0 3px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12, color: "#7a5c1e" }}>
+            {b.tipo === "pastel" ? "Una de estas va en cada parte:" : "Una de estas va en cada barra:"}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, margin: "0 0 6px" }}>
+            {refs.map((v, i) => (
+              <span key={i} style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 13, color: "#5a3d0a", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "2px 11px" }}>{v}{b.uni}</span>
+            ))}
+          </div>
+
+          {b.tipo === "pastel" ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+              <svg ref={svgRef} width={232} height={232} viewBox="0 0 232 232" style={{ flexShrink: 0, touchAction: "none" }}>
+                {b.partes.map((p, i) => (
+                  <path key={p.id} d={j10Sector(CX, CY, R, acum[i] * 3.6, acum[i + 1] * 3.6)} fill={p.col} stroke="#fff8e6" strokeWidth={2.5} opacity={verified && Math.abs(vals[i] - p.v) > b.tol ? 0.45 : 1} />
+                ))}
+                {!verified && [0, 1].map((k) => manijaPastel(k))}
+              </svg>
+              <div style={{ display: "flex", flexDirection: "column", gap: 7, minWidth: 0 }}>
+                {b.partes.map((p, i) => {
+                  const ok = verified && Math.abs(vals[i] - p.v) <= b.tol;
+                  return (
+                    <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ flexShrink: 0, width: 13, height: 13, borderRadius: 4, background: p.col, border: "1.5px solid rgba(0,0,0,0.2)" }} />
+                      <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#3a2608", lineHeight: 1.1 }}>{p.n}</span>
+                      <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 13, color: verified ? (ok ? "#1f8a54" : "#c0392b") : "#3a2608" }}>{vals[i]}%</span>
+                      {verified && !ok && <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 11, color: "#1f8a54" }}>→{p.v}%</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 13, padding: "4px 0 2px" }}>
+              {b.partes.map((p, i) => {
+                const ok = verified && Math.abs(vals[i] - p.v) <= b.tol;
+                const w = (vals[i] / J10_BAR_MAX) * J10_BAR_W;
+                return (
+                  <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ flexShrink: 0, width: 58, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: "#3a2608", textAlign: "right" }}>{p.n}</span>
+                    <div ref={i === 0 ? trackRef : null} style={{ position: "relative", width: J10_BAR_W, height: 26, flexShrink: 0, borderRadius: 8, background: "rgba(58,38,8,0.09)", border: "1.5px solid rgba(224,167,44,0.5)" }}>
+                      {[10, 20, 30].map((t) => (
+                        <div key={t} style={{ position: "absolute", top: 3, bottom: 3, left: (t / J10_BAR_MAX) * J10_BAR_W, width: 1, background: "rgba(58,38,8,0.18)" }} />
+                      ))}
+                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: w, borderRadius: 8, background: p.col, opacity: verified && !ok ? 0.45 : 1, transition: "background 0.15s ease" }} />
+                      {verified && !ok && <div style={{ position: "absolute", top: -3, bottom: -3, left: (p.v / J10_BAR_MAX) * J10_BAR_W - 1.5, width: 3, borderRadius: 2, background: "#1f8a54", boxShadow: "0 0 8px rgba(31,138,84,0.8)" }} />}
+                      {!verified && (
+                        <div onPointerDown={(e) => onDown(e, i)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+                          style={{ position: "absolute", top: "50%", left: w, marginLeft: -13, marginTop: -13, width: 26, height: 26, borderRadius: "50%", background: "#fff8e6", border: "3px solid #e0a72c", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", cursor: "grab", touchAction: "none" }} />
+                      )}
+                    </div>
+                    <span style={{ flexShrink: 0, width: 42, fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 13, color: verified ? (ok ? "#1f8a54" : "#c0392b") : "#3a2608" }}>{vals[i]}{verified && !ok ? `→${p.v}` : ""}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ TEMA 3 · "El clima de nuestro planeta" (es el TEMA 4 del libro, pp. 48-51  ║
+// ║ + cuaderno; D.C.D. CS.4.2.3). Edad objetivo: 12 años (la fija la autora).  ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 verbos NUEVOS — ninguno repite los SEIS de los temas 1 y 2     ║
+// ║ (arrastrar-al-cajón · tocar-1-de-lista · elegir-entre-dos · ordenar-       ║
+// ║ arrastrando · buscar-con-lupa · arrastrar-el-borde-del-gráfico):           ║
+// ║   R1 "El noticiero"       — LANZAR la tarjeta a un lado (clima / tiempo)   ║
+// ║   R2 "La ruleta de los climas" — GIRAR un aro hasta la respuesta           ║
+// ║   R3 "El lugar misterioso"— DESTAPAR pistas y deducir                      ║
+// ║                                                                            ║
+// ║ ⭐ 4 + 3 + 3 = **10 máximo** (el Tema 1 da 10 y el Tema 2, 11: cada tema es ║
+// ║ su propia partida).                                                        ║
+// ║                                                                            ║
+// ║ ⚠ REPARTO DE CONTENIDO CON EL TEMA 2. El Tema 2 ya juega el cambio         ║
+// ║ climático (su R2 busca las causas que calientan el planeta y su línea del  ║
+// ║ tiempo incluye el Acuerdo de París). Para que los dos temas no se sientan  ║
+// ║ el mismo, este se queda con el clima COMO SISTEMA —qué es, en qué se       ║
+// ║ diferencia del tiempo atmosférico, sus tipos y dónde se dan— y NO vuelve   ║
+// ║ sobre los gases de efecto invernadero.                                     ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+// ══════════════════════════════════════════════════════════════════
+// R1 · "El noticiero" — LANZAR la tarjeta al riel (verbo nuevo).
+// 4 noticias; cada una se arrastra hasta CLIMA o TIEMPO ATMOSFÉRICO y ¡VERIFICAR!
+// valida las 4 de una vez (una ronda = UNA jugada).
+//
+// ⚠ CRITERIO (literal del libro, p. 48): el clima son "las condiciones promedio […]
+// durante un periodo prolongado de tiempo […] al menos treinta años" y el tiempo
+// atmosférico es "el estado de la atmósfera en un momento y lugar específicos", que
+// "puede cambiar rápidamente, incluso en cuestión de horas". Las 12 noticias del banco
+// NO están copiadas del libro —el libro solo da un ejemplo— pero cada una aplica ese
+// criterio con una marca temporal explícita ("desde hace décadas", "año tras año",
+// "todos los años" ⇒ clima · "mañana", "hoy", "esta noche", "ayer" ⇒ tiempo). Es el
+// mismo precedente que los ejercicios de cálculo de juego-13 T2R2: el molde es del
+// libro, los enunciados se construyen con él.
+//
+// ⚠ Los EMOJI están repartidos a propósito entre los dos grupos (los dos usan
+// símbolos del tiempo). Si el clima llevara paisajes y el tiempo, nubes y lluvia, el
+// emoji resolvería la ronda sin leer la noticia.
+// ══════════════════════════════════════════════════════════════════
+const J10_CL_LADOS = [
+  { id: "clima", n: "CLIMA", corto: "CLIMA", col: "#9b6fe0" },
+  { id: "tiempo", n: "TIEMPO ATMOSFÉRICO", corto: "TIEMPO", col: "#3f8ee0" },
+];
+function j10Lado(id) { return J10_CL_LADOS.find((l) => l.id === id) || J10_CL_LADOS[0]; }
+
+const J10_CL_NOTICIAS = [
+  // ── CLIMA (6): escala temporal larga, promedio de una región ──
+  { e: "🌧️", t: "En la Amazonía llueve casi todo el año, desde hace décadas.", c: "clima" },
+  { e: "☀️", t: "En el Sahara las lluvias son escasas año tras año.", c: "clima" },
+  { e: "❄️", t: "En la Antártida hace mucho frío durante todo el año.", c: "clima" },
+  { e: "🌨️", t: "En Siberia los inviernos son muy fríos todos los años.", c: "clima" },
+  { e: "🍂", t: "En Japón los veranos son cálidos y los inviernos, fríos, cada año.", c: "clima" },
+  { e: "🏔️", t: "En los Andes el clima cambia con la altitud desde siempre.", c: "clima" },
+  // ── TIEMPO ATMOSFÉRICO (6): un momento y un lugar concretos ──
+  { e: "🌂", t: "Mañana lloverá toda la tarde en tu ciudad.", c: "tiempo" },
+  { e: "🌡️", t: "Hoy hace mucho calor desde el mediodía.", c: "tiempo" },
+  { e: "🌫️", t: "Esta noche habrá neblina en la carretera.", c: "tiempo" },
+  { e: "💨", t: "En este momento sopla un viento fuerte en la playa.", c: "tiempo" },
+  { e: "🧊", t: "Ayer cayó granizo durante media hora.", c: "tiempo" },
+  { e: "☁️", t: "El sábado por la mañana estará nublado.", c: "tiempo" },
+];
+
+const J10_CL_R1_KEY = "edinun_j10_cl_r1_v1";
+function j10ClR1Build() {
+  // 4 de 12, cap 6 (subconjunto ⇒ cap < 12−4, si no el banco se parte en grupos fijos).
+  // Se exige que las 4 NO sean todas del mismo lado: si lo fueran, se resolvería por
+  // descarte (misma regla que las 4 fichas de la R1 del Tema 1).
+  let idxs = j10PickIdx(J10_CL_NOTICIAS, 4, J10_CL_R1_KEY);
+  for (let t = 0; t < 6 && new Set(idxs.map((i) => J10_CL_NOTICIAS[i].c)).size < 2; t++) {
+    idxs = j10PickIdx(J10_CL_NOTICIAS, 4, J10_CL_R1_KEY);
+  }
+  j10Commit(J10_CL_R1_KEY, idxs, 6);
+  return { items: idxs.map((i, n) => ({ ...J10_CL_NOTICIAS[i], id: n })) };
+}
+
+function R1Noticias({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10ClR1Build());
+  const [placed, setPlaced] = useStateG({});     // id -> "clima" | "tiempo"
+  const [verified, setVerified] = useStateG(false);
+  const [drag, setDrag] = useStateG(null);
+  const rootRef = useRefG(null);
+  const rielRefs = useRefG({});
+  const dragInfo = useRefG(null);
+  const mazo = b.items.filter((it) => !placed[it.id]);
+  const top = mazo.length ? mazo[0] : null;
+  const allPlaced = mazo.length === 0;
+
+  function poner(id, lado) { setPlaced((s) => { const n = Object.assign({}, s); if (lado) n[id] = lado; else delete n[id]; return n; }); }
+
+  // Se acepta soltar DENTRO del riel (con margen) o, si el gesto se quedó corto de
+  // altura, por el simple hecho de haber lanzado la tarjeta más de 70 px a un lado: a
+  // los 12 años el gesto natural es un manotazo horizontal, no puntería.
+  function hitRiel(x, y) {
+    for (const l of J10_CL_LADOS) {
+      const el = rielRefs.current[l.id]; if (!el) continue;
+      const rc = el.getBoundingClientRect(), pad = 16;
+      if (x >= rc.left - pad && x <= rc.right + pad && y >= rc.top - pad && y <= rc.bottom + pad) return l.id;
+    }
+    return null;
+  }
+  function onDown(e, id) {
+    if (verified) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    const S = rootRef.current ? (rootRef.current.getBoundingClientRect().width / 470) || 1 : 1;
+    dragInfo.current = { id, x0: e.clientX, y0: e.clientY, scale: S };
+    setDrag({ id, dx: 0, dy: 0, moved: false, over: null });
+  }
+  function onMove(e) {
+    const di = dragInfo.current; if (!di) return;
+    const sdx = e.clientX - di.x0, sdy = e.clientY - di.y0, moved = Math.hypot(sdx, sdy) > 6;
+    setDrag({ id: di.id, dx: sdx / di.scale, dy: sdy / di.scale, moved, over: moved ? destino(e.clientX, e.clientY, sdx) : null });
+  }
+  function destino(x, y, sdx) {
+    const h = hitRiel(x, y);
+    if (h) return h;
+    if (Math.abs(sdx) > 70) return sdx < 0 ? J10_CL_LADOS[0].id : J10_CL_LADOS[1].id;
+    return null;
+  }
+  function onUp(e) {
+    const di = dragInfo.current; if (!di) return;
+    const sdx = e.clientX - di.x0, moved = Math.hypot(sdx, e.clientY - di.y0) > 6, id = di.id;
+    dragInfo.current = null; setDrag(null);
+    if (verified || !moved) return;
+    const d = destino(e.clientX, e.clientY, sdx);
+    if (d) poner(id, d);                       // soltar en el medio = la tarjeta vuelve al mazo
+  }
+  function endDrag() { dragInfo.current = null; setDrag(null); }
+  // Respaldo tap (como la R1 del Tema 1): tocar el riel manda ahí la tarjeta de arriba.
+  function tapRiel(lado) { if (verified || !top) return; poner(top.id, lado); }
+  // Se puede sacar una tarjeta ya lanzada mientras no se haya verificado.
+  function tapMini(id) { if (verified) return; poner(id, null); }
+
+  function verificar() {
+    if (verified || !allPlaced) return;
+    setVerified(true);
+    const aciertos = b.items.filter((it) => placed[it.id] === it.c).length;
+    onSolve(aciertos === b.items.length, {
+      emoji: "📰", a: "¿Cada noticia habla del clima o del tiempo atmosférico?",
+      userAnswer: b.items.map((it) => `${it.t} = ${j10Lado(placed[it.id]).corto}`).join(" · "),
+      correctAnswer: b.items.map((it) => `${it.t} = ${j10Lado(it.c).corto}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // Miniatura dentro del riel. El ✓/✗ y la pastilla del lado correcto van POSICIONADOS
+  // sobre la franja de 13 px que el `paddingBottom` reserva SIEMPRE (también antes de
+  // verificar), así el alto de la miniatura no cambia al revelar: nada salta. Es el
+  // mismo remedio que la R1 del Tema 1.
+  function mini(it) {
+    const ok = verified && placed[it.id] === it.c;
+    const border = verified ? (ok ? "#2ecc8f" : "#ff6b6b") : "#d9c48a";
+    return (
+      <button key={it.id} onClick={() => tapMini(it.id)} disabled={verified}
+        style={{ position: "relative", width: "100%", minHeight: 44, boxSizing: "border-box", borderRadius: 9, border: `2px solid ${border}`, background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", display: "flex", alignItems: "center", gap: 5, padding: "3px 5px 13px", textAlign: "left", cursor: verified ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 2px 6px rgba(0,0,0,0.22)" }}>
+        <span style={{ flexShrink: 0, fontSize: 14, lineHeight: 1 }}>{it.e}</span>
+        <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontSize: 9.5, lineHeight: 1.15, overflowWrap: "anywhere" }}>{it.t}</span>
+        {verified && (
+          <span style={{ position: "absolute", left: 3, right: 3, bottom: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+            <span style={{ flexShrink: 0, fontSize: 8.5, fontWeight: 900, color: "#fff", background: ok ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 13, height: 13, display: "flex", alignItems: "center", justifyContent: "center" }}>{ok ? "✓" : "✗"}</span>
+            {!ok && <span style={{ whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "0 5px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 7.5, color: "#5a3d0a" }}>{j10Lado(it.c).corto}</span>}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  // ⚠ Los dos rieles van SIEMPRE a su alto máximo (236 px = cabecera + las 4 tarjetas).
+  // Si crecieran al recibir tarjetas empujarían el mazo hacia abajo en cada lanzamiento;
+  // con el alto fijo no se mueve nada en toda la ronda. Es la versión "cajón grande desde
+  // el principio" de lo que la autora pidió en la R1 del Tema 1.
+  function riel(l) {
+    const dentro = b.items.filter((it) => placed[it.id] === l.id);
+    const over = drag && drag.over === l.id && !verified;
+    return (
+      <div key={l.id} ref={(el) => { rielRefs.current[l.id] = el; }} onClick={() => tapRiel(l.id)}
+        style={{ flex: "1 1 0", minWidth: 0, height: 236, boxSizing: "border-box", borderRadius: 14, border: `3px ${over ? "solid" : "dashed"} ${l.col}`, background: over ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.26)", display: "flex", flexDirection: "column", alignItems: "stretch", gap: 5, padding: "6px 6px 7px", cursor: (top && !verified) ? "pointer" : "default", boxShadow: over ? `0 0 22px ${l.col}` : "none", transform: over ? "scale(1.02)" : "none", transition: "all 0.14s ease" }}>
+        <div style={{ pointerEvents: "none", textAlign: "center", flexShrink: 0 }}>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#fff", letterSpacing: "0.03em" }}>{l.n}</span>
+          <div style={{ height: 4, borderRadius: 999, background: l.col, marginTop: 3, boxShadow: `0 0 8px ${l.col}` }} />
+        </div>
+        {dentro.map((it) => mini(it))}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={rootRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Decide de qué habla cada noticia.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 0, width: "100%" }}>
+        <div style={{ display: "flex", gap: 14, width: "100%", flexShrink: 0 }}>{J10_CL_LADOS.map((l) => riel(l))}</div>
+        {/* Mazo de alto FIJO (104): al vaciarse no encoge, así los rieles no se mueven. */}
+        <div style={{ position: "relative", width: 300, height: 104, flexShrink: 0 }}>
+          {mazo.slice(0, 3).reverse().map((it, n, arr) => {
+            const esTop = n === arr.length - 1, dragging = drag && drag.id === it.id;
+            const off = (arr.length - 1 - n) * 4;
+            return (
+              <button key={it.id} onPointerDown={esTop ? ((e) => onDown(e, it.id)) : undefined} onPointerMove={esTop ? onMove : undefined} onPointerUp={esTop ? onUp : undefined} onPointerCancel={endDrag}
+                onClick={(e) => e.stopPropagation()} disabled={!esTop || verified}
+                style={{ position: "absolute", left: 0, right: 0, top: off, height: 96, boxSizing: "border-box", borderRadius: 15, border: `3px solid ${dragging ? "#4fd8ff" : "#f2c260"}`, background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", display: "flex", alignItems: "center", gap: 11, padding: "8px 14px", textAlign: "left", cursor: esTop && !verified ? "grab" : "default", touchAction: "none", zIndex: dragging ? 60 : (10 + n), opacity: esTop ? 1 : 0.55, transform: dragging ? `translate(${drag.dx}px, ${drag.dy}px) rotate(${Math.max(-14, Math.min(14, drag.dx * 0.07))}deg) scale(1.03)` : "none", boxShadow: dragging ? "0 0 20px rgba(79,216,255,0.65)" : "inset 0 1px 0 rgba(255,255,255,0.75), 0 6px 14px rgba(0,0,0,0.3)", transition: dragging ? "none" : "transform 0.14s ease" }}>
+                <span style={{ flexShrink: 0, fontSize: 30, lineHeight: 1 }}>{it.e}</span>
+                <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontSize: 13, lineHeight: 1.25 }}>{it.t}</span>
+              </button>
+            );
+          })}
+          {allPlaced && !verified && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.5)" }}>Ya colocaste las cuatro. Toca ¡VERIFICAR!</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R2 · "La ruleta de los climas" — GIRAR el aro (verbo nuevo).
+// Los 6 tipos de clima van en un aro que se arrastra en círculo; el niño lo gira hasta
+// dejar bajo la FLECHA fija el clima que describe la tarjeta, y ¡VERIFICAR! valida.
+// UNA jugada por ronda ⇒ vale +3 ⭐ de golpe, igual que la R2 del Tema 1.
+//
+// ⚠ Las 6 características son LITERALES de la tabla "Tipos de climas alrededor del
+// mundo" (p. 49). Los nombres van en singular ("TROPICAL", "ALTA MONTAÑA") porque así
+// los escribe el cuaderno en la actividad 3; la tabla los lista en plural.
+//
+// ⚠ Cada pastilla lleva una CONTRA-ROTACIÓN (`-(ang + i·60)`) para que su texto quede
+// siempre horizontal: si girara con el aro, las de abajo se leerían de cabeza. La
+// transición es la misma en el aro y en la pastilla, si no se desincronizan al encajar.
+//
+// ⚠ El aro NUNCA arranca con la respuesta bajo la flecha (se sortea otra posición): la
+// ronda se ganaría sin jugar.
+// ══════════════════════════════════════════════════════════════════
+const J10_CL_CLIMAS = [
+  { id: "tropical", n: "TROPICAL", e: "🌴", d: "Temperaturas cálidas durante todo el año y alta humedad, zonas de lluvias constantes y bosques tropicales. Se ubican en torno a la línea ecuatorial." },
+  { id: "seco", n: "SECO", e: "🏜️", d: "Escasas precipitaciones, altas temperaturas diurnas y bajas en la noche." },
+  { id: "templado", n: "TEMPLADO", e: "🍂", d: "Estaciones de veranos cálidos e inviernos fríos, precipitaciones promedio." },
+  { id: "continental", n: "CONTINENTAL", e: "❄️", d: "Inviernos muy fríos con estaciones intermedias (otoño y primavera) muy cortas." },
+  { id: "polar", n: "POLAR", e: "🧊", d: "Temperaturas muy frías durante todo el año. Se presentan en las zonas polares del planeta." },
+  { id: "montana", n: "ALTA MONTAÑA", e: "🏔️", d: "Climas relacionados con la altitud, característicos de las cordilleras." },
+];
+
+const J10_CL_R2_KEY = "edinun_j10_cl_r2_v1";
+function j10ClR2Build() {
+  // 1 de 6 ⇒ cap alto (banco−1) = máxima variedad al recargar.
+  const i = j10PickIdx(J10_CL_CLIMAS, 1, J10_CL_R2_KEY)[0];
+  j10Commit(J10_CL_R2_KEY, [i], 5);
+  const target = J10_CL_CLIMAS[i];
+  const aro = j10Shuffle(J10_CL_CLIMAS);              // el orden del aro cambia cada ronda
+  const ok = aro.findIndex((c) => c.id === target.id);
+  let k = Math.floor(Math.random() * 6);
+  while (k === ok) k = Math.floor(Math.random() * 6);
+  return { target, aro, ok, ang0: -k * 60 };
+}
+
+function R2Ruleta({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10ClR2Build());
+  const [ang, setAng] = useStateG(() => b.ang0);
+  const [spin, setSpin] = useStateG(false);
+  const [verified, setVerified] = useStateG(false);
+  const dialRef = useRefG(null);
+  const dragInfo = useRefG(null);
+  const pastRefs = useRefG({});
+  // Ranura bajo la flecha: la pastilla i se dibuja girada `i·60 + ang` desde arriba, y la
+  // flecha está justo arriba ⇒ está seleccionada la que cumple `i·60 + ang ≡ 0`.
+  const sel = ((-Math.round(ang / 60)) % 6 + 6) % 6;
+
+  function angDe(e) {
+    const r = dialRef.current.getBoundingClientRect();
+    return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI;
+  }
+  function onDown(e) {
+    if (verified) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    dragInfo.current = { last: angDe(e), moved: false };
+    setSpin(true);
+  }
+  function onMove(e) {
+    const di = dragInfo.current; if (!di) return;
+    const a = angDe(e);
+    // El ángulo de atan2 salta de +180 a −180: el delta se normaliza antes de acumular,
+    // si no el aro pega un giro completo al cruzar esa línea.
+    let d = a - di.last;
+    if (d > 180) d -= 360; else if (d < -180) d += 360;
+    di.last = a;
+    if (Math.abs(d) > 0.4) di.moved = true;
+    setAng((v) => v + d);
+  }
+  function onUp(e) {
+    const di = dragInfo.current; if (!di) return;
+    dragInfo.current = null; setSpin(false);
+    // ⚠ El RESPALDO TAP se resuelve AQUÍ, no con un onClick en la pastilla. El aro captura
+    // el puntero al empezar (`setPointerCapture`, necesario para que el arrastre no se
+    // corte al salirse del círculo), y con el puntero capturado el `click` posterior se
+    // dispara sobre el aro y NO sobre la pastilla: el toque se perdía y la ruleta se
+    // quedaba siempre en su posición inicial —que a propósito nunca es la respuesta—, así
+    // que la ronda era imposible de acertar sin arrastrar. Cazado por el e2e (partida
+    // "perfecta" que daba 7 ⭐ en vez de 10).
+    if (!di.moved) { const i = pastillaEn(e); if (i !== null) { irA(i); return; } }
+    setAng((v) => Math.round(v / 60) * 60);          // encaja en la ranura más cercana
+  }
+  function pastillaEn(e) {
+    if (!e || e.clientX === undefined) return null;
+    for (let i = 0; i < 6; i++) {
+      const el = pastRefs.current[i]; if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return i;
+    }
+    return null;
+  }
+  // Respaldo tap: tocar una pastilla GIRA el aro hasta ponerla bajo la flecha (por el
+  // camino corto), en vez de seleccionarla en seco — así el gesto sigue siendo girar.
+  function irA(i) {
+    if (verified) return;
+    setAng((v) => v + (((-i * 60 - v) % 360 + 540) % 360 - 180));
+  }
+
+  function verificar() {
+    if (verified) return;
+    setSpin(false); dragInfo.current = null;
+    setVerified(true);
+    const elegido = b.aro[sel];
+    const acierto = elegido.id === b.target.id;
+    onSolve(acierto, {
+      emoji: "🌡️", a: "¿De qué tipo de clima habla la tarjeta?",
+      userAnswer: elegido.n, correctAnswer: b.target.n,
+    }, acierto ? 3 : 0);
+  }
+  verifyRef.current = verificar;
+
+  const trans = spin ? "none" : "transform 0.28s cubic-bezier(0.22,1,0.36,1)";
+  function pastilla(c, i) {
+    const enFlecha = i === sel;
+    const esOk = verified && c.id === b.target.id;
+    const esFallo = verified && enFlecha && c.id !== b.target.id;
+    let border = "#d9c48a", bg = "linear-gradient(180deg,#fffdf6,#f6ecd2)", col = "#3a2608";
+    if (!verified && enFlecha) { border = "#4fd8ff"; bg = "linear-gradient(180deg,#eaf9ff,#cdeeff)"; }
+    if (esOk) { border = "#2ecc8f"; bg = "linear-gradient(180deg,rgba(72,224,154,0.96),rgba(26,143,95,0.94))"; col = "#06381f"; }
+    else if (esFallo) { border = "#ff6b6b"; bg = "linear-gradient(180deg,rgba(255,139,139,0.94),rgba(178,47,47,0.92))"; col = "#fff"; }
+    // El brazo lleva la rotación del aro (`i·60 + ang`): es lo que hace que las seis
+    // pastillas GIREN de verdad. La pastilla se contra-rota lo mismo para que su texto
+    // quede siempre horizontal (si girara con el aro, las de abajo se leerían de cabeza),
+    // y ambas transiciones son idénticas para que no se desincronicen al encajar. Los dos
+    // `pointerEvents: none` dejan pasar el gesto al aro, que es quien arrastra y quien
+    // resuelve el toque.
+    return (
+      <div key={c.id} style={{ position: "absolute", left: "50%", top: "50%", width: 0, height: 0, pointerEvents: "none", transform: `rotate(${i * 60 + ang}deg) translateY(-83px)`, transition: trans }}>
+        <button ref={(el) => { pastRefs.current[i] = el; }} disabled={verified}
+          style={{ position: "absolute", left: -42, top: -17, width: 84, height: 34, boxSizing: "border-box", pointerEvents: "none", borderRadius: 10, border: `2.5px solid ${border}`, background: bg, color: col, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9.5, letterSpacing: "-0.01em", lineHeight: 1.05, padding: "2px 3px", cursor: verified ? "default" : "pointer", transform: `rotate(${-(i * 60) - ang}deg)`, transition: trans, boxShadow: enFlecha ? "0 0 16px rgba(79,216,255,0.6), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 3px 8px rgba(0,0,0,0.26)" }}>
+          {c.n}
+          {(esOk || esFallo) && (
+            <span style={{ position: "absolute", top: -8, right: -7, fontSize: 10, fontWeight: 900, color: "#fff", background: esOk ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 5px rgba(0,0,0,0.35)" }}>{esOk ? "✓" : "✗"}</span>
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Descubre de qué clima habla la tarjeta.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 0, width: "100%" }}>
+        {/* Tarjeta con la característica (literal de la tabla de la p. 49). */}
+        <div style={{ width: 446, boxSizing: "border-box", flexShrink: 0, borderRadius: 14, border: "3px solid #f2c260", background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,235,225,0.92))", padding: "9px 13px", boxShadow: "0 10px 24px rgba(0,0,0,0.4)", fontFamily: "var(--ed-font-ui)", fontSize: 12.5, lineHeight: 1.3, color: "#3a2608", textAlign: "center" }}>
+          {b.target.d}
+        </div>
+        {/* Flecha FIJA: marca la ranura que cuenta. */}
+        <div style={{ flexShrink: 0, fontSize: 17, lineHeight: 1, color: "#fce9a8", textShadow: "0 0 10px rgba(252,233,168,0.9)" }}>▼</div>
+        <div ref={dialRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+          style={{ position: "relative", width: 260, height: 260, flexShrink: 0, borderRadius: "50%", border: "3px solid rgba(242,194,96,0.75)", background: "radial-gradient(circle at 50% 42%, rgba(46,94,150,0.5), rgba(11,38,66,0.62))", boxShadow: "0 10px 26px rgba(0,0,0,0.4)", cursor: verified ? "default" : "grab", touchAction: "none" }}>
+          {/* Buje decorativo: el planeta. No lleva el emoji del clima — delataría la
+              respuesta antes de girar. */}
+          <div style={{ position: "absolute", left: "50%", top: "50%", width: 78, height: 78, marginLeft: -39, marginTop: -39, borderRadius: "50%", border: "2.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, lineHeight: 1, pointerEvents: "none" }}>🌍</div>
+          {b.aro.map((c, i) => pastilla(c, i))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R3 · "El lugar misterioso" — DESTAPAR pistas y deducir (verbo nuevo).
+// Tres sobres cerrados; el niño abre los que necesite y toca el lugar del que hablan.
+// ¡VERIFICAR! valida (una ronda = UNA jugada) ⇒ +3 ⭐.
+//
+// ⚠ Se puede acertar con UNA sola pista: abrirlas todas no es obligatorio y no cuesta
+// estrellas. Es lo que hace que la ronda sea investigar y no leer un enunciado largo.
+//
+// ⚠ CÓMO SE GARANTIZA QUE HAY UNA SOLA RESPUESTA:
+//   1. las 4 opciones de la ronda tienen SIEMPRE climas distintos (el banco de lugares
+//      tiene un lugar por clima), y
+//   2. de las 3 pistas, al menos una está marcada `clave: true` — es decir, describe algo
+//      que en la tabla del libro solo cumple ese clima.
+//   Sin (2) podían salir tres pistas compartidas (p. ej. "tiene cuatro estaciones", que
+//   vale para templado Y continental) y la ronda no tendría solución.
+//
+// ⚠ Los lugares salen del CUADERNO: la actividad 3 empareja clima tropical→Amazonía,
+// alta montaña→cordillera de los Andes, seco→desierto del Sahara y polar→Antártida; la
+// actividad 4 da Japón como ejemplo de templado y Siberia de continental.
+// ══════════════════════════════════════════════════════════════════
+const J10_CL_LUGARES = [
+  { id: "amazonia", n: "Amazonía", e: "🌴", clima: "tropical" },
+  { id: "andes", n: "Cordillera de los Andes", e: "🏔️", clima: "montana" },
+  { id: "sahara", n: "Desierto del Sahara", e: "🏜️", clima: "seco" },
+  { id: "antartida", n: "Antártida", e: "🧊", clima: "polar" },
+  { id: "siberia", n: "Siberia", e: "🌲", clima: "continental" },
+  { id: "japon", n: "Japón", e: "🗾", clima: "templado" },
+];
+
+// Pistas por clima — todas de la tabla de la p. 49, del mapa de zonas de la p. 49 o de
+// las actividades 3 y 4 del cuaderno. `clave` = dato que solo cumple ESE clima.
+const J10_CL_PISTAS = {
+  tropical: [
+    { t: "Se ubica en torno a la línea ecuatorial.", clave: true },
+    { t: "Las lluvias son constantes y hay bosques tropicales.", clave: true },
+    { t: "Las temperaturas son cálidas durante todo el año." },
+    { t: "La humedad es alta." },
+  ],
+  seco: [
+    { t: "Las precipitaciones son escasas.", clave: true },
+    { t: "Las temperaturas son altas durante el día." },
+    { t: "Por la noche las temperaturas bajan." },
+  ],
+  templado: [
+    { t: "No tiene temperaturas extremas: los veranos y los inviernos son moderados.", clave: true },
+    { t: "Los veranos son cálidos y los inviernos, fríos." },
+    { t: "Las precipitaciones son promedio." },
+    { t: "Tiene cuatro estaciones." },
+  ],
+  continental: [
+    { t: "El otoño y la primavera son estaciones muy cortas.", clave: true },
+    { t: "Los veranos son muy cálidos y los inviernos, muy fríos.", clave: true },
+    { t: "Tiene cuatro estaciones." },
+  ],
+  polar: [
+    { t: "Las temperaturas son muy frías durante todo el año.", clave: true },
+    { t: "Se presenta en las zonas polares del planeta.", clave: true },
+    { t: "Está en la zona fría, más allá del círculo polar." },
+  ],
+  montana: [
+    { t: "Es característico de las cordilleras.", clave: true },
+    { t: "Se relaciona con la altitud.", clave: true },
+    { t: "La altitud es uno de los factores que hacen variar el clima." },
+  ],
+};
+
+const J10_CL_R3_KEY = "edinun_j10_cl_r3_v1";
+function j10ClR3Build() {
+  const i = j10PickIdx(J10_CL_LUGARES, 1, J10_CL_R3_KEY)[0];
+  j10Commit(J10_CL_R3_KEY, [i], 5);
+  const target = J10_CL_LUGARES[i];
+  const otros = j10Shuffle(J10_CL_LUGARES.filter((l) => l.id !== target.id)).slice(0, 3);
+  const opciones = j10Shuffle([target].concat(otros));
+  // 3 pistas: una `clave` obligatoria + 2 del resto (sin FIFO: el banco por clima tiene
+  // 3 o 4 pistas y guardar recientes lo dejaría sin de dónde elegir).
+  const banco = J10_CL_PISTAS[target.clima];
+  const cl = j10Shuffle(banco.filter((p) => p.clave));
+  const resto = j10Shuffle(cl.slice(1).concat(banco.filter((p) => !p.clave)));
+  const pistas = j10Shuffle([cl[0]].concat(resto.slice(0, 2)));
+  return { target, opciones, pistas };
+}
+
+function R3Misterio({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10ClR3Build());
+  const [abiertas, setAbiertas] = useStateG({});   // n -> true
+  const [sel, setSel] = useStateG(null);
+  const [verified, setVerified] = useStateG(false);
+
+  function abrir(n) { if (verified) return; setAbiertas((s) => Object.assign({}, s, { [n]: true })); }
+  function elegir(id) { if (verified) return; setSel(id); }
+
+  function verificar() {
+    if (verified || sel === null) return;
+    setVerified(true);
+    const acierto = sel === b.target.id;
+    const elegido = b.opciones.find((l) => l.id === sel) || b.target;
+    onSolve(acierto, {
+      emoji: "🔎", a: "¿De qué lugar hablan las pistas?",
+      userAnswer: elegido.n, correctAnswer: b.target.n,
+    }, acierto ? 3 : 0);
+  }
+  verifyRef.current = verificar;
+
+  function sobre(p, n) {
+    const open = !!abiertas[n];
+    return (
+      <button key={n} onClick={() => abrir(n)} disabled={open || verified}
+        style={{ flex: "1 1 0", minWidth: 0, height: 146, boxSizing: "border-box", borderRadius: 14, border: `3px solid ${open ? "#d9c48a" : "#f2c260"}`, background: open ? "linear-gradient(180deg,#fffdf6,#f6ecd2)" : "linear-gradient(180deg, rgba(46,94,150,0.5), rgba(11,38,66,0.62))", color: open ? "#3a2608" : "#fce9a8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 9px", cursor: (open || verified) ? "default" : "pointer", boxShadow: open ? "inset 0 1px 0 rgba(255,255,255,0.75), 0 4px 12px rgba(0,0,0,0.28)" : "0 4px 12px rgba(0,0,0,0.3)", transition: "all 0.16s ease" }}>
+        {open ? (
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontSize: 11, lineHeight: 1.28, textAlign: "center", overflowWrap: "anywhere" }}>{p.t}</span>
+        ) : (
+          <>
+            <span style={{ fontSize: 34, lineHeight: 1 }}>✉️</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, letterSpacing: "0.04em" }}>PISTA {n + 1}</span>
+          </>
+        )}
+      </button>
+    );
+  }
+
+  function opcion(l) {
+    const chosen = sel === l.id, esOk = verified && l.id === b.target.id;
+    const esFallo = verified && chosen && l.id !== b.target.id;
+    let border = "#d9c48a", bg = "linear-gradient(180deg,#fffdf6,#f6ecd2)", col = "#3a2608";
+    if (!verified && chosen) { border = "#4fd8ff"; bg = "linear-gradient(180deg,#eaf9ff,#cdeeff)"; }
+    if (esOk) { border = "#2ecc8f"; bg = "linear-gradient(180deg,rgba(72,224,154,0.96),rgba(26,143,95,0.94))"; col = "#06381f"; }
+    else if (esFallo) { border = "#ff6b6b"; bg = "linear-gradient(180deg,rgba(255,139,139,0.94),rgba(178,47,47,0.92))"; col = "#fff"; }
+    else if (verified) { bg = "linear-gradient(180deg,rgba(255,253,246,0.45),rgba(246,236,210,0.45))"; col = "rgba(58,38,8,0.4)"; }
+    return (
+      <button key={l.id} onClick={() => elegir(l.id)} disabled={verified}
+        style={{ position: "relative", flex: "1 1 0", minWidth: 0, minHeight: 92, boxSizing: "border-box", borderRadius: 13, border: `2.5px solid ${border}`, background: bg, color: col, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: "6px 5px 15px", cursor: verified ? "default" : "pointer", transform: (!verified && chosen) ? "translateY(-2px)" : "none", boxShadow: (!verified && chosen) ? "0 0 16px rgba(79,216,255,0.55), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 3px 9px rgba(0,0,0,0.24)", transition: "transform 0.12s ease" }}>
+        <span style={{ fontSize: 24, lineHeight: 1 }}>{l.e}</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, lineHeight: 1.1, textAlign: "center", overflowWrap: "anywhere" }}>{l.n}</span>
+        {/* Al revelar, el lugar correcto muestra ADEMÁS su clima: es el dato que enseña la
+            ronda, y la actividad 3 del cuaderno empareja justamente eso. Va sobre la
+            franja de 15 px que el `paddingBottom` reserva siempre, así nada salta. */}
+        {esOk && (
+          <span style={{ position: "absolute", left: 3, right: 3, bottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "0 4px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 8.5, color: "#5a3d0a" }}>
+            clima {(J10_CL_CLIMAS.find((c) => c.id === l.clima) || J10_CL_CLIMAS[0]).n.toLowerCase()}
+          </span>
+        )}
+        {(esOk || esFallo) && (
+          <span style={{ position: "absolute", top: -9, right: -7, fontSize: 11, fontWeight: 900, color: "#fff", background: esOk ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 19, height: 19, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 5px rgba(0,0,0,0.35)" }}>{esOk ? "✓" : "✗"}</span>
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 58 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Descubre de qué lugar hablan las pistas.</span>
+      </div>
+      {/* Las pistas y los lugares son DOS pasos distintos (primero abrir, luego elegir):
+          van separados 32 px, no 14, para que no se lean como una sola parrilla de
+          tarjetas. Lo pidió la autora (2026-09-23) y la zona lo permite: el bloque
+          quedaba con aire de sobra por debajo. */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32, minHeight: 0, width: "100%" }}>
+        <div style={{ display: "flex", gap: 13, width: "100%", flexShrink: 0 }}>{b.pistas.map((p, n) => sobre(p, n))}</div>
+        <div style={{ display: "flex", gap: 10, width: "100%", flexShrink: 0 }}>{b.opciones.map((l) => opcion(l))}</div>
+      </div>
+    </div>
+  );
+}
+
+// ── Arreglo de rondas del TEMA 3 (3 rondas, 3 verbos: lanzar · girar · destapar) ──
+const J10_ROUNDS_CLIMA = [
+  { C: R1Noticias, verify: true, bubble: (<>Arrastra la noticia<br />a CLIMA o a TIEMPO.</>) },
+  { C: R2Ruleta, verify: true, bubble: (<>Gira la ruleta hasta<br />poner ese clima<br />bajo la flecha.</>) },
+  { C: R3Misterio, verify: true, bubble: (<>Abre las pistas.<br />Luego toca el lugar.</>) },
+];
+
+// ── Arreglo de rondas del TEMA 2 (3 rondas, 3 verbos: ordenar · buscar · estirar) ──
+const J10_ROUNDS_S21 = [
+  { C: R1Linea, verify: true, bubble: (<>Arrastra la tarjeta<br />hasta su lugar.</>) },
+  { C: R2Lupa, verify: true, bubble: (<>Eres detective.<br />Mira y marca<br />las cuatro.</>) },
+  { C: R3Grafico, verify: true, bubble: (<>Arrastra los puntos<br />del gráfico.</>) },
+];
+
 // ── Arreglo de rondas del TEMA 1 (3 rondas, 3 verbos: arrastrar · tocar · elegir) ──
 const J10_ROUNDS = [
   // ⚠ El bocadillo decía "sobre el mapa" y la autora preguntó "¿a qué mapa se refiere?":
@@ -620,6 +1910,11 @@ function J10Game({ app, setApp, go, rounds }) {
   const [confirmingExit, setConfirmingExit] = useStateG(false);
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
   const [pendingTema, setPendingTema] = useStateG(null);   // id del tema al que se quiere saltar
+  // Una ronda puede REEMPLAZAR su bocadillo (`setBubble`). Lo necesita la R3 del Tema 2:
+  // sortea barras o pastel, y con un solo texto para los dos casos el CÓMO salía vago
+  // ("arrastra los puntos del gráfico") — la autora no lo entendía. Se resetea al cambiar
+  // de ronda para que la siguiente arranque con el suyo.
+  const [bubbleOv, setBubbleOv] = useStateG(null);
   const [rk, setRk] = useStateG(0);
   const [busy, setBusy] = useStateG(false);
   const started = useRefG(Date.now());
@@ -646,7 +1941,7 @@ function J10Game({ app, setApp, go, rounds }) {
     setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? `+${g} ⭐` : ANIMOS[round % ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
-      if (round + 1 < total) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
+      if (round + 1 < total) { setBubbleOv(null); setRound((r) => r + 1); advancing.current = false; setBusy(false); }
       else {
         const solved = newLog.filter((e) => e.isCorrect).length;
         setApp((s) => ({ ...s, stars: newStars, lastResult: { category: app.currentCatLabel || CAT_LABEL, solved, total, time: Math.floor((Date.now() - started.current) / 1000), starsEarned: newStars, log: newLog } }));
@@ -658,7 +1953,7 @@ function J10Game({ app, setApp, go, rounds }) {
 
   function confirmRestart() {
     setConfirmingRestart(false); advancing.current = false; setBusy(false);
-    setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setBubbleOv(null); setRk((k) => k + 1);
     started.current = Date.now();
   }
 
@@ -688,9 +1983,14 @@ function J10Game({ app, setApp, go, rounds }) {
         })}
       </div>
 
-      {/* ⚠ El bloque Ronda va SIEMPRE centrado en `top: 52` (estandar-visual §1.1, y el
-          format-lint lo verifica). Las pastillas van encima, en `top: 14`. */}
-      <div style={{ position: "absolute", top: 52, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+      {/* ⚠ El bloque Ronda va en `top: 74`, NO en 52. El 52 del estándar se fijó ANTES de
+          que existieran las pastillas de tema; con ellas ocupando 14→44, el bloque quedaba
+          a 8 px de las pastillas y a 51 px del enunciado — mal repartido, reportado por la
+          autora (2026-09-04). En 74 quedan 30 px arriba y 29 abajo.
+          Regla nueva: **52 sin pastillas · 74 con pastillas** (el format-lint acepta las
+          dos). ⏳ Falta propagarlo a juego-3, juego-4, juego-5 y juego-13, que tienen el
+          mismo problema. */}
+      <div style={{ position: "absolute", top: 74, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
         <span className="ed-label" style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Ronda</span>
         {Array.from({ length: total }).map((_, i) => {
           const done = i < log.length, ok = done && log[i] && log[i].isCorrect;
@@ -701,7 +2001,7 @@ function J10Game({ app, setApp, go, rounds }) {
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-            {ROUNDS[round].bubble}
+            {bubbleOv || ROUNDS[round].bubble}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>
@@ -713,7 +2013,7 @@ function J10Game({ app, setApp, go, rounds }) {
       </div>
 
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
-        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />
+        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} setBubble={setBubbleOv} />
       </div>
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
@@ -790,11 +2090,12 @@ function J10Game({ app, setApp, go, rounds }) {
 }
 
 // Despacho por tema (estandar-visual §8: N botones = N mini-juegos con mecánicas
-// distintas). Hoy solo el Tema 1 tiene material; los otros dos están deshabilitados en el
-// Home, así que nunca llegan aquí.
+// distintas). Los TRES temas están implementados, con NUEVE verbos distintos entre
+// ellos. Una categoría desconocida cae en el Tema 1 en vez de romperse.
+const J10_ROUNDS_POR_TEMA = { recursos: J10_ROUNDS, siglo21: J10_ROUNDS_S21, clima: J10_ROUNDS_CLIMA };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "recursos";
-  const rounds = J10_ROUNDS;
+  const rounds = J10_ROUNDS_POR_TEMA[cat] || J10_ROUNDS;
   // `key={cat}`: al saltar de tema desde las pastillas del HUD, J10Game se REMONTA y el
   // tema nuevo arranca limpio (ronda 1, sin ⭐ ni log de la partida anterior).
   return <J10Game key={cat} app={app} setApp={setApp} go={go} rounds={rounds} />;

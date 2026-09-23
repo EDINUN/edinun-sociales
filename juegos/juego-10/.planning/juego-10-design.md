@@ -1,16 +1,25 @@
-# juego-10 — design-doc · TEMA 1
+# juego-10 — design-doc · TEMAS 1, 2 y 3
 
 > Planificación inicial (design-doc primero). Escrito ANTES del código, según
 > `.claude/skills/edinun-game-builder/references/planificacion-inicial.md`.
-> Estado: **Tema 1 aprobado ronda por ronda por la autora** (bocetos ASCII en el
-> chat, 2026-08-12). **Temas 2 y 3: sin material todavía** → botones en
-> "Próximamente" hasta que la autora entregue su texto y su edad.
+> Estado: **los 3 temas aprobados ronda por ronda por la autora** (bocetos ASCII en
+> el chat) — Tema 1 el 2026-08-12, Tema 2 el 2026-08-14, Tema 3 el 2026-09-02.
+> Ningún botón queda en "Próximamente".
+>
+> El Tema 2 está en la **§11** y el Tema 3 en la **§12** de este documento.
+>
+> **Títulos definitivos de los temas** (los fijó la autora el 2026-09-23): "Recursos
+> naturales y derechos de la Tierra" · "Inicio del siglo XXI" · "El clima de nuestro
+> planeta". Van tal cual en el `catLabel` del reporte; en el botón del Home entran
+> enteros los temas 2 y 3 (el 1 se queda con "Recursos naturales": con el título largo
+> la fila de botones crecía a 134 px de alto). En el HUD siguen las pastillas cortas
+> (RECURSOS · SIGLO XXI · CLIMA), que es lo único que cabe ahí.
 
 ---
 
 ## 1. Tema
 
-**Tema 1 = "Recursos naturales y los derechos de la Tierra"** — es el **Tema 2 del
+**Tema 1 = "Recursos naturales y derechos de la Tierra"** — es el **Tema 2 del
 libro**; en nuestro Home ocupa el **1er botón** (el gradiente va por POSICIÓN, no
 por temática → naranja).
 
@@ -31,18 +40,18 @@ emblemáticas y amenazadas. D.C.D. **CS.2.2.11, CS.2.2.16**.
 
 | # | id | label | grad (por posición) | catLabel | Estado |
 |:-:|---|---|---|---|---|
-| 1 | `recursos` | Recursos naturales | naranja `#ffc06e→#e4881a` | Recursos naturales y los derechos de la Tierra | ✅ 3 rondas |
-| 2 | `tema2` | Tema 2 | amarillo `#ffe97a→#d7b12a` | Tema 2 (provisional) | ⏳ sin material |
-| 3 | `tema3` | Tema 3 | azul `#7ab8ff→#2773d8` | Tema 3 (provisional) | ⏳ sin material |
+| 1 | `recursos` | Recursos naturales | naranja `#ffc06e→#e4881a` | Recursos naturales y derechos de la Tierra | ✅ 3 rondas · **8 años** |
+| 2 | `siglo21` | Inicio del siglo XXI | amarillo `#ffe97a→#d7b12a` | Inicio del siglo XXI | ✅ 3 rondas · **11 años** |
+| 3 | `clima` | El clima de nuestro planeta | azul `#7ab8ff→#2773d8` | El clima de nuestro planeta | ✅ 3 rondas · **12 años** |
+
+⚠️ **La edad varía DENTRO del mismo juego** (8 · 11 · 12): la fija la autora tema por
+tema. Las mecánicas de los temas 2 y 3 son deliberadamente más exigentes.
 
 Runtime: Home → `app.level` → CharacterScreen (`choose()`) →
 `currentCategory` / `currentCatLabel` → `GameScreen` despacha el arreglo de rondas.
 Pastillas de tema en el HUD (`top: 14`) para saltar de tema sin volver al Home,
-igual que juego-13; con un solo tema habilitado se ve una sola pastilla.
-
-> ⚠️ `estandar-visual.md` §8 prohíbe **entregar** un juego con botones en
-> "Próximamente" como estado final. Aquí es un estado **intermedio declarado**: los
-> temas 2 y 3 se implementan en cuanto llegue su material.
+igual que juego-13; con las tres habilitadas se ven las tres, y el bloque Ronda baja
+a `top: 74` para dejarles sitio.
 
 ## 3. Mecánica — 3 rondas, 3 verbos distintos
 
@@ -157,8 +166,7 @@ Naturaleza y megadiversidad, afines al tema (y neutros para los temas 2-3 que fa
 - **Hero del Home:** `EDINUN · Ecuador megadiverso` + `¡Bienvenido/a, Estudiante!`
 - **Label:** `Elige un tema para jugar`
 - **Botón 1:** `Recursos naturales` · descripción: `La megadiversidad del Ecuador y sus cuatro regiones.`
-- **Botones 2 y 3:** `Tema 2` / `Tema 3` · descripción: `Muy pronto.` (deshabilitados)
-- **catLabel:** `Recursos naturales y los derechos de la Tierra`
+- **catLabel:** `Recursos naturales y derechos de la Tierra`
 - **Pastilla del HUD (`short`):** `RECURSOS`
 
 | R | Enunciado (**QUÉ**, termina en punto) | Bocadillo (**CÓMO**) |
@@ -238,12 +246,376 @@ va alto (`N − 1`).
 
 ## 10. Decisiones abiertas / riesgos
 
-1. **Título del juego** — provisional hasta que lleguen los temas 2 y 3.
-2. **Temas 2 y 3** — sin material. Sus verbos tendrán que ser distintos de
-   arrastrar · tocar-franja · elegir-en-huecos.
+1. **Título del juego** — provisional hasta que llegue el tema 3.
+2. ~~**Tema 3** — sin material.~~ ✅ **Resuelto el 2026-09-02** (§12): "El clima de nuestro
+   planeta", 12 años, con tres verbos nuevos — lanzar-la-tarjeta · girar-el-aro ·
+   destapar-pistas. El juego queda con **nueve verbos distintos**.
 3. **Arrastrar a los 8 años** — juego-8 (misma edad) prefirió tap. Aquí la autora
    eligió el arrastre para la R1; va con **respaldo tap** por si en tablet incomoda.
-4. **Sin imágenes**: emoji + nombre. Las fotos del libro no se reproducen. Si la autora
-   genera ilustraciones, el código las acepta con el emoji de respaldo.
-5. **Vocabulario pesado en la R2** ("órbita geoestacionaria", "plataforma submarina"):
-   está literal en el cuaderno de 8 años, se respeta.
+4. **Sin imágenes todavía**: emoji + nombre. Las fotos del libro no se reproducen. La
+   autora va a generar ilustraciones para el Tema 2 (§11.5); el código las acepta con
+   el emoji de respaldo.
+5. **Vocabulario pesado en la R2 del Tema 1** ("órbita geoestacionaria", "plataforma
+   submarina"): está literal en el cuaderno de 8 años, se respeta.
+
+---
+
+# 11. TEMA 2 · "Inicio del siglo XXI"
+
+Es el **Tema 1 del libro** (pp. 112-117 + cuaderno pp. 103-106), donde se titula
+"Inicio del siglo XXI: globalización, democracia y unidad nacional"; el título del tema
+en el juego lo fijó la autora el 2026-09-23, más corto. En nuestro Home ocupa el **2º
+botón** (amarillo, por POSICIÓN). **Edad objetivo: 11 años**, la fija la autora.
+
+Contenido del tema: la dolarización · el cambio climático · la deuda externa ·
+emigración e inmigración · la integración regional (ALADI · SELA · CAN · CELAC ·
+MERCOSUR) · los retos del Ecuador ante la globalización · el compromiso de la juventud.
+
+## 11.1 Mecánica — 3 rondas, 3 verbos NUEVOS
+
+Elegidas por la autora vía bocetos ASCII, una ronda a la vez (rechazó la primera tanda
+del R2 por "aburridas": eran tres variantes de *clasificar*). Los verbos no pueden
+repetir los del Tema 1.
+
+| R | Nombre | Verbo | Contenido | Validación | ⭐ |
+|:-:|---|---|---|---|:-:|
+| 1 | Del sucre al dólar | **ordenar** (arrastrar la tarjeta a su lugar; el toque queda de respaldo) | línea del tiempo del siglo XXI | ¡VERIFICAR! | +1 por posición (4) |
+| 2 | ¿Dónde se esconden los gases? | **buscar** con lupa dentro de una escena | cambio climático | ¡VERIFICAR! | +1 por acierto (4) |
+| 3 | El gráfico vivo | **arrastrar** el borde de un gráfico | deuda externa · bloques regionales | ¡VERIFICAR! | +1 por dato (3) |
+
+**Máximo 11 ⭐** (el Tema 1 da 10; cada tema es su propia partida).
+
+### R1 · Del sucre al dólar
+
+4 hechos en columna, sin año visible. Se **arrastra** la tarjeta hasta su lugar: mientras
+arrastras, la tarjeta flota siguiendo el dedo y una **barra dorada** marca dónde va a caer.
+El **toque sigue funcionando de respaldo** (tocar dos tarjetas las intercambia), igual que
+la R1 del Tema 1 lleva respaldo tap. ¡VERIFICAR! valida las 4 de una vez. Al revelar, cada tarjeta muestra
+**su año** y, si está mal, **"va Nº"** — sin reordenar la columna, para que el niño siga
+viendo su propia respuesta.
+
+> ⚠️ Al verificar se **suelta** la tarjeta levantada. Si no, quedaba desplazada y su ✗
+> (que cuelga del borde) se salía de la zona de mecánica. Cazado por la auditoría de
+> espacios, no a ojo.
+
+### R2 · ¿Dónde se esconden los gases?
+
+Escena de 458×326 con 9 elementos: **4 calientan el planeta y 5 son decorado**, sacados
+de un **banco por escena** (7-8 + 10) y repartidos barajados en 9 huecos fijos, para que
+no salgan siempre los mismos. Cada elemento va sobre una **placa clara** que le da
+contraste sobre cualquier fondo. La lupa
+sigue al dedo y **amplía el elemento más cercano** dentro del aro (58 px), a 1,45×. Se marcan 4 y
+¡VERIFICAR! valida de una vez. Al revelar: ✓ verde en las marcadas correctas, ✗ rojo en
+las marcadas mal, y **aro dorado punteado con el nombre** en las correctas que se
+escaparon.
+
+> ⚠️ **Marcar + ¡VERIFICAR!, no "se cierra al encontrar las 4"**: si la ronda solo
+> terminara al acertar sería imposible fallar y no habría revelado ni respuesta parcial.
+>
+> ⚠️ **La lupa amplía UNO SOLO** (el más cercano). Ampliando a todos los que caían dentro
+> del aro, dos vecinos crecían a la vez y se tapaban.
+>
+> ⚠️ **Separación**: **72 px** libres en un eje (15,7 % en x o 22,1 % en y), para que el
+> ampliado nunca cubra a su vecino. Subió de 60 a 72 al agrandar el elemento (46 → 58 px,
+> emoji 28 → 38, pedido de la autora el 2026-08-28) y por eso **las tres escenas** están
+> repartidas en tres filas de profundidad, no solo la del campo.
+>
+> ⚠️ El **rótulo del revelado** se dibuja ARRIBA del elemento cuando abajo no cabe (la fila
+> de adelante del campo): si no, se salía de la escena.
+>
+> ⚠️ **El fondo es UNA sola pieza**, no dos. Se pintaba en dos bloques —cielo arriba, suelo
+> abajo— y la autora lo rechazó: *"¿por qué está de dos colores, celeste y camel? No me
+> gusta"* (2026-09-02). Una línea dura a media altura parte el recuadro en dos rectángulos
+> en vez de leerse como un paisaje. Ahora es **un degradado de 5 paradas** del celeste al
+> tono de tierra, sin costura, con un tinte distinto por escena. Como ya no hay horizonte
+> visible, tampoco hay elementos "flotando en el cielo": el problema desapareció con la
+> causa. El reparto en **tres filas** se mantiene — es lo que garantiza los 72 px.
+
+### R3 · El gráfico vivo
+
+Dos tipos de gráfico con **el mismo gesto**, porque el pastel solo daba un ejercicio y
+la ronda se repetiría al recargar:
+
+- **Pastel** — la deuda del Ecuador con los organismos: FMI 33 % · BID y CAF 49 % ·
+  los demás 18 %. Dos manijas sobre el borde; la 3ª porción es lo que queda.
+- **Barras** — cuántos países integran cada bloque: ALADI 13 · SELA 26 · CAN 5 ·
+  CELAC 33. Salen **3 de los 4** cada vez, escala 0-40, manija en la punta.
+
+Los tres números objetivo se muestran **desordenados** arriba, bajo el rótulo
+**"Una de estas va en cada barra:"** (o *"en cada parte"* en el pastel): el ejercicio es
+decidir cuál va en cada categoría, no recordar la cifra exacta. Tolerancia ±3 puntos en el
+pastel y ±1 país en las barras. Al revelar, la marca verde señala el valor real y la
+leyenda muestra `20→13`.
+
+## 11.2 Datos del libro y sus problemas
+
+| Dato | Fuente | Nota |
+|---|---|---|
+| El sucre circula desde **1884** | p. 112 | |
+| **2000**: Mahuad cambia el sucre por el dólar | p. 112 | |
+| **Diciembre 2023**: monedas con personajes | p. 113 | |
+| ALADI **1960** · CAN **1969** · SELA **1975** · MERCOSUR **1994** · CELAC **2011** | p. 116 | |
+| Acuerdo de París ratificado en **2017** | p. 114 | |
+| Países por bloque: ALADI 13 · SELA 26 · CAN 5 · CELAC 33 | p. 116 | MERCOSUR no trae número |
+| Causas del cambio climático: combustibles fósiles, deforestación, agricultura intensiva | p. 113 | |
+| Nitrógeno y oxígeno **regulan** el calor (son los buenos) | cuaderno p. 104 | |
+
+> ⚠️ **INCONSISTENCIA DEL LIBRO** (avisada a la autora el 2026-08-14): la p. 114 dice
+> que la deuda total es de **48 129 millones** y que los **8 100 del FMI** "equivalen al
+> **33,3 %**". Pero 8 100 de 48 129 es el **17 %**. El 33,3 % solo cuadra sobre la deuda
+> con **organismos multilaterales**. Decisión aplicada: el gráfico se rotula **"La deuda
+> del Ecuador con los organismos"** y usa **solo porcentajes** — no se mezclan los
+> millones para no enseñar una cuenta que no cierra. Revertir es una línea si la autora
+> prefiere la redacción literal.
+>
+> ⚠️ **La CAN con Chile**: el libro la da como integrada por Bolivia, Ecuador, Colombia,
+> Perú y **Chile**. Chile salió de la CAN hace décadas. Se juega con **el número del
+> libro (5)**, que es lo que van a evaluar; avisado a la autora.
+
+### Hitos EXCLUIDOS de la R1 (y por qué)
+
+- **El feriado bancario** — el libro lo fecha como *"finales del siglo XX"*, sin año.
+  Con 1994 (MERCOSUR) en el banco el orden sería ambiguo. Entra si la autora confirma
+  el año.
+- **La deuda de 48 129 millones (febrero 2023)** — chocaría con las monedas de
+  diciembre de 2023: dos hitos del mismo año ⇒ dos ordenaciones correctas.
+
+### Criterio de "calienta el planeta" (R2)
+
+Solo las dos causas que el libro nombra: **quema de combustibles fósiles** (fábricas,
+carros, buses, aviones, tractores, camionetas) y **deforestación** (motosierra, troncos
+talados, camión maderero, bosque quemado).
+
+⚠️ Deliberadamente **no se usa ganado** ni como respuesta ni como decorado: el metano del
+ganado no está en el libro y marcar una vaca como "no contamina" sería enseñar algo
+discutible.
+
+## 11.3 Copy del Tema 2
+
+- **Botón 2:** `Inicio del siglo XXI` · descripción: `El Ecuador de hoy: el dólar, el clima y la unión con otros países.`
+- **catLabel:** `Inicio del siglo XXI`
+- **Pastilla del HUD (`short`):** `SIGLO XXI`
+
+| R | Enunciado (**QUÉ**, termina en punto) | Bocadillo (**CÓMO**) |
+|:-:|---|---|
+| 1 | Ordena los hechos del más antiguo al más reciente. | Arrastra la tarjeta<br>hasta su lugar. |
+| 2 | Encuentra las cuatro cosas que calientan el planeta. | Eres detective.<br>Mira y marca<br>las cuatro. |
+| 3 | *pastel:* Reparte la deuda del Ecuador entre quienes le prestaron.<br>*barras:* Completa cada barra con los países que tiene ese grupo. | *pastel:* Arrastra las bolitas<br>hasta que cada parte<br>tenga su número.<br>*barras:* Arrastra la bolita<br>hasta que cada barra<br>tenga su número. |
+
+Sin rótulos visibles inventados: los 4 puntos bajo la escena de la R2 no llevan palabra
+(el enunciado ya dice "las cuatro").
+
+| R | `emoji` | `a` (enunciado del reporte) |
+|:-:|:-:|---|
+| 1 | 🕰️ | ¿En qué orden pasaron estos hechos? |
+| 2 | 🔍 | ¿Qué cosas de la escena calientan el planeta? |
+| 3 | 📊 | La deuda del Ecuador con los organismos / Países que integran cada grupo |
+
+## 11.4 Anti-repetición del Tema 2
+
+| Clave | Elige | Banco | cap | Combinaciones |
+|---|---|:--:|:--:|---|
+| `edinun_j10_s21r1_v1` | 4 hitos | 9 | 4 | 126 |
+| `edinun_j10_s21r2_v1` | 1 escena | 3 | 2 | 3 |
+| `edinun_j10_s21r3_v1` | 1 gráfico | 5 | 4 | 5 |
+
+## 11.5 Ilustraciones pendientes
+
+Los emoji son **marcadores de posición**. La autora va a generar:
+
+- **R1** — 9 iconos de 120×120 PNG con fondo transparente, uno por hito
+  (`assets/hito-<id>.png`). El `<span>` del emoji se cambia por un `<img>`.
+- **R2** — 3 escenas de 920×600 (ciudad · bosque · campo) + los 12 objetos sueltos en
+  PNG transparente, que se colocan en las mismas coordenadas `x/y` en % ya definidas.
+- **R3** — ninguna, el gráfico se dibuja por código.
+
+Nada bloquea: el juego es jugable y verificado con emoji.
+
+---
+
+# 12. TEMA 3 · "El clima de nuestro planeta"
+
+Es el **Tema 4 del libro** (pp. 48-51 + cuaderno; D.C.D. **CS.4.2.3**); en nuestro Home
+ocupa el **3er botón** (azul, por POSICIÓN). **Edad objetivo: 12 años**, la fija la autora.
+
+Contenido del tema: el concepto de clima frente al de tiempo atmosférico · los 6 tipos de
+clima del mundo · las zonas por latitud del mapa de líneas imaginarias · los factores de
+variación del clima · los desastres naturales en el contexto del cambio climático · los
+planes de contingencia globales (1992 · 1997 · 2015).
+
+## 12.1 Qué NO entra, y por qué
+
+⚠️ **El Tema 2 de este mismo juego ya juega el cambio climático**: su R2 busca las cuatro
+cosas que calientan el planeta y su línea del tiempo incluye el Acuerdo de París. Si el
+Tema 3 volviera sobre los gases de efecto invernadero, los dos botones se sentirían el
+mismo juego con otra pintura. **Reparto acordado:**
+
+| | Tema 2 | Tema 3 |
+|---|---|---|
+| Cambio climático | ✅ causas, gases, acuerdos | ❌ no se repite |
+| El clima como sistema | ❌ | ✅ qué es, tipos, dónde se dan |
+
+Por eso **quedan fuera del Tema 3**: los desastres naturales y su gráfico 1970-2024, y los
+tres instrumentos jurídicos (1992 Convenio Marco · 1997 Kioto · 2015 París). Los segundos,
+además, solo darían un ejercicio de **ordenar**, que es el verbo de la R1 del Tema 2.
+
+## 12.2 Mecánica — 3 rondas, 3 verbos NUEVOS
+
+Bocetadas en ASCII en el chat, tres opciones para la R1. **La autora eligió las tres**
+("me gustaron las 3") y se repartieron como las tres rondas del tema, ordenadas de menor a
+mayor exigencia: concepto → tipos → deducción.
+
+| R | Nombre | Verbo | Contenido | Validación | ⭐ |
+|:-:|---|---|---|---|:-:|
+| 1 | El noticiero | **lanzar** la tarjeta a un riel | clima vs tiempo atmosférico | ¡VERIFICAR! | +1 por noticia (4) |
+| 2 | La ruleta de los climas | **girar** el aro | los 6 tipos de clima | ¡VERIFICAR! | +3 de una vez |
+| 3 | El lugar misterioso | **destapar** pistas y deducir | clima ↔ lugar del mundo | ¡VERIFICAR! | +3 de una vez |
+
+**Máximo 10 ⭐** (el Tema 1 da 10 y el Tema 2, 11: cada tema es su propia partida).
+
+Ninguno de los tres verbos repite los seis de los temas 1 y 2 (arrastrar-al-mapa ·
+tocar-franja · elegir-entre-dos · ordenar-arrastrando · buscar-con-lupa ·
+arrastrar-el-borde-del-gráfico). **El juego queda con nueve verbos distintos.**
+
+> ⚠️ **Aviso dado a la autora al proponer:** el gesto de la R1 (lanzar una carta a un lado)
+> es el mismo que ella ya aprobó en **juego-13 Tema 3 R1 «El muro»**. Se marcó como
+> repetición *entre juegos* (dentro de juego-10 el verbo es nuevo) y ella lo eligió igual.
+
+### R1 · El noticiero
+
+Mazo de 4 noticias en el centro (carta de 300×96) y dos rieles arriba: **CLIMA** (violeta)
+y **TIEMPO ATMOSFÉRICO** (azul). Se arrastra la carta, que se **inclina** siguiendo al dedo
+(±14°), y al soltarla cae en el riel como miniatura de 44. ¡VERIFICAR! valida las 4.
+
+- El destino se decide por **dónde se suelta** (riel + 16 px de margen) o, si el gesto se
+  quedó corto de altura, **por el signo del desplazamiento** cuando pasa de 70 px. Soltar
+  en el medio devuelve la carta al mazo.
+- **Respaldo tap:** tocar un riel manda ahí la carta de arriba; tocar una miniatura la
+  devuelve al mazo (se puede corregir antes de verificar).
+
+> ⚠️ **Los dos rieles van a su alto MÁXIMO desde el principio** (236 px). Si crecieran al
+> recibir cartas empujarían el mazo hacia abajo en cada lanzamiento. Es la versión "cajón
+> grande desde el principio" de lo que la autora pidió en la R1 del Tema 1: con solo dos
+> cajones y cuatro fichas, clavarlos al máximo consigue que **nada se mueva** en toda la
+> ronda. El mazo también tiene alto fijo (104) para no encoger al vaciarse.
+
+### R2 · La ruleta de los climas
+
+Aro de 260 px con los 6 tipos de clima en pastillas de 84×34 y una **flecha ▼ fija** arriba.
+Se arrastra el aro en círculo y al soltar **encaja** en la ranura más cercana. Arriba, la
+tarjeta con la característica **literal de la tabla de la p. 49**. Una jugada ⇒ +3 ⭐.
+
+> ⚠️ **El brazo de la pastilla lleva `rotate(i·60 + ang)`.** Sin el `+ ang` el aro no gira:
+> cambiaba la ranura seleccionada pero las pastillas se quedaban quietas y solo rotaba su
+> texto. La pastilla se contra-rota `-(i·60) - ang` para que el texto quede horizontal, y
+> ambas transiciones deben ser idénticas o se desincronizan al encajar.
+>
+> ⚠️ **El respaldo tap se resuelve en el `onPointerUp` del ARO**, no con un `onClick` en la
+> pastilla: el aro captura el puntero al empezar (necesario para que el arrastre no se
+> corte al salirse del círculo) y, con el puntero capturado, el `click` posterior va al aro
+> y no a la pastilla. El toque se perdía y la ruleta se quedaba en su posición inicial
+> —que a propósito nunca es la respuesta—, así que la ronda era **imposible de acertar sin
+> arrastrar**. Lo cazó el e2e (partida "perfecta" que daba 7 ⭐), no se veía a ojo.
+>
+> ⚠️ **Radio del brazo 83, no 86**: con 86 la esquina externa de la pastilla llegaba a
+> 131 px del centro y el aro mide 130 de radio, así que las de las 2 y las 4 cruzaban el
+> borde dorado. El buje bajó a 78 para no quedar pegado por dentro.
+>
+> ⚠️ **El buje es el planeta 🌍**, no el emoji del clima: delataría la respuesta.
+
+### R3 · El lugar misterioso
+
+Tres sobres cerrados que el niño abre tocándolos y cuatro lugares abajo. **Se puede acertar
+con una sola pista**: abrirlas todas no es obligatorio y no cuesta estrellas — es lo que
+hace que la ronda sea *investigar*, y es la única de las nueve del juego con información
+opcional. ¡VERIFICAR! valida ⇒ +3 ⭐. Al revelar, el lugar correcto muestra **su clima**,
+que es justo el emparejamiento que pide la actividad 3 del cuaderno.
+
+> ⚠️ **Cómo se garantiza que hay UNA sola respuesta:**
+> 1. las 4 opciones tienen siempre **climas distintos** (el banco tiene un lugar por clima) y
+> 2. de las 3 pistas, al menos una está marcada **`clave: true`** — describe algo que en la
+>    tabla del libro solo cumple ese clima.
+>
+> Sin (2) podían salir tres pistas compartidas (p. ej. *"Tiene cuatro estaciones"*, que vale
+> para templado **y** continental) y la ronda no tendría solución.
+
+## 12.3 Datos del libro y sus problemas
+
+| Dato | Fuente | Nota |
+|---|---|---|
+| Clima = condiciones **promedio** en un periodo prolongado, **al menos 30 años** | p. 48 | |
+| Tiempo atmosférico = estado de la atmósfera en **un momento y lugar específicos**; cambia en horas | p. 48 | |
+| Los 6 tipos de clima y sus características | p. 49 (tabla) | literal |
+| Zonas cálida / templada / fría y las 5 líneas imaginarias | p. 49 (mapa) | |
+| Factores: radiación solar, latitud, altitud, proximidad del agua, corrientes, vientos, topografía, vegetación, gases | p. 49 | |
+| tropical→Amazonía · alta montaña→Andes · seco→Sahara · polar→Antártida | cuaderno act. 3 | |
+| templado: España, Italia, **Japón** · continental: Siberia, norte de Canadá | cuaderno act. 4 | |
+
+⚠️ **Las 12 noticias de la R1 NO son textuales.** El libro solo da un ejemplo ("si hoy
+llueve en tu ciudad o si hace mucho calor durante la tarde"). Lo textual es el **criterio**
+de la p. 48; cada noticia lo aplica con una marca temporal explícita. Es el mismo
+precedente que los ejercicios de cálculo de juego-13 T2R2: **el molde es del libro, los
+enunciados se construyen con él.** Si la autora prefiere solo frases literales, la R1 se
+queda con una sola y habría que cambiarle la mecánica.
+
+⚠️ **Japón y no España/Italia** como ejemplo de templado: 🗾 **nombra a Japón**, mientras que
+para España no había emoji que no mintiera (🫒 nombra una aceituna, 🏖️ una playa). Manda la
+regla del emoji que la autora fijó en el Tema 1.
+
+⚠️ **Los emoji de las noticias van repartidos entre los dos grupos** (los dos usan símbolos
+del tiempo). Si el clima llevara paisajes y el tiempo, nubes y lluvia, el emoji resolvería
+la ronda sin leer la noticia.
+
+⚠️ **Actividades del cuaderno que NO se gamifican:** la 2 (subrayar afirmaciones sobre la
+"responsabilidad compartida pero diferenciada" — su verbo sería *elegir*, ya usado en el
+Tema 1, y el contenido es de acuerdos, que se queda en el Tema 2), la 5 (dibujar el
+calentamiento global: respuesta abierta) y la 6 (ordenar los tres instrumentos jurídicos:
+verbo ya usado en el Tema 2). La 1 y la 3 están en la R1 y la R3; la 4 alimenta las pistas
+de templado y continental.
+
+## 12.4 Copy del Tema 3
+
+- **Botón 3:** `El clima de nuestro planeta` · descripción: `El clima, sus tipos y su diferencia con el tiempo atmosférico.`
+- **catLabel:** `El clima de nuestro planeta`
+- **Pastilla del HUD (`short`):** `CLIMA`
+
+| R | Enunciado (**QUÉ**, termina en punto) | Bocadillo (**CÓMO**) |
+|:-:|---|---|
+| 1 | Decide de qué habla cada noticia. | Arrastra la noticia<br>a CLIMA o a TIEMPO. |
+| 2 | Descubre de qué clima habla la tarjeta. | Gira la ruleta hasta<br>poner ese clima<br>bajo la flecha. |
+| 3 | Descubre de qué lugar hablan las pistas. | Abre las pistas.<br>Luego toca el lugar. |
+
+Los bocadillos solo nombran lo que se ve en pantalla (CLIMA y TIEMPO son los rótulos de los
+rieles; la flecha y las pistas están dibujadas), como exige la corrección de la autora en la
+R1 del Tema 1.
+
+| R | `emoji` | `a` (enunciado del reporte) |
+|:-:|:-:|---|
+| 1 | 📰 | ¿Cada noticia habla del clima o del tiempo atmosférico? |
+| 2 | 🌡️ | ¿De qué tipo de clima habla la tarjeta? |
+| 3 | 🔎 | ¿De qué lugar hablan las pistas? |
+
+## 12.5 Anti-repetición del Tema 3
+
+| Clave | Elige | Banco | cap | Combinaciones |
+|---|---|:--:|:--:|---|
+| `edinun_j10_cl_r1_v1` | 4 noticias | 12 | 6 | 495 |
+| `edinun_j10_cl_r2_v1` | 1 clima | 6 | 5 | 6 |
+| `edinun_j10_cl_r3_v1` | 1 lugar | 6 | 5 | 6 |
+
+Las **pistas de la R3 no llevan FIFO**: el banco por clima tiene 3 o 4 y guardar recientes
+lo dejaría sin de dónde elegir — se barajan obligando a que entre una `clave`. Lo mismo con
+las 3 opciones acompañantes y con el orden del aro de la R2, que se barajan en cada montaje.
+
+## 12.6 Ilustraciones pendientes
+
+Los emoji son **marcadores de posición**, como en los otros dos temas. Lo que más ganaría:
+
+- **R2** — 6 iconos de clima (120×120 PNG transparente) para el buje del aro… **no**: el
+  buje NO puede mostrar el clima de la respuesta. Irían en la **tarjeta** de la
+  característica, a la izquierda del texto.
+- **R3** — 6 ilustraciones de lugar (apaisadas ~2:1, como las de juego-13 T3) para las
+  cuatro tarjetas de opción.
+- **R1** — ninguna: son noticias, el emoji del tiempo funciona como icono de titular.
+
+Nada bloquea: el tema es jugable y está verificado con emoji.

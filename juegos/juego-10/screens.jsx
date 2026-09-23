@@ -10,43 +10,53 @@ const { useState, useEffect, useRef, useMemo } = React;
 // ─────────────────────────────────────────────────────────────
 // Config de TEMAS (un botón por entrada). Cada tema define su chip y el
 // catLabel que GameScreen/ResultsScreen leen. `enabled:false` = "Próximamente".
-//   · recursos → TEMA 1 "Recursos naturales y los derechos de la Tierra"
+//   · recursos → TEMA 1 "Recursos naturales y derechos de la Tierra"
 //     (Tema 2 del libro, 8 años, 3 rondas). ✅ implementado.
-//   · tema2 / tema3 → ⏳ SIN MATERIAL todavía. En cuanto la autora entregue su texto y
-//     su edad se implementan; `estandar-visual.md` §8 no admite entregar el juego con
-//     botones en "Próximamente" como estado FINAL.
+//   · siglo21 → TEMA 2 "Inicio del siglo XXI" (Tema 1 del libro, que allí se titula
+//     "…: globalización, democracia y unidad nacional"; 11 años, 3 rondas).
+//     ✅ implementado.
+//   · clima → TEMA 3 "El clima de nuestro planeta" (Tema 4 del libro, 12 años,
+//     3 rondas). ✅ implementado.
+// ⚠ La EDAD la fija la autora por tema y puede variar dentro del mismo juego (aquí,
+// 8, 11 y 12): las mecánicas de los temas 2 y 3 son más exigentes a propósito.
 // Gradientes POR POSICIÓN (1º naranja · 2º amarillo · 3º azul), nunca por temática.
 // ─────────────────────────────────────────────────────────────
 const LEVELS_CFG = [
   {
     id: "recursos",
+    // ⚠ El botón va con el nombre CORTO: con el título completo la fila entera crecía a
+    // 134 px de alto y la autora lo cazó ("el botón naranja está muy grande"). El título
+    // completo vive en el catLabel (reporte). Los otros dos temas sí caben enteros.
     label: "Recursos naturales",
     short: "RECURSOS",          // pastilla del HUD (el label completo no cabe)
     grad: "linear-gradient(180deg, #ffc06e, #e4881a)",
     ink: "#3a2608",
     description: "La megadiversidad del Ecuador y sus cuatro regiones.",
-    catLabel: "Recursos naturales y los derechos de la Tierra",
+    catLabel: "Recursos naturales y derechos de la Tierra",
     enabled: true,
   },
   {
-    id: "tema2",
-    label: "Tema 2",
-    short: "TEMA 2",
+    id: "siglo21",
+    label: "Inicio del siglo XXI",
+    short: "SIGLO XXI",
     grad: "linear-gradient(180deg, #ffe97a, #d7b12a)",
     ink: "#3a2608",
-    description: "Muy pronto.",
-    catLabel: "Tema 2",
-    enabled: false,
+    description: "El Ecuador de hoy: el dólar, el clima y la unión con otros países.",
+    catLabel: "Inicio del siglo XXI",
+    enabled: true,
   },
   {
-    id: "tema3",
-    label: "Tema 3",
-    short: "TEMA 3",
+    id: "clima",
+    label: "El clima de nuestro planeta",
+    short: "CLIMA",
     grad: "linear-gradient(180deg, #7ab8ff, #2773d8)",
     ink: "#08264d",
-    description: "Muy pronto.",
-    catLabel: "Tema 3",
-    enabled: false,
+    // ⚠ Nada de descripciones que empiecen como pregunta ("Qué es el clima, en qué se
+    // diferencia…"): la autora las cazó el 2026-09-23 — "suena a pregunta y no aparece
+    // ningún signo de pregunta". Las tres van en afirmativo.
+    description: "El clima, sus tipos y su diferencia con el tiempo atmosférico.",
+    catLabel: "El clima de nuestro planeta",
+    enabled: true,
   },
 ];
 

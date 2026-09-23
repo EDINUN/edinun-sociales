@@ -16,7 +16,7 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 
 | # | Juego | HUD | Responsive | Completo | Contenido | Contador | Resultados |
 |---|-------|:---:|:----------:|:--------:|:---------:|:--------:|:----------:|
-| 10 | Ecuador megadiverso · Tema 1 (recursos naturales) | [x] | [x] | [x] | [ ] | [ ] | [x] |
+| 10 | Ecuador megadiverso · 3 temas (recursos naturales · siglo XXI · clima del planeta) | [x] | [x] | [ ] | [ ] | [ ] | [x] |
 | 13 | Un mundo por descubrir · 3 temas (continentes · Américas · diversidad) | [x] | [x] | [x] | [x] | [ ] | [x] |
 
 ## Notas por juego
@@ -24,11 +24,18 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 > Apunta aquí lo que encuentres (bug, ajuste pendiente, idea) por juego.
 
 **juego-10 "Ecuador megadiverso" (2026-08-12)** — ⚠️ **título PROVISIONAL**, lo puso el
-asistente para poder registrar el juego; falta que lo apruebes.
+asistente para poder registrar el juego; falta que lo apruebes. Con los **tres temas ya
+hechos** el nombre se queda claramente corto: describe solo el Tema 1, y el Tema 3 habla del
+clima del **planeta entero**, no del Ecuador.
 
-- **Tema 1 "Recursos naturales y los derechos de la Tierra"** (Tema 2 del libro, **8 años**)
+- **Tema 1 "Recursos naturales y derechos de la Tierra"** (Tema 2 del libro, **8 años**)
   ✅ **3 rondas** (mapa vivo · ascensor del Ecuador · ficha del descubrimiento), **10 ⭐**
   (4 + 3 + 3). Guía **Yaku**.
+- **Tema 2 "Inicio del siglo XXI"** (Tema 1 del libro, **11 años**) ✅ **3 rondas** (del
+  sucre al dólar · ¿dónde se esconden los gases? · el gráfico vivo), **11 ⭐** (4 + 4 + 3).
+- **Tema 3 "El clima de nuestro planeta"** (Tema 4 del libro, **12 años**) ✅ **3 rondas**
+  (el noticiero · la ruleta de los climas · el lugar misterioso), **10 ⭐** (4 + 3 + 3).
+  ✅ **Con esto el juego queda completo: 3 botones, 3 mini-juegos y nueve verbos distintos.**
 - **Revisión visual de la autora (2026-08-13), 6 correcciones aplicadas:** fichas de la R1
   más chicas (138×70 → 104×62) y zonas menos alargadas (176 → 126); el ✓/✗ y la región
   revelada pasaron **dentro** de la ficha (colgando se montaban sobre la ficha vecina); la
@@ -45,14 +52,72 @@ asistente para poder registrar el juego; falta que lo apruebes.
   de mouse**, partida fallada con revelado en las 3 rondas usando el **respaldo tap**,
   ronda parcial (3 bien + 1 mal) que **suma +3 ⭐ sin quitarlas** y "¡UPS!" sin estrellas,
   6 recargas con 0 repeticiones consecutivas, 0 errores de consola.
-- ⏳ **Temas 2 y 3 en "Próximamente"**: falta su material y su edad. No es un estado final
+
+**Tema 2 (2026-08-14)** — 3 rondas con verbos nuevos: *ordenar arrastrando* · *buscar con
+lupa* · *arrastrar el borde del gráfico*.
+
+- **Revisión tuya del 2026-09-02:** el recuadro de la R2 se pintaba en **dos bloques**
+  (celeste arriba, camel abajo) con una línea dura en medio. Ahora es **un solo degradado
+  continuo**, sin costura, con un tinte distinto por escena.
+
+**Tema 3 (2026-09-02)** — 3 rondas con verbos nuevos: *lanzar la tarjeta* · *girar el aro* ·
+*destapar pistas*. Elegiste **las tres opciones** que se bocetaron para la R1 y se
+repartieron como las tres rondas (concepto → tipos → deducción).
+
+- **Qué dejé fuera y por qué:** los **desastres naturales** con su gráfico y los **tres
+  instrumentos jurídicos** (1992 · 1997 · 2015). El **Tema 2 ya juega el cambio climático**
+  (las causas que calientan el planeta, el Acuerdo de París) y repetirlo haría que los dos
+  botones se sintieran el mismo juego; además, los instrumentos jurídicos solo darían un
+  ejercicio de *ordenar*, que es el verbo de la R1 del Tema 2. **Dímelo si prefieres que
+  entren** y le busco otro verbo.
+- ⚠️ **Un punto que necesita tu visto bueno:** las **12 noticias de la R1 no están copiadas
+  del libro** — el libro solo da un ejemplo. Lo que sí es textual es el **criterio** de la
+  p. 48 (el clima es el promedio de al menos 30 años; el tiempo atmosférico es un momento
+  concreto que cambia en horas), y cada noticia lo aplica con una marca temporal clara
+  ("año tras año" ⇒ clima · "mañana", "ayer" ⇒ tiempo). Es el mismo criterio que usamos en
+  juego-13. Si prefieres solo frases literales del libro, la ronda tendría que cambiar.
+- **Japón** como ejemplo de clima templado (tu actividad 4 también da España e Italia):
+  🗾 es el emoji que **nombra a Japón**, y para España no había ninguno que no mintiera.
+- **Verificado:** format-lint 19/19, qa-visual sin overflow, y un e2e propio del Tema 3 con
+  partida perfecta 3/3 · **10 ⭐** · 100 % (arrastre real de mouse y giro real del aro),
+  partida fallada 0 ⭐ con revelado en las 3 rondas, ronda parcial que **suma +3 ⭐ sin
+  quitarlas**, auditoría de espacios en 5 tamaños de pantalla × 3 rondas × antes/después de
+  verificar (0 solapes, 0 textos cortados) y 8 recargas sin repetir ejercicio.
+- **Revisión tuya del 2026-08-28, 3 cambios aplicados:** la R1 ahora **se arrastra** (el
+  toque sigue de respaldo), los **emojis de la R2 son más grandes** (46 → 58 px el
+  elemento, 28 → 38 el emoji, con la escena y la lupa a escala) y el enunciado de las
+  barras ya **no dice "Estira"** — dice *"Completa cada barra con los países que tiene ese
+  grupo."*
+
+- 📌 **Rechazaste la primera tanda de mecánicas de la R2 entera** (*"muy aburridas"*): las
+  tres eran variantes de **clasificar**. Regla nueva: a los 11 hay que variar el **tipo de
+  interacción** (explorar / manipular un objeto / deducir), no el tema de las tarjetas.
+- ⚠️ **Un dato de tu libro no cuadra consigo mismo** (p. 114): dice que la deuda total son
+  48 129 millones y que los 8 100 del FMI *"equivalen al 33,3 %"*, pero 8 100 de 48 129 es
+  el **17 %**. El 33,3 % solo cuadra sobre la deuda con **organismos multilaterales**. El
+  gráfico se rotula *"La deuda del Ecuador con los organismos"* y usa **solo porcentajes**.
+  **Dime si prefieres la redacción literal del libro** y se cambia en una línea.
+- ⚠️ **La CAN con Chile:** tu libro la da integrada por Bolivia, Ecuador, Colombia, Perú y
+  Chile; Chile salió de la CAN hace décadas. El juego usa **el número de tu libro (5)**.
+- ⏳ **Faltan las ilustraciones**: 9 iconos de hito (120×120) + 3 escenas (920×600) + 12
+  objetos sueltos. Los prompts te los pasé el 2026-08-14; mientras tanto van emoji y el
+  juego es plenamente jugable.
+- ⚠️ **¿Entra el feriado bancario en la línea del tiempo?** Tu libro lo fecha *"finales del
+  siglo XX"*, sin año, y con 1994 (MERCOSUR) en el banco el orden sería ambiguo. Si me
+  confirmas el año, entra.
+- Verificado: e2e con partida perfecta 3/3 · **11 ⭐** · 100 % en las **dos** variantes del
+  gráfico, partida fallada 0 ⭐ con revelado en las 3 rondas, **12 recargas sin repeticiones
+  consecutivas**, y auditoría de espacios en 3 rondas × antes/después de verificar × 5
+  viewports paseando la lupa por los 9 elementos de cada escena.
+
+- ⏳ **Tema 3 en "Próximamente"**: falta su material y su edad. No es un estado final
   válido (`estandar-visual.md` §8) — el juego se entrega con los 3 botones jugables.
-  Sus verbos no pueden repetir arrastrar-al-mapa · tocar-franja · elegir-en-huecos.
+  Su verbo no puede repetir ninguno de los **seis** ya usados.
 - ⏳ **"Contenido" sin marcar a propósito:** falta que revises (a) el **criterio de
-  distractores** de la R3 —el dato correcto siempre sale del libro, pero varios distractores
-  son una negación evidente porque el libro no ofrece alternativa— y (b) la lista de **26
-  especies excluidas** del banco de la R1 por estar repetidas en dos regiones del cuadro de
-  la p. 72.
+  distractores** de la R3 del Tema 1 —el dato correcto siempre sale del libro, pero varios
+  distractores son una negación evidente porque el libro no ofrece alternativa—, (b) la
+  lista de **26 especies excluidas** del banco de la R1 por estar repetidas en dos regiones
+  del cuadro de la p. 72, y (c) los dos avisos del Tema 2 (la deuda y la CAN).
 - ⚠️ **El colchón mecánica↔acciones del panel del mapa (54 px) hay que medirlo aparte.**
   `qa-visual.js` solo escanea `button`, `img` y elementos `position:absolute`; el panel del
   mapa es hijo de un flex y **no lo ve** — su "gap 140" es el de las fichas de la bandeja.
