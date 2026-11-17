@@ -702,3 +702,9 @@ vez de inventarlo. Mandó las dos páginas de desarrollo y la del cuaderno.
   lleve en la canasta, sin esperar a que pase el resto de la cinta. Esto completa lo de la
   cuota: antes había que esperar los ~26 s de cinta aunque ya no quisieras atrapar más.
   Comprobado en `.planning/cierre-r3.js` (corta a mitad con 2 atrapadas y suma 2 ⭐).
+
+### 2026-11-17 — título confirmado
+
+La autora cerró el asunto del nombre: **"Ecuador megadiverso" es definitivo** (*"déjalo
+así, está bien"*), aunque el juego ya cubra cuatro temas que van más allá de la
+megadiversidad. Deja de ser provisional: **no volver a proponer cambios de título.**

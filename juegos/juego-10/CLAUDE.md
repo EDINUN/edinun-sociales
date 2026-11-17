@@ -7,12 +7,9 @@ Home). Guía por defecto **Yaku** — por el **ciclo del elenco** (`memory/orden
 Domi → Yaku → Sisa → Andi según el ordinal del slug; **10 mod 4 = 2 → yaku**), no por
 temática.
 
-> ⚠️ **Título PROVISIONAL: "Ecuador megadiverso".** Lo puso el asistente para poder
-> registrar el juego; **la autora todavía no lo aprobó**. Con los tres temas cerrados ya
-> se queda claramente corto: solo describe el Tema 1 — el Tema 2 es el Ecuador del siglo
-> XXI y el Tema 3 es el clima del **planeta entero**, no del Ecuador. Al definirlo hay que
-> cambiarlo en 4 sitios: hero de `screens.jsx`, `<title>` de **ambos** HTML y el array
-> `GAMES` del landing.
+> ✅ **Título DEFINITIVO: "Ecuador megadiverso".** La autora lo confirmó el 2026-11-17,
+> con los cuatro temas ya cerrados: *"déjalo así, está bien"*. No volver a proponer
+> cambios de título ni marcarlo como provisional.
 
 | Tema | id | Edad | Estado |
 |---|---|:--:|---|
