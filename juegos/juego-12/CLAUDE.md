@@ -1,0 +1,196 @@
+# CLAUDE.md — juego-12 "Estudios Sociales · Libros 6 y 7"
+
+## Project
+
+Carpeta autocontenida del repo `edinun-sociales`. Juego **multi-LIBRO**: el Home tiene
+**dos niveles** (Libro → Tema), como `juego-6`. Guía por defecto **Andi**, por el ciclo
+del elenco (`memory/orden-personajes.md`: 12 mod 4 = 0), no por temática.
+
+> ⚠️ **Título PROVISIONAL: "Estudios Sociales · Libros 6 y 7"**, puesto para poder
+> registrar el juego en el landing. Cuando la autora fije el definitivo hay que cambiarlo
+> en 3 sitios: hero de `screens.jsx`, `<title>` de **ambos** HTML y el array `GAMES` del
+> landing.
+
+### Estructura que fijó la autora
+
+| Libro | Actividades | Estado |
+|---|:--:|---|
+| Libro 6 | 3 | 1 hecha · 2 por definir |
+| Libro 7 | 4 | ⏳ sin material |
+
+| Libro · Tema | id | Edad | Estado |
+|---|---|:--:|---|
+| **6 · 1. Estado ecuatoriano en sus primeros años de vida** (D.C.D. CS.3.1.30 / 31 / 32) | `l6-t1` | **10** | ✅ 3 rondas · 11 ⭐ |
+| 6 · 2 y 3 | — | — | ⏳ falta material |
+| 7 · 1 a 4 | — | — | ⏳ falta material |
+
+⚠ **El Libro 7 no se puede abrir todavía:** su botón sale apagado (patrón "Próximamente"
+del estándar §8) porque no tiene temas. En cuanto llegue el primero, se añade a `LIBROS`
+en `screens.jsx` y el botón se activa solo.
+
+⚠ **El Libro 6 ya tiene un tema jugado en otro juego:** *"La Amazonía, nido de vida
+silvestre"* (Tema 2 del Libro 6) está en `juego-6`. Si cae entre los tres de aquí, avisar
+a la autora antes de duplicarlo.
+
+⚠ **Verbos:** con 7 actividades no caben 21 gestos distintos. La regla —la misma que
+`juego-6`, que también tiene 7— es **tres verbos distintos dentro de cada tema**, y que un
+tema no repita los de su vecino. Entre libros distintos sí se puede reutilizar un gesto
+con otro contenido.
+
+Diseño: `.planning/juego-12-design.md`. Audiencia: `memory/audiencia_por_juego.md`.
+Preferencias del usuario: `USER.md`.
+
+## Running / bundle
+
+HTML estático (React 18 + Babel Standalone desde unpkg). Sin build ni tests. Tras editar
+cualquier `.jsx`, re-empaquetar (concatena los 5 `.jsx` en ambos HTML, idénticos):
+
+```bash
+node .planning/bundle.js
+```
+Invariantes del bundle: ningún `.jsx` con `</script>` literal **ni siquiera en un
+comentario**; reescribe desde `<script type="text/babel">` hasta `</html>`.
+
+## Arquitectura (game-screens.jsx)
+
+`GameScreen` despacha por `app.currentCategory` (el id del tema) y monta **`J12Game`**,
+el orquestador único que comparten todos los temas: recibe el arreglo de rondas por prop
+y saca de él el nº de rondas. Chrome EDINUN estándar: HUD (logo 64 + ⏱ + ⭐), bloque
+**Ronda en `top: 52`** (este juego **no** lleva pastillas de tema: con 7 temas no caben),
+personaje/bocadillo, columna de acciones con `¡VERIFICAR!` vía `verifyRef` + estado
+`busy`, overlay `¡EXCELENTE!/¡UPS!`, modales y reporte imprimible.
+
+### Libro 6 · Tema 1 — `L6T1_ROUNDS` (3 rondas, 3 verbos)
+
+- **R1 `L6T1R1Sello` — DECIDIR con criterio + ¡VERIFICAR!.** Cuatro personas **a la vez**
+  en una rejilla 2×2 (tarjetas de 221 px) y, para cada una, SÍ o NO. Una ronda = UNA
+  jugada: nunca cuatro jugadas seguidas (regla 8).
+  - ⚠ **La LEY está siempre en pantalla** (los cuatro requisitos del Art. 12, en un panel
+    sobre las tarjetas): la ronda se resuelve **leyendo**, no recordando.
+  - **Banco `J12_PERSONAS`: 12 personas.** NO son personajes históricos, son los **tipos
+    sociales que nombra el tema** (terrateniente criollo, jornalero indígena, artesano
+    mestizo, montuvio, aguatero, barrendero, vendedora, clero, militar, comerciante). Sus
+    datos aplican los requisitos del Art. 12 tal como los cita el libro.
+  - ⚠ **El sorteo obliga a que entre al menos un SÍ y un NO**: con cuatro iguales se
+    acertaría sin leer la ley.
+  - El caso de la **mujer que cumple los cuatro requisitos y aun así queda fuera** es el
+    que mejor enseña el tema (la p. 76 dice que se excluía "a las mujeres en general").
+  - ⚠ La franja del **motivo del revelado** está reservada SIEMPRE (`minHeight: 15`), así
+    la tarjeta no crece al verificar y nada salta.
+
+- **R2 `L6T1R2Piramide` — APILAR por jerarquía + ¡VERIFICAR!.** Los cuatro escalones de la
+  pirámide de la p. 74, con anchos crecientes (172 · 250 · 328 · 406). **Un escalón llega
+  ya puesto** como ancla (varía cuál) y se colocan los otros tres ⇒ **+3 ⭐**.
+  - ⚠ **El ancla es lo que da variedad sin inventar contenido**: la pirámide del libro es
+    una sola. Mismo recurso que el artículo de la Constitución de juego-10.
+  - ⚠ **El escalón de abajo NO lleva ilustración de personas**: símbolo sobrio y el nombre
+    textual del grupo. No se dibuja una caricatura de personas esclavizadas.
+  - **Se ARRASTRA**: bandeja → escalón, escalón → otro escalón, y soltar fuera devuelve el
+    grupo a la bandeja. Tocar un escalón lleno lo vacía (todo lo colocado se puede quitar).
+  - ⚠ **El revelado NO cuelga de cada escalón.** Las pastillas "aquí va: …" caían entre dos
+    filas, pisaban el escalón de abajo y rompían la forma de la pirámide. Va en un cartel
+    **"LA PIRÁMIDE VA ASÍ"** donde estaba la bandeja, con ✓ en los acertados y el número de
+    puesto en los demás.
+
+- **R3 `L6T1R3Linea` — ORDENAR intercambiando + ¡VERIFICAR!.** Cuatro hechos de los
+  primeros años de la República, desordenados; se tocan **dos tarjetas para
+  intercambiarlas**. ⭐ +1 por tarjeta en su sitio.
+  - **Se ARRASTRA**: la tarjeta se **levanta y sigue al dedo**, las demás **se apartan**
+    para enseñar el hueco donde va a caer, y al **soltar** se reordena (inserta, no
+    intercambia). El toque de dos tarjetas las intercambia, de respaldo.
+  - ⚠ **Las posiciones de referencia se CONGELAN al empezar el arrastre** (`slots`): las
+    tarjetas se están apartando, así que medirlas en vivo daría un destino que baila.
+  - ⚠ **Al soltar, la tarjeta ATERRIZA**: viaja en 140 ms desde donde la dejó el dedo
+    hasta el centro de su hueco, con `element.animate()` y `fill: "backwards"` (una
+    transición CSS no arranca: React aplica el estado nuevo antes del primer pintado).
+    Sin esto **saltaba** —el dedo casi nunca suelta justo en el centro del hueco— y la
+    autora lo reportó dos veces. Empezar otro arrastre **corta** el vuelo en curso.
+    La transición de `transform` de las demás tarjetas solo vive mientras se arrastra.
+  - ⚠ **Hubo una versión intermedia que se reordenaba EN VIVO** mientras movías el dedo y
+    la autora la corrigió: *"quiero poder arrastrar la tarjeta, no como se baja de lugar
+    sino arrastrar y luego yo colocarla"*. Se siente como que la tarjeta salta sola.
+  - ⚠ **Las tarjetas no muestran el año mientras se juega**: deducir el orden ES el
+    ejercicio. El año aparece al verificar, con el ✓/✗ y, si está mal, el puesto que le
+    tocaba — **sin reordenar la columna**, para que el niño siga viendo su respuesta.
+  - **Banco `J12_HITOS`: 5 hechos**, todos con **año explícito y todos distintos** (1830 ·
+    1834 · 1835 · 1839 · 1843). Si dos compartieran año habría dos ordenaciones correctas.
+    Entran 4 por partida: lo que cambia es **cuál se queda fuera** (FIFO de 1) más el
+    barajado inicial, que nunca arranca ya ordenado.
+  - ⚠ **SUSTITUYE a "El censo de 1830"** (estirar barras de población), que la autora
+    descartó el 2026-11-17: *"la tercera ronda no me agrada… está como muy aburrida"*. Ya
+    se le había avisado de que era la de menos variedad del tema. Las cifras de población
+    (p. 73) quedan libres para otro tema.
+
+### Estrellas
+
+**+1 ⭐ por ELEMENTO resuelto bien**: R1 hasta 4 (personas) · R2 hasta 3 (escalones, el
+cuarto es el ancla) · R3 hasta 4 (tarjetas) → **máximo 11 ⭐**. `onSolve(isCorrect, entry,
+gained)` acepta el 3er parámetro. El `isCorrect` de la ronda = **ronda perfecta**. Fallar
+nunca resta.
+
+### Anti-repetición
+
+FIFO en `localStorage`, una clave por ronda:
+`edinun_j12_l6t1_r1_v1` (4 personas de 12, cap 6) · `edinun_j12_l6t1_r2_v1` (1 ancla de 4,
+**cap 1** — con cap 3 salía una rotación exacta 1-2-3-4, previsible: mismo error que ya se
+cometió en juego-10). `edinun_j12_l6t1_r3_v1` (cuál de los 5 hechos se queda fuera, cap 1).
+⚠ Regla de cap: para un SUBCONJUNTO de K, nunca cap = K.
+
+### Imágenes
+
+**12 ilustraciones cuadradas** `assets/persona-<id>.jpg` — **ya entregadas por la autora
+(2026-11-17)**. Sirven para la R1 **y** para la R2 (la pirámide reutiliza las figuras).
+
+- Llegaron a **1024×1024 (1 181 KB en total)** y se ven a 62 px: reescaladas a **220 px**
+  con calidad 0.86 ⇒ **77 KB en total**, y en pantalla se ven igual. Los originales
+  quedaron fuera del repo (scratchpad de la sesión). Script:
+  `.planning/optimizar-personas.js <carpeta-de-respaldo> [lado]`, que **nunca pisa un
+  respaldo existente** (en juego-15 una segunda pasada se comió los originales).
+- Las figuras son de **cuerpo entero**, así que el recuadro es **VERTICAL (56×72)**, no
+  cuadrado: `objectFit: cover` recorta los lados y la figura ocupa todo el alto, y
+  `objectPosition: center top` hace que, si sobra, se recorte por los pies. La tarjeta
+  mide **132** de alto. (Empezó en 46 px cuadrados y no se distinguía nada.)
+- `J12Retrato` conserva el **emoji del oficio** como respaldo si falta un archivo.
+
+**Textos (regla dura):** el **enunciado** dice **QUÉ** y el **bocadillo** dice **CÓMO**.
+
+## Contrato del shell
+
+- `app.jsx` (shell, NO tocar): enruta `home → character → game → results`.
+- `screens.jsx`: `HomeScreen` de **dos niveles** desde `LIBROS` (un libro sin temas sale
+  apagado), `CharacterScreen` (preselecciona por `LIBRO_CHAR`, Andi en los dos libros),
+  contador de visitas, `CosmosBg`. `start()` fija `currentCategory` (id del tema) y
+  `currentCatLabel` (`"Libro 6 · <tema>"`).
+- `game-screens.jsx`: expone `GameScreen`/`ResultsScreen` en `window`. `markFirstAttempt()`
+  en la 1ª respuesta; `incrementGamesCompleted()` al terminar.
+
+## Contador de visitas
+
+`counter.php` idéntico a los demás; cae a `localStorage` sin PHP. `visits.txt`
+gitignoreado — borrarlo antes de subir a producción.
+
+## QA
+
+```bash
+node juegos/_PLANTILLA/.planning/format-lint.js juego-12   # 15/15 OK
+node juegos/_PLANTILLA/.planning/qa-visual.js  juego-12    # 6 viewports
+node juegos/juego-12/.planning/e2e-l6t1.js                 # partida perfecta y fallada
+node juegos/juego-12/.planning/shot-l6t1.js <carpeta>      # capturas para mirar a ojo
+```
+
+**Verificado el Libro 6 · Tema 1 (2026-11-17):**
+- **Partida perfecta:** 3/3 rondas · **11 ⭐**, con **arrastre real de ratón** en la R3.
+- **Arrastre verificado con ratón** en la R2 (`arrastre-r2.js`, cuatro casos) y en la R3
+  (`arrastre-r3.js`, insertar + respaldo tap + ordenar la línea entera arrastrando).
+- **✓/✗ en las tres rondas**: en la R1 la marca va en **el botón que tocó el niño** (antes
+  se pintaban los dos y no se distinguía cuál había elegido) más un distintivo en la
+  esquina de la tarjeta; en la R2, dentro del escalón; en la R3, junto al año.
+- **Partida fallada:** 0/3 · **0 ⭐**, con revelado en las tres rondas.
+- 0 errores de consola (los 404 de las ilustraciones que faltan están filtrados).
+
+⚠ **Dos trampas del e2e, ya resueltas, para no repetirlas:**
+1. Las fichas de la R2 empiezan por el **emoji**, así que `texto.indexOf(nombre) === 0`
+   nunca casa: hay que usar `>= 0`.
+2. El nombre de la ciudad en la R3 es el **primer `<span>` de la fila**; leer el
+   `textContent` de la fila entera y cortar por espacios da `"Riobamba—"`, porque se pega
+   al valor de la derecha.
