@@ -58,6 +58,17 @@ const LEVELS_CFG = [
     catLabel: "El clima de nuestro planeta",
     enabled: true,
   },
+  {
+    id: "equilibrio",
+    label: "Vivir en equilibrio con la Naturaleza",
+    short: "EQUILIBRIO",          // pastilla del HUD (el label completo no cabe)
+    // 4º = violeta por POSICION (mismo criterio que juego-5, que tambien tiene 4 temas).
+    grad: "linear-gradient(180deg, #b48aff, #6f3fe0)",
+    ink: "#2a0f52",
+    description: "El derecho a un ambiente sano y las formas de vivir en equilibrio.",
+    catLabel: "Vivir en equilibrio con la Naturaleza",
+    enabled: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -269,7 +280,7 @@ function HomeScreen({ app, setApp, go }) {
           {/* Botones de tema (chips) */}
           <div>
             <div className="ed-label" style={{ marginBottom: 8 }}>Elige un tema para jugar</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {LEVELS_CFG.map((lv) => {
                 const active = level === lv.id && lv.enabled;
                 return (

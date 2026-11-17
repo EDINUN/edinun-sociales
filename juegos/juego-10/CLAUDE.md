@@ -19,18 +19,20 @@ temática.
 | **1. Recursos naturales y derechos de la Tierra** (Tema 2 del libro) | `recursos` | **8** | ✅ 3 rondas · 10 ⭐ |
 | **2. Inicio del siglo XXI** (Tema 1 del libro) | `siglo21` | **11** | ✅ 3 rondas · 11 ⭐ |
 | **3. El clima de nuestro planeta** (Tema 4 del libro, D.C.D. CS.4.2.3) | `clima` | **12** | ✅ 3 rondas · 10 ⭐ |
+| **4. Vivir en equilibrio con la Naturaleza** (Tema 6 del libro) | `equilibrio` | **13** | ✅ 3 rondas · 11 ⭐ |
 
-> ✅ **Los 3 temas están completos (2026-09-02), con NUEVE verbos distintos entre ellos.**
+> ✅ **Los 4 temas están completos (2026-11-17), con DOCE verbos distintos entre ellos.**
 > Ya no queda ningún botón en "Próximamente" (`estandar-visual.md` §8).
 >
-> ⚠️ **La edad varía por tema dentro del MISMO juego** (8, 11 y 12). La fija la autora tema
+> ⚠️ **La edad varía por tema dentro del MISMO juego** (8, 11, 12 y 13). La fija la autora tema
 > por tema; no se deduce del juego. Las mecánicas de los temas 2 y 3 son más exigentes a
 > propósito.
 >
-> **Los nueve verbos, para que un tema nuevo no repita ninguno:**
+> **Los doce verbos, para que un tema nuevo no repita ninguno:**
 > arrastrar-al-mapa · tocar-franja · elegir-entre-dos (Tema 1) ·
 > ordenar-arrastrando · buscar-con-lupa · arrastrar-el-borde-del-gráfico (Tema 2) ·
-> lanzar-la-tarjeta · girar-el-aro · destapar-pistas (Tema 3).
+> lanzar-la-tarjeta · girar-el-aro · destapar-pistas (Tema 3) ·
+> armar-un-texto · unir-con-líneas · atrapar-a-contrarreloj (Tema 4).
 
 Diseño: `.planning/juego-10-design.md`. Audiencia registrada en
 `memory/audiencia_por_juego.md`. Preferencias del usuario: `USER.md`.
@@ -266,6 +268,94 @@ dan— y **no vuelve sobre los gases de efecto invernadero**.
   - Al revelar, el lugar correcto muestra **su clima** en una pastilla ("clima templado"):
     es justo el emparejamiento que pide la actividad 3 del cuaderno.
 
+### Tema 4 · Vivir en equilibrio con la Naturaleza — `J10_ROUNDS_EQ` (3 rondas, 3 verbos NUEVOS)
+
+Es el **Tema 6 del libro** (dos páginas de desarrollo + cuaderno), **para 13 años** — la
+edad mayor del juego, fijada por la autora con el pedido explícito de que *"no sea nada
+aburrido"*.
+
+⚠ **Reparto de contenido entre las tres rondas**, para que no se sientan la misma: la R1
+se queda con el **artículo 66 de la Constitución**, la R2 con los **elementos concretos**
+de una vida en equilibrio y la R3 con el **cuadro de las tres opciones de vida**
+(actividad 3 del cuaderno). Las actividades **2 (dibujo) y 4 (propuesta escrita) son de
+respuesta abierta → no se gamifican**, igual que en juego-13 T3.
+
+- **R1 `EqR1Articulo` — ENSAMBLAR un texto + ¡VERIFICAR!.** El artículo 66, numeral 27
+  aparece con **cuatro palabras arrancadas**; se arrastran desde la bandeja (respaldo tap:
+  tocar la palabra y luego el espacio; tocar un espacio lleno devuelve la palabra).
+  - El texto es **literal** de la cita de la p. 78, con el *"Se reconoce y garantiza a
+    todas las personas"* que la encabeza en el libro.
+  - **Variedad:** el artículo es uno solo, así que lo que cambia cada partida son los
+    **4 espacios abiertos de los 6 posibles** (15 combinaciones). Sin esto la ronda sería
+    idéntica en cada recarga.
+  - **Señuelos:** uno por espacio abierto (**8 piezas para 4 espacios**). No son palabras
+    inventadas: salen del distractor de la actividad 1 del cuaderno (*permite* en vez de
+    *reconoce*) o cambian una letra para volver falsa la frase (*económicamente* por
+    *ecológicamente*). ⚠ La primera versión llevaba **3** señuelos y eso **regalaba 1 ⭐**:
+    el cuarto espacio obligaba a poner la palabra correcta. Lo cazó el e2e de la partida
+    fallada, que daba 2 ⭐ en vez de 0.
+  - ⚠ **Cada espacio se dimensiona con `anchoHueco(i)`**, para la palabra más larga que
+    puede contener (la correcta o su señuelo). Con el ancho fijo de 74 px, al revelar,
+    *"contaminación"* se salía del recuadro de *"armonía"*.
+  - ⚠ **La palabra ya colocada se puede volver a arrastrar** (pedido de la autora el
+    2026-11-17): se lleva a otro espacio o, soltándola fuera, vuelve a la bandeja. Tocarla
+    sin moverla la saca y **la deja elegida**, lista para el siguiente espacio. La palabra
+    lleva sus propios manejadores dentro del hueco y **corta el `click` del hueco**, que si
+    no la sacaría dos veces. Comprobado con arrastre real de ratón en `arrastre-eq.js`.
+  - ⚠ **La palabra correcta del revelado va DENTRO del espacio**, en una franja de 13 px
+    que el `paddingBottom` reserva **siempre**. Colgando por debajo (`top: 100%`) se metía
+    en el renglón siguiente. Mismo remedio que la R1 del Tema 1 y la R1 del Tema 3.
+
+- **R2 `EqR2Caminos` — UNIR CON LÍNEAS + ¡VERIFICAR!.** Las tres opciones de vida a la
+  izquierda y tres características a la derecha; se toca una opción y luego su
+  característica, y queda trazada una curva de color. ⭐ +1 por pareja (hasta 3).
+  - Es la **actividad 3 del cuaderno tal cual**, con el gesto que pide el libro
+    ("Relaciona, utilizando líneas"). Las características son textuales, recortadas solo
+    para que quepan en la tarjeta.
+  - **Variedad:** cada opción tiene 4-6 características en el banco y se sortea una por
+    partida, así que el tablero cambia aunque las tres opciones sean siempre las mismas.
+    Sin FIFO: con 4-6 por opción, guardar recientes dejaría el banco sin de dónde elegir
+    (misma decisión que las pistas de la R3 del Tema 3).
+  - Patrón calcado de `T2R3SalaDatos` de juego-13 (y este de `PR3Empareja` de juego-6):
+    anclas por `offsetLeft/Top` + curvas SVG en el hueco entre columnas, sin números de
+    pareja. ⚠ Las anclas se **recalculan al verificar**, porque ahí las tarjetas de la
+    derecha crecen con el "va con …".
+  - Tocar una característica ya unida **deshace** esa línea.
+  - ⚠ **SUSTITUYE a "El terreno"** (4 fichas a 4 espacios con barra de equilibrio), que la
+    autora descartó el 2026-11-17: *"esta mecánica también está parecida a la de
+    arrastrar"*. Tenía razón — coger una ficha y soltarla en un cajón es lo que ya hace la
+    R1 del Tema 1, y lo único distinto era la barra, que es decorado. **Las fichas no se
+    perdieron:** son las que ahora pasan por la cinta de la R3.
+
+- **R3 `EqR3Bodega` — ATRAPAR a contrarreloj, con ¡VERIFICAR!.** Por una cinta de dos
+  carriles pasan **ocho prácticas** y hay que tocar al vuelo las cuatro que cuidan la
+  Naturaleza.
+  - **Tocar una mala marca ✗ pero NO resta** (invariante EDINUN). Al terminar **revela las
+    buenas que se escaparon**.
+  - ⚠ **Lleva ¡VERIFICAR! aunque se autovalide** (pedido de la autora el 2026-11-17:
+    *"aquí debe aparecer el botón verificar sin la necesidad de que termine la
+    actividad"*). Cierra la ronda con lo que lleve en la canasta, sin esperar a que pase
+    el resto de la cinta; las ⭐ son las de lo atrapado hasta ese momento. Comprobado en
+    `.planning/cierre-r3.js`, que corta a mitad de cinta con 2 atrapadas.
+  - ⚠ **PRIMERA VERSIÓN DESCARTADA (2026-11-17):** pasaban las características de la
+    actividad 3 y un cartel decía de qué opción de vida llenar la canasta. La autora,
+    jugando: *"esta actividad no está tan claro sobre lo que debo hacer"*. Diagnóstico: el
+    cartel nombraba una opción pero **nada decía qué hacer con ella**, y acertar exigía
+    recordar el cuadro del cuaderno — lo difícil acababa siendo la memoria, no el juego.
+    Ahora pasan prácticas concretas y se decide **mirando**; el enunciado nombra el
+    criterio.
+  - ⚠ **El movimiento lo anima CSS** (`@keyframes j10eq-cinta`), no un `setInterval`: con
+    un temporizador de JS la cinta se ve a tirones (lección de la R3 del Tema 3 de
+    juego-13).
+  - ⚠ **`tocados` se lleva también en un `ref`**: el `setTimeout` que cierra la ronda no
+    ve el estado nuevo y cerraba con la canasta vacía.
+  - ⚠ **El marcador NO lleva cuota.** Decía "🧺 2 / 4" y la autora lo leyó como una
+    obligación: *"me obligas a seleccionar las 4 cosas en la canasta pero no debería ser
+    así"*. Ahora cuenta lo que lleva y nada más; el criterio está en el enunciado y cada
+    acierto suma por su cuenta. La ronda se cierra sola cuando **ya no queda nada que
+    atrapar** (cogió todas las buenas o tocó las ocho), nunca por completar un cupo.
+  - Ritmo: ficha cada **2,3 s**, cruce de **7,6 s** ⇒ ~26 s.
+
 ### Estrellas (distinto del default)
 
 **+1 ⭐ por ELEMENTO resuelto bien.**
@@ -276,6 +366,7 @@ dan— y **no vuelve sobre los gases de efecto invernadero**.
   tema es su propia partida.
 - **Tema 3:** R1 hasta 4 (noticias) · **R2 y R3 dan +3 de una vez** (ambas se resuelven con
   una sola decisión) → **máximo 10 ⭐**.
+- **Tema 4:** 4 + 3 + 4 → **máximo 11 ⭐**.
 
 `onSolve(isCorrect, entry, gained)` acepta el 3er parámetro. El `isCorrect` de la ronda
 (dot del HUD y reporte) = **ronda perfecta**. Fallar nunca resta.
@@ -381,6 +472,10 @@ de 6, cap 5) · `edinun_j10_cl_r3_v1` (1 lugar de 6, cap 5). Las **pistas de la 
 llevan FIFO**: el banco por clima tiene 3 o 4 y guardar recientes lo dejaría sin de dónde
 elegir — se barajan obligando a que entre una `clave`. Lo mismo con las 3 opciones
 acompañantes y con el orden del aro de la R2, que se barajan en cada montaje.
+Tema 4: `edinun_j10_eq_r1_v1` (4 espacios de 6, cap 1) · `edinun_j10_eq_r3b_v1`
+(4 prácticas buenas de 9, cap 4) · `edinun_j10_eq_r3m_v1` (4 malas de 6, cap 1). La **R2
+no lleva FIFO**: cada opción tiene 4-6 características y guardar recientes dejaría el
+banco sin de dónde elegir; se barajan en cada montaje y nunca sale ya resuelta.
 `j10PickIdx` devuelve índices **sin registrarlos** y `j10Commit` los registra. ⚠ Regla de
 cap: para un SUBCONJUNTO de K, nunca cap = K (partiría el banco en grupos fijos que
 alternan idéntico cada recarga).
@@ -389,13 +484,22 @@ alternan idéntico cada recarga).
 va a generar **9 iconos de hito (120×120)** y **3 escenas + 12 objetos** para el Tema 2;
 el código los espera en `assets/` con el emoji de respaldo (ver design-doc §11.5).
 
+**Espacios verticales del Tema 4 (medidos con `.planning/medir-eq.js`):** el bloque de la
+mecánica va centrado en lo que queda, así que lo único que se fija es el `paddingTop` de
+la ronda. Con 58 quedaban **29 px sobre el enunciado y 63 bajo él** y la autora lo cazó
+(*"abajo del enunciado hay más espacio que arriba"*). Con **76** quedan 47 arriba y 48-54
+abajo en las tres rondas. Las tarjetas de la R2 subieron de 62 a **76 px** de alto en la
+misma pasada: era la ronda con más aire suelto (84 px) y ahora reparte como las otras.
+
 **Textos (regla dura):** el **enunciado** dice **QUÉ** hacer y el **bocadillo** del guía
 dice **CÓMO**. Ver `memory/aprendizajes-de-diseno.md` §11.
 
 ## Contrato del shell
 
 - `app.jsx` (shell, NO tocar): enruta `home → character → game → results`.
-- `screens.jsx`: `HomeScreen` (3 botones desde **`LEVELS_CFG`**, grid `1fr 1fr 1fr` gap 10,
+- `screens.jsx`: `HomeScreen` (4 botones desde **`LEVELS_CFG`**, grid `1fr 1fr` gap 10 —
+  2×2, como juego-5, que también tiene 4 temas; con `1fr 1fr 1fr` el cuarto quedaba solo
+  en una fila—,
   gradientes **por posición**), `CharacterScreen` (preselecciona **Yaku**), contador de
   visitas, `CosmosBg`. `choose()` fija `currentCategory` / `currentCatLabel`.
 - `game-screens.jsx`: expone `GameScreen`/`ResultsScreen` en `window`. `markFirstAttempt()`
@@ -451,6 +555,29 @@ nuestro planeta" y juega sus 3 rondas:
 - **Anti-repetición: 8 recargas jugando la partida entera** → 0 repeticiones consecutivas
   en las 3 rondas (8 combinaciones distintas de noticias, 6 climas, 7 juegos de pistas) y
   6 juegos de opciones distintos en la R3.
+
+**Verificado el Tema 4 (2026-11-17)** con tres scripts propios en `.planning/`
+(`e2e-equilibrio.js`, `espacios-equilibrio.js`, `variedad-equilibrio.js`; `shot-eq.js`
+saca capturas para mirar a ojo):
+- **Partida perfecta:** 3/3 rondas · **11 ⭐**. **Partida fallada:** 0/3 · **0 ⭐**, con
+  revelado correcto en las tres rondas. 0 errores de consola.
+- **Auditoría de espacios: 5 viewports × 3 rondas × antes/después de verificar** — 8-12
+  elementos medidos por toma, 0 fuera del lienzo, 0 invasiones de la columna de acciones,
+  0 textos recortados, 0 solapes. Colchón mecánica ↔ acciones **80-128 px**.
+- **Anti-repetición: 8 recargas seguidas** en el mismo perfil → 0 repeticiones
+  consecutivas (7/8 combinaciones de espacios en la R1, 7/8 juegos de características en
+  la R2, 8/8 cintas distintas en la R3).
+
+⚠ **El detector de espacios descarta a propósito dos cosas**, documentadas en el script:
+un `<span>` dentro de un `<button>` (siempre se solapa con su padre) y las fichas de la
+cinta de la R3, que salen del carril por diseño pero el contenedor **recorta**
+(`overflow: hidden`) — se miden contra ese recorte.
+⚠ **Para fallar la R2 a propósito hay que ROTAR las parejas**, no elegir "una cualquiera
+que no sea": una característica solo admite un dueño, así que repetir destino deja una
+opción sin unir y ¡VERIFICAR! se queda inerte (la ronda exige las tres hechas).
+⚠ **Para tocar una ficha en movimiento desde Playwright hay que usar
+`dispatchEvent("click")`**: `click()` espera a que el elemento esté quieto y agota el
+tiempo sin tocar nada.
 
 ⚠ `qa-visual.js` **solo recorre el tema por defecto** (el 1): los temas 2 y 3 hay que
 probarlos aparte seleccionándolos en el Home (como en juego-13).

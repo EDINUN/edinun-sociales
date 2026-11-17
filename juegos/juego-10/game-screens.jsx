@@ -1859,6 +1859,652 @@ function R3Misterio({ onSolve, verifyRef }) {
   );
 }
 
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ TEMA 4 · "Vivir en equilibrio con la Naturaleza" — es el TEMA 6 del libro  ║
+// ║ (dos páginas de desarrollo + cuaderno).                                    ║
+// ║ Edad objetivo: 13 años (la fija la autora), la mayor del juego.            ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 verbos NUEVOS — el juego queda con DOCE verbos distintos:      ║
+// ║   R1 "El artículo mutilado" — ARMAR un texto con palabras sueltas          ║
+// ║   R2 "Tres caminos"         — UNIR CON LÍNEAS (actividad 3 del cuaderno)   ║
+// ║   R3 "La bodega"            — ATRAPAR a contrarreloj                       ║
+// ║                                                                            ║
+// ║ ⭐ 4 + 3 + 4 = **11 máximo**.                                               ║
+// ║                                                                            ║
+// ║ ⚠ REPARTO DE CONTENIDO: R1 se queda con el **artículo 66**, R2 con el      ║
+// ║ **cuadro de las tres opciones de vida** (actividad 3) y R3 con las         ║
+// ║ **prácticas concretas** que cuidan o dañan la Naturaleza.                  ║
+// ║                                                                            ║
+// ║ ⚠ Las actividades 2 (dibujo) y 4 (propuesta escrita) del cuaderno son de   ║
+// ║ RESPUESTA ABIERTA → no se gamifican, igual que en juego-13 T3.             ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+// ══════════════════════════════════════════════════════════════════
+// R1 · "El artículo mutilado" — ENSAMBLAR un texto (verbo nuevo).
+// El artículo 66, numeral 27 sale con cuatro palabras arrancadas y hay que devolverlas
+// arrastrándolas (respaldo: tocar la palabra y luego el espacio). ¡VERIFICAR! valida las
+// cuatro de una vez — una ronda = UNA jugada.
+//
+// ⚠ El texto es LITERAL de la cita de la p. 78: "El derecho a vivir en un ambiente sano,
+// ecológicamente equilibrado, libre de contaminación y en armonía con la naturaleza",
+// con el "Se reconoce y garantiza a todas las personas" que lo encabeza en el libro.
+//
+// ⚠ VARIEDAD: el artículo es uno solo, así que lo que cambia en cada partida son los
+// CUATRO espacios abiertos de los SEIS posibles (15 combinaciones). Sin esto la ronda
+// sería idéntica en cada recarga.
+//
+// ⚠ Los señuelos NO son palabras inventadas: salen de los distractores de la actividad 1
+// del cuaderno ("permite" en vez de "reconoce", la opción que habla de una posibilidad de
+// escoger en vez de un derecho reconocido y garantizado) o son el cambio de UNA letra que
+// vuelve falsa la frase ("económicamente" por "ecológicamente"). Va UN señuelo por espacio
+// abierto (8 piezas para 4 espacios): así sobran piezas, la ronda no se resuelve por
+// descarte y —a diferencia de la primera versión, con 3 señuelos— quien se equivoca en
+// todo puede sacar 0, sin un acierto regalado por falta de piezas falsas.
+// ══════════════════════════════════════════════════════════════════
+const J10_EQ_ART = [
+  { t: "Se " },
+  { k: "reconoce", no: "permite" },
+  { t: " y " },
+  { k: "garantiza", no: "sugiere" },
+  { t: " a todas las personas el derecho a vivir en un ambiente " },
+  { k: "sano", no: "productivo" },
+  { t: ", " },
+  { k: "ecológicamente", no: "económicamente" },
+  { t: " equilibrado, libre de " },
+  { k: "contaminación", no: "impuestos" },
+  { t: " y en " },
+  { k: "armonía", no: "competencia" },
+  { t: " con la naturaleza." },
+];
+
+const J10_EQ_R1_KEY = "edinun_j10_eq_r1_v1";
+function j10EqR1Build() {
+  const huecos = J10_EQ_ART.map((p, i) => (p.k ? i : -1)).filter((i) => i >= 0);
+  // 4 de 6 ⇒ cap < pool−k = 2 ⇒ cap 1 (si fuera 2 el banco se partiría en grupos fijos).
+  const idx = j10PickIdx(huecos, 4, J10_EQ_R1_KEY);
+  j10Commit(J10_EQ_R1_KEY, idx.slice(0, 1), 1);
+  const abiertos = idx.map((n) => huecos[n]).sort((a, b) => a - b);
+  const buenas = abiertos.map((i) => ({ w: J10_EQ_ART[i].k, ok: true }));
+  const falsas = abiertos.map((i) => ({ w: J10_EQ_ART[i].no, ok: false }));
+  return { abiertos, piezas: j10Shuffle(buenas.concat(falsas)).map((p, n) => ({ id: "p" + n, w: p.w })) };
+}
+
+function EqR1Articulo({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10EqR1Build());
+  const [puesto, setPuesto] = useStateG({});     // indice del hueco -> id de pieza
+  const [sel, setSel] = useStateG(null);         // respaldo tap: pieza seleccionada
+  const [verified, setVerified] = useStateG(false);
+  const [drag, setDrag] = useStateG(null);
+  const rootRef = useRefG(null);
+  const huecoRefs = useRefG({});
+  const dragInfo = useRefG(null);
+
+  const usado = {};
+  Object.keys(puesto).forEach((h) => { usado[puesto[h]] = true; });
+  const libres = b.piezas.filter((p) => !usado[p.id]);
+  const completo = b.abiertos.every((i) => puesto[i] !== undefined);
+  function palabra(pid) { const p = b.piezas.find((x) => x.id === pid); return p ? p.w : ""; }
+
+  function poner(pid, hueco) {
+    setSel(null);
+    setPuesto((s) => {
+      const n = {};
+      Object.keys(s).forEach((h) => { if (s[h] !== pid) n[h] = s[h]; });
+      if (hueco !== null && hueco !== undefined) n[hueco] = pid;
+      return n;
+    });
+  }
+  function sacar(hueco) { if (verified) return; setPuesto((s) => { const n = Object.assign({}, s); delete n[hueco]; return n; }); }
+
+  function hitHueco(x, y) {
+    for (const i of b.abiertos) {
+      const el = huecoRefs.current[i]; if (!el) continue;
+      const rc = el.getBoundingClientRect(), pad = 14;
+      if (x >= rc.left - pad && x <= rc.right + pad && y >= rc.top - pad && y <= rc.bottom + pad) return i;
+    }
+    return null;
+  }
+  function onDown(e, pid) {
+    if (verified) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    const S = rootRef.current ? (rootRef.current.getBoundingClientRect().width / 470) || 1 : 1;
+    dragInfo.current = { pid, x0: e.clientX, y0: e.clientY, scale: S };
+    setDrag({ pid, dx: 0, dy: 0, moved: false, over: null });
+  }
+  function onMove(e) {
+    const di = dragInfo.current; if (!di) return;
+    const sdx = e.clientX - di.x0, sdy = e.clientY - di.y0, moved = Math.hypot(sdx, sdy) > 6;
+    setDrag({ pid: di.pid, dx: sdx / di.scale, dy: sdy / di.scale, moved, over: moved ? hitHueco(e.clientX, e.clientY) : null });
+  }
+  function onUp(e) {
+    const di = dragInfo.current; if (!di) return;
+    const moved = Math.hypot(e.clientX - di.x0, e.clientY - di.y0) > 6, pid = di.pid;
+    dragInfo.current = null; setDrag(null);
+    if (verified) return;
+    // Respaldo tap. Si la palabra ya estaba puesta, el toque la SACA y la deja elegida,
+    // lista para el siguiente espacio; si estaba en la bandeja, solo la elige.
+    if (!moved) {
+      const estaba = Object.keys(puesto).find((h) => puesto[h] === pid);
+      if (estaba !== undefined) { poner(pid, null); setSel(pid); return; }
+      setSel((s) => (s === pid ? null : pid)); return;
+    }
+    // Soltar sobre un espacio la coloca ahí (venga de la bandeja o de otro espacio);
+    // soltarla fuera la devuelve a la bandeja.
+    poner(pid, hitHueco(e.clientX, e.clientY));
+  }
+  function endDrag() { dragInfo.current = null; setDrag(null); }
+  function tapHueco(i) {
+    if (verified) return;
+    if (sel) { poner(sel, i); return; }
+    if (puesto[i] !== undefined) sacar(i);
+  }
+
+  function verificar() {
+    if (verified || !completo) return;
+    setVerified(true);
+    const aciertos = b.abiertos.filter((i) => palabra(puesto[i]) === J10_EQ_ART[i].k).length;
+    onSolve(aciertos === b.abiertos.length, {
+      emoji: "📜", a: "Artículo 66, numeral 27 de la Constitución",
+      userAnswer: b.abiertos.map((i) => palabra(puesto[i])).join(" · "),
+      correctAnswer: b.abiertos.map((i) => J10_EQ_ART[i].k).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // Hueco dentro del texto. Antes de verificar NO hay juicio: la palabra puesta va en
+  // crema. Al verificar, la correcta se escribe SIEMPRE debajo cuando el niño falló, para
+  // que el revelado enseñe sin borrar lo que eligió.
+  // ⚠ Cada espacio se dimensiona para la palabra MÁS LARGA que puede contener —la
+  // correcta o su señuelo—, porque al verificar la correcta se escribe dentro del propio
+  // espacio. Con un ancho fijo de 74, "contaminación" se salía del recuadro de "armonía".
+  function anchoHueco(i) {
+    const p = J10_EQ_ART[i];
+    return Math.max(58, Math.ceil(Math.max(p.k.length, p.no.length) * 7.0));
+  }
+  function hueco(i) {
+    const pid = puesto[i], w = pid !== undefined ? palabra(pid) : null;
+    const ok = verified && w === J10_EQ_ART[i].k;
+    const over = drag && drag.over === i && !verified;
+    let border = "#b99a52", bg = "rgba(255,255,255,0.5)";
+    if (w) { border = "#d9a441"; bg = "linear-gradient(180deg,#fffdf6,#f6ecd2)"; }
+    if (over) { border = "#4fd8ff"; bg = "rgba(205,238,255,0.85)"; }
+    if (verified) {
+      if (ok) { border = "#2ecc8f"; bg = "linear-gradient(180deg,rgba(72,224,154,0.95),rgba(26,143,95,0.92))"; }
+      else { border = "#ff6b6b"; bg = "linear-gradient(180deg,rgba(255,139,139,0.92),rgba(178,47,47,0.9))"; }
+    }
+    return (
+      <span key={"h" + i} ref={(el) => { huecoRefs.current[i] = el; }} data-hueco="1" onClick={() => tapHueco(i)}
+        style={{ position: "relative", display: "inline-block", verticalAlign: "baseline", minWidth: anchoHueco(i), margin: "0 2px", padding: "0 6px", borderRadius: 8, border: `2px ${w ? "solid" : "dashed"} ${border}`, background: bg, color: verified && !ok ? "#fff" : "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, textAlign: "center", cursor: verified ? "default" : "pointer", boxShadow: over ? "0 0 14px rgba(79,216,255,0.6)" : "none", transition: "all 0.12s ease" }}>
+        {/* ⚠ La palabra YA COLOCADA se puede volver a arrastrar (pedido de la autora el
+            2026-11-17): se lleva a otro espacio o, soltándola fuera, vuelve a la bandeja.
+            Tocarla sin moverla la saca y la deja elegida, lista para el siguiente espacio.
+            Por eso lleva sus propios manejadores y corta el `click` del hueco, que si no
+            la sacaría dos veces. */}
+        {w ? (
+          <span onPointerDown={verified ? undefined : ((e) => { e.stopPropagation(); onDown(e, pid); })}
+            onPointerMove={verified ? undefined : onMove} onPointerUp={verified ? undefined : onUp} onPointerCancel={endDrag}
+            onClick={(e) => e.stopPropagation()}
+            style={{ position: "relative", display: "inline-block", touchAction: "none", cursor: verified ? "default" : "grab", zIndex: drag && drag.pid === pid ? 60 : 1, transform: drag && drag.pid === pid ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.06)` : "none", textShadow: drag && drag.pid === pid ? "0 2px 8px rgba(0,0,0,0.45)" : "none" }}>
+            {w}
+          </span>
+        ) : " "}
+      </span>
+    );
+  }
+
+  return (
+    <div ref={rootRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 76 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Al artículo le faltan cuatro palabras.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 36, minHeight: 0, width: "100%" }}>
+        <div style={{ width: 452, boxSizing: "border-box", background: "linear-gradient(180deg, rgba(255,253,246,0.97), rgba(240,232,214,0.94))", border: "3px solid #f2c260", borderRadius: 16, padding: "10px 16px 13px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", flexShrink: 0 }}>
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontSize: 9.5, letterSpacing: "0.07em", textTransform: "uppercase", color: "#7a5c1e", borderBottom: "2px solid rgba(224,167,44,0.55)", paddingBottom: 6, marginBottom: 9 }}>Constitución del Ecuador, 2008 · Art. 66, numeral 27</div>
+          {/* ⚠ El artículo ocupa 3 o 4 renglones según qué palabras toquen, así que el
+              reparto vertical varía un poco entre partidas. Se probó fijarle el alto al
+              caso de 4 y es peor: con el artículo siempre alto, el bloque se come el aire
+              y quedan 12 px arriba y abajo.
+              ⚠ NADA de `display: flex` aquí: convierte cada trozo de texto en un ítem y
+              se come los espacios entre palabras ("libre decontaminación"). */}
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontSize: 14.5, lineHeight: 1.85, color: "#3a2608" }}>
+            {J10_EQ_ART.map((p, i) => {
+              if (!p.k) return <span key={"t" + i}>{p.t}</span>;
+              if (b.abiertos.indexOf(i) === -1) return <span key={"t" + i} style={{ fontWeight: 800 }}>{p.k}</span>;
+              return hueco(i);
+            })}
+          </div>
+        </div>
+        {/* ⚠ Al verificar, las palabras correctas van en un CARTEL en el sitio que ocupaba
+            la bandeja, no dentro de cada espacio: reservar una franja bajo cada hueco los
+            convertía en cuadros altos y la autora los vio "muy grandes". Las piezas que
+            sobran ya no sirven, así que el cartel las reemplaza y nada se mueve. */}
+        {verified ? (
+          <div style={{ width: 452, minHeight: 72, boxSizing: "border-box", borderRadius: 14, border: "2.5px solid #f2c260", background: "linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.3))", padding: "8px 12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0 }}>
+            <span className="ed-label" style={{ color: "#fce9a8", fontSize: 10.5 }}>Iban así</span>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center" }}>
+              {b.abiertos.map((i) => {
+                const acerto = palabra(puesto[i]) === J10_EQ_ART[i].k;
+                return (
+                  <span key={"c" + i} style={{ display: "inline-flex", alignItems: "center", gap: 5, borderRadius: 999, border: "2px solid " + (acerto ? "#2ecc8f" : "#f2c260"), background: acerto ? "rgba(46,204,143,0.22)" : "linear-gradient(180deg,#ffe6a1,#f1c153)", color: acerto ? "#eafff5" : "#5a3d0a", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, padding: "2px 10px" }}>
+                    {acerto && <span style={{ fontSize: 10, fontWeight: 900 }}>✓</span>}
+                    {J10_EQ_ART[i].k}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", width: 452, minHeight: 72, alignContent: "flex-start", flexShrink: 0 }}>
+          {libres.map((p) => {
+            const dragging = drag && drag.pid === p.id, elegida = sel === p.id;
+            return (
+              <button key={p.id} onPointerDown={(e) => onDown(e, p.id)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={endDrag} disabled={verified}
+                style={{ padding: "7px 13px", borderRadius: 11, border: `2.5px solid ${dragging || elegida ? "#4fd8ff" : "#d9c48a"}`, background: elegida ? "linear-gradient(180deg,#eaf9ff,#cdeeff)" : "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, cursor: verified ? "default" : "grab", touchAction: "none", zIndex: dragging ? 60 : 1, transform: dragging ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.06)` : (elegida ? "translateY(-2px)" : "none"), boxShadow: dragging || elegida ? "0 0 18px rgba(79,216,255,0.6)" : "inset 0 1px 0 rgba(255,255,255,0.75), 0 4px 10px rgba(0,0,0,0.28)", transition: dragging ? "none" : "transform 0.12s ease" }}>
+                {p.w}
+              </button>
+            );
+          })}
+          {libres.length === 0 && (
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.5)", alignSelf: "center" }}>Ya usaste todas. Toca ¡VERIFICAR!</div>
+          )}
+        </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BANCO DE PRÁCTICAS — lo usa la cinta de la R3. Nació para "El terreno" (la R2 que la
+// autora descartó por parecerse a arrastrar) y se conservó entero al cambiarla.
+//
+// ⚠ Las razones son textuales del tema; las prácticas son la APLICACIÓN concreta de esas
+// frases, porque el libro describe prácticas, no objetos. Las malas son negaciones
+// evidentes del derecho citado —"libre de contaminación", "en armonía con la naturaleza",
+// "abonos NO químicos"—, nunca una práctica discutible (misma regla que dejó al ganado
+// fuera de la R2 del Tema 2).
+// ══════════════════════════════════════════════════════════════════
+const J10_EQ_BUENAS = [
+  { id: "huerto", e: "🌱", t: "Huerto de productos orgánicos", r: "La permacultura cultiva productos orgánicos." },
+  { id: "abono", e: "🍂", t: "Abono hecho con restos de la cosecha", r: "Se crean abonos y fertilizantes no químicos." },
+  { id: "sol", e: "☀️", t: "Energía del sol para la casa", r: "La energía se obtiene de fuentes naturales." },
+  { id: "casa", e: "🏡", t: "Vivienda que aprovecha el entorno", r: "Se construyen viviendas que aprovechan el entorno." },
+  { id: "semillas", e: "🌾", t: "Semillas guardadas de la última siembra", r: "Es una práctica ancestral de las poblaciones campesinas." },
+  { id: "canasta", e: "🧺", t: "Canasta para intercambiar con los vecinos", r: "Los proyectos agroecológicos son economías solidarias." },
+  { id: "macetas", e: "🪴", t: "Macetas con perejil, cilantro y romero", r: "Se siembra en el espacio al que puedas acceder." },
+  { id: "saberes", e: "🤝", t: "Un sitio para intercambiar conocimientos", r: "Los proyectos ofrecen integración e intercambio de conocimientos." },
+  { id: "lluvia", e: "💧", t: "Recoger el agua de lluvia para regar", r: "Se aprovechan las características naturales del espacio." },
+];
+const J10_EQ_MALAS = [
+  { id: "quimico", e: "🧪", t: "Fertilizante químico para que crezca rápido", r: "En equilibrio los abonos y fertilizantes son no químicos." },
+  { id: "quema", e: "🔥", t: "Quemar la basura en el terreno", r: "El derecho es a un ambiente libre de contaminación." },
+  { id: "desechos", e: "🛢️", t: "Botar los desechos en la quebrada", r: "El derecho es a un ambiente libre de contaminación." },
+  { id: "tala", e: "🪓", t: "Talar los árboles que dan sombra", r: "Vivir en equilibrio es estar en armonía con la naturaleza." },
+  { id: "diesel", e: "🏭", t: "Un generador a diésel para la bomba", r: "La energía se obtiene de fuentes naturales." },
+  { id: "plaga", e: "🧯", t: "Fumigar con plaguicida toda la huerta", r: "Los productos se cultivan de forma orgánica." },
+];
+
+
+// ══════════════════════════════════════════════════════════════════
+// R2 · "Tres caminos" — UNIR CON LÍNEAS (verbo nuevo en juego-10).
+// Las tres opciones de vida a la izquierda y tres características a la derecha; se toca
+// una opción y luego su característica, y queda trazada una curva de color. ¡VERIFICAR!
+// valida las tres de una vez ⇒ **+1 ⭐ por pareja, hasta 3**.
+//
+// ⚠ Es la **actividad 3 del cuaderno tal cual**, con el mismo gesto que pide el libro
+// ("Relaciona, utilizando líneas..."). Las características son textuales, recortadas solo
+// para que quepan en la tarjeta.
+//
+// ⚠ SUSTITUYE a "El terreno" (4 fichas a 4 espacios), que la autora descartó el
+// 2026-11-17: *"esta mecánica también está parecida a la de arrastrar"*. Tenía razón —
+// coger una ficha y soltarla en un cajón es lo que ya hace la R1 del Tema 1; lo único
+// distinto era la barra de equilibrio, que es decorado, no otra acción. Las fichas de
+// aquel terreno **no se perdieron**: son las que ahora pasan por la cinta de la R3.
+//
+// ⚠ VARIEDAD: cada opción tiene 4-6 características en el banco y se sortea una por
+// partida, así que el tablero cambia aunque las tres opciones sean siempre las mismas
+// (son las tres del libro).
+//
+// ⚠ Patrón calcado de `T2R3SalaDatos` de juego-13 (que a su vez viene de `PR3Empareja` de
+// juego-6): anclas por `offsetLeft/Top` + curvas SVG en el hueco entre columnas, sin
+// números de pareja. Las anclas se recalculan **al verificar**, porque ahí las tarjetas de
+// la derecha crecen con el "va con …" y las líneas quedarían descolocadas.
+// ══════════════════════════════════════════════════════════════════
+const J10_EQ_PAIR_COLORS = [
+  { border: "#e0a72c", dot: "#e0a72c" },
+  { border: "#4f8fef", dot: "#4f8fef" },
+  { border: "#9b7be8", dot: "#9b7be8" },
+];
+
+const J10_EQ_R2_KEY = "edinun_j10_eq_r2_v1";
+function j10EqR2Build() {
+  // Una característica por opción. Sin FIFO: el banco de cada opción tiene 4-6 y guardar
+  // recientes lo dejaría sin de dónde elegir; se baraja en cada montaje (misma decisión
+  // que las pistas de la R3 del Tema 3).
+  const izq = J10_EQ_OPCIONES.map((o, n) => ({ id: n, t: o.n, e: o.e }));
+  const textos = J10_EQ_OPCIONES.map((o) => j10Shuffle(o.rasgos)[0]);
+  let der = j10Shuffle(textos.map((t, n) => ({ id: n, t })));
+  let guard = 0;
+  // Nunca sale ya resuelto: se ganaría sin jugar.
+  while (der.every((d, n) => d.id === n) && guard++ < 20) der = j10Shuffle(der);
+  return { izq, der };
+}
+
+function EqR2Caminos({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10EqR2Build());
+  const [sel, setSel] = useStateG(null);        // opción elegida (columna izquierda)
+  const [pairs, setPairs] = useStateG({});      // izqId -> derId
+  const [verified, setVerified] = useStateG(false);
+  const izqRefs = useRefG([]), derRefs = useRefG([]);
+  const [anchors, setAnchors] = useStateG(null);
+  const completas = b.izq.every((x) => pairs[x.id] !== undefined);
+
+  useEffectG(() => {
+    const iz = izqRefs.current.map((el) => (el ? { x: el.offsetLeft + el.offsetWidth, y: el.offsetTop + el.offsetHeight / 2 } : null));
+    const de = derRefs.current.map((el) => (el ? { x: el.offsetLeft, y: el.offsetTop + el.offsetHeight / 2 } : null));
+    setAnchors({ iz, de });
+  }, [verified]);
+
+  function tapIzq(i) { if (verified) return; setSel(i === sel ? null : i); }
+  function tapDer(did) {
+    if (verified) return;
+    if (sel === null) {
+      // Tocar una característica ya unida deshace esa línea (todo lo colocado se quita).
+      const dueno = Object.keys(pairs).find((k) => pairs[k] === did);
+      if (dueno !== undefined) setPairs((prev) => { const n = Object.assign({}, prev); delete n[dueno]; return n; });
+      return;
+    }
+    setPairs((prev) => {                        // una característica, un solo dueño
+      const next = {};
+      Object.keys(prev).forEach((k) => { if (prev[k] !== did) next[k] = prev[k]; });
+      next[sel] = did;
+      return next;
+    });
+    setSel(null);
+  }
+
+  function verificar() {
+    if (verified || !completas) return;
+    setVerified(true);
+    const aciertos = b.izq.filter((x) => pairs[x.id] === x.id).length;
+    const nom = (did) => (b.der.find((d) => d.id === did) || {}).t || "?";
+    onSolve(aciertos === b.izq.length, {
+      emoji: "🧭", a: "Une cada opción de vida con lo que la define",
+      userAnswer: b.izq.map((x) => `${x.t} → ${nom(pairs[x.id])}`).join(" · "),
+      correctAnswer: b.izq.map((x) => `${x.t} → ${nom(x.id)}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  function curva(a, c) { const dx = (c.x - a.x) * 0.5; return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y} ${c.x - dx} ${c.y} ${c.x} ${c.y}`; }
+  const derPorId = (did) => b.der.findIndex((d) => d.id === did);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 76 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Une cada opción de vida con lo que la define.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 46, justifyContent: "center" }}>
+          {anchors && (
+            <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", overflow: "visible" }}>
+              {Object.keys(pairs).map((k) => {
+                const ii = Number(k), di = derPorId(pairs[k]);
+                const a = anchors.iz[ii], c = anchors.de[di];
+                if (!a || !c) return null;
+                const bien = verified && pairs[k] === ii;
+                const color = verified ? (bien ? "#2ecc8f" : "#ff6b6b") : J10_EQ_PAIR_COLORS[ii].dot;
+                const d = curva(a, c);
+                return (
+                  <g key={"p" + k}>
+                    <path d={d} stroke="rgba(0,0,0,0.30)" strokeWidth={8} fill="none" strokeLinecap="round" />
+                    <path d={d} stroke={color} strokeWidth={5} fill="none" strokeLinecap="round" />
+                    <circle cx={a.x} cy={a.y} r={5.5} fill={color} stroke="#fff" strokeWidth={2} />
+                    <circle cx={c.x} cy={c.y} r={5.5} fill={color} stroke="#fff" strokeWidth={2} />
+                  </g>
+                );
+              })}
+            </svg>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {b.izq.map((x) => {
+              const pal = J10_EQ_PAIR_COLORS[x.id], unida = pairs[x.id] !== undefined, elegida = sel === x.id;
+              const bien = verified && pairs[x.id] === x.id;
+              let border = unida ? pal.border : "#d9c48a";
+              if (elegida && !verified) border = "#4fd8ff";
+              if (verified) border = bien ? "#2ecc8f" : "#ff6b6b";
+              return (
+                <button key={x.id} onClick={() => tapIzq(x.id)} disabled={verified}
+                  ref={(el) => { izqRefs.current[x.id] = el; }}
+                  style={{ position: "relative", width: 168, minHeight: 76, borderRadius: 13, border: `3px solid ${border}`, background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", display: "flex", alignItems: "center", gap: 7, padding: "7px 9px", textAlign: "left", cursor: verified ? "default" : "pointer", transform: (elegida && !verified) ? "translateX(2px) scale(1.03)" : "none", boxShadow: (elegida && !verified) ? "0 0 16px rgba(79,216,255,0.55), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.25)", transition: "transform 0.12s ease" }}>
+                  <span style={{ flexShrink: 0, fontSize: 19, lineHeight: 1 }}>{x.e}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, lineHeight: 1.2 }}>{x.t}</span>
+                  {verified && <span style={{ position: "absolute", top: -10, left: -8, fontSize: 12, fontWeight: 900, color: "#fff", background: bien ? "#1f8a54" : "#c0392b", borderRadius: "50%", width: 21, height: 21, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 5px rgba(0,0,0,0.35)" }}>{bien ? "✓" : "✗"}</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {b.der.map((d, n) => {
+              const dueno = Object.keys(pairs).find((k) => pairs[k] === d.id);
+              const pal = dueno !== undefined ? J10_EQ_PAIR_COLORS[Number(dueno)] : null;
+              let border = pal ? pal.border : "#d9c48a";
+              if (verified) border = (dueno !== undefined && Number(dueno) === d.id) ? "#2ecc8f" : (dueno !== undefined ? "#ff6b6b" : "#d9c48a");
+              const clicable = !verified;
+              return (
+                <button key={d.id} onClick={() => tapDer(d.id)} disabled={verified}
+                  ref={(el) => { derRefs.current[n] = el; }}
+                  style={{ width: 206, minHeight: 76, borderRadius: 13, border: `3px solid ${border}`, background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.2, padding: "7px 9px", textAlign: "left", cursor: clicable ? "pointer" : "default", boxShadow: (sel !== null && !verified) ? "0 0 12px rgba(242,194,96,0.45), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.25)", transition: "box-shadow 0.14s ease" }}>
+                  {d.t}
+                  {/* Revelado: cada característica dice de quién era, junto a la línea del
+                      niño (verde o roja), así compara su respuesta con la correcta. */}
+                  {verified && (
+                    <span style={{ display: "block", marginTop: 5, paddingTop: 4, borderTop: "1.5px dashed rgba(224,167,44,0.7)", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9.5, lineHeight: 1.15, color: "#8a6410" }}>
+                      va con {b.izq[d.id].t}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R3 · "La bodega" — ATRAPAR a contrarreloj (verbo nuevo).
+// Por la cinta pasan ocho prácticas y el niño toca al vuelo las cuatro que cuidan la
+// Naturaleza. Tocar una mala marca ✗ pero **no resta** (invariante EDINUN).
+// Se cierra sola cuando ya no queda nada que atrapar, y ¡VERIFICAR! la cierra antes con
+// lo que lleve en la canasta.
+//
+// ⚠ PRIMERA VERSIÓN DESCARTADA (2026-11-17): pasaban las características de la actividad 3
+// y un cartel decía de qué opción de vida llenar la canasta. La autora, jugando: *"esta
+// actividad no está tan claro sobre lo que debo hacer"*. Diagnóstico: el cartel nombraba
+// una opción pero nada decía qué hacer con ella, y acertar exigía **recordar el cuadro**
+// del cuaderno — lo difícil acababa siendo la memoria, no el juego. Ahora pasan las
+// prácticas concretas (las del banco de la R2) y se decide **mirando**, sin tabla que
+// recordar; el enunciado nombra el criterio: "Atrapa solo lo que cuida la Naturaleza".
+//
+// ⚠ El movimiento lo anima CSS (`@keyframes`), no un setInterval: con un temporizador de
+// JS la cinta se ve a tirones (lección de la R3 del Tema 3 de juego-13).
+// ══════════════════════════════════════════════════════════════════
+const J10_EQ_OPCIONES = [
+  {
+    id: "agro", n: "PROYECTOS AGROECOLÓGICOS", e: "🤝", col: "#f2a93b",
+    rasgos: [
+      "Se hacen con apoyo de organizaciones nacionales e internacionales",
+      "Involucran a los habitantes del sector",
+      "Ofrecen un espacio de integración e intercambio de conocimientos",
+      "Buscan beneficios sociales, económicos y comunitarios",
+      "Son una opción de economías solidarias",
+    ],
+  },
+  {
+    id: "perma", n: "PERMACULTURA", e: "🌿", col: "#4fd8ff",
+    rasgos: [
+      "Crea espacios controlados para hacer entornos ecológicos",
+      "Aprovecha las características naturales para la siembra",
+      "Cultiva productos orgánicos",
+      "Obtiene energía de fuentes naturales",
+      "Crea abonos y fertilizantes no químicos",
+      "Construye viviendas que aprovechan el entorno",
+    ],
+  },
+  {
+    id: "campe", n: "PRÁCTICAS CAMPESINAS", e: "🌾", col: "#9be37d",
+    rasgos: [
+      "Preservan la mayor cantidad de prácticas agroecológicas del Ecuador",
+      "Son una práctica ancestral de las poblaciones campesinas",
+      "Cultivan en equilibrio con la comunidad, la familia y la Naturaleza",
+      "Las emplea el 60 % de las uniones de pequeños agricultores",
+    ],
+  },
+];
+
+const J10_EQ_R3B_KEY = "edinun_j10_eq_r3b_v1";
+const J10_EQ_R3M_KEY = "edinun_j10_eq_r3m_v1";
+const J10_EQ_DUR = 7.6;        // segundos que tarda una ficha en cruzar la bodega
+const J10_EQ_PASO = 2.3;       // segundos entre una ficha y la siguiente
+function j10EqR3Build() {
+  const bi = j10PickIdx(J10_EQ_BUENAS, 4, J10_EQ_R3B_KEY);   // 4 de 9 ⇒ cap < 5
+  j10Commit(J10_EQ_R3B_KEY, bi, 4);
+  const mi = j10PickIdx(J10_EQ_MALAS, 4, J10_EQ_R3M_KEY);    // 4 de 6 ⇒ cap < 2
+  j10Commit(J10_EQ_R3M_KEY, mi, 1);
+  const items = bi.map((i) => Object.assign({ ok: true }, J10_EQ_BUENAS[i]))
+    .concat(mi.map((i) => Object.assign({ ok: false }, J10_EQ_MALAS[i])));
+  return { items: j10Shuffle(items).map((it, n) => Object.assign({}, it, { carril: n % 2, delay: n * J10_EQ_PASO })) };
+}
+
+const J10_EQ_CSS = "@keyframes j10eq-cinta { from { transform: translateX(470px); } to { transform: translateX(-250px); } }"
+  + " @keyframes j10eq-banda { from { background-position: 0 0; } to { background-position: -28px 0; } }";
+
+function EqR3Bodega({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j10EqR3Build());
+  const [tocados, setTocados] = useStateG({});     // id -> true
+  const [fin, setFin] = useStateG(false);
+  const [resta, setResta] = useStateG(0);
+  const cerrado = useRefG(false);
+  // Espejo en ref: el setTimeout del cierre no ve el estado nuevo de `tocados`.
+  const tocadosRef = useRefG({});
+  const total = b.items.length * J10_EQ_PASO + J10_EQ_DUR;
+
+  useEffectG(() => {
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      const q = Math.max(0, Math.ceil(total - (Date.now() - t0) / 1000));
+      setResta(q);
+    }, 250);
+    const fim = setTimeout(() => terminar(), total * 1000);
+    return () => { clearInterval(tick); clearTimeout(fim); };
+  }, []);
+
+  function terminar() {
+    if (cerrado.current) return;
+    cerrado.current = true;
+    setFin(true);
+    const atrapados = b.items.filter((it) => tocadosRef.current[it.id] && it.ok);
+    const fallados = b.items.filter((it) => tocadosRef.current[it.id] && !it.ok);
+    onSolve(atrapados.length === 4 && fallados.length === 0, {
+      emoji: "🧺", a: "Atrapa lo que cuida la Naturaleza",
+      userAnswer: atrapados.length ? atrapados.map((it) => it.t).join(" · ") : "(canasta vacía)",
+      correctAnswer: b.items.filter((it) => it.ok).map((it) => it.t).join(" · "),
+    }, atrapados.length);
+  }
+
+  function tocar(it) {
+    if (fin || tocados[it.id]) return;
+    tocadosRef.current = Object.assign({}, tocadosRef.current, { [it.id]: true });
+    setTocados(tocadosRef.current);
+    const atrapados = b.items.filter((x) => tocadosRef.current[x.id] && x.ok).length;
+    // La ronda se cierra sola cuando ya no queda nada que atrapar: o porque cogió todas
+    // las buenas, o porque tocó las ocho. Nunca hay que completar una cuota para seguir.
+    const quedan = b.items.filter((x) => !tocadosRef.current[x.id]);
+    if (atrapados === b.items.filter((x) => x.ok).length || quedan.length === 0) setTimeout(() => terminar(), 420);
+  }
+
+  // ⚠ La ronda lleva ¡VERIFICAR! aunque se autovalide: la autora lo pidió el 2026-11-17
+  // —*"aquí debe aparecer el botón verificar sin la necesidad de que termine la
+  // actividad"*—. Cierra la ronda con lo que lleve en la canasta, sin esperar a que pase
+  // el resto de la cinta. Al cerrarse, el orquestador esconde el botón (estado `busy`).
+  verifyRef.current = terminar;
+
+  const canasta = b.items.filter((it) => tocados[it.id]);
+  const perdidas = fin ? b.items.filter((it) => it.ok && !tocados[it.id]) : [];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 76 }}>
+      <style>{J10_EQ_CSS}</style>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Atrapa solo lo que cuida la Naturaleza.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
+        <div style={{ width: 452, display: "flex", alignItems: "center", justifyContent: "center", gap: 18, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: "var(--ed-font-mono)", fontSize: 12, color: resta <= 5 ? "#ff9b9b" : "#fce9a8" }}>⏱ {String(resta).padStart(2, "0")}</span>
+            {/* ⚠ SIN cuota ("2 / 4"): la autora lo leyó como una obligación —*"me obligas a
+                seleccionar las 4 cosas"*—. El marcador cuenta lo que lleva, nada más; el
+                criterio está en el enunciado y cada acierto suma por su cuenta. */}
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8" }}>🧺 {canasta.filter((it) => it.ok).length}</span>
+          </div>
+        </div>
+
+        <div style={{ position: "relative", width: 452, height: 186, borderRadius: 14, border: "3px solid rgba(242,194,96,0.45)", background: "linear-gradient(180deg, rgba(30,20,62,0.6), rgba(14,9,38,0.7))", overflow: "hidden", flexShrink: 0 }}>
+          {[0, 1].map((c) => (
+            <div key={c} style={{ position: "absolute", left: 0, right: 0, top: c === 0 ? 16 : 102, height: 68 }}>
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: -9, height: 9, borderRadius: 3, background: "repeating-linear-gradient(90deg, rgba(242,194,96,0.30) 0 14px, rgba(242,194,96,0.08) 14px 28px)", animation: "j10eq-banda 1.1s linear infinite", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)" }} />
+              {b.items.filter((it) => it.carril === c).map((it) => {
+                if (tocados[it.id]) return null;
+                return (
+                  <button key={it.id} onClick={() => tocar(it)} disabled={fin}
+                    style={{ position: "absolute", left: 0, top: 0, width: 212, minHeight: 64, boxSizing: "border-box", borderRadius: 12, border: "2.5px solid #d9c48a", background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", fontFamily: "var(--ed-font-ui)", fontSize: 10.5, lineHeight: 1.2, fontWeight: 700, textAlign: "left", padding: "6px 9px", cursor: fin ? "default" : "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.75), 0 4px 10px rgba(0,0,0,0.3)", animation: `j10eq-cinta ${J10_EQ_DUR}s linear ${it.delay}s both`, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ flexShrink: 0, fontSize: 22, lineHeight: 1 }}>{it.e}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>{it.t}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 26, pointerEvents: "none", background: "linear-gradient(90deg, rgba(16,10,42,0.95), rgba(16,10,42,0))", zIndex: 5 }} />
+          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 26, pointerEvents: "none", background: "linear-gradient(270deg, rgba(16,10,42,0.95), rgba(16,10,42,0))", zIndex: 5 }} />
+          {fin && (
+            <div style={{ position: "absolute", inset: 0, zIndex: 6, background: "rgba(8,5,24,0.82)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: 12 }}>
+              <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, color: "#fce9a8" }}>
+                {perdidas.length === 0 ? "No se te escapó ninguna." : "Se te escaparon:"}
+              </span>
+              {perdidas.map((it) => (
+                <span key={it.id} style={{ fontFamily: "var(--ed-font-ui)", fontSize: 10, lineHeight: 1.2, color: "#fff", background: "rgba(46,204,143,0.26)", border: "1.5px solid #2ecc8f", borderRadius: 9, padding: "3px 9px", textAlign: "center", maxWidth: 400 }}>{it.e} {it.t}</span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ width: 452, display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", minHeight: 44, alignContent: "flex-start", flexShrink: 0 }}>
+          {canasta.map((it) => (
+            <span key={it.id} style={{ display: "inline-flex", alignItems: "center", gap: 5, maxWidth: 218, borderRadius: 9, border: `2px solid ${it.ok ? "#2ecc8f" : "#ff6b6b"}`, background: it.ok ? "rgba(46,204,143,0.2)" : "rgba(226,59,59,0.2)", color: "#fff", fontFamily: "var(--ed-font-ui)", fontSize: 9, lineHeight: 1.15, padding: "3px 7px" }}>
+              <span style={{ flexShrink: 0, fontWeight: 900, fontSize: 9 }}>{it.ok ? "✓" : "✗"}</span>
+              <span style={{ flexShrink: 0, fontSize: 11, lineHeight: 1 }}>{it.e}</span>
+              <span style={{ minWidth: 0 }}>{it.t}</span>
+            </span>
+          ))}
+          {canasta.length === 0 && !fin && (
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Tu canasta está vacía.</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Arreglo de rondas del TEMA 4 (3 rondas, 3 verbos: armar un texto · unir con líneas · atrapar) ──
+const J10_ROUNDS_EQ = [
+  { C: EqR1Articulo, verify: true, bubble: (<>Arrastra cada palabra<br />a su espacio.</>) },
+  { C: EqR2Caminos, verify: true, bubble: (<>Toca una opción<br />y luego lo que<br />la define.</>) },
+  { C: EqR3Bodega, verify: true, bubble: (<>Tócalas cuando<br />pasen por la cinta.</>) },
+];
+
 // ── Arreglo de rondas del TEMA 3 (3 rondas, 3 verbos: lanzar · girar · destapar) ──
 const J10_ROUNDS_CLIMA = [
   { C: R1Noticias, verify: true, bubble: (<>Arrastra la noticia<br />a CLIMA o a TIEMPO.</>) },
@@ -2092,7 +2738,7 @@ function J10Game({ app, setApp, go, rounds }) {
 // Despacho por tema (estandar-visual §8: N botones = N mini-juegos con mecánicas
 // distintas). Los TRES temas están implementados, con NUEVE verbos distintos entre
 // ellos. Una categoría desconocida cae en el Tema 1 en vez de romperse.
-const J10_ROUNDS_POR_TEMA = { recursos: J10_ROUNDS, siglo21: J10_ROUNDS_S21, clima: J10_ROUNDS_CLIMA };
+const J10_ROUNDS_POR_TEMA = { recursos: J10_ROUNDS, siglo21: J10_ROUNDS_S21, clima: J10_ROUNDS_CLIMA, equilibrio: J10_ROUNDS_EQ };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "recursos";
   const rounds = J10_ROUNDS_POR_TEMA[cat] || J10_ROUNDS;

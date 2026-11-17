@@ -592,3 +592,113 @@ que elegir, se corta la animación, no la acción del niño.
 **Verificado:** e2e del Tema 2 OK (partida perfecta 11 ⭐ en las dos variantes de la R3,
 partida fallada con revelado, 12 recargas sin repetir), format-lint 19/19, y medición de
 los seis huecos de la R2 del Tema 1 (7,11 px los cinco).
+
+## 2026-11-17 — Tema 4 "Vivir en equilibrio con la Naturaleza" (Tema 6 del libro, 13 años)
+
+La autora contó los temas del libro y vio que faltaba uno: *"son 4 temas, entonces
+procedamos a crear ese"*. No se podía deducir cuál era —los tres temas del juego salen de
+los temas 1, 2 y 4 del libro, sin patrón—, así que se le pidió el título y las páginas en
+vez de inventarlo. Mandó las dos páginas de desarrollo y la del cuaderno.
+
+- **Mecánicas propuestas con bocetos ASCII en el chat** (tres opciones para la R1, cada
+  una con un **verbo distinto**, por la regla de "nada de quiz disfrazado"). Respondió
+  *"me gustan todas, créalo"* → las tres se repartieron como las tres rondas, en el orden
+  que sube de energía: **ensamblar el artículo → construir el terreno → atrapar en la
+  cinta**. El juego queda con **doce verbos distintos**.
+- **Construido con emoji de respaldo**, como el resto del juego: no hay ni una imagen
+  cableada, así que las ilustraciones no bloquean nada.
+- **Dos defectos que solo cazó el e2e de la partida FALLADA:** con 3 señuelos para 4
+  espacios (R1) y 3 fichas malas para 4 casillas (R2), el cuarto hueco obligaba a poner la
+  respuesta correcta y **regalaba 2 ⭐ a quien fallaba todo**. Ahora van **un señuelo por
+  espacio** y **4 malas**, y una partida de errores da 0.
+- **Dos defectos que solo cazó el detector de espacios**, los dos ya conocidos del Tema 1:
+  la palabra correcta del revelado (R1) y la pastilla "también iba" (R2) **colgaban fuera**
+  de su ficha. Van dentro, en una franja que el `paddingBottom` reserva siempre.
+  También apareció que el espacio de ancho fijo (74 px) **no daba para "contaminación"** al
+  revelar: ahora cada espacio se dimensiona con la palabra más larga que puede contener.
+- 📌 **Aprendizaje de QA:** el primer detector de espacios decía *"✓ sin solapes"*
+  midiendo **0 elementos** — el selector `div[style*='left: 215px']` no casa porque el
+  navegador reserializa el atributo `style`. Hay que buscar por la **propiedad calculada**
+  (`d.style.left === "215px"`) y, además, **confirmar siempre cuántos elementos se
+  midieron**: un check que no encuentra nada pasa siempre. Va con la regla
+  *"verificado solo si el check lo cubre"*.
+- 📌 **Otro de QA:** `click()` de Playwright **espera a que el elemento esté quieto**, así
+  que sobre la cinta de la R3 agota el tiempo sin tocar nada y la ronda daba 0 ⭐ en la
+  partida perfecta. Para un elemento en movimiento hay que usar `dispatchEvent("click")`.
+- **Anti-repetición:** la R3 arrancó con cap 2 sobre un banco de 3 opciones y eso daba una
+  **rotación exacta** (1-2-3-1-2-3), previsible. Con cap 1 el sorteo queda libre entre las
+  otras dos y sigue sin repetir dos partidas seguidas.
+- **Verificado:** format-lint 19/19 · qa-visual sin overflow · e2e del tema con partida
+  **perfecta 3/3 · 12 ⭐** y partida **fallada 0/3 · 0 ⭐** con revelado en las tres rondas,
+  0 errores de consola · auditoría de espacios en **5 viewports × 3 rondas × antes y
+  después de verificar** (8-12 elementos medidos por toma, colchón mecánica↔acciones
+  80-128 px) · **8 recargas seguidas** sin repetición consecutiva (6/8 combinaciones
+  distintas de espacios en la R1, 8/8 bandejas distintas en la R2, las 3 opciones rotando
+  sin repetir en la R3).
+- Scripts nuevos en `.planning/`: `e2e-equilibrio.js`, `espacios-equilibrio.js`,
+  `variedad-equilibrio.js` y `shot-eq.js` (capturas para mirar a ojo).
+
+### 2026-11-17 (misma sesión) — la autora juega el Tema 4 y cambian dos rondas
+
+- **R1, los espacios "muy grandes".** Cada hueco reservaba una franja de 17 px para
+  escribir debajo la palabra correcta al verificar, y eso los convertía en cuadros altos
+  en medio del texto. Ahora el hueco es una línea fina (`padding: "0 6px"`) y **las
+  correctas van en un cartel "IBAN ASÍ"** que ocupa el sitio de la bandeja al verificar
+  (las piezas sobrantes ya no sirven, así que nada se mueve). Mismo patrón que el
+  "VAN ASÍ" del Tema 1 y el "EL ORDEN ES" de juego-15.
+- **R2 descartada: *"esta mecánica también está parecida a la de arrastrar"*.** Y era
+  cierto: yo la había defendido como "construir y ver la consecuencia", pero la mano hacía
+  lo mismo que en el Mapa vivo del Tema 1 —coger una ficha, soltarla en un cajón— y lo
+  único distinto era la barra de equilibrio, que es **decorado, no otra acción**.
+  📌 **Regla afinada:** un verbo es distinto cuando cambia **el gesto**, no cuando cambia
+  lo que pasa después del gesto. Una barra, un marcador o una animación de premio no
+  convierten una mecánica en otra.
+  Sustituida por **"Tres caminos"** (unir con líneas, la actividad 3 del cuaderno), verbo
+  que no existía en juego-10. Las fichas del terreno **no se tiraron**: son las que ahora
+  pasan por la cinta de la R3.
+- **R3 poco clara: *"esta actividad no está tan claro sobre lo que debo hacer"*.** El
+  cartel decía PERMACULTURA pero nada decía qué hacer con esa palabra, y acertar exigía
+  **recordar el cuadro** del cuaderno: lo difícil era la memoria, no el juego. Ahora pasan
+  prácticas concretas con su dibujo y el enunciado nombra el criterio —"Atrapa solo lo que
+  cuida la Naturaleza"—, así que **se decide mirando**.
+- ⭐ pasa de 12 a **11** (4 + 3 + 4).
+- 📌 **De QA:** para fallar la R2 a propósito hay que **rotar** las parejas; elegir "una
+  cualquiera que no sea" repite destino, deja una opción sin unir y ¡VERIFICAR! se queda
+  inerte. Lo cazó el e2e colgándose en la partida fallada.
+- **Verificado otra vez:** format-lint 19/19 · partida perfecta 3/3 · **11 ⭐** y fallada
+  0/3 · **0 ⭐**, 0 errores de consola · espacios en 5 viewports × 3 rondas × antes/después
+  sin desbordes ni solapes · 8 recargas con 7/8, 7/8 y 8/8 combinaciones distintas y 0
+  repeticiones consecutivas.
+
+### 2026-11-17 (tercera tanda jugando) — espacios, arrastre y la cuota de la canasta
+
+- **"Abajo del enunciado hay más espacio que arriba."** Medido con `.planning/medir-eq.js`:
+  29 px encima del enunciado contra 63 debajo. El bloque de la mecánica va centrado en lo
+  que queda, así que lo único que se fija es el `paddingTop` de la ronda: **58 → 76**.
+  Ahora quedan 47 arriba y 48-54 abajo en las tres rondas. Además las tarjetas de la R2
+  subieron de 62 a **76 px**: era la ronda con más aire suelto (84 px).
+  📌 **No corregir espacios a ojo sobre una captura: medirlos en el lienzo lógico.**
+- **"Debo poder arrastrar las opciones luego de colocarlas."** La palabra puesta solo se
+  podía sacar tocándola. Ahora se arrastra a otro espacio, o fuera para devolverla a la
+  bandeja, y el toque simple la saca **dejándola elegida** para el siguiente espacio.
+  ⚠ La palabra lleva sus propios manejadores dentro del hueco y **corta el `click` del
+  hueco**: sin eso, el toque la sacaba dos veces. Verificado con arrastre real de ratón en
+  `.planning/arrastre-eq.js` (bandeja→espacio, espacio→espacio, espacio→fuera y toque).
+- **"Me obligas a seleccionar las 4 cosas en la canasta."** El marcador decía "🧺 2 / 4" y
+  ese `/ 4` se lee como un cupo que hay que completar. Ahora cuenta lo que lleva y ya está;
+  la ronda se cierra sola cuando no queda nada que atrapar.
+  📌 **Un contador con denominador no informa, exige.** Si la ronda no obliga a llegar a N,
+  el marcador no debe enseñar la N.
+
+### 2026-11-17 (cuarta tanda) — el enunciado de la R1 y el botón de la R3
+
+- **"Devuelve las palabras" no cuadraba.** Y tenía razón: *devolver* supone que estaban
+  ahí y que el chico las quitó, y no es el caso. Entre tres opciones eligió
+  **"Al artículo le faltan cuatro palabras."** — plantea la situación en vez de dar la
+  orden, y el bocadillo de Yaku ya dice cómo colocarlas.
+  📌 **El enunciado no puede dar por hecho algo que el chico no hizo.**
+- **La R3 ahora lleva ¡VERIFICAR!** aunque se autovalide: *"aquí debe aparecer el botón
+  verificar sin la necesidad de que termine la actividad"*. Cierra la ronda con lo que
+  lleve en la canasta, sin esperar a que pase el resto de la cinta. Esto completa lo de la
+  cuota: antes había que esperar los ~26 s de cinta aunque ya no quisieras atrapar más.
+  Comprobado en `.planning/cierre-r3.js` (corta a mitad con 2 atrapadas y suma 2 ⭐).

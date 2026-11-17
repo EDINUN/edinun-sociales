@@ -619,3 +619,88 @@ Los emoji son **marcadores de posición**, como en los otros dos temas. Lo que m
 - **R1** — ninguna: son noticias, el emoji del tiempo funciona como icono de titular.
 
 Nada bloquea: el tema es jugable y está verificado con emoji.
+
+---
+
+# 13. TEMA 4 · "Vivir en equilibrio con la Naturaleza" (Tema 6 del libro) — 13 años
+
+Cuarto botón del Home (violeta, por posición). El tema del libro ocupa dos páginas de
+desarrollo más una del cuaderno. La autora lo pidió **para 13 años** y con el encargo
+explícito de que *"no sea nada aburrido"*.
+
+## 13.1 Qué entra, y qué no
+
+**Entra:**
+- El **artículo 66, numeral 27** de la Constitución, citado literalmente en la p. 78.
+- Las **tres opciones de vida** con sus características (actividad 3 del cuaderno):
+  proyectos agroecológicos · permacultura · prácticas campesinas.
+- El detalle de la **permacultura** (espacios controlados, siembra aprovechando lo
+  natural, productos orgánicos, energía de fuentes naturales, abonos no químicos,
+  viviendas que aprovechan el entorno).
+- El **60 %** de las uniones de pequeños agricultores que emplean prácticas agroecológicas.
+
+**No entra:**
+- La **actividad 2** (dibujar cómo te gustaría vivir) y la **actividad 4** (proponer una
+  alternativa por escrito): son de **respuesta abierta**, no se gamifican. Misma regla que
+  las actividades 3 y 4 de juego-13 T3.
+- Las secciones "Mi experiencia con Ciencias Naturales": son tareas para hacer fuera de
+  la pantalla (investigar un producto, sembrar una semilla y anotar el proceso).
+
+## 13.2 Mecánica — 3 rondas, 3 verbos NUEVOS
+
+El juego ya gastó nueve verbos, así que estos tres no podían repetir ninguno:
+
+| Ronda | Nombre | Verbo | Valida |
+|---|---|---|---|
+| R1 | El artículo mutilado | **ensamblar un texto** | ¡VERIFICAR! |
+| R2 | Tres caminos | **unir con líneas** | ¡VERIFICAR! |
+| R3 | La bodega | **atrapar a contrarreloj** | se autovalida |
+
+**Orden pensado:** abre con el artículo (que es por donde abre el tema en el libro), sigue
+con el cuadro de las tres opciones y cierra con la ronda de acción, para que la partida
+**suba** de energía.
+
+⚠ **La R2 y la R3 cambiaron el 2026-11-17, con la autora jugando.** La R2 era "El terreno"
+(colocar 4 fichas en 4 espacios y ver llenarse una barra de equilibrio) y la descartó:
+*"esta mecánica también está parecida a la de arrastrar"*. Tenía razón — el gesto era el
+mismo que el del Mapa vivo del Tema 1 y lo único distinto era la barra, que es decorado.
+**Un verbo es distinto cuando cambia el gesto, no cuando cambia lo que pasa después.**
+La R3 pasaba las características de la actividad 3 con un cartel que nombraba una opción
+de vida, y no se entendía: *"esta actividad no está tan claro sobre lo que debo hacer"*.
+El cartel no decía qué hacer con esa palabra y acertar exigía recordar el cuadro.
+Solución conjunta: la R2 se queda con el cuadro (uniendo con líneas, como pide el libro)
+y la R3 hereda las fichas del terreno, que se juzgan mirando.
+
+**⭐ 4 + 3 + 4 = 11.**
+
+## 13.3 Reparto de contenido entre las rondas
+
+Para que las tres no se sientan la misma, cada una se queda con una parte distinta del
+tema: **R1 el artículo** · **R2 los elementos concretos** de una vida en equilibrio ·
+**R3 las prácticas concretas** que cuidan o dañan la Naturaleza.
+
+## 13.4 Criterio de datos
+
+- El **texto del artículo** y las **características de las tres opciones** son textuales
+  (estas últimas, recortadas para que quepan en la ficha).
+- Las **prácticas de la R3 son la aplicación concreta** de esas frases: el libro
+  describe prácticas, no objetos. Las malas son **negaciones evidentes** del derecho
+  citado ("libre de contaminación", "en armonía con la naturaleza", "abonos no químicos"),
+  nunca una práctica discutible — misma regla que dejó al ganado fuera de la R2 del Tema 2.
+- Los **señuelos de la R1** salen del distractor de la actividad 1 del cuaderno o cambian
+  una letra para volver falsa la frase; no son palabras inventadas.
+
+## 13.5 Anti-repetición del Tema 4
+
+- `edinun_j10_eq_r1_v1` — 4 espacios abiertos de 6 posibles (15 combinaciones), cap 1.
+- `edinun_j10_eq_r3b_v1` — 4 prácticas buenas de 9, cap 4.
+- `edinun_j10_eq_r3m_v1` — 4 prácticas malas de 6, cap 1.
+- La **R2 no lleva FIFO**: cada opción tiene 4-6 características y guardar recientes
+  dejaría el banco sin de dónde elegir. Se barajan en cada montaje y el tablero nunca
+  sale ya resuelto.
+
+## 13.6 Ilustraciones (opcionales)
+
+Igual que el resto del juego, funciona **solo con emoji**. Si la autora quiere, las
+ilustraciones que más aportarían son las **9 prácticas buenas y 6 malas de la R3** (objetos
+sueltos, fondo plano, 1:1) — el emoji queda de respaldo y el cableado es directo.
