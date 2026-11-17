@@ -18,10 +18,29 @@ Marca con una `x` dentro de los `[ ]` a medida que verificas.
 |---|-------|:---:|:----------:|:--------:|:---------:|:--------:|:----------:|
 | 10 | Ecuador megadiverso · 3 temas (recursos naturales · siglo XXI · clima del planeta) | [x] | [x] | [ ] | [ ] | [ ] | [x] |
 | 13 | Un mundo por descubrir · 3 temas (continentes · Américas · diversidad) | [x] | [x] | [x] | [x] | [ ] | [x] |
+| 14 | Las culturas posclásicas de Mesoamérica · 1 tema, 3 rondas (ciudades mayas · estela vigesimal · crónica azteca) | [x] | [x] | [x] | [ ] | [ ] | [x] |
 
 ## Notas por juego
 
 > Apunta aquí lo que encuentres (bug, ajuste pendiente, idea) por juego.
+
+**juego-14 "Las culturas posclásicas de Mesoamérica" (2026-11-16)** — nuevo, **12 años**, guía
+**Yaku**. Tema 3 de la Unidad 6 del libro de **8.º**. 3 rondas con verbos distintos: *ubicar en el
+tiempo* (dial + arrastre) · *componer un número maya* · *cazar palabras falsas*. **10 ⭐** (4+2+4).
+
+- ✅ **Las 3 imágenes montadas** (`mapa-mesoamerica.jpg`, `estela-maya.jpg`, `papel-amate.jpg`).
+  El mapa se muestra **ampliado y recortado** a la ventana de las 12 ciudades.
+- ⚠️ **Las crónicas 2-4 de la R3 no son textuales del cuaderno** (intercambian términos que sí
+  están en el libro). La crónica 1 sí es la del cuaderno pág. 91. **Necesita tu visto bueno.**
+- ✅ **Cinco verificaciones automáticas, todas en verde:** `format-lint` 15/15 · `qa-visual`
+  6 viewports sin overflow (colchón 72 px) · `ciudades-en-tierra` (las 12 en tierra, las 15
+  parejas de rótulos de cada región se distinguen y ninguna pisa el rótulo de región) ·
+  `sin-superposiciones` (12 partidas × 3 rondas, **ningún texto encima de otro**) · `e2e`
+  (partida perfecta 10 ⭐, partida fallada con revelado en las 3 rondas, ronda parcial que
+  suma sin restar, arrastre real y respaldo tap, devolver y BORRAR, dejar una palabra sin
+  tocar, 6 recargas sin repetición, consola limpia).
+- ⏳ **Pendiente de la autora:** revisión de contenido jugando, y el visto bueno de las
+  crónicas 2-4 de la R3.
 
 **juego-10 "Ecuador megadiverso" (2026-08-12)** — ⚠️ **título PROVISIONAL**, lo puso el
 asistente para poder registrar el juego; falta que lo apruebes. Con los **tres temas ya
