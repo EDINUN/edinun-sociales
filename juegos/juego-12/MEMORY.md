@@ -187,3 +187,23 @@ intercambiando.
   viaje**, porque la animación arranca en el fotograma siguiente. Lo que lo distingue es la
   posición **intermedia** (`.planning/sin-saltos-r3.js`, comprueba que a los 60 ms cada
   tarjeta está entre su sitio viejo y el nuevo).
+
+## Tema 2 del Libro 6 ("Revolución Marcista") — lo aprendido
+
+- **La autora eligió ronda por ronda, con bocetos ASCII en el chat.** Pidió alternativas
+  para la 2.ª y la 3.ª antes de quedarse con «El Ecuador partido» y «La Carta de la
+  Esclavitud». No se construyó nada hasta su OK de cada una.
+- **El material del libro se perdió al recortarse la conversación y se recuperó del
+  registro de la sesión**, no pidiéndoselo otra vez. Ahora está copiado en el design-doc
+  (§3.1): es la única fuente de los datos del tema.
+- **Un gesto bonito no es un ejercicio.** La idea de rasgar la Carta se avisó como floja:
+  romper el papel por sí solo no hace pensar. Lo que la salvó fue que **no se rompe donde
+  sea, sino donde piden**, y para saberlo hay que leer.
+- 🐛 **Callejón sin salida en la R3**: romper un renglón que una consigna posterior iba a
+  pedir dejaba esa consigna sin solución. Lo destapó una **captura de pantalla** del
+  recorrido completo, no el e2e, que fallaba "bien" por otro lado.
+- 🐛 **El detector de solapes medía texto invisible**: `opacity: 0` en el padre no baja la
+  opacidad **calculada** del hijo. Un "✓ sin solapes" puede venir de medir lo que no se ve.
+- 🐛 **`qa-visual.js` se quedaba en el Home** al haber **varios temas**: ninguno viene
+  preseleccionado y ENTRAR sale apagado. Arreglado en la `_PLANTILLA` y propagado a
+  juego-6 y juego-12 — el arreglo anterior (abrir el libro) **no se había propagado**.

@@ -32,6 +32,11 @@ async function medir(p, etiqueta, fallos) {
       if (e.tagName === "IMG" || e.closest("svg")) return false;
       const s = getComputedStyle(e);
       if (s.visibility === "hidden" || s.display === "none" || parseFloat(s.opacity) < 0.05) return false;
+      // ⚠ La opacidad NO se hereda como valor calculado: un hijo de un contenedor con
+      // opacity:0 sigue diciendo opacity:1 aunque no se vea nada. Hay que mirar arriba.
+      for (let n = e.parentElement; n && n !== document.body; n = n.parentElement) {
+        if (parseFloat(getComputedStyle(n).opacity) < 0.05) return false;
+      }
       const b = e.getBoundingClientRect();
       if (b.width <= 2 || b.height <= 2) return false;
       return e.tagName === "BUTTON" || e.hasAttribute("data-hueco") || hojaTexto(e) || pintada(e);
@@ -74,6 +79,8 @@ async function medir(p, etiqueta, fallos) {
     await p.goto("http://localhost:" + PORT + "/juegos/juego-12/index.html", { waitUntil: "load" });
     await p.waitForSelector("button:has-text('Libro 6')");
     await p.click("button:has-text('Libro 6')");
+    // Con mas de un tema ninguno viene preseleccionado: hay que elegirlo.
+    await p.click("button:has-text('Los primeros años del Ecuador')");
     await p.fill("input.ed-input", "QA");
     await p.click("button:has-text('ENTRAR')");
     await p.waitForTimeout(500);

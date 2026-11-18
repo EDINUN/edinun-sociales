@@ -21,6 +21,9 @@ async function entrar(p) {
   await p.goto("http://localhost:" + PORT + "/juegos/juego-12/index.html", { waitUntil: "load" });
   await p.waitForSelector("button:has-text('Libro 6')");
   await p.click("button:has-text('Libro 6')");
+  // ⚠ Con más de un tema ninguno viene preseleccionado y ENTRAR sale apagado: hay que
+  // elegir el tema antes.
+  await p.click("button:has-text('Los primeros años del Ecuador')");
   await p.waitForSelector("input.ed-input");
   await p.fill("input.ed-input", "QA");
   await p.click("button:has-text('ENTRAR')");

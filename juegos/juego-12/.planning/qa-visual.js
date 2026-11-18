@@ -124,14 +124,32 @@ async function run() {
       page.on("pageerror", (e) => errs.push(String(e).slice(0, 160)));
       try {
         await page.goto(`http://localhost:${PORT}/juegos/${g}/index.html`, { waitUntil: "load" });
-        await page.waitForSelector("input.ed-input", { timeout: 20000 });
         // En teléfono vertical el overlay bloqueante de rotación es lo esperado.
         const phonePortrait = Math.min(vp.width, vp.height) <= 600 && vp.height > vp.width;
         if (phonePortrait) {
+          await page.waitForTimeout(800);
           await page.screenshot({ path: path.join(OUT, `${g}-${vp.name}-rotate.png`) });
           report[g][vp.name] = { note: "teléfono vertical: overlay de rotación (esperado)" };
           await ctx.close(); continue;
         }
+        // Home de DOS NIVELES (juego-6, juego-12): el campo del nombre no está en el
+        // primer nivel, hay que abrir un libro antes. Sin esto el QA fallaba en los 6
+        // viewports con "no aparece input.ed-input", que parecía un juego roto.
+        // ⚠ Va DESPUÉS del caso del teléfono vertical: con el overlay de rotación encima,
+        // el clic en el libro se queda esperando a un botón que nunca es clicable.
+        if (!(await page.$("input.ed-input"))) {
+          const libro = await page.$("button:has-text('Libro '):not([disabled])");
+          if (libro) { await libro.click(); await page.waitForTimeout(400); }
+        }
+        // Con VARIOS temas no hay ninguno preseleccionado y ENTRAR sale apagado: hay que
+        // elegir un tema antes. Los botones de tema son los unicos con atributo title en
+        // ese nivel (MenuButton); el boton '← Libros' y ENTRAR no lo llevan.
+        const entrar = await page.$("button:has-text('ENTRAR')");
+        if (entrar && await entrar.isDisabled()) {
+          const tema = await page.$("button[title]:not([disabled])");
+          if (tema) { await tema.click(); await page.waitForTimeout(300); }
+        }
+        await page.waitForSelector("input.ed-input", { timeout: 20000 });
         await page.fill("input.ed-input", "QABot");
         await page.click("button:has-text('ENTRAR')");
         await page.waitForTimeout(500);

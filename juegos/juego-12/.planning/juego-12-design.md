@@ -173,3 +173,72 @@ marcas (regla 15). Todo el juego funciona con **emoji de respaldo** mientras no 
   son —hechos del libro—, sin caricatura y sin convertir a nadie en un chiste.
 - **Edad 10:** registro visual ilustrado, no fotográfico, y frases cortas en las fichas.
 - La R3 es la de menor variedad (ver 2.2).
+
+---
+
+# 3. Libro 6 · Tema 2 — "Revolución Marcista" (10 años)
+
+## 3.1 Material del libro (lo que entregó la autora)
+
+Se copia aquí porque es la ÚNICA fuente de los datos de este tema: todo lo que no esté
+en esta lista no sale del libro y no se usa sin preguntarle.
+
+- **6 de marzo de 1845**, Guayaquil: golpe contra Flores, el impuesto personal de **tres
+  pesos** y el grito *"¡mueran los tres pesos!"*.
+- **Bandera marcista:** tres cuarteles — dos blancos y uno azul al centro — con **tres
+  estrellas** por Quito, Guayaquil y Cuenca.
+- **Consecuencias:** Constitución de Cuenca 1845, Roca presidente, vuelve el clero, se
+  revisan los impuestos, cae la "Carta de la Esclavitud".
+- **Cinco presidentes 1845-1859.** Marcistas militares: **Urbina** (manumisión de los
+  esclavos, 25 de julio de 1851) y **Robles** (abolió la contribución de los indígenas).
+- **Crisis de 1859:** cuatro gobiernos a la vez — Quito/García Moreno · Guayaquil/Franco
+  · Cuenca/Carrión · Loja/Carrión Pinzano.
+- **García Moreno**, el Progresismo, el auge cacaotero y el cuadro Sierra ↔ Costa.
+
+## 3.2 Rondas aprobadas
+
+Verbos ya gastados en el Libro 6 y por tanto prohibidos aquí: *decidir sí/no*,
+*arrastrar a su sitio* y *ordenar* (los tres del Tema 1).
+
+- **R1 "La bandera de marzo"** — verbo **componer**. Se toca una pieza y la bandera se
+  dibuja encima en el acto: el símbolo nace a la vista. Sobre el 6 de marzo, los tres
+  pesos y las tres estrellas (Quito, Guayaquil, Cuenca). Se dibuja en SVG, NO es una
+  imagen: una imagen plana no se puede ir montando.
+- **R2 "El Ecuador partido en cuatro"** — verbo **tocar en el mapa**. La crisis de 1859:
+  se toca dónde manda cada uno de los cuatro gobiernos y la zona se pinta al acertar,
+  hasta que el país queda partido a la vista. Mapa de datos reales (Natural Earth),
+  nunca dibujado a ojo ni generado como imagen.
+- **R3** — pendiente de que la elija la autora.
+
+Descartadas por la autora: "La lupa en el muelle" (explorar una escena del auge
+cacaotero) y "La rueda de los años" (girar un dial por 1845-1859).
+
+## 3.3 Cómo quedó (y lo que cazaron las pruebas)
+
+- **R1 «La bandera de marzo»** — se toca un color y entra **solo** en el siguiente cuartel
+  vacío; tocar un cuartel lo vacía y los de su derecha se corren, así nunca quedan huecos
+  salteados. Las estrellas van con un contador − / +, que es otro gesto. El revelado
+  dibuja la bandera correcta en su propio cartel ("IBA ASÍ"), nunca encima de la del niño.
+  ⭐ 3 cuarteles + las estrellas = 4.
+- **R2 «El Ecuador partido»** — se pide un gobernante y se toca su ciudad; al completarse
+  los cuatro aparece el aviso de rematar (antes la columna se quedaba vacía). ⭐ 4.
+  Las manchas de color son **zonas de influencia, no fronteras**: el libro no las da.
+- **R3 «La Carta de la Esclavitud»** — el corte avanza con el gesto y al pasar del 72 %
+  del ancho el renglón se rompe; por el hueco asoma "DEROGADO · 1845" con los dientes del
+  papel. ⭐ 3.
+  ⚠ **Callejón sin salida, cazado jugando:** si el niño rompía un renglón que una consigna
+  POSTERIOR iba a pedir, esa consigna se quedaba sin solución y la ronda no terminaba.
+  Ahora **cada turno pide un renglón que siga entero** y, si no queda ninguno de los tres,
+  la ronda acaba sola. Lo vigila `sin-callejon-r3.js`.
+
+**Variedad medida** (`variedad-l6t2.js`, 8 partidas): paleta 8/8 · recorrido del mapa 7/8
+· orden del papel 8/8 · orden de las consignas 4/8. Lo que varía es el **recorrido**, no
+el contenido: la bandera es una sola y los cuatro gobiernos son los del libro.
+
+**Herramientas del tema:** `e2e-l6t2.js`, `espacios-l6t2.js` (solapes y desbordes),
+`variedad-l6t2.js`, `sin-callejon-r3.js`, `shot-l6t2.js`.
+
+⚠ El detector de solapes tenía un punto ciego: la **opacidad no se hereda como valor
+calculado**, así que medía el texto de un renglón ya roto (su contenedor está a
+`opacity: 0` pero el hijo sigue diciendo 1). Corregido en `espacios-l6t1.js` y
+`espacios-l6t2.js`: ahora mira también los ancestros.

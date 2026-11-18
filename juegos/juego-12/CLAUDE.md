@@ -194,3 +194,31 @@ node juegos/juego-12/.planning/shot-l6t1.js <carpeta>      # capturas para mirar
 2. El nombre de la ciudad en la R3 es el **primer `<span>` de la fila**; leer el
    `textContent` de la fila entera y cortar por espacios da `"Riobamba—"`, porque se pega
    al valor de la derecha.
+
+## Libro 6 · Tema 2 — "Revolución Marcista" (10 años)
+
+Tres rondas con tres verbos que **no existen en el Tema 1** (allí se gastaron *decidir
+sí/no*, *arrastrar a su sitio* y *ordenar*). Regla de la autora: dentro del mismo libro,
+los temas deben diferenciarse al máximo.
+
+| Ronda | Verbo | ⭐ |
+|---|---|---|
+| R1 "La bandera de marzo" | componer (el símbolo se dibuja al tocar) | 4 |
+| R2 "El Ecuador partido" | tocar en el mapa | 4 |
+| R3 "La Carta de la Esclavitud" | rasgar (se rompe pasando el dedo) | 3 |
+
+**Invariantes de este tema:**
+
+- **El mapa sale de datos reales**: contorno del Ecuador continental de Natural Earth
+  (`ne_10m_admin_0_countries`, dominio público), plate carrée, Douglas-Peucker 0.008°
+  (335 puntos), y las cuatro ciudades en coordenadas reales. **Nunca dibujarlo a ojo ni
+  generarlo como imagen**: no sería tocable por lugar. Las manchas de color son zonas de
+  influencia, **no fronteras** — el libro no las da.
+- **Los cuatro renglones de la Carta los aprobó la autora uno por uno.** El libro dice que
+  la Carta de la Esclavitud cae, pero **no da su articulado**: están redactados solo con
+  hechos que el libro sí afirma. No añadir ni cambiar renglones sin pasar por ella.
+- **El renglón de los esclavos no se pide nunca** y sobrevive al papel roto: la manumisión
+  llega en **1851, con Urbina**. Es el remate del tema, no un descuido.
+- **La R3 no puede dejar al niño sin salida:** cada turno pide un renglón que **siga
+  entero**. Si se rompe uno que una consigna posterior iba a pedir, esa consigna se
+  descarta y la ronda termina sola. Lo vigila `.planning/sin-callejon-r3.js`.

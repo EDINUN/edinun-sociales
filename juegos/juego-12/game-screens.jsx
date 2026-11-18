@@ -11,6 +11,11 @@
 //   R2 "La pirámide"            — APILAR por jerarquía los grupos sociales de 1830
 //   R3 "La línea del tiempo"     — ORDENAR los hechos de los primeros años
 //
+// LIBRO 6 · TEMA 2 · "Revolución Marcista" — 10 años — L6T2_ROUNDS:
+//   R1 "La bandera de marzo"       — COMPONER: el símbolo se dibuja al tocar
+//   R2 "El Ecuador partido"        — TOCAR EN EL MAPA (contorno real de Natural Earth)
+//   R3 "La Carta de la Esclavitud" — RASGAR: se rompe pasando el dedo
+//
 // CONTRATO: GameScreen/ResultsScreen({app,setApp,go}) en window; markFirstAttempt() en la
 // 1a respuesta; incrementGamesCompleted() al fin. Invariantes EDINUN: fallar NO baja el
 // progreso; al fallar se revela la correcta en el lenguaje de la mecánica; salir/reiniciar
@@ -692,6 +697,488 @@ const L6T1_ROUNDS = [
   { C: L6T1R3Linea, verify: true, bubble: (<>Arrastra cada tarjeta<br />hasta su lugar.</>) },
 ];
 
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ LIBRO 6 · TEMA 2 · "Revolución Marcista"                                   ║
+// ║ Edad objetivo: 10 años (la fija la autora).                                ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 verbos que NO existen en el Tema 1 (allí se gastaron decidir    ║
+// ║ sí/no, arrastrar a su sitio y ordenar):                                     ║
+// ║   R1 "La bandera de marzo"      — COMPONER: el símbolo se dibuja al tocar   ║
+// ║   R2 "El Ecuador partido"       — TOCAR EN EL MAPA                          ║
+// ║   R3 "La Carta de la Esclavitud" — RASGAR: se rompe pasando el dedo         ║
+// ║                                                                            ║
+// ║ ⭐ 4 + 4 + 3 = **11 máximo**.                                               ║
+// ║                                                                            ║
+// ║ ⚠ Todo el contenido sale del tema del libro (ver §3.1 del design-doc). La   ║
+// ║ autora aprobó uno por uno los renglones de la R3, redactados con hechos     ║
+// ║ que el libro sí afirma, porque no dio el articulado de la Carta.            ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+const CAT_LABEL_T2 = "La Revolución Marcista";
+
+// ── R1 · "La bandera de marzo" ──────────────────────────────────────────────
+// VERBO: componer. Se toca un color y entra solo en el siguiente cuartel vacío
+// (izquierda → centro → derecha): no se "coloca" nada, se va pintando, y la bandera
+// crece a la vista. Las estrellas se ponen con un contador, que es otro gesto.
+// La bandera marcista del libro: tres cuarteles, dos blancos y uno AZUL al centro,
+// con TRES estrellas (Quito, Guayaquil, Cuenca).
+const J12_BAN_COLORES = [
+  { id: "bla", t: "blanco", c: "#fdfaf0" },
+  { id: "azu", t: "azul", c: "#1f4fa8" },
+  { id: "roj", t: "rojo", c: "#c0392b" },
+  { id: "ama", t: "amarillo", c: "#f1c40f" },
+  { id: "ver", t: "verde", c: "#1f8a54" },
+];
+const J12_BAN_OK = ["bla", "azu", "bla"];
+const J12_BAN_ESTRELLAS = 3;
+
+function j12Estrella(cx, cy, r, key) {
+  let p = "";
+  for (let i = 0; i < 10; i++) {
+    const rad = i % 2 === 0 ? r : r * 0.46;
+    const a = (Math.PI / 5) * i - Math.PI / 2;
+    p += (i ? "L" : "M") + (cx + rad * Math.cos(a)).toFixed(1) + "," + (cy + rad * Math.sin(a)).toFixed(1);
+  }
+  return <path key={key} d={p + "Z"} fill="#fdfaf0" stroke="#c9a227" strokeWidth="0.8" />;
+}
+
+// Dibuja la bandera: `cuarteles` es un arreglo de 3 ids de color (o null) y `estrellas`
+// cuántas van en el cuartel del centro. Sirve tanto para la que arma el niño como para
+// el cartel del revelado.
+function J12Bandera({ cuarteles, estrellas, ancho, alto }) {
+  const w = ancho, h = alto, cw = w / 3;
+  const col = (i) => { const c = J12_BAN_COLORES.find((x) => x.id === cuarteles[i]); return c ? c.c : "rgba(255,255,255,0.07)"; };
+  const sep = h * 0.1;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ borderRadius: 6, boxShadow: "0 6px 16px rgba(0,0,0,0.4)" }}>
+      <rect x="0" y="0" width={w} height={h} fill="rgba(0,0,0,0.3)" />
+      {[0, 1, 2].map((i) => (
+        <rect key={i} x={i * cw} y="0" width={cw} height={h} fill={col(i)} style={{ transition: "fill 0.25s" }} />
+      ))}
+      {Array.from({ length: estrellas }).map((_, i) => {
+        const n = estrellas, paso = cw / (n + 1);
+        return j12Estrella(cw + paso * (i + 1), h / 2, Math.min(h * 0.17, paso * 0.52), i);
+      })}
+      {[1, 2].map((i) => <line key={i} x1={i * cw} y1="0" x2={i * cw} y2={h} stroke="rgba(0,0,0,0.18)" strokeWidth="1" />)}
+      <rect x="0.75" y="0.75" width={w - 1.5} height={h - 1.5} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.5" rx="4" />
+      <rect x="0" y={h - sep} width={w} height="0" fill="none" />
+    </svg>
+  );
+}
+
+function L6T2R1Bandera({ onSolve, verifyRef }) {
+  // Varía el ORDEN de la paleta en cada partida (la bandera, en cambio, es una sola:
+  // es un símbolo histórico, no hay nada que sortear). Ver "variedad" en el design-doc.
+  const [paleta] = useStateG(() => j12Shuffle(J12_BAN_COLORES));
+  const [cuarteles, setCuarteles] = useStateG([null, null, null]);
+  const [estrellas, setEstrellas] = useStateG(0);
+  const [verified, setVerified] = useStateG(false);
+  const completa = cuarteles.every((c) => c !== null);
+
+  function pintar(id) {
+    if (verified) return;
+    const i = cuarteles.indexOf(null);
+    if (i === -1) return;
+    setCuarteles((cs) => { const n = cs.slice(); n[i] = id; return n; });
+  }
+  function borrar(i) {
+    if (verified || cuarteles[i] === null) return;
+    // Al quitar un cuartel, los de su derecha se corren para que el siguiente toque
+    // entre siempre en el primer hueco: así nunca quedan huecos salteados.
+    setCuarteles((cs) => { const n = cs.filter((_, k) => k !== i); n.push(null); return n; });
+  }
+
+  function verificar() {
+    if (verified || !completa) return;
+    setVerified(true);
+    const bien = cuarteles.filter((c, i) => c === J12_BAN_OK[i]).length;
+    const estrOk = estrellas === J12_BAN_ESTRELLAS;
+    const ganadas = bien + (estrOk ? 1 : 0);
+    const nombre = (id) => { const c = J12_BAN_COLORES.find((x) => x.id === id); return c ? c.t : "—"; };
+    onSolve(bien === 3 && estrOk, {
+      emoji: "🏴", a: "La bandera de la Revolución Marcista",
+      userAnswer: cuarteles.map(nombre).join(" · ") + " · " + estrellas + (estrellas === 1 ? " estrella" : " estrellas"),
+      correctAnswer: J12_BAN_OK.map(nombre).join(" · ") + " · 3 estrellas",
+    }, ganadas);
+  }
+  verifyRef.current = verificar;
+
+  const estrOk = estrellas === J12_BAN_ESTRELLAS;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Levanta la bandera del 6 de marzo de 1845.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 11, minHeight: 0, width: "100%" }}>
+        {/* Dato del libro SIEMPRE a la vista: las tres ciudades que se unieron. Así el
+            número de estrellas se DEDUCE de lo que se ve, no se recuerda. */}
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: "2.5px solid rgba(242,194,96,0.6)", background: "rgba(0,0,0,0.34)", padding: "5px 12px 6px", flexShrink: 0 }}>
+          <div className="ed-label" style={{ color: "#fce9a8", fontSize: 9.5, textAlign: "center", marginBottom: 4 }}>Una estrella por cada ciudad que se levantó</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
+            {["Quito", "Guayaquil", "Cuenca"].map((x) => (
+              <span key={x} style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "#fff", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 999, padding: "2px 9px" }}>{x}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* El asta y la bandera */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 7, flexShrink: 0 }}>
+          <div style={{ width: 7, height: 128, borderRadius: 4, background: "linear-gradient(180deg,#a9793a,#6b4a1e)", boxShadow: "0 4px 10px rgba(0,0,0,0.4)" }} />
+          <div style={{ position: "relative" }}>
+            <J12Bandera cuarteles={cuarteles} estrellas={estrellas} ancho={222} alto={128} />
+            {/* Los tres cuarteles son tocables para vaciarlos (no hay "deshacer" escondido). */}
+            {!verified && (
+              <div style={{ position: "absolute", inset: 0, display: "flex" }}>
+                {[0, 1, 2].map((i) => (
+                  <button key={i} className="ed-btn-plain" onClick={() => borrar(i)} aria-label={`Vaciar cuartel ${i + 1}`}
+                    style={{ flex: 1, background: "transparent", border: "none", cursor: cuarteles[i] ? "pointer" : "default", padding: 0 }} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Paleta de colores */}
+        <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
+          {paleta.map((c) => (
+            <button key={c.id} onClick={() => pintar(c.id)} disabled={verified || completa}
+              style={{ width: 62, height: 38, borderRadius: 9, border: "2.5px solid rgba(255,255,255,0.4)", background: c.c, cursor: verified || completa ? "default" : "pointer", opacity: verified || completa ? 0.45 : 1, boxShadow: "0 3px 8px rgba(0,0,0,0.35)", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 2 }}>
+              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: c.id === "bla" || c.id === "ama" ? "#3a2608" : "#fff", textShadow: c.id === "bla" || c.id === "ama" ? "none" : "0 1px 2px rgba(0,0,0,0.6)" }}>{c.t}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Contador de estrellas: otro gesto distinto, y se dibujan en vivo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0, borderRadius: 11, border: `2.5px solid ${verified ? (estrOk ? "#2ecc8f" : "#ff6b6b") : "rgba(242,194,96,0.55)"}`, background: "rgba(0,0,0,0.34)", padding: "4px 11px" }}>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#fce9a8" }}>Estrellas</span>
+          <button onClick={() => !verified && setEstrellas((n) => Math.max(0, n - 1))} disabled={verified || estrellas === 0}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, cursor: verified || estrellas === 0 ? "default" : "pointer", opacity: verified || estrellas === 0 ? 0.4 : 1 }}>−</button>
+          <span style={{ minWidth: 20, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 18, color: "#fff" }}>{estrellas}</span>
+          <button onClick={() => !verified && setEstrellas((n) => Math.min(5, n + 1))} disabled={verified || estrellas === 5}
+            style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, cursor: verified || estrellas === 5 ? "default" : "pointer", opacity: verified || estrellas === 5 ? 0.4 : 1 }}>+</button>
+        </div>
+
+        {/* Revelado: la bandera correcta al lado, en su propio cartel (NUNCA colgando de
+            la que armó el niño: eso tapaba lo que eligió). */}
+        {verified && (
+          <div style={{ display: "flex", alignItems: "center", gap: 11, flexShrink: 0, borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.5)", padding: "6px 12px" }}>
+            <div className="ed-label" style={{ color: "#fce9a8", fontSize: 9 }}>IBA<br />ASÍ</div>
+            <J12Bandera cuarteles={J12_BAN_OK} estrellas={J12_BAN_ESTRELLAS} ancho={78} alto={45} />
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.25, color: "#fce9a8", maxWidth: 232 }}>Dos cuarteles blancos y uno azul al centro, con tres estrellas: Quito, Guayaquil y Cuenca.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── R2 · "El Ecuador partido" ───────────────────────────────────────────────
+// VERBO: tocar en el mapa. Crisis de 1859: cuatro gobiernos a la vez. Se pide un
+// gobernante y el niño toca la ciudad donde manda; al tocar, la ciudad se queda con su
+// rótulo y pasa el siguiente. Cuatro colocados → ¡VERIFICAR!
+//
+// ⚠ MAPA DE DATOS REALES: contorno del Ecuador continental de Natural Earth
+// (ne_10m_admin_0_countries, dominio público), proyección plate carrée —sobre la línea
+// equinoccial la deformación es despreciable— y simplificado con Douglas-Peucker
+// (tolerancia 0.008°, 335 puntos). Las cuatro ciudades van en sus coordenadas reales.
+// NUNCA dibujar un mapa a ojo ni generarlo como imagen: no sería tocable por lugar.
+// Galápagos queda fuera del encuadre (el tema es la crisis continental de 1859).
+const J12_ECU_W = 288, J12_ECU_H = 320.9;
+const J12_ECU_D = "M108.7,0.0L111.7,2.0L116.9,8.3L120.0,8.5L121.6,11.9L123.1,11.4L125.8,12.0L132.6,18.8L137.5,20.6L144.0,25.5L146.1,26.6L149.6,26.7L154.0,27.9L154.8,30.0L157.5,31.1L164.8,29.4L166.2,30.6L166.6,34.2L167.6,35.7L172.7,38.7L176.5,39.0L178.1,49.8L180.0,52.1L189.5,54.8L193.9,53.6L195.6,54.0L197.5,56.2L202.5,57.1L205.6,59.4L209.8,59.0L213.0,59.8L212.9,57.8L213.5,57.6L218.3,58.5L221.4,60.6L229.2,58.7L228.8,51.4L231.3,51.1L234.6,48.4L238.4,51.1L242.8,51.6L243.6,53.9L246.9,53.3L250.9,58.9L251.9,61.2L258.6,66.4L261.8,67.8L268.1,67.5L276.2,73.4L285.2,76.7L282.8,78.6L279.3,78.7L277.9,79.5L272.5,77.4L268.3,76.7L267.3,77.8L268.5,80.4L270.5,80.5L275.2,83.7L276.8,89.3L279.1,93.4L280.6,94.6L282.0,94.8L286.3,98.4L286.6,102.5L284.7,104.6L284.5,108.6L286.8,117.9L288.0,119.7L282.0,119.9L279.1,116.9L270.8,147.9L245.0,177.4L215.5,199.5L156.6,220.2L152.9,223.4L147.9,230.2L144.8,232.9L142.6,236.8L140.2,238.8L140.2,239.9L142.2,242.1L141.8,244.5L138.7,246.0L137.2,241.1L134.4,240.0L132.5,240.1L132.0,241.1L131.9,245.1L130.0,250.3L130.0,254.6L128.8,255.0L129.1,260.1L126.1,263.0L125.2,268.0L122.0,269.5L121.3,275.5L117.3,285.0L116.0,286.8L116.5,290.5L118.3,292.2L116.6,295.1L116.5,297.9L114.2,300.0L107.5,303.0L105.2,305.1L103.8,307.7L105.2,312.5L104.6,313.5L101.2,314.0L99.7,318.3L97.0,320.9L95.0,319.3L85.1,318.4L83.2,315.5L81.4,314.6L80.5,312.7L77.8,310.8L75.4,303.4L73.9,301.3L75.1,298.2L75.0,297.0L72.4,296.2L67.5,292.3L60.6,294.6L58.7,294.3L55.2,290.4L51.3,289.9L46.5,285.9L43.4,284.6L40.2,285.3L37.7,289.8L31.4,294.2L30.1,294.3L27.0,292.7L25.9,291.1L33.2,280.4L27.0,281.1L26.0,278.9L26.2,277.0L24.8,274.7L25.9,271.2L27.2,269.9L29.1,269.6L34.2,271.3L35.3,270.8L37.5,267.7L42.2,265.0L41.0,263.4L40.8,261.6L39.2,258.0L39.7,252.2L39.2,250.2L38.0,249.5L38.5,246.3L36.9,244.9L37.2,242.0L33.5,240.3L33.4,239.1L35.1,236.7L34.5,238.4L34.8,239.4L36.2,236.7L37.5,238.1L43.7,237.0L47.4,230.9L48.6,231.1L48.4,234.7L52.8,230.6L53.7,226.5L56.7,221.0L56.3,219.0L58.7,211.1L61.6,203.8L64.0,200.5L63.1,195.4L60.9,194.9L58.4,189.7L58.4,181.4L57.0,179.0L57.7,176.9L57.3,176.3L59.5,174.9L60.1,173.2L61.7,172.3L62.1,171.2L58.8,173.1L58.7,174.4L56.7,174.7L55.8,176.7L55.3,180.2L57.2,185.7L56.5,195.4L55.6,198.0L53.7,199.8L50.5,201.2L49.7,200.3L47.3,199.7L47.0,198.9L49.1,197.1L50.3,194.9L51.7,194.7L53.2,195.8L53.9,195.1L53.6,194.0L53.4,195.0L51.5,193.7L48.7,194.5L48.6,192.8L50.0,188.8L51.5,188.2L52.9,186.2L51.3,187.2L49.8,187.2L48.8,188.2L46.6,193.7L41.7,200.2L40.1,200.9L38.9,202.2L37.0,201.1L36.5,201.4L36.5,203.3L38.2,205.2L37.7,207.3L34.5,206.3L30.7,203.3L27.1,201.7L17.7,191.6L10.4,189.6L7.4,187.3L4.9,186.8L3.9,183.9L0.5,180.6L0.0,179.3L3.2,180.2L4.1,181.8L7.1,181.1L11.6,178.1L13.3,176.1L13.7,173.1L12.5,169.7L13.9,168.7L14.1,167.4L12.6,160.9L7.8,150.5L9.8,148.7L9.6,146.1L10.6,145.1L12.1,145.0L12.4,140.6L13.5,139.5L13.4,138.3L8.9,132.7L6.5,128.4L4.8,124.4L5.1,123.4L9.8,118.5L11.2,118.7L14.5,117.7L14.4,118.2L16.0,118.7L17.9,117.3L18.4,118.0L19.7,118.3L22.1,116.8L23.2,115.6L25.7,105.9L28.1,101.6L29.4,101.2L30.2,103.6L31.6,104.1L35.5,104.4L35.5,103.8L30.9,102.5L29.7,100.0L28.7,99.1L27.9,95.1L25.7,90.4L28.9,88.3L31.9,82.5L33.0,82.1L34.3,80.0L35.2,80.8L38.9,78.4L45.1,71.0L45.5,69.4L47.1,68.8L47.9,66.9L48.6,62.6L48.0,55.6L48.6,53.6L50.2,55.2L50.9,53.2L48.3,48.6L48.3,46.4L49.6,43.6L48.6,40.3L45.9,38.9L45.0,36.8L45.0,34.7L46.7,30.8L48.1,29.6L51.4,30.0L53.1,28.8L57.3,27.8L60.7,25.5L62.1,23.9L67.6,21.4L67.8,22.4L66.8,25.5L69.6,29.3L67.9,26.2L68.7,22.3L69.6,21.8L71.7,22.4L78.5,17.7L82.1,18.0L86.7,17.0L87.8,17.6L92.0,16.7L97.4,10.8L99.6,12.0L100.6,15.7L102.1,14.4L102.5,11.3L103.7,9.5L104.2,10.1L105.1,9.9L106.6,7.2L109.5,7.8L109.2,7.1L106.4,6.4L106.1,5.7L108.5,2.6L108.7,0.0Z";
+const J12_GOBIERNOS = [
+  { id: "qui", ciudad: "Quito", jefe: "García Moreno", x: 126.7, y: 80.4 },
+  { id: "gye", ciudad: "Guayaquil", jefe: "Guillermo Franco", x: 55.4, y: 179.4 },
+  { id: "cue", ciudad: "Cuenca", jefe: "Jerónimo Carrión", x: 100.2, y: 215.8 },
+  { id: "loj", ciudad: "Loja", jefe: "Manuel Carrión Pinzano", x: 90.2, y: 270.0 },
+];
+const J12_ZONA_COL = { qui: "#f1c40f", gye: "#4fd8ff", cue: "#b388ff", loj: "#ff9a6b" };
+
+function L6T2R2Mapa({ onSolve, verifyRef }) {
+  // Varía el ORDEN en que se piden los cuatro gobernantes: 4! = 24 recorridos.
+  const [orden] = useStateG(() => j12Shuffle(J12_GOBIERNOS.map((g) => g.id)));
+  const [puesto, setPuesto] = useStateG({});   // id de ciudad -> id del gobierno pedido
+  const [verified, setVerified] = useStateG(false);
+  const hechos = Object.keys(puesto).length;
+  const pendiente = orden[hechos];             // id del gobierno que toca colocar
+  const pedido = J12_GOBIERNOS.find((g) => g.id === pendiente);
+
+  function tocar(ciudadId) {
+    if (verified || !pendiente || puesto[ciudadId] !== undefined) return;
+    setPuesto((p) => Object.assign({}, p, { [ciudadId]: pendiente }));
+  }
+  function verificar() {
+    if (verified || hechos < J12_GOBIERNOS.length) return;
+    setVerified(true);
+    const aciertos = Object.keys(puesto).filter((c) => puesto[c] === c).length;
+    const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
+    const ciudad = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).ciudad;
+    onSolve(aciertos === J12_GOBIERNOS.length, {
+      emoji: "🗺️", a: "1859: el país con cuatro gobiernos",
+      userAnswer: Object.keys(puesto).map((c) => `${nombre(puesto[c])} en ${ciudad(c)}`).join(" · "),
+      correctAnswer: J12_GOBIERNOS.map((g) => `${g.jefe} en ${g.ciudad}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  const ESC = 0.92;
+  const MW = J12_ECU_W * ESC, MH = J12_ECU_H * ESC;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>En 1859 el país tuvo cuatro gobiernos a la vez.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 0, width: "100%", paddingTop: 6 }}>
+        {/* Columna del pedido / recuento */}
+        <div style={{ width: 150, flexShrink: 0, display: "flex", flexDirection: "column", gap: 7 }}>
+          {!verified && pedido && (
+            <div style={{ borderRadius: 12, border: "2.5px solid #4fd8ff", background: "rgba(0,0,0,0.45)", padding: "7px 10px" }}>
+              <div className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, marginBottom: 3 }}>¿Dónde manda?</div>
+              <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, lineHeight: 1.15, color: "#fff" }}>{pedido.jefe}</div>
+            </div>
+          )}
+          {/* Con los cuatro puestos la columna se quedaba vacía: queda el aviso de rematar. */}
+          {!verified && !pedido && (
+            <div style={{ borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.45)", padding: "7px 10px" }}>
+              <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, lineHeight: 1.2, color: "#fce9a8", textAlign: "center" }}>Ya están los cuatro.<br />Pulsa ¡VERIFICAR!</div>
+            </div>
+          )}
+          {verified && (
+            <div style={{ borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.5)", padding: "7px 10px" }}>
+              <div className="ed-label" style={{ color: "#fce9a8", fontSize: 8.5, marginBottom: 4 }}>Iban así</div>
+              {J12_GOBIERNOS.map((g) => {
+                const ok = puesto[g.id] === g.id;
+                return (
+                  <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
+                    <span style={{ flexShrink: 0, width: 13, height: 13, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 8.5 }}>{ok ? "✓" : "✗"}</span>
+                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.15, color: "#fce9a8" }}>{g.jefe} en {g.ciudad}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+            {orden.map((id, i) => (
+              <span key={id} style={{ width: 9, height: 9, borderRadius: "50%", background: i < hechos ? "#f2c260" : "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.3)" }} />
+            ))}
+          </div>
+        </div>
+
+        {/* El mapa */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <svg width={MW} height={MH} viewBox={`0 0 ${J12_ECU_W} ${J12_ECU_H}`} style={{ overflow: "visible" }}>
+            <path d={J12_ECU_D} fill="rgba(255,253,246,0.1)" stroke="rgba(242,194,96,0.75)" strokeWidth="2" strokeLinejoin="round" />
+            {/* La zona de cada gobierno se enciende al colocarlo. Es una mancha de
+                influencia alrededor de su ciudad, NO una frontera: el libro no da
+                límites y no se inventan. */}
+            {J12_GOBIERNOS.map((g) => {
+              const asignado = puesto[g.id];
+              if (asignado === undefined) return null;
+              const col = J12_ZONA_COL[asignado];
+              return <circle key={"z" + g.id} cx={g.x} cy={g.y} r="46" fill={col} opacity={verified && asignado !== g.id ? 0.1 : 0.19} style={{ pointerEvents: "none" }} />;
+            })}
+            {J12_GOBIERNOS.map((g) => {
+              const asignado = puesto[g.id];
+              const libre = asignado === undefined;
+              let col = libre ? "#fdfaf0" : J12_ZONA_COL[asignado];
+              if (verified) col = asignado === g.id ? "#2ecc8f" : "#ff6b6b";
+              return (
+                <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: !verified && libre ? "pointer" : "default" }}>
+                  <circle cx={g.x} cy={g.y} r="17" fill="transparent" />
+                  <circle cx={g.x} cy={g.y} r="7" fill={col} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+                  <text x={g.x + 11} y={g.y + 4} fontFamily="var(--ed-font-display)" fontWeight="800" fontSize="12" fill="#fff" stroke="rgba(0,0,0,0.65)" strokeWidth="2.6" paintOrder="stroke">{g.ciudad}</text>
+                </g>
+              );
+            })}
+            {/* El nombre del gobernante colocado, bajo su ciudad */}
+            {J12_GOBIERNOS.map((g) => {
+              const asignado = puesto[g.id];
+              if (asignado === undefined) return null;
+              const jefe = (J12_GOBIERNOS.find((x) => x.id === asignado) || {}).jefe;
+              return <text key={"n" + g.id} x={g.x + 11} y={g.y + 16} fontFamily="var(--ed-font-ui)" fontWeight="700" fontSize="9.5" fill={verified ? (asignado === g.id ? "#8cf0c0" : "#ffb3b3") : "#fce9a8"} stroke="rgba(0,0,0,0.65)" strokeWidth="2.2" paintOrder="stroke">{jefe}</text>;
+            })}
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── R3 · "La Carta de la Esclavitud" ────────────────────────────────────────
+// VERBO: rasgar. Se pasa el dedo (o el ratón) por encima de un renglón y el papel se
+// corta: el trozo se despega y cae. Lo que se piensa es CUÁL romper, y para saberlo hay
+// que leer: la ronda se resuelve con lo que está en pantalla, no de memoria.
+//
+// ⚠ Los cuatro renglones los aprobó la autora uno por uno. El libro dice que la Carta
+// de la Esclavitud cae, pero no da su articulado: están redactados SOLO con hechos que
+// el libro sí afirma. No añadir renglones sin pasar por ella.
+// El renglón de los esclavos NO se pide nunca: sobrevive al papel roto, y así se ve que
+// la revolución no lo arregló todo de golpe (la manumisión llega en 1851, con Urbina).
+const J12_CARTA = [
+  { id: "flores", t: "El general Juan José Flores gobierna el Ecuador.", pide: "Rompe al hombre contra el que se levantó Guayaquil." },
+  { id: "pesos", t: "Cada hombre paga tres pesos al año.", pide: "Rompe el impuesto que hizo estallar el 6 de marzo." },
+  { id: "iglesia", t: "La Iglesia queda apartada de los asuntos del país.", pide: "La Iglesia vuelve al país: rompe lo que la tenía fuera." },
+  { id: "esclavos", t: "Los esclavos siguen sin libertad.", pide: null },
+];
+const J12_CARTA_PIDEN = J12_CARTA.filter((r) => r.pide).map((r) => r.id);
+
+function L6T2R3Carta({ onSolve, verifyRef }) {
+  // Varía el orden de los renglones en el papel (4! = 24) y el orden de las tres
+  // consignas (3! = 6). El renglón que sobrevive es siempre el mismo a propósito.
+  const [b] = useStateG(() => ({
+    renglones: j12Shuffle(J12_CARTA),
+    consignas: j12Shuffle(J12_CARTA_PIDEN),
+  }));
+  // `pasos` guarda, por turno, qué se pidió y qué rompió el niño.
+  // ⚠ No basta con ir consigna por consigna en orden fijo: si rompe por error el renglón
+  // que una consigna POSTERIOR iba a pedir, esa consigna se queda sin solución posible y
+  // la ronda se atasca. Por eso cada turno se pide un renglón que SIGA entero; si ya no
+  // queda ninguno de los tres, la ronda termina ahí.
+  const [pasos, setPasos] = useStateG([]);            // [{ pide, roto }]
+  const [corte, setCorte] = useStateG(null);          // { id, avance 0..1 }
+  const [verified, setVerified] = useStateG(false);
+  const refs = useRefG({});
+  const rotos = pasos.map((x) => x.roto);
+  const pedidas = pasos.map((x) => x.pide);
+  const consigna = b.consignas.find((id) => pedidas.indexOf(id) === -1 && rotos.indexOf(id) === -1);
+  const terminado = !consigna;
+  const paso = pasos.length;
+
+  function rasgar(id) {
+    if (verified || terminado || rotos.indexOf(id) >= 0) return;
+    setCorte(null);
+    setPasos((p) => p.concat([{ pide: consigna, roto: id }]));
+  }
+
+  // El corte avanza con el gesto: se mide cuánto ha recorrido el puntero a lo ancho del
+  // renglón desde que lo tocó. Al pasar del 72 % el renglón se rompe.
+  function onDown(e, id) {
+    if (verified || terminado || rotos.indexOf(id) >= 0) return;
+    const el = refs.current[id];
+    if (!el) return;
+    try { el.setPointerCapture(e.pointerId); } catch (x) {}
+    const r = el.getBoundingClientRect();
+    setCorte({ id, x0: e.clientX, avance: 0, ancho: r.width });
+  }
+  function onMove(e, id) {
+    if (!corte || corte.id !== id) return;
+    const a = Math.min(1, Math.abs(e.clientX - corte.x0) / Math.max(1, corte.ancho * 0.72));
+    if (a >= 1) { rasgar(id); return; }
+    setCorte((c) => (c && c.id === id ? Object.assign({}, c, { avance: a }) : c));
+  }
+  function onUp(e, id) {
+    if (!corte || corte.id !== id) return;
+    setCorte(null);
+  }
+
+  function verificar() {
+    if (verified || !terminado) return;
+    setVerified(true);
+    const aciertos = pasos.filter((x) => x.pide === x.roto).length;
+    const texto = (id) => (J12_CARTA.find((r) => r.id === id) || {}).t;
+    onSolve(aciertos === b.consignas.length, {
+      emoji: "📜", a: "Lo que cayó con la Revolución Marcista",
+      userAnswer: rotos.map(texto).join(" · "),
+      correctAnswer: b.consignas.map(texto).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // ¿Qué debía romperse en el turno i? Para el revelado.
+  const debia = {};
+  b.consignas.forEach((id, i) => { debia[id] = i; });
+
+  function renglon(r, i) {
+    const roto = rotos.indexOf(r.id) >= 0;
+    const turno = rotos.indexOf(r.id);
+    const acerto = roto && pasos[turno] && pasos[turno].pide === r.id;
+    const cortando = corte && corte.id === r.id ? corte.avance : 0;
+    // Tras verificar: verde el que tocaba y se rompió, rojo el que se rompió de más,
+    // y marcado en ámbar el que había que romper y sigue entero.
+    let bd = "rgba(120,94,48,0.5)", bg = "rgba(255,253,246,0.93)";
+    if (roto) { bd = "transparent"; }
+    if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
+    if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
+    return (
+      <div key={r.id} style={{ position: "relative", height: 46, flexShrink: 0 }}>
+        <div
+          ref={(el) => { refs.current[r.id] = el; }}
+          onPointerDown={(e) => onDown(e, r.id)}
+          onPointerMove={(e) => onMove(e, r.id)}
+          onPointerUp={(e) => onUp(e, r.id)}
+          onPointerCancel={(e) => onUp(e, r.id)}
+          style={{
+            position: "absolute", inset: 0, display: "flex", alignItems: "center", gap: 7,
+            borderRadius: 7, border: `2px solid ${bd}`, background: roto ? "transparent" : bg,
+            padding: "0 10px", boxSizing: "border-box", touchAction: "none",
+            // Sin esto, rasgar SELECCIONA el texto del renglón y se ve el resaltado azul.
+            userSelect: "none", WebkitUserSelect: "none",
+            cursor: verified || terminado || roto ? "default" : "grab",
+            opacity: roto ? 0 : 1, transition: "opacity 0.25s",
+            boxShadow: roto ? "none" : "0 2px 6px rgba(0,0,0,0.2)",
+          }}>
+          <span style={{ flexShrink: 0, fontSize: 11, color: "#8a6410" }}>▸</span>
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, lineHeight: 1.2, color: "#3a2608" }}>{r.t}</span>
+          {/* El corte dentado que avanza con el dedo */}
+          {cortando > 0 && (
+            <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: `${cortando * 100}%`, pointerEvents: "none", borderRight: "3px dashed #c0392b", background: "linear-gradient(90deg, rgba(192,57,43,0.06), rgba(192,57,43,0.16))" }} />
+          )}
+        </div>
+        {/* Lo que asoma por el hueco cuando el renglón ya no está */}
+        {roto && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: 3, boxSizing: "border-box", background: "rgba(24,14,4,0.62)", boxShadow: "inset 0 3px 7px rgba(0,0,0,0.55)", overflow: "hidden" }}>
+            {/* Los dientes del papel roto, arriba y abajo del hueco: sin ellos parecía una
+                fila apagada, no un agujero. Van del color del papel, que es lo que queda
+                a los lados del desgarrón. */}
+            {["top", "bottom"].map((lado) => (
+              <div key={lado} style={{ position: "absolute", left: 0, right: 0, [lado]: 0, height: 7, background: "repeating-linear-gradient(90deg, rgba(246,237,213,0.95) 0 5px, transparent 5px 10px)", WebkitMaskImage: `linear-gradient(${lado === "top" ? "180deg" : "0deg"}, #000, transparent)`, maskImage: `linear-gradient(${lado === "top" ? "180deg" : "0deg"}, #000, transparent)` }} />
+            ))}
+            <span style={{ position: "relative", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.06em", color: verified ? (acerto ? "#8cf0c0" : "#ffb3b3") : "#fce9a8" }}>DEROGADO · 1845</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Tres cosas cayeron con la revolución.</span>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
+        {/* La consigna del turno */}
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          {!verified && !terminado && (<>
+            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>{paso + 1} de {b.consignas.length}</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fff", textAlign: "center" }}>{(J12_CARTA.find((r) => r.id === consigna) || {}).pide}</span>
+          </>)}
+          {!verified && terminado && (
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textAlign: "center" }}>Ya no queda nada que romper. Pulsa ¡VERIFICAR!</span>
+          )}
+          {verified && (
+            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "#fce9a8", textAlign: "center" }}>El renglón de los esclavos no cayó en 1845: hubo que esperar a 1851, con Urbina.</span>
+          )}
+        </div>
+
+        {/* El papel */}
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
+          <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 7 }}>CARTA DE LA ESCLAVITUD · 1843</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {b.renglones.map((r, i) => renglon(r, i))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const L6T2_ROUNDS = [
+  { C: L6T2R1Bandera, verify: true, bubble: (<>Toca un color y entra<br />en el cuartel vacío.</>) },
+  { C: L6T2R2Mapa, verify: true, bubble: (<>Toca en el mapa la<br />ciudad donde manda.</>) },
+  { C: L6T2R3Carta, verify: true, bubble: (<>Pasa el dedo por el<br />renglón para romperlo.</>) },
+];
+
 // ══════════════════════════════════════════════════════════════════
 // ORQUESTADOR compartido por TODOS los temas — chrome EDINUN (HUD, personaje, acciones,
 // overlay, modales). Recibe el arreglo de rondas del tema activo.
@@ -843,7 +1330,7 @@ function J12Game({ app, setApp, go, rounds }) {
 // Despacho por TEMA. Los temas que faltan (2 y 3 del Libro 6, y los 4 del Libro 7) no
 // están en el menú todavía, así que una categoría desconocida cae en el Tema 1 en vez de
 // romperse.
-const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS };
+const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "l6-t1";
   const rounds = J12_ROUNDS_POR_TEMA[cat] || L6T1_ROUNDS;

@@ -140,6 +140,7 @@ const GRAD_POS = [
 const LIBROS = [
   { id: "libro-6", label: "Libro 6", temas: [
     { id: "l6-t1", label: "Los primeros años del Ecuador", desc: "El Estado ecuatoriano en sus primeros años de vida" },
+    { id: "l6-t2", label: "La Revolución Marcista", desc: "El 6 de marzo de 1845 y los años marcistas" },
   ] },
   { id: "libro-7", label: "Libro 7", temas: [] },
 ];

@@ -141,6 +141,14 @@ async function run() {
           const libro = await page.$("button:has-text('Libro '):not([disabled])");
           if (libro) { await libro.click(); await page.waitForTimeout(400); }
         }
+        // Con VARIOS temas no hay ninguno preseleccionado y ENTRAR sale apagado: hay que
+        // elegir un tema antes. Los botones de tema son los unicos con atributo title en
+        // ese nivel (MenuButton); el boton '← Libros' y ENTRAR no lo llevan.
+        const entrar = await page.$("button:has-text('ENTRAR')");
+        if (entrar && await entrar.isDisabled()) {
+          const tema = await page.$("button[title]:not([disabled])");
+          if (tema) { await tema.click(); await page.waitForTimeout(300); }
+        }
         await page.waitForSelector("input.ed-input", { timeout: 20000 });
         await page.fill("input.ed-input", "QABot");
         await page.click("button:has-text('ENTRAR')");
