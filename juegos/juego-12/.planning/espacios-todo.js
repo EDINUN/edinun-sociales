@@ -162,7 +162,9 @@ async function abrir(p, tema) {
       await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(420);
     }
     console.log(await medir(p, et + " T2 R2 llena", fallos));
-    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+    // ⚠ Sin ¡VERIFICAR! suelto aquí: la R2 se verifica uno a uno dentro del bucle, y el
+    //   clic de más se colaba en la R3, que ahora acepta ¡VERIFICAR! en cualquier momento.
+    await p.waitForTimeout(900);
     console.log(await medir(p, et + " T2 R2 revelado", fallos));
     await p.waitForTimeout(3500);
 

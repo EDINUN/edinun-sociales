@@ -76,44 +76,33 @@ async function jugarR2(p, bien) {
   }
 }
 
-// ── R3: rasga el renglón que piden (o cualquier otro, si toca fallar) ──
-const RENGLON_DE = {
-  "Rompe al hombre contra el que se levantó Guayaquil.": "Flores",
-  "Rompe el impuesto que hizo estallar el 6 de marzo.": "tres pesos",
-  "La Iglesia vuelve al país: rompe lo que la tenía fuera.": "Iglesia",
-};
+// ── R3: rompe los renglones que cayeron. SIN turnos ni orden: los tres pedidos se ven
+// a la vez y se rompe lo que se quiera; ¡VERIFICAR! está siempre disponible.
+// Perfecta = romper los TRES que cayeron y ninguno más. Fallada = romper solo el de los
+// esclavos, el único que NO cayó.
+const CAYERON = ["Flores", "tres pesos", "Iglesia"];
+const NO_CAYO = "esclavos";
 async function jugarR3(p, bien) {
   await p.waitForSelector("text=la revolución derribó");
-  for (let k = 0; k < 3; k++) {
-    // Rompiendo mal, la ronda puede acabarse antes de las tres: cuando ya no queda
-    // ningún renglón de los pedidos, termina sola (ver sin-callejon-r3.js).
-    if (await p.$("text=Pulsa ¡VERIFICAR!")) break;
-    await p.waitForSelector('[data-qa="consigna"]');
-    const pide = (await p.textContent('[data-qa="consigna"]')).trim();
-    const clave = RENGLON_DE[pide];
-    if (!clave) throw new Error("consigna desconocida: " + pide);
-    const caja = await p.evaluate(({ clave, bien }) => {
-      // ⚠ Filtrar solo por touch-action agarra tambien el contenedor del lienzo entero
-      // (1280x800). El renglon se reconoce porque su texto empieza por la viñeta "▸".
+  const quiere = bien ? CAYERON : [NO_CAYO];
+  for (const clave of quiere) {
+    const caja = await p.evaluate((clave) => {
       const filas = Array.from(document.querySelectorAll("div"))
         .filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0");
-      const quiere = bien ? filas.find((d) => d.textContent.indexOf(clave) >= 0)
-                          : filas.find((d) => d.textContent.indexOf(clave) === -1);
+      const quiere = filas.find((d) => d.textContent.indexOf(clave) >= 0);
       if (!quiere) return null;
       const r = quiere.getBoundingClientRect();
       return { x: r.left + 12, y: r.top + r.height / 2, w: r.width };
-    }, { clave, bien });
-    if (!caja) throw new Error("no se encontró el renglón para: " + pide);
+    }, clave);
+    if (!caja) throw new Error("no se encontró el renglón de: " + clave);
     // Se rasga de verdad: ratón abajo, recorrer a lo ancho, soltar.
     await p.mouse.move(caja.x, caja.y);
     await p.mouse.down();
     await p.mouse.move(caja.x + caja.w * 0.45, caja.y, { steps: 6 });
     await p.mouse.move(caja.x + caja.w * 0.95, caja.y, { steps: 8 });
     await p.mouse.up();
-    // 1,5 s: si el renglón se resiste, el cartel enseña "Ese no era" antes del pedido siguiente.
-    await p.waitForTimeout(1500);
+    await p.waitForTimeout(320);
   }
-  await p.waitForSelector("text=Pulsa ¡VERIFICAR!");
   await p.click("button:has-text('¡VERIFICAR!')");
 }
 
