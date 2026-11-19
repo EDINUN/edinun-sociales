@@ -1095,38 +1095,58 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     renglones: j12Shuffle(J12_CARTA),
     consignas: j12Shuffle(J12_CARTA_PIDEN),
   }));
-  // `pasos` guarda, por turno, qué se pidió y qué rompió el niño.
-  // ⚠ SIEMPRE son las tres órdenes, en orden. Si el niño rompe por error un renglón que
-  // una orden POSTERIOR iba a pedir, ese renglón SE VUELVE A PEGAR al cabo de un momento
-  // (igual que la marca del mapa en la R2): se ve que se rompió —es la respuesta a su
-  // gesto— y luego el papel se repara, así la orden siguiente conserva su solución.
-  // Antes se descartaba esa orden y la ronda se acababa en dos: la autora lo reportó.
-  const [pasos, setPasos] = useStateG([]);            // [{ pide, roto }]
+  // `pasos` guarda, por turno, qué se pidió y qué arrastró el niño.
+  // ⚠ EL PAPEL SOLO CEDE DONDE DEBE. Arrastrar el renglón equivocado NO lo rompe: se
+  // resiste (temblor + borde rojo), ese pedido cuenta como fallado y pasa al siguiente.
+  // Así "DEROGADO" solo sale —y se queda para siempre— en lo que la revolución sí
+  // derribó, y los tres pedidos se juegan siempre.
+  // Las dos versiones anteriores las descartó la autora: rompiendo de verdad el renglón
+  // equivocado, o se quedaba un pedido sin solución (la ronda acababa en 2 de 3), o había
+  // que volver a pegar el renglón y entonces el "DEROGADO" desaparecía.
+  const [pasos, setPasos] = useStateG([]);            // [{ pide, roto, ok }]
   const [corte, setCorte] = useStateG(null);          // { id, avance 0..1 }
-  const [ultimo, setUltimo] = useStateG(null);        // renglón roto POR ERROR, de paso
+  const [resiste, setResiste] = useStateG(null);      // { id, k } renglón que no cedió
   const [verified, setVerified] = useStateG(false);
   const refs = useRefG({});
-  const rotos = pasos.map((x) => x.roto);                                  // todo lo roto
-  const acertados = pasos.filter((x) => x.pide === x.roto).map((x) => x.roto);
-  const pedidas = pasos.map((x) => x.pide);
+  const rotos = pasos.map((x) => x.roto);                          // todo lo que arrastró
+  const acertados = pasos.filter((x) => x.ok).map((x) => x.roto);  // lo que sí se rompió
   const consigna = b.consignas[pasos.length];
   const terminado = pasos.length >= b.consignas.length;
   const paso = pasos.length;
-  // Huecos a la vista: los aciertos (definitivos) más el error que aún se está enseñando.
-  const huecos = acertados.concat(ultimo && acertados.indexOf(ultimo) === -1 ? [ultimo] : []);
-  // El renglón roto por error se pega solo. Si ya era el último turno se queda roto hasta
-  // ¡VERIFICAR!, para que el revelado enseñe lo que hizo.
+  // El aviso de "ese no era" se va solo, y entonces entra el pedido siguiente.
   useEffectG(() => {
-    if (!ultimo || terminado) return undefined;
-    const t = setTimeout(() => setUltimo(null), 1300);
+    if (!resiste) return undefined;
+    const t = setTimeout(() => setResiste(null), 1250);
     return () => clearTimeout(t);
-  }, [ultimo, terminado]);
+  }, [resiste]);
 
   function rasgar(id) {
     if (verified || terminado || acertados.indexOf(id) >= 0) return;
     setCorte(null);
-    setUltimo(id === consigna ? null : id);
-    setPasos((p) => p.concat([{ pide: consigna, roto: id }]));
+    const ok = id === consigna;
+    if (!ok) {
+      // El temblor va con element.animate(): una transición CSS no arrancaría, porque
+      // React pinta el estado nuevo antes del primer frame (ya pasó en la R3 del Tema 1).
+      const el = refs.current[id];
+      if (el && el.animate) {
+        try {
+          el.animate(
+            [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }],
+            { duration: 340, easing: "ease-in-out" }
+          );
+        } catch (x) {}
+      }
+      setResiste({ id: id, k: pasos.length });
+    }
+    setPasos((p) => p.concat([{ pide: consigna, roto: id, ok: ok }]));
+  }
+
+  // BORRAR deja la Carta COMO AL EMPEZAR: el papel entero y los pedidos desde el primero.
+  // Lo pidió la autora, igual que en la bandera de la R1: si no, no hay forma visible de
+  // rectificar.
+  function borrar() {
+    if (verified) return;
+    setCorte(null); setResiste(null); setPasos([]);
   }
 
   // El corte avanza con el gesto: se mide cuánto ha recorrido el puntero a lo ancho del
@@ -1153,7 +1173,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   function verificar() {
     if (verified || !terminado) return;
     setVerified(true);
-    const aciertos = pasos.filter((x) => x.pide === x.roto).length;
+    const aciertos = pasos.filter((x) => x.ok).length;
     const texto = (id) => (J12_CARTA.find((r) => r.id === id) || {}).t;
     onSolve(aciertos === b.consignas.length, {
       emoji: "📜", a: "Lo que cayó con la Revolución Marcista",
@@ -1168,19 +1188,19 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   b.consignas.forEach((id, i) => { debia[id] = i; });
 
   function renglon(r, i) {
-    const roto = huecos.indexOf(r.id) >= 0;
-    let turno = -1;
-    pasos.forEach((x, k) => { if (x.roto === r.id) turno = k; });
-    const acerto = roto && turno >= 0 && pasos[turno].pide === r.id;
+    const roto = acertados.indexOf(r.id) >= 0;
+    const acerto = roto;                       // solo se rompe lo que tocaba: roto = bien
+    const seResiste = resiste && resiste.id === r.id;
     const cortando = corte && corte.id === r.id ? corte.avance : 0;
     // Tras verificar: verde el que tocaba y se rompió, rojo el que se rompió de más,
     // y marcado en ámbar el que había que romper y sigue entero.
     let bd = "rgba(120,94,48,0.5)", bg = "rgba(255,253,246,0.93)";
+    if (seResiste) { bd = "#ff6b6b"; bg = "rgba(255,221,221,0.96)"; }
     if (roto) { bd = "transparent"; }
     if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
     if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
     return (
-      <div key={r.id} style={{ position: "relative", height: 62, flexShrink: 0 }}>
+      <div key={r.id} style={{ position: "relative", height: 56, flexShrink: 0 }}>
         <div
           ref={(el) => { refs.current[r.id] = el; }}
           onPointerDown={(e) => onDown(e, r.id)}
@@ -1221,18 +1241,24 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe lo que la revolución derribó.</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
         {/* La consigna del turno, pegada al enunciado: centrada quedaba demasiado baja. */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
-          {!verified && !terminado && (<>
+          {/* Mientras un renglón se resiste, el cartel explica por qué no se rompió: si
+              entrara de golpe el pedido siguiente parecería que el juego se saltó uno. */}
+          {!verified && resiste && (<>
+            <span className="ed-label" style={{ color: "#ffc9c9", fontSize: 8.5, flexShrink: 0 }}>Ese no era</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#ffd9d9", textAlign: "center" }}>Ese renglón no cayó con la revolución.</span>
+          </>)}
+          {!verified && !resiste && !terminado && (<>
             <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>¿Cuál rompes?<J12Puntos total={b.consignas.length} hechos={paso} /></span>
             <span data-qa="consigna" style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fff", textAlign: "center" }}>{(J12_CARTA.find((r) => r.id === consigna) || {}).pide}</span>
           </>)}
-          {!verified && terminado && (
+          {!verified && terminado && !resiste && (
             <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textAlign: "center" }}>Listo. Pulsa ¡VERIFICAR!</span>
           )}
           {verified && (
@@ -1243,10 +1269,24 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
         {/* El papel */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
           <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 7 }}>CARTA DE LA ESCLAVITUD · 1843</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {b.renglones.map((r, i) => renglon(r, i))}
           </div>
         </div>
+
+        {/* BORRAR: vuelve a empezar la Carta con el papel entero. */}
+        {!verified && (
+          <button
+            onClick={borrar}
+            disabled={paso === 0}
+            style={{
+              flexShrink: 0, marginTop: 1, height: 26, padding: "0 16px", borderRadius: 999,
+              border: "1.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.4)",
+              fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5,
+              letterSpacing: "0.08em", color: "#fce9a8", cursor: paso === 0 ? "default" : "pointer",
+              opacity: paso === 0 ? 0.35 : 1,
+            }}>BORRAR</button>
+        )}
       </div>
     </div>
   );

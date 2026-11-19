@@ -88,6 +88,7 @@ async function jugarR3(p, bien) {
     // Rompiendo mal, la ronda puede acabarse antes de las tres: cuando ya no queda
     // ningún renglón de los pedidos, termina sola (ver sin-callejon-r3.js).
     if (await p.$("text=Pulsa ¡VERIFICAR!")) break;
+    await p.waitForSelector('[data-qa="consigna"]');
     const pide = (await p.textContent('[data-qa="consigna"]')).trim();
     const clave = RENGLON_DE[pide];
     if (!clave) throw new Error("consigna desconocida: " + pide);
@@ -109,7 +110,8 @@ async function jugarR3(p, bien) {
     await p.mouse.move(caja.x + caja.w * 0.45, caja.y, { steps: 6 });
     await p.mouse.move(caja.x + caja.w * 0.95, caja.y, { steps: 8 });
     await p.mouse.up();
-    await p.waitForTimeout(260);
+    // 1,5 s: si el renglón se resiste, el cartel enseña "Ese no era" antes del pedido siguiente.
+    await p.waitForTimeout(1500);
   }
   await p.waitForSelector("text=Pulsa ¡VERIFICAR!");
   await p.click("button:has-text('¡VERIFICAR!')");

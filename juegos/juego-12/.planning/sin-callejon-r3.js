@@ -57,6 +57,7 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
   for (let k = 0; k < 6; k++) {
     const acabo = await p.$("text=Pulsa ¡VERIFICAR!");
     if (acabo) break;
+    await p.waitForSelector('[data-qa="consigna"]');
     const pide = (await p.textContent('[data-qa="consigna"]')).trim();
     const clave = RENGLON_DE[pide];
     if (!clave) { fallos.push("consigna desconocida: " + pide); break; }

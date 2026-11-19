@@ -219,15 +219,26 @@ los temas deben diferenciarse al máximo.
   hechos que el libro sí afirma. No añadir ni cambiar renglones sin pasar por ella.
 - **El renglón de los esclavos no se pide nunca** y sobrevive al papel roto: la manumisión
   llega en **1851, con Urbina**. Es el remate del tema, no un descuido.
-- **La R3 no puede dejar al niño sin salida, y SIEMPRE juega las tres órdenes.** Si rompe
-  por error un renglón que una orden posterior iba a pedir, ese renglón **se vuelve a
-  pegar** a los 1,3 s: se ve roto un momento (es la respuesta a su gesto) y luego el papel
-  se repara, así la orden siguiente conserva su solución. El turno fallado no da ⭐.
-  - ⚠ **La versión anterior descartaba esa orden** y la ronda se acababa en dos pedidos de
-    tres. La autora lo cazó el 2026-11-19: *"aquí no se supone que se rompe 3? porque
-    cuando rompo 2 ya no me deja romper más"*. Mismo patrón que la marca del mapa en la
-    R2: enseñar y limpiar, nunca bloquear. Lo vigila `.planning/sin-callejon-r3.js`, que
-    ahora exige **3 turnos** rompiendo siempre mal.
+- **EL PAPEL SOLO CEDE DONDE DEBE.** Arrastrar el renglón **equivocado** no lo rompe: se
+  **resiste** (temblor con `element.animate()` + borde rojo), el cartel dice *"Ese no era ·
+  Ese renglón no cayó con la revolución."* durante 1,25 s y pasa al pedido siguiente. Ese
+  pedido cuenta como fallado (sin ⭐). Consecuencias buscadas: **"DEROGADO" solo aparece
+  —y se queda para siempre— en lo que la revolución sí derribó**, y **los tres pedidos se
+  juegan siempre**. Además es históricamente honesto: un renglón que el niño rompe por
+  error nunca fue derogado.
+  - ⚠ **Las dos versiones anteriores las descartó la autora el mismo día (2026-11-19)**, y
+    conviene no volver a ellas: hay solo 4 renglones y 3 son pedidos, así que **un renglón
+    roto por error SIEMPRE es el de otro pedido**.
+    1. *Roto para siempre* → ese pedido se quedaba sin solución y la ronda acababa en dos:
+       *"aquí no se supone que se rompe 3? porque cuando rompo 2 ya no me deja romper más"*.
+    2. *Roto y vuelto a pegar* → se jugaban los tres, pero el DEROGADO desaparecía:
+       *"cuando sale DEROGADO debe quedarse así… coloqué otra opción y desapareció"*.
+  - Lo vigila `.planning/borrar-r3.js` (el equivocado no se rompe, el DEROGADO no se va) y
+    `.planning/sin-callejon-r3.js` (3 turnos rompiendo siempre mal).
+- **La Carta tiene botón «BORRAR»**, como la bandera de la R1: devuelve el papel **entero**
+  y los pedidos al primero. Sale apagado hasta el primer intento.
+  - ⚠ Para que quepa: renglones de **56 px** (eran 62), `gap` 8 y `paddingTop` 26. Con 62
+    el botón se salía del lienzo por abajo.
 
 **Correcciones de la autora jugando el Tema 2 (2026-11-19):**
 
