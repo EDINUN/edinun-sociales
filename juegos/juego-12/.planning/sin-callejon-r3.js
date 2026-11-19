@@ -42,8 +42,8 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
   const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
   for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
-    if (!(await p.$("text=¿Dónde manda?"))) break;
-    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+    if (!(await p.$("text=¿Dónde mandaba?"))) break;
+    const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
     const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
     const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, ciudad);
     if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
@@ -56,7 +56,7 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
   for (let k = 0; k < 6; k++) {
     const acabo = await p.$("text=Pulsa ¡VERIFICAR!");
     if (acabo) break;
-    const pide = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:last-child")).trim();
+    const pide = (await p.textContent('[data-qa="consigna"]')).trim();
     const clave = RENGLON_DE[pide];
     if (!clave) { fallos.push("consigna desconocida: " + pide); break; }
     const fs2 = await p.filas ? null : await filas(p);

@@ -46,8 +46,8 @@ async function jugarR2(p, bien) {
   const usadas = [];
   for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
-    if (!(await p.$("text=¿Dónde manda?"))) break;
-    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+    if (!(await p.$("text=¿Dónde mandaba?"))) break;
+    const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
     let ciudad = CIUDAD_DE[jefe];
     if (!ciudad) throw new Error("gobernante desconocido: " + jefe);
     if (!bien) {
@@ -88,7 +88,7 @@ async function jugarR3(p, bien) {
     // Rompiendo mal, la ronda puede acabarse antes de las tres: cuando ya no queda
     // ningún renglón de los pedidos, termina sola (ver sin-callejon-r3.js).
     if (await p.$("text=Pulsa ¡VERIFICAR!")) break;
-    const pide = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:last-child")).trim();
+    const pide = (await p.textContent('[data-qa="consigna"]')).trim();
     const clave = RENGLON_DE[pide];
     if (!clave) throw new Error("consigna desconocida: " + pide);
     const caja = await p.evaluate(({ clave, bien }) => {

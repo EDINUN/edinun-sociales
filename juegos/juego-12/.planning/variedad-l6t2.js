@@ -37,8 +37,8 @@ const N = 8;
     const seq = [];
     for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
-    if (!(await p.$("text=¿Dónde manda?"))) break;
-      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+    if (!(await p.$("text=¿Dónde mandaba?"))) break;
+      const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
       seq.push(jefe);
       const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, CIUDAD_DE[jefe]);
       if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(140); }
@@ -59,7 +59,7 @@ const N = 8;
     const cons = [];
     for (let k = 0; k < 3; k++) {
       if (await p.$("text=Pulsa ¡VERIFICAR!")) break;
-      const pide = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:last-child")).trim();
+      const pide = (await p.textContent('[data-qa="consigna"]')).trim();
       const clave = RENGLON_DE[pide];
       cons.push(clave);
       const caja = await p.evaluate((clave) => { const f = Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0").find((d) => d.textContent.indexOf(clave) >= 0); if (!f) return null; const r = f.getBoundingClientRect(); return { x: r.left + 12, y: r.top + r.height / 2, w: r.width }; }, clave);

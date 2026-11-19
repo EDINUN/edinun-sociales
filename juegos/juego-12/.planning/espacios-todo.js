@@ -152,8 +152,8 @@ async function abrir(p, tema) {
     const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
     for (let k = 0; k < 4; k++) {
       // La R2 pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
-      if (!(await p.$("text=¿Dónde manda?"))) break;
-      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+      if (!(await p.$("text=¿Dónde mandaba?"))) break;
+      const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
       // Corrimiento cíclico: todas mal, para ver el revelado más cargado de texto.
       const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
       const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, ciudad);

@@ -36,8 +36,8 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
   for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
-    if (!(await p.$("text=¿Dónde manda?"))) break;
-    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+    if (!(await p.$("text=¿Dónde mandaba?"))) break;
+    const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
     // ⚠ Para ver el revelado hay que fallar, pero fallando SOLO UNA las demás chocan con
     // una ciudad ya ocupada y la ronda se queda sin completar. Se corre la lista entera
     // un puesto: es una permutación sin puntos fijos, así que ninguna cae bien y ninguna
@@ -62,7 +62,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
     "La Iglesia vuelve al país: rompe lo que la tenía fuera.": "Iglesia",
   };
   for (let k = 0; k < 3; k++) {
-    const pide = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:last-child")).trim();
+    const pide = (await p.textContent('[data-qa="consigna"]')).trim();
     const clave = RENGLON_DE[pide];
     const caja = await p.evaluate(({ clave, bien }) => {
       const filas = Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0");

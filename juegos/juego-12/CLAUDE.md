@@ -273,3 +273,11 @@ los temas deben diferenciarse al máximo.
     **0,0 %** en las seis. Es la comprobación que convence, porque no depende del encuadre.
 - **R3: los renglones miden 62 px y la letra 13,5.** Con 46 px y 11,5 sobraba un hueco
   grande debajo del papel (lo marcó la autora en rojo sobre una captura).
+- **Los textos del Tema 2 van en PASADO.** *"¿Dónde manda?"* y *"la ciudad donde manda"*
+  pasaron a **mandaba**: es 1859, ya no manda nadie de esos. Lo cazó la autora.
+- **El avance se marca con PUNTOS, no con "2 de 3".** Ese número se leía de dos maneras
+  ("vas por el pedido 2" o "llevas 2 hechos") y la autora lo leyó como lo segundo. Los
+  puntos llenos son los que ya hizo: una sola lectura posible. Helper `J12Puntos`.
+- ⚠ **Asideros de prueba `data-qa`** en el pedido de la R2 y en la consigna de la R3. Los
+  selectores por posición (`span:nth-child(2)`, `span:last-child`) se rompieron al meter
+  los puntos dentro del rótulo: pasaron a casar con un punto y devolvían texto vacío.

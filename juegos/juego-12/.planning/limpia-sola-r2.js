@@ -28,7 +28,7 @@ const marcas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("svg
   await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
   await p.waitForSelector("text=cuatro gobiernos a la vez");
 
-  const jefe1 = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+  const jefe1 = (await p.textContent('[data-qa="pedido"]')).trim();
   const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, CIUDAD_DE[jefe1]);
   await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(160);
   await p.click("button:has-text('¡VERIFICAR!')");

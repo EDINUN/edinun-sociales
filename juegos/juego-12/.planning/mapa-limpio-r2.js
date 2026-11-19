@@ -39,7 +39,7 @@ const rotulosMapa = (p) => p.evaluate(() => Array.from(document.querySelectorAll
   await p.waitForSelector("text=cuatro gobiernos a la vez");
 
   // TURNO 1: se elige a propósito una ciudad que NO es la suya.
-  const jefe1 = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+  const jefe1 = (await p.textContent('[data-qa="pedido"]')).trim();
   const suya1 = CIUDAD_DE[jefe1];
   const CICLO = ["Quito", "Guayaquil", "Cuenca", "Loja"];
   const equivocada = CICLO[(CICLO.indexOf(suya1) + 1) % 4];
@@ -48,7 +48,7 @@ const rotulosMapa = (p) => p.evaluate(() => Array.from(document.querySelectorAll
   await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(600);
 
   // TURNO 2: el mapa debe estar limpio en cuanto se toca, y la ciudad usada, libre.
-  const jefe2 = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
+  const jefe2 = (await p.textContent('[data-qa="pedido"]')).trim();
   if (jefe2 === jefe1) fallos.push("el segundo turno repite el mismo gobernante");
   const antes = await rotulosMapa(p);
   const pt2 = await punto(p, equivocada);          // ¡la MISMA que ya se usó!
