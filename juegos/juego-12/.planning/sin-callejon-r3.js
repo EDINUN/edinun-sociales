@@ -1,10 +1,11 @@
 // La R3 del Tema 2 no puede dejar al niño sin salida: si rompe por error un renglón que
-// una consigna POSTERIOR iba a pedir, esa consigna ya no tiene solución. La regla es que
-// cada turno pide un renglón que siga entero, y si no queda ninguno la ronda termina.
-// Esta prueba rompe SIEMPRE el renglón equivocado y comprueba que:
+// una consigna POSTERIOR iba a pedir, ese renglón SE VUELVE A PEGAR solo, y la orden
+// siguiente conserva su solución. Esta prueba rompe SIEMPRE el renglón equivocado y
+// comprueba que:
+//   · se juegan LAS TRES órdenes (antes la ronda se acababa en dos: lo vio la autora),
 //   · nunca se pide un renglón que ya no está,
-//   · la ronda termina sola y se puede verificar (no se queda colgada),
-//   · el resultado es 0 ⭐ y el revelado marca en ámbar lo que había que romper.
+//   · se puede verificar (no se queda colgada),
+//   · el revelado marca en ámbar lo que había que romper.
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
 const ROOT = "c:/Users/Analist Prod & Platf/OneDrive/Desktop/edinun-sociales", PORT = 8901;
@@ -70,7 +71,9 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
     if (!mala) break;
     await p.mouse.move(mala.x, mala.y); await p.mouse.down();
     await p.mouse.move(mala.x + mala.w * 0.95, mala.y, { steps: 9 });
-    await p.mouse.up(); await p.waitForTimeout(300);
+    // ⚠ 1,5 s: el renglón roto por error tarda 1,3 s en volver a pegarse. Mirar antes
+    //   haría creer que ese renglón ya no está.
+    await p.mouse.up(); await p.waitForTimeout(1500);
     turnos++;
   }
   const acabo = await p.$("text=Pulsa ¡VERIFICAR!");
@@ -81,6 +84,7 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
     const ambar = await p.evaluate(() => Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && /rgb\(242, 194, 96\)/.test(d.style.border || "")).length);
     console.log("turnos jugados: " + turnos + " · renglones marcados en ámbar al revelar: " + ambar);
     if (ambar === 0) fallos.push("el revelado no marca lo que había que romper");
+    if (turnos !== 3) fallos.push("se jugaron " + turnos + " órdenes y tenían que ser 3");
   }
   console.log(fallos.length ? "X " + fallos.join(" | ") : "OK Rompiendo siempre mal: nunca se pide un renglón ausente, la ronda termina sola y el revelado marca lo que tocaba.");
   await br.close(); srv.close();

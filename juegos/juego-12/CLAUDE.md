@@ -219,9 +219,15 @@ los temas deben diferenciarse al máximo.
   hechos que el libro sí afirma. No añadir ni cambiar renglones sin pasar por ella.
 - **El renglón de los esclavos no se pide nunca** y sobrevive al papel roto: la manumisión
   llega en **1851, con Urbina**. Es el remate del tema, no un descuido.
-- **La R3 no puede dejar al niño sin salida:** cada turno pide un renglón que **siga
-  entero**. Si se rompe uno que una consigna posterior iba a pedir, esa consigna se
-  descarta y la ronda termina sola. Lo vigila `.planning/sin-callejon-r3.js`.
+- **La R3 no puede dejar al niño sin salida, y SIEMPRE juega las tres órdenes.** Si rompe
+  por error un renglón que una orden posterior iba a pedir, ese renglón **se vuelve a
+  pegar** a los 1,3 s: se ve roto un momento (es la respuesta a su gesto) y luego el papel
+  se repara, así la orden siguiente conserva su solución. El turno fallado no da ⭐.
+  - ⚠ **La versión anterior descartaba esa orden** y la ronda se acababa en dos pedidos de
+    tres. La autora lo cazó el 2026-11-19: *"aquí no se supone que se rompe 3? porque
+    cuando rompo 2 ya no me deja romper más"*. Mismo patrón que la marca del mapa en la
+    R2: enseñar y limpiar, nunca bloquear. Lo vigila `.planning/sin-callejon-r3.js`, que
+    ahora exige **3 turnos** rompiendo siempre mal.
 
 **Correcciones de la autora jugando el Tema 2 (2026-11-19):**
 

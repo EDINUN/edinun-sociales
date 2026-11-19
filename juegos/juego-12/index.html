@@ -1676,30 +1676,43 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     consignas: j12Shuffle(J12_CARTA_PIDEN),
   }));
   // `pasos` guarda, por turno, qué se pidió y qué rompió el niño.
-  // ⚠ No basta con ir consigna por consigna en orden fijo: si rompe por error el renglón
-  // que una consigna POSTERIOR iba a pedir, esa consigna se queda sin solución posible y
-  // la ronda se atasca. Por eso cada turno se pide un renglón que SIGA entero; si ya no
-  // queda ninguno de los tres, la ronda termina ahí.
+  // ⚠ SIEMPRE son las tres órdenes, en orden. Si el niño rompe por error un renglón que
+  // una orden POSTERIOR iba a pedir, ese renglón SE VUELVE A PEGAR al cabo de un momento
+  // (igual que la marca del mapa en la R2): se ve que se rompió —es la respuesta a su
+  // gesto— y luego el papel se repara, así la orden siguiente conserva su solución.
+  // Antes se descartaba esa orden y la ronda se acababa en dos: la autora lo reportó.
   const [pasos, setPasos] = useStateG([]);            // [{ pide, roto }]
   const [corte, setCorte] = useStateG(null);          // { id, avance 0..1 }
+  const [ultimo, setUltimo] = useStateG(null);        // renglón roto POR ERROR, de paso
   const [verified, setVerified] = useStateG(false);
   const refs = useRefG({});
-  const rotos = pasos.map((x) => x.roto);
+  const rotos = pasos.map((x) => x.roto);                                  // todo lo roto
+  const acertados = pasos.filter((x) => x.pide === x.roto).map((x) => x.roto);
   const pedidas = pasos.map((x) => x.pide);
-  const consigna = b.consignas.find((id) => pedidas.indexOf(id) === -1 && rotos.indexOf(id) === -1);
-  const terminado = !consigna;
+  const consigna = b.consignas[pasos.length];
+  const terminado = pasos.length >= b.consignas.length;
   const paso = pasos.length;
+  // Huecos a la vista: los aciertos (definitivos) más el error que aún se está enseñando.
+  const huecos = acertados.concat(ultimo && acertados.indexOf(ultimo) === -1 ? [ultimo] : []);
+  // El renglón roto por error se pega solo. Si ya era el último turno se queda roto hasta
+  // ¡VERIFICAR!, para que el revelado enseñe lo que hizo.
+  useEffectG(() => {
+    if (!ultimo || terminado) return undefined;
+    const t = setTimeout(() => setUltimo(null), 1300);
+    return () => clearTimeout(t);
+  }, [ultimo, terminado]);
 
   function rasgar(id) {
-    if (verified || terminado || rotos.indexOf(id) >= 0) return;
+    if (verified || terminado || acertados.indexOf(id) >= 0) return;
     setCorte(null);
+    setUltimo(id === consigna ? null : id);
     setPasos((p) => p.concat([{ pide: consigna, roto: id }]));
   }
 
   // El corte avanza con el gesto: se mide cuánto ha recorrido el puntero a lo ancho del
   // renglón desde que lo tocó. Al pasar del 72 % el renglón se rompe.
   function onDown(e, id) {
-    if (verified || terminado || rotos.indexOf(id) >= 0) return;
+    if (verified || terminado || acertados.indexOf(id) >= 0) return;
     const el = refs.current[id];
     if (!el) return;
     try { el.setPointerCapture(e.pointerId); } catch (x) {}
@@ -1735,9 +1748,10 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   b.consignas.forEach((id, i) => { debia[id] = i; });
 
   function renglon(r, i) {
-    const roto = rotos.indexOf(r.id) >= 0;
-    const turno = rotos.indexOf(r.id);
-    const acerto = roto && pasos[turno] && pasos[turno].pide === r.id;
+    const roto = huecos.indexOf(r.id) >= 0;
+    let turno = -1;
+    pasos.forEach((x, k) => { if (x.roto === r.id) turno = k; });
+    const acerto = roto && turno >= 0 && pasos[turno].pide === r.id;
     const cortando = corte && corte.id === r.id ? corte.avance : 0;
     // Tras verificar: verde el que tocaba y se rompió, rojo el que se rompió de más,
     // y marcado en ámbar el que había que romper y sigue entero.
