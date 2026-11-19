@@ -1,9 +1,10 @@
-// La R3 del Tema 2 no puede dejar al niño sin salida: si rompe por error un renglón que
-// una consigna POSTERIOR iba a pedir, ese renglón SE VUELVE A PEGAR solo, y la orden
-// siguiente conserva su solución. Esta prueba rompe SIEMPRE el renglón equivocado y
-// comprueba que:
-//   · se juegan LAS TRES órdenes (antes la ronda se acababa en dos: lo vio la autora),
-//   · nunca se pide un renglón que ya no está,
+// La R3 del Tema 2 no puede dejar al niño sin SALIDA ni sin poder ACTUAR. Todo lo que
+// arrastra se rompe para siempre, así que puede destrozar el renglón de un pedido
+// posterior: ese pedido ya no se acierta —es la consecuencia de su error— pero el juego
+// sigue pidiéndolo y SIEMPRE queda papel que romper (4 renglones, 3 roturas).
+// Esta prueba rompe SIEMPRE el renglón equivocado y comprueba que:
+//   · se juegan LAS TRES órdenes (hubo una versión que acababa en dos: lo vio la autora),
+//   · en cada turno queda al menos un renglón entero que romper,
 //   · se puede verificar (no se queda colgada),
 //   · el revelado marca en ámbar lo que había que romper.
 const { chromium } = require("playwright");
@@ -63,18 +64,12 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
     if (!clave) { fallos.push("consigna desconocida: " + pide); break; }
     const fs2 = await p.filas ? null : await filas(p);
     const vivas = fs2;
-    if (!vivas.some((f) => f.t.indexOf(clave) >= 0)) {
-      fallos.push("se pidió un renglón que YA NO ESTÁ: " + pide);
-      break;
-    }
-    // Romper siempre el EQUIVOCADO
+    // Romper siempre el EQUIVOCADO: tiene que haber SIEMPRE uno entero que no sea el suyo.
     const mala = vivas.find((f) => f.t.indexOf(clave) === -1);
-    if (!mala) break;
+    if (!mala) { fallos.push("turno " + (turnos + 1) + ": no queda ningún renglón que romper"); break; }
     await p.mouse.move(mala.x, mala.y); await p.mouse.down();
     await p.mouse.move(mala.x + mala.w * 0.95, mala.y, { steps: 9 });
-    // ⚠ 1,5 s: el renglón roto por error tarda 1,3 s en volver a pegarse. Mirar antes
-    //   haría creer que ese renglón ya no está.
-    await p.mouse.up(); await p.waitForTimeout(1500);
+    await p.mouse.up(); await p.waitForTimeout(500);
     turnos++;
   }
   const acabo = await p.$("text=Pulsa ¡VERIFICAR!");

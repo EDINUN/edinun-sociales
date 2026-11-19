@@ -1095,50 +1095,28 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     renglones: j12Shuffle(J12_CARTA),
     consignas: j12Shuffle(J12_CARTA_PIDEN),
   }));
-  // `pasos` guarda, por turno, qué se pidió y qué arrastró el niño.
-  // ⚠ EL PAPEL SOLO CEDE DONDE DEBE. Arrastrar el renglón equivocado NO lo rompe: se
-  // resiste (temblor + borde rojo), ese pedido cuenta como fallado y pasa al siguiente.
-  // Así "DEROGADO" solo sale —y se queda para siempre— en lo que la revolución sí
-  // derribó, y los tres pedidos se juegan siempre.
-  // Las dos versiones anteriores las descartó la autora: rompiendo de verdad el renglón
-  // equivocado, o se quedaba un pedido sin solución (la ronda acababa en 2 de 3), o había
-  // que volver a pegar el renglón y entonces el "DEROGADO" desaparecía.
+  // `pasos` guarda, por turno, qué se pidió y qué rompió el niño.
+  // ⚠ TODO lo que se arrastra SE ROMPE, y el agujero "DEROGADO" se queda puesto hasta el
+  // final: el veredicto de los tres llega de golpe al pulsar ¡VERIFICAR!, no turno a
+  // turno. Lo pidió así la autora el 2026-11-19.
+  // ⚠ Y los TRES pedidos se enseñan siempre, aunque el niño haya roto por error el
+  // renglón que uno de ellos iba a pedir: ese pedido ya no se puede acertar —es la
+  // consecuencia de su error, y el revelado se lo explica—, pero NUNCA se queda sin poder
+  // actuar: con 4 renglones y 3 roturas siempre queda papel que romper, y para rectificar
+  // está el botón BORRAR.
   const [pasos, setPasos] = useStateG([]);            // [{ pide, roto, ok }]
   const [corte, setCorte] = useStateG(null);          // { id, avance 0..1 }
-  const [resiste, setResiste] = useStateG(null);      // { id, k } renglón que no cedió
   const [verified, setVerified] = useStateG(false);
   const refs = useRefG({});
-  const rotos = pasos.map((x) => x.roto);                          // todo lo que arrastró
-  const acertados = pasos.filter((x) => x.ok).map((x) => x.roto);  // lo que sí se rompió
+  const rotos = pasos.map((x) => x.roto);             // todo lo roto: los agujeros
   const consigna = b.consignas[pasos.length];
   const terminado = pasos.length >= b.consignas.length;
   const paso = pasos.length;
-  // El aviso de "ese no era" se va solo, y entonces entra el pedido siguiente.
-  useEffectG(() => {
-    if (!resiste) return undefined;
-    const t = setTimeout(() => setResiste(null), 1250);
-    return () => clearTimeout(t);
-  }, [resiste]);
 
   function rasgar(id) {
-    if (verified || terminado || acertados.indexOf(id) >= 0) return;
+    if (verified || terminado || rotos.indexOf(id) >= 0) return;
     setCorte(null);
-    const ok = id === consigna;
-    if (!ok) {
-      // El temblor va con element.animate(): una transición CSS no arrancaría, porque
-      // React pinta el estado nuevo antes del primer frame (ya pasó en la R3 del Tema 1).
-      const el = refs.current[id];
-      if (el && el.animate) {
-        try {
-          el.animate(
-            [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }],
-            { duration: 340, easing: "ease-in-out" }
-          );
-        } catch (x) {}
-      }
-      setResiste({ id: id, k: pasos.length });
-    }
-    setPasos((p) => p.concat([{ pide: consigna, roto: id, ok: ok }]));
+    setPasos((p) => p.concat([{ pide: consigna, roto: id, ok: id === consigna }]));
   }
 
   // BORRAR deja la Carta COMO AL EMPEZAR: el papel entero y los pedidos desde el primero.
@@ -1146,13 +1124,13 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   // rectificar.
   function borrar() {
     if (verified) return;
-    setCorte(null); setResiste(null); setPasos([]);
+    setCorte(null); setPasos([]);
   }
 
   // El corte avanza con el gesto: se mide cuánto ha recorrido el puntero a lo ancho del
   // renglón desde que lo tocó. Al pasar del 72 % el renglón se rompe.
   function onDown(e, id) {
-    if (verified || terminado || acertados.indexOf(id) >= 0) return;
+    if (verified || terminado || rotos.indexOf(id) >= 0) return;
     const el = refs.current[id];
     if (!el) return;
     try { el.setPointerCapture(e.pointerId); } catch (x) {}
@@ -1188,14 +1166,14 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   b.consignas.forEach((id, i) => { debia[id] = i; });
 
   function renglon(r, i) {
-    const roto = acertados.indexOf(r.id) >= 0;
-    const acerto = roto;                       // solo se rompe lo que tocaba: roto = bien
-    const seResiste = resiste && resiste.id === r.id;
+    const roto = rotos.indexOf(r.id) >= 0;
+    let turno = -1;
+    pasos.forEach((x, k) => { if (x.roto === r.id) turno = k; });
+    const acerto = roto && pasos[turno].ok;
     const cortando = corte && corte.id === r.id ? corte.avance : 0;
     // Tras verificar: verde el que tocaba y se rompió, rojo el que se rompió de más,
     // y marcado en ámbar el que había que romper y sigue entero.
     let bd = "rgba(120,94,48,0.5)", bg = "rgba(255,253,246,0.93)";
-    if (seResiste) { bd = "#ff6b6b"; bg = "rgba(255,221,221,0.96)"; }
     if (roto) { bd = "transparent"; }
     if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
     if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
@@ -1233,7 +1211,11 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
             {["top", "bottom"].map((lado) => (
               <div key={lado} style={{ position: "absolute", left: 0, right: 0, [lado]: 0, height: 7, background: "repeating-linear-gradient(90deg, rgba(246,237,213,0.95) 0 5px, transparent 5px 10px)", WebkitMaskImage: `linear-gradient(${lado === "top" ? "180deg" : "0deg"}, #000, transparent)`, maskImage: `linear-gradient(${lado === "top" ? "180deg" : "0deg"}, #000, transparent)` }} />
             ))}
-            <span style={{ position: "relative", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.06em", color: verified ? (acerto ? "#8cf0c0" : "#ffb3b3") : "#fce9a8" }}>DEROGADO · 1845</span>
+            <span style={{ position: "relative", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.06em", color: verified ? (acerto ? "#8cf0c0" : "#ffb3b3") : "#fce9a8", padding: "0 10px", textAlign: "center" }}>
+              {!verified && "DEROGADO · 1845"}
+              {verified && acerto && "✓ DEROGADO · 1845"}
+              {verified && !acerto && "✗ " + r.t + " — no era esta"}
+            </span>
           </div>
         )}
       </div>
@@ -1248,17 +1230,11 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
         {/* La consigna del turno, pegada al enunciado: centrada quedaba demasiado baja. */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
-          {/* Mientras un renglón se resiste, el cartel explica por qué no se rompió: si
-              entrara de golpe el pedido siguiente parecería que el juego se saltó uno. */}
-          {!verified && resiste && (<>
-            <span className="ed-label" style={{ color: "#ffc9c9", fontSize: 8.5, flexShrink: 0 }}>Ese no era</span>
-            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#ffd9d9", textAlign: "center" }}>Ese renglón no cayó con la revolución.</span>
-          </>)}
-          {!verified && !resiste && !terminado && (<>
+          {!verified && !terminado && (<>
             <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>¿Cuál rompes?<J12Puntos total={b.consignas.length} hechos={paso} /></span>
             <span data-qa="consigna" style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fff", textAlign: "center" }}>{(J12_CARTA.find((r) => r.id === consigna) || {}).pide}</span>
           </>)}
-          {!verified && terminado && !resiste && (
+          {!verified && terminado && (
             <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textAlign: "center" }}>Listo. Pulsa ¡VERIFICAR!</span>
           )}
           {verified && (

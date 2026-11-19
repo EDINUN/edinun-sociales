@@ -1,7 +1,8 @@
 // La Carta (R3 del Tema 2), dos cosas que pidió la autora el 2026-11-19:
-//   1. El renglón EQUIVOCADO no se rompe: se resiste, el cartel dice "Ese no era" y pasa
-//      al pedido siguiente. Así "DEROGADO" solo sale en lo que de verdad cayó.
-//   2. "DEROGADO" se QUEDA: un renglón bien roto no reaparece al jugar los siguientes.
+//   1. TODO lo que se arrastra se rompe, acertado o no, y el agujero "DEROGADO" SE QUEDA
+//      hasta el final: el veredicto de los tres llega junto, al pulsar ¡VERIFICAR!.
+//   2. Los TRES pedidos se enseñan siempre, aunque el niño haya roto antes el renglón de
+//      uno de ellos: nunca se queda sin poder actuar.
 //   3. Hay un botón BORRAR que devuelve el papel entero y los pedidos al primero.
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
@@ -46,7 +47,7 @@ const arrastrar = async (p, f) => { await p.mouse.move(f.x, f.y); await p.mouse.
   }
   await p.waitForSelector("text=la revolución derribó");
 
-  // ── 1. El renglón equivocado NO se rompe ──
+  // ── 1. El renglón equivocado TAMBIÉN se rompe, y el pedido siguiente llega igual ──
   await p.waitForSelector('[data-qa="consigna"]');
   let pide = (await p.textContent('[data-qa="consigna"]')).trim();
   let vivas = await filas(p);
@@ -54,18 +55,19 @@ const arrastrar = async (p, f) => { await p.mouse.move(f.x, f.y); await p.mouse.
   await arrastrar(p, mala);
   await p.waitForTimeout(400);
   const trasError = await filas(p);
-  const avisa = await p.$("text=Ese no era");
-  if (trasError.length !== 4) fallos.push("el renglón equivocado SÍ se rompió (quedan " + trasError.length + " de 4)");
-  if (!avisa) fallos.push("no avisa de que ese renglón no era");
-  if ((await derogados(p)) !== 0) fallos.push("sale DEROGADO en un renglón que no cayó");
+  if (trasError.length !== 3) fallos.push("el renglón equivocado no se rompió (quedan " + trasError.length + ", esperaba 3)");
+  if ((await derogados(p)) !== 1) fallos.push("no sale el DEROGADO del renglón que arrastró");
+  if (!(await p.$('[data-qa="consigna"]'))) fallos.push("tras fallar no llega el pedido siguiente");
 
-  // ── 2. El renglón correcto se rompe y el DEROGADO se QUEDA ──
+  // ── 2. Los DEROGADO se acumulan y NINGUNO se va al seguir jugando ──
   await p.waitForSelector('[data-qa="consigna"]');
   pide = (await p.textContent('[data-qa="consigna"]')).trim();
   vivas = await filas(p);
-  await arrastrar(p, vivas.find((f) => f.t.indexOf(RENGLON_DE[pide]) >= 0));
+  // Si el error del paso 1 se llevó justo este renglón, se rompe cualquier otro: lo que
+  // se comprueba aquí es que los agujeros se acumulan, no el acierto.
+  await arrastrar(p, vivas.find((f) => f.t.indexOf(RENGLON_DE[pide]) >= 0) || vivas[0]);
   await p.waitForTimeout(500);
-  const d1 = await derogados(p);
+  const d1 = await derogados(p);   // ya van dos agujeros: el fallado y el acertado
   // Tercer pedido: se juegue como se juegue, el DEROGADO anterior no puede irse.
   await p.waitForSelector('[data-qa="consigna"]');
   pide = (await p.textContent('[data-qa="consigna"]')).trim();
@@ -74,10 +76,36 @@ const arrastrar = async (p, f) => { await p.mouse.move(f.x, f.y); await p.mouse.
   await p.waitForTimeout(1500);
   const d2 = await derogados(p);
   console.log("DEROGADO tras romper el correcto: " + d1 + " · tras el pedido siguiente: " + d2);
-  if (d1 !== 1) fallos.push("el renglón correcto no quedó roto");
-  if (d2 < 1) fallos.push("el DEROGADO desapareció al seguir jugando");
+  if (d1 !== 2) fallos.push("los agujeros no se acumulan (van " + d1 + ", esperaba 2)");
+  if (d2 !== 3) fallos.push("algún DEROGADO desapareció al seguir jugando (van " + d2 + ", esperaba 3)");
+  // Y el veredicto de los TRES llega junto, al verificar.
+  await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+  const marcas = await p.evaluate(() => Array.from(document.querySelectorAll("span")).filter((x) => /^(✓|✗)/.test(x.textContent.trim())).length);
+  console.log("marcas ✓/✗ en los agujeros al verificar: " + marcas);
+  if (marcas !== 3) fallos.push("al verificar no se marcan los tres agujeros (hay " + marcas + ")");
 
-  // ── 3. BORRAR devuelve el papel entero ──
+  // ── 3. BORRAR devuelve el papel entero (partida nueva, sin verificar) ──
+  await p.goto("http://localhost:" + PORT + "/juegos/juego-12/index.html", { waitUntil: "load" });
+  await p.click("button:has-text('Libro 6')");
+  await p.click("button:has-text('La Revolución Marcista')");
+  await p.fill("input.ed-input", "QA");
+  await p.click("button:has-text('ENTRAR')");
+  await p.waitForTimeout(500);
+  const v2 = await p.$("button:has-text('VAMOS')"); if (v2) { await v2.click(); await p.waitForTimeout(700); }
+  await p.waitForSelector("text=Arma la bandera");
+  for (const c of ["rojo", "verde", "amarillo"]) { const bb = await p.$(`button:has-text('${c}')`); await bb.click(); await p.waitForTimeout(70); }
+  await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
+  for (let k = 0; k < 4; k++) {
+    if (!(await p.$("text=¿Dónde mandaba?"))) break;
+    const jefe = (await p.textContent('[data-qa="pedido"]')).trim();
+    const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const rr = g.getBoundingClientRect(); return { x: rr.left + 8, y: rr.top + rr.height / 2 }; }, CIUDAD_DE[jefe]);
+    if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
+    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(500);
+  }
+  await p.waitForSelector("text=la revolución derribó");
+  await p.waitForSelector('[data-qa="consigna"]');
+  vivas = await filas(p);
+  await arrastrar(p, vivas[0]); await p.waitForTimeout(500);
   const btn = await p.$("button:has-text('BORRAR')");
   if (!btn) fallos.push("no hay botón BORRAR en la Carta");
   else {
@@ -91,6 +119,6 @@ const arrastrar = async (p, f) => { await p.mouse.move(f.x, f.y); await p.mouse.
     if (dd !== 0) fallos.push("BORRAR deja un DEROGADO puesto");
     if (!hayPedido) fallos.push("tras BORRAR no vuelve a haber pedido");
   }
-  console.log("\n" + (fallos.length ? "X " + fallos.join(" | ") : "OK El papel solo cede donde debe, el DEROGADO se queda, y BORRAR devuelve la Carta entera."));
+  console.log("\n" + (fallos.length ? "X " + fallos.join(" | ") : "OK Todo lo arrastrado se rompe, los DEROGADO se quedan, el veredicto de los tres llega al verificar, y BORRAR devuelve la Carta entera."));
   await br.close(); srv.close();
 })();
