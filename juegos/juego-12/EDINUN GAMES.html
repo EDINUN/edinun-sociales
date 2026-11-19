@@ -862,6 +862,10 @@ function L6T1R2Piramide({ onSolve, verifyRef }) {
   const [b] = useStateG(() => j12R2Build());
   const [puesto, setPuesto] = useStateG({});     // indice del escalón -> id de grupo
   const [sel, setSel] = useStateG(null);
+  // ⚠ El mapa queda LIMPIO para el turno siguiente: solo se ve la marca del ÚLTIMO
+  // verificado, y ninguna ciudad se bloquea. Antes la ciudad usada se quedaba marcada y
+  // no se podía volver a elegir, aunque fuese la correcta para el segundo gobernante.
+  const [ultimo, setUltimo] = useStateG(null);   // { pide, ciudad }
   const [verified, setVerified] = useStateG(false);
   const [drag, setDrag] = useStateG(null);
   const rootRef = useRefG(null);
@@ -1092,7 +1096,11 @@ function L6T1R3Linea({ onSolve, verifyRef }) {
   const orden = st.orden, drag = st.drag;
   const setOrden = (f) => setSt((s) => ({ ...s, orden: typeof f === "function" ? f(s.orden) : f }));
   const setDrag = (d) => setSt((s) => ({ ...s, drag: d }));
-  const [sel, setSel] = useStateG(null);         // índice de la tarjeta levantada
+  const [sel, setSel] = useStateG(null);
+  // ⚠ El mapa queda LIMPIO para el turno siguiente: solo se ve la marca del ÚLTIMO
+  // verificado, y ninguna ciudad se bloquea. Antes la ciudad usada se quedaba marcada y
+  // no se podía volver a elegir, aunque fuese la correcta para el segundo gobernante.
+  const [ultimo, setUltimo] = useStateG(null);   // { pide, ciudad }         // índice de la tarjeta levantada
   const [verified, setVerified] = useStateG(false);
   const rootRef = useRefG(null);
   const cardRefs = useRefG([]);
@@ -1443,10 +1451,11 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
           ))}
           {/* ⚠ BORRAR a la vista. Tocar un cuartel ya lo vaciaba, pero eso no se ve por
               ningún lado: con la bandera llena la paleta se apaga y la autora se quedó
-              sin manera visible de rectificar. Vacía los tres cuarteles de una vez; las
-              estrellas tienen su propio −. */}
-          <button onClick={() => { if (!verified) setCuarteles([null, null, null]); }} disabled={verified || cuarteles.every((c) => c === null)}
-            style={{ width: 62, height: 38, borderRadius: 9, border: "2.5px dashed rgba(255,255,255,0.45)", background: "rgba(0,0,0,0.3)", cursor: verified || cuarteles.every((c) => c === null) ? "default" : "pointer", opacity: verified || cuarteles.every((c) => c === null) ? 0.35 : 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
+              sin manera visible de rectificar. Deja la bandera COMO AL EMPEZAR: vacía los
+              tres cuarteles Y pone las estrellas a cero (lo pidió la autora; borrar a
+              medias se siente roto). */}
+          <button onClick={() => { if (!verified) { setCuarteles([null, null, null]); setEstrellas(0); } }} disabled={verified || (cuarteles.every((c) => c === null) && estrellas === 0)}
+            style={{ width: 62, height: 38, borderRadius: 9, border: "2.5px dashed rgba(255,255,255,0.45)", background: "rgba(0,0,0,0.3)", cursor: verified || (cuarteles.every((c) => c === null) && estrellas === 0) ? "default" : "pointer", opacity: verified || (cuarteles.every((c) => c === null) && estrellas === 0) ? 0.35 : 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
             <span style={{ fontSize: 13, lineHeight: 1 }}>🧽</span>
             <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: "#fff" }}>borrar</span>
           </button>
@@ -1491,9 +1500,9 @@ const J12_ECU_W = 288, J12_ECU_H = 320.9;
 const J12_ECU_D = "M108.7,0.0L111.7,2.0L116.9,8.3L120.0,8.5L121.6,11.9L123.1,11.4L125.8,12.0L132.6,18.8L137.5,20.6L144.0,25.5L146.1,26.6L149.6,26.7L154.0,27.9L154.8,30.0L157.5,31.1L164.8,29.4L166.2,30.6L166.6,34.2L167.6,35.7L172.7,38.7L176.5,39.0L178.1,49.8L180.0,52.1L189.5,54.8L193.9,53.6L195.6,54.0L197.5,56.2L202.5,57.1L205.6,59.4L209.8,59.0L213.0,59.8L212.9,57.8L213.5,57.6L218.3,58.5L221.4,60.6L229.2,58.7L228.8,51.4L231.3,51.1L234.6,48.4L238.4,51.1L242.8,51.6L243.6,53.9L246.9,53.3L250.9,58.9L251.9,61.2L258.6,66.4L261.8,67.8L268.1,67.5L276.2,73.4L285.2,76.7L282.8,78.6L279.3,78.7L277.9,79.5L272.5,77.4L268.3,76.7L267.3,77.8L268.5,80.4L270.5,80.5L275.2,83.7L276.8,89.3L279.1,93.4L280.6,94.6L282.0,94.8L286.3,98.4L286.6,102.5L284.7,104.6L284.5,108.6L286.8,117.9L288.0,119.7L282.0,119.9L279.1,116.9L270.8,147.9L245.0,177.4L215.5,199.5L156.6,220.2L152.9,223.4L147.9,230.2L144.8,232.9L142.6,236.8L140.2,238.8L140.2,239.9L142.2,242.1L141.8,244.5L138.7,246.0L137.2,241.1L134.4,240.0L132.5,240.1L132.0,241.1L131.9,245.1L130.0,250.3L130.0,254.6L128.8,255.0L129.1,260.1L126.1,263.0L125.2,268.0L122.0,269.5L121.3,275.5L117.3,285.0L116.0,286.8L116.5,290.5L118.3,292.2L116.6,295.1L116.5,297.9L114.2,300.0L107.5,303.0L105.2,305.1L103.8,307.7L105.2,312.5L104.6,313.5L101.2,314.0L99.7,318.3L97.0,320.9L95.0,319.3L85.1,318.4L83.2,315.5L81.4,314.6L80.5,312.7L77.8,310.8L75.4,303.4L73.9,301.3L75.1,298.2L75.0,297.0L72.4,296.2L67.5,292.3L60.6,294.6L58.7,294.3L55.2,290.4L51.3,289.9L46.5,285.9L43.4,284.6L40.2,285.3L37.7,289.8L31.4,294.2L30.1,294.3L27.0,292.7L25.9,291.1L33.2,280.4L27.0,281.1L26.0,278.9L26.2,277.0L24.8,274.7L25.9,271.2L27.2,269.9L29.1,269.6L34.2,271.3L35.3,270.8L37.5,267.7L42.2,265.0L41.0,263.4L40.8,261.6L39.2,258.0L39.7,252.2L39.2,250.2L38.0,249.5L38.5,246.3L36.9,244.9L37.2,242.0L33.5,240.3L33.4,239.1L35.1,236.7L34.5,238.4L34.8,239.4L36.2,236.7L37.5,238.1L43.7,237.0L47.4,230.9L48.6,231.1L48.4,234.7L52.8,230.6L53.7,226.5L56.7,221.0L56.3,219.0L58.7,211.1L61.6,203.8L64.0,200.5L63.1,195.4L60.9,194.9L58.4,189.7L58.4,181.4L57.0,179.0L57.7,176.9L57.3,176.3L59.5,174.9L60.1,173.2L61.7,172.3L62.1,171.2L58.8,173.1L58.7,174.4L56.7,174.7L55.8,176.7L55.3,180.2L57.2,185.7L56.5,195.4L55.6,198.0L53.7,199.8L50.5,201.2L49.7,200.3L47.3,199.7L47.0,198.9L49.1,197.1L50.3,194.9L51.7,194.7L53.2,195.8L53.9,195.1L53.6,194.0L53.4,195.0L51.5,193.7L48.7,194.5L48.6,192.8L50.0,188.8L51.5,188.2L52.9,186.2L51.3,187.2L49.8,187.2L48.8,188.2L46.6,193.7L41.7,200.2L40.1,200.9L38.9,202.2L37.0,201.1L36.5,201.4L36.5,203.3L38.2,205.2L37.7,207.3L34.5,206.3L30.7,203.3L27.1,201.7L17.7,191.6L10.4,189.6L7.4,187.3L4.9,186.8L3.9,183.9L0.5,180.6L0.0,179.3L3.2,180.2L4.1,181.8L7.1,181.1L11.6,178.1L13.3,176.1L13.7,173.1L12.5,169.7L13.9,168.7L14.1,167.4L12.6,160.9L7.8,150.5L9.8,148.7L9.6,146.1L10.6,145.1L12.1,145.0L12.4,140.6L13.5,139.5L13.4,138.3L8.9,132.7L6.5,128.4L4.8,124.4L5.1,123.4L9.8,118.5L11.2,118.7L14.5,117.7L14.4,118.2L16.0,118.7L17.9,117.3L18.4,118.0L19.7,118.3L22.1,116.8L23.2,115.6L25.7,105.9L28.1,101.6L29.4,101.2L30.2,103.6L31.6,104.1L35.5,104.4L35.5,103.8L30.9,102.5L29.7,100.0L28.7,99.1L27.9,95.1L25.7,90.4L28.9,88.3L31.9,82.5L33.0,82.1L34.3,80.0L35.2,80.8L38.9,78.4L45.1,71.0L45.5,69.4L47.1,68.8L47.9,66.9L48.6,62.6L48.0,55.6L48.6,53.6L50.2,55.2L50.9,53.2L48.3,48.6L48.3,46.4L49.6,43.6L48.6,40.3L45.9,38.9L45.0,36.8L45.0,34.7L46.7,30.8L48.1,29.6L51.4,30.0L53.1,28.8L57.3,27.8L60.7,25.5L62.1,23.9L67.6,21.4L67.8,22.4L66.8,25.5L69.6,29.3L67.9,26.2L68.7,22.3L69.6,21.8L71.7,22.4L78.5,17.7L82.1,18.0L86.7,17.0L87.8,17.6L92.0,16.7L97.4,10.8L99.6,12.0L100.6,15.7L102.1,14.4L102.5,11.3L103.7,9.5L104.2,10.1L105.1,9.9L106.6,7.2L109.5,7.8L109.2,7.1L106.4,6.4L106.1,5.7L108.5,2.6L108.7,0.0Z";
 const J12_GOBIERNOS = [
   { id: "qui", ciudad: "Quito", jefe: "García Moreno", x: 126.7, y: 80.4 },
-  { id: "gye", ciudad: "Guayaquil", jefe: "Guillermo Franco", x: 55.4, y: 179.4 },
-  { id: "cue", ciudad: "Cuenca", jefe: "Jerónimo Carrión", x: 100.2, y: 215.8 },
-  { id: "loj", ciudad: "Loja", jefe: "Manuel Carrión Pinzano", x: 90.2, y: 270.0 },
+  { id: "gye", ciudad: "Guayaquil", jefe: "Guillermo Franco", x: 54.3, y: 179.5 },
+  { id: "cue", ciudad: "Cuenca", jefe: "Jerónimo Carrión", x: 99.9, y: 215.8 },
+  { id: "loj", ciudad: "Loja", jefe: "Manuel Carrión Pinzano", x: 90.0, y: 270.2 },
 ];
 const J12_ZONA_COL = { qui: "#f1c40f", gye: "#4fd8ff", cue: "#b388ff", loj: "#ff9a6b" };
 
@@ -1514,20 +1523,26 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
   // `pasos` guarda lo ya verificado; `sel` es la ciudad elegida que aún no se ha validado.
   const [pasos, setPasos] = useStateG([]);     // [{ pide, ciudad }]
   const [sel, setSel] = useStateG(null);
+  // ⚠ El mapa queda LIMPIO para el turno siguiente: solo se ve la marca del ÚLTIMO
+  // verificado, y ninguna ciudad se bloquea. Antes la ciudad usada se quedaba marcada y
+  // no se podía volver a elegir, aunque fuese la correcta para el segundo gobernante.
+  const [ultimo, setUltimo] = useStateG(null);   // { pide, ciudad }
   const idx = pasos.length;
   const pendiente = orden[idx];
   const pedido = J12_GOBIERNOS.find((g) => g.id === pendiente);
   const terminado = idx >= orden.length;
-  const usada = (ciudad) => pasos.some((p) => p.ciudad === ciudad);
+  // Al terminar se enseñan las dos marcas; durante la ronda, solo la del turno anterior.
+  const marcas = terminado ? pasos : (ultimo ? [ultimo] : []);
 
   function tocar(ciudadId) {
-    if (terminado || usada(ciudadId)) return;
+    if (terminado) return;
+    setUltimo(null);                            // al elegir, el mapa se limpia
     setSel(ciudadId);                           // se puede cambiar de idea antes de verificar
   }
   function verificar() {
     if (terminado || sel === null) return;
     const nuevo = pasos.concat([{ pide: pendiente, ciudad: sel }]);
-    setPasos(nuevo); setSel(null);
+    setPasos(nuevo); setSel(null); setUltimo({ pide: pendiente, ciudad: sel });
     if (nuevo.length < orden.length) return;    // quedan gobernantes: sigue la ronda
     const aciertos = nuevo.filter((p) => p.pide === p.ciudad).length;
     const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
@@ -1584,13 +1599,13 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
             {/* La mancha de cada gobierno colocado. Es una zona de influencia alrededor de
                 su ciudad, NO una frontera: el libro no da límites y no se inventan. */}
             {J12_GOBIERNOS.map((g) => {
-              const p = pasos.find((x) => x.ciudad === g.id);
+              const p = marcas.find((x) => x.ciudad === g.id);
               const marca = p ? p.pide : (sel === g.id ? pendiente : null);
               if (!marca) return null;
               return <circle key={"z" + g.id} cx={g.x} cy={g.y} r="46" fill={J12_ZONA_COL[marca]} opacity={p && p.pide !== g.id ? 0.1 : 0.19} style={{ pointerEvents: "none" }} />;
             })}
             {J12_GOBIERNOS.map((g) => {
-              const p = pasos.find((x) => x.ciudad === g.id);
+              const p = marcas.find((x) => x.ciudad === g.id);
               const elegida = sel === g.id;
               // Verde/rojo SOLO en las ciudades ya verificadas; la elegida va en celeste
               // mientras no se verifique, y las que no se juegan se quedan en blanco.
@@ -1599,7 +1614,7 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
               else if (elegida) col = "#4fd8ff";
               const jefe = p ? nombreDe(p.pide) : (elegida ? pedido.jefe : null);
               return (
-                <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: !terminado && !p ? "pointer" : "default" }}>
+                <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: terminado ? "default" : "pointer" }}>
                   <circle cx={g.x} cy={g.y} r="19" fill="transparent" />
                   {elegida && <circle cx={g.x} cy={g.y} r="12" fill="none" stroke="#4fd8ff" strokeWidth="2.5" />}
                   <circle cx={g.x} cy={g.y} r="7.5" fill={col} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
@@ -1757,8 +1772,8 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe lo que la revolución derribó.</span>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
-        {/* La consigna del turno */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
+        {/* La consigna del turno, pegada al enunciado: centrada quedaba demasiado baja. */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           {!verified && !terminado && (<>
             <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>¿Cuál rompes? · {paso + 1} de {b.consignas.length}</span>
@@ -1787,7 +1802,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
 const L6T2_ROUNDS = [
   { C: L6T2R1Bandera, verify: true, bubble: (<>Toca un color y entra<br />en el cuartel vacío.</>) },
   { C: L6T2R2Mapa, verify: true, bubble: (<>Toca en el mapa la<br />ciudad donde manda.</>) },
-  { C: L6T2R3Carta, verify: true, bubble: (<>Pasa el dedo por el<br />renglón para romperlo.</>) },
+  { C: L6T2R3Carta, verify: true, bubble: (<>Arrastra a lo ancho<br />del renglón y se rompe.</>) },
 ];
 
 // ══════════════════════════════════════════════════════════════════

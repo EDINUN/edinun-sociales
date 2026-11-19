@@ -248,4 +248,17 @@ los temas deben diferenciarse al máximo.
 - **⭐ del tema: 4 + 2 + 3 = 9.**
 - **R1 tiene botón «borrar» a la vista.** Tocar un cuartel ya lo vaciaba, pero eso no se
   ve: con la bandera llena la paleta se apaga y no quedaba forma visible de rectificar.
-  El botón vacía los tres cuarteles; las estrellas tienen su propio −.
+  El botón deja la bandera **como al empezar**: vacía los tres cuarteles **y pone las
+  estrellas a cero**. Borrar a medias se siente roto (lo corrigió la autora).
+  - ⚠ **Entre turno y turno el mapa queda LIMPIO** y **ninguna ciudad se bloquea**: solo se
+    ve la marca del último verificado, y se borra en cuanto el niño toca otra. Antes la
+    ciudad ya usada se quedaba marcada y no se podía volver a elegir, aunque fuera la
+    correcta para el segundo gobernante. Lo vigila `.planning/mapa-limpio-r2.js`.
+  - ⚠ **Las cuatro ciudades van en coordenadas reales** y están comprobadas, no puestas a
+    ojo: `scratchpad/comprobar-ciudades.js` verifica que la proyección del juego coincide
+    con el cálculo hecho de cero, que cada punto cae **dentro** del polígono del Ecuador y
+    las relaciones norte/sur/este/oeste. Al preguntar la autora, el mayor desvío era de
+    **1,1 px sobre 288** (coordenadas redondeadas); ahora van exactas.
+- **Los bocadillos no pueden nombrar el dedo.** El mismo juego se juega en celular y en
+  computadora: *"Pasa el dedo por el renglón"* pasó a *"Arrastra a lo ancho del renglón y
+  se rompe"*. Vale para cualquier aparato.
