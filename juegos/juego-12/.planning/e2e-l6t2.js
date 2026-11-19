@@ -47,7 +47,7 @@ async function jugarR2(p, bien) {
   for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
     if (!(await p.$("text=¿Dónde manda?"))) break;
-    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
+    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
     let ciudad = CIUDAD_DE[jefe];
     if (!ciudad) throw new Error("gobernante desconocido: " + jefe);
     if (!bien) {
@@ -69,8 +69,11 @@ async function jugarR2(p, bien) {
     if (!libre) throw new Error("no se encontró la ciudad " + ciudad);
     await p.mouse.click(libre.x, libre.y);
     await p.waitForTimeout(140);
+    // ⚠ Cada gobernante lleva su PROPIO ¡VERIFICAR!: se valida uno a uno, y el último
+    // es el que cierra la ronda. Por eso no hay un VERIFICAR suelto al salir del bucle.
+    await p.click("button:has-text('¡VERIFICAR!')");
+    await p.waitForTimeout(420);
   }
-  await p.click("button:has-text('¡VERIFICAR!')");
 }
 
 // ── R3: rasga el renglón que piden (o cualquier otro, si toca fallar) ──

@@ -37,17 +37,20 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
     if (!(await p.$("text=¿Dónde manda?"))) break;
-    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
+    const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
     // ⚠ Para ver el revelado hay que fallar, pero fallando SOLO UNA las demás chocan con
     // una ciudad ya ocupada y la ronda se queda sin completar. Se corre la lista entera
     // un puesto: es una permutación sin puntos fijos, así que ninguna cae bien y ninguna
     // choca. La captura "verificada" sale, por tanto, con las cuatro en rojo.
     const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
     const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, ciudad);
-    if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(180); }
+    if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
+    // ⚠ Cada gobernante lleva su PROPIO ¡VERIFICAR!: se valida uno a uno.
+    if (k === 0) await tiro("r2-elegida");
+    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(500);
+    if (k === 0) await tiro("r2-primera-verificada");
   }
-  await tiro("r2-llena");
-  await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+  await p.waitForTimeout(500);
   await tiro("r2-verificada");
   await p.waitForTimeout(3500);
 

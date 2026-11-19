@@ -861,6 +861,15 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
               <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: c.id === "bla" || c.id === "ama" ? "#3a2608" : "#fff", textShadow: c.id === "bla" || c.id === "ama" ? "none" : "0 1px 2px rgba(0,0,0,0.6)" }}>{c.t}</span>
             </button>
           ))}
+          {/* ⚠ BORRAR a la vista. Tocar un cuartel ya lo vaciaba, pero eso no se ve por
+              ningún lado: con la bandera llena la paleta se apaga y la autora se quedó
+              sin manera visible de rectificar. Vacía los tres cuarteles de una vez; las
+              estrellas tienen su propio −. */}
+          <button onClick={() => { if (!verified) setCuarteles([null, null, null]); }} disabled={verified || cuarteles.every((c) => c === null)}
+            style={{ width: 62, height: 38, borderRadius: 9, border: "2.5px dashed rgba(255,255,255,0.45)", background: "rgba(0,0,0,0.3)", cursor: verified || cuarteles.every((c) => c === null) ? "default" : "pointer", opacity: verified || cuarteles.every((c) => c === null) ? 0.35 : 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
+            <span style={{ fontSize: 13, lineHeight: 1 }}>🧽</span>
+            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: "#fff" }}>borrar</span>
+          </button>
         </div>
 
         {/* Contador de estrellas: otro gesto distinto, y se dibujan en vivo */}
@@ -920,120 +929,105 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
     return { orden: j12Shuffle(idx.map((i) => J12_GOBIERNOS[i].id)) };
   });
   const orden = b.orden;
-  const [puesto, setPuesto] = useStateG({});   // id de ciudad -> id del gobierno pedido
-  const [verified, setVerified] = useStateG(false);
-  const hechos = Object.keys(puesto).length;
-  const pendiente = orden[hechos];             // id del gobierno que toca colocar
+  // ⚠ SE VERIFICA UNO A UNO, no los dos al final: colocas el primero, pulsas ¡VERIFICAR!,
+  // ves si acertaste, y recién entonces viene el segundo. Lo pidió así la autora.
+  // `pasos` guarda lo ya verificado; `sel` es la ciudad elegida que aún no se ha validado.
+  const [pasos, setPasos] = useStateG([]);     // [{ pide, ciudad }]
+  const [sel, setSel] = useStateG(null);
+  const idx = pasos.length;
+  const pendiente = orden[idx];
   const pedido = J12_GOBIERNOS.find((g) => g.id === pendiente);
+  const terminado = idx >= orden.length;
+  const usada = (ciudad) => pasos.some((p) => p.ciudad === ciudad);
 
   function tocar(ciudadId) {
-    if (verified || !pendiente || puesto[ciudadId] !== undefined) return;
-    setPuesto((p) => Object.assign({}, p, { [ciudadId]: pendiente }));
+    if (terminado || usada(ciudadId)) return;
+    setSel(ciudadId);                           // se puede cambiar de idea antes de verificar
   }
   function verificar() {
-    if (verified || hechos < orden.length) return;
-    setVerified(true);
-    const aciertos = Object.keys(puesto).filter((c) => puesto[c] === c).length;
+    if (terminado || sel === null) return;
+    const nuevo = pasos.concat([{ pide: pendiente, ciudad: sel }]);
+    setPasos(nuevo); setSel(null);
+    if (nuevo.length < orden.length) return;    // quedan gobernantes: sigue la ronda
+    const aciertos = nuevo.filter((p) => p.pide === p.ciudad).length;
     const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
     const ciudad = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).ciudad;
     onSolve(aciertos === orden.length, {
       emoji: "🗺️", a: "1859: el país con cuatro gobiernos",
-      userAnswer: Object.keys(puesto).map((c) => `${nombre(puesto[c])} en ${ciudad(c)}`).join(" · "),
+      userAnswer: nuevo.map((p) => `${nombre(p.pide)} en ${ciudad(p.ciudad)}`).join(" · "),
       correctAnswer: orden.map((id) => `${nombre(id)} en ${ciudad(id)}`).join(" · "),
     }, aciertos);
   }
   verifyRef.current = verificar;
 
-  const ESC = 0.92;
+  const ESC = 0.78;
   const MW = J12_ECU_W * ESC, MH = J12_ECU_H * ESC;
+  const nombreDe = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>En 1859 el país tuvo cuatro gobiernos a la vez.</span>
       </div>
-      {/* ⚠ La columna del pedido va ARRIBA, a la altura de la cabecera del mapa: centrada
-          en vertical quedaba a media altura y la autora la quería más arriba. */}
-      <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 22, minHeight: 0, width: "100%", paddingTop: 10 }}>
-        {/* Columna del pedido / recuento */}
-        <div style={{ width: 150, flexShrink: 0, display: "flex", flexDirection: "column", gap: 7 }}>
-          {!verified && pedido && (
-            <div style={{ borderRadius: 12, border: "2.5px solid #4fd8ff", background: "rgba(0,0,0,0.45)", padding: "7px 10px" }}>
-              <div className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, marginBottom: 3 }}>¿Dónde manda?</div>
-              <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 13, lineHeight: 1.15, color: "#fff" }}>{pedido.jefe}</div>
-            </div>
-          )}
-          {/* Con los cuatro puestos la columna se quedaba vacía: queda el aviso de rematar. */}
-          {!verified && !pedido && (
-            <div style={{ borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.45)", padding: "7px 10px" }}>
-              <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, lineHeight: 1.2, color: "#fce9a8", textAlign: "center" }}>Ya están los cuatro.<br />Pulsa ¡VERIFICAR!</div>
-            </div>
-          )}
-          {verified && (
-            <div style={{ borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.5)", padding: "7px 10px" }}>
-              {/* Solo los DOS que se jugaron, y cada uno dice si cayó bien o mal y dónde
-                  iba de verdad. Antes se listaban los cuatro gobiernos, incluidos los que
-                  el niño no había colocado, y salían dos ✗ que no eran suyos. */}
-              <div className="ed-label" style={{ color: "#fce9a8", fontSize: 8.5, marginBottom: 4 }}>Iban así</div>
-              {orden.map((id) => {
-                const g = J12_GOBIERNOS.find((x) => x.id === id);
-                const ok = puesto[id] === id;
-                const puso = Object.keys(puesto).find((c) => puesto[c] === id);
-                const donde = (J12_GOBIERNOS.find((x) => x.id === puso) || {}).ciudad;
+      {/* ⚠ El pedido va en una BANDA sobre el mapa, centrada, como la consigna de la R3.
+          Antes iba en una columna a la izquierda y dejaba un hueco grande y feo entre el
+          cartel y el mapa. */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 8, minHeight: 0, width: "100%", paddingTop: 8 }}>
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${terminado ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 44, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          {!terminado && (<>
+            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5 }}>¿Dónde manda? · {idx + 1} de {orden.length}</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, lineHeight: 1.15, color: "#fff" }}>{pedido.jefe}</span>
+            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: sel ? "#fce9a8" : "rgba(255,255,255,0.65)", marginTop: 1 }}>
+              {sel ? `Elegiste ${(J12_GOBIERNOS.find((g) => g.id === sel) || {}).ciudad}. Pulsa ¡VERIFICAR!` : "Toca su ciudad en el mapa."}
+            </span>
+          </>)}
+          {terminado && (
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+              {pasos.map((p) => {
+                const ok = p.pide === p.ciudad;
+                const ciudadOk = (J12_GOBIERNOS.find((g) => g.id === p.pide) || {}).ciudad;
                 return (
-                  <div key={id} style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 4 }}>
-                    <span style={{ flexShrink: 0, marginTop: 1, width: 13, height: 13, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 8.5 }}>{ok ? "✓" : "✗"}</span>
-                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.2, color: "#fce9a8" }}>
-                      {g.jefe} en <b>{g.ciudad}</b>
-                      {!ok && donde ? <><br /><span style={{ color: "#ffb3b3" }}>tú lo pusiste en {donde}</span></> : null}
-                    </span>
+                  <div key={p.pide} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ flexShrink: 0, width: 15, height: 15, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 10 }}>{ok ? "✓" : "✗"}</span>
+                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10, lineHeight: 1.2, color: "#fce9a8" }}>{nombreDe(p.pide)} mandaba en <b>{ciudadOk}</b></span>
                   </div>
                 );
               })}
             </div>
           )}
-          <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
-            {orden.map((id, i) => (
-              <span key={id} style={{ width: 9, height: 9, borderRadius: "50%", background: i < hechos ? "#f2c260" : "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.3)" }} />
-            ))}
-          </div>
         </div>
 
         {/* El mapa */}
         <div style={{ position: "relative", flexShrink: 0 }}>
           <svg width={MW} height={MH} viewBox={`0 0 ${J12_ECU_W} ${J12_ECU_H}`} style={{ overflow: "visible" }}>
             <path d={J12_ECU_D} fill="rgba(255,253,246,0.1)" stroke="rgba(242,194,96,0.75)" strokeWidth="2" strokeLinejoin="round" />
-            {/* La zona de cada gobierno se enciende al colocarlo. Es una mancha de
-                influencia alrededor de su ciudad, NO una frontera: el libro no da
-                límites y no se inventan. */}
+            {/* La mancha de cada gobierno colocado. Es una zona de influencia alrededor de
+                su ciudad, NO una frontera: el libro no da límites y no se inventan. */}
             {J12_GOBIERNOS.map((g) => {
-              const asignado = puesto[g.id];
-              if (asignado === undefined) return null;
-              const col = J12_ZONA_COL[asignado];
-              return <circle key={"z" + g.id} cx={g.x} cy={g.y} r="46" fill={col} opacity={verified && asignado !== g.id ? 0.1 : 0.19} style={{ pointerEvents: "none" }} />;
+              const p = pasos.find((x) => x.ciudad === g.id);
+              const marca = p ? p.pide : (sel === g.id ? pendiente : null);
+              if (!marca) return null;
+              return <circle key={"z" + g.id} cx={g.x} cy={g.y} r="46" fill={J12_ZONA_COL[marca]} opacity={p && p.pide !== g.id ? 0.1 : 0.19} style={{ pointerEvents: "none" }} />;
             })}
             {J12_GOBIERNOS.map((g) => {
-              const asignado = puesto[g.id];
-              const libre = asignado === undefined;
-              let col = libre ? "#fdfaf0" : J12_ZONA_COL[asignado];
-              // ⚠ Solo se marcan las ciudades que el niño JUGÓ. Pintar de rojo también las
-              // que dejó vacías hacía creer que había fallado cuatro veces.
-              if (verified && !libre) col = asignado === g.id ? "#2ecc8f" : "#ff6b6b";
-              if (verified && libre) col = "rgba(253,250,240,0.5)";
+              const p = pasos.find((x) => x.ciudad === g.id);
+              const elegida = sel === g.id;
+              // Verde/rojo SOLO en las ciudades ya verificadas; la elegida va en celeste
+              // mientras no se verifique, y las que no se juegan se quedan en blanco.
+              let col = "#fdfaf0";
+              if (p) col = p.pide === g.id ? "#2ecc8f" : "#ff6b6b";
+              else if (elegida) col = "#4fd8ff";
+              const jefe = p ? nombreDe(p.pide) : (elegida ? pedido.jefe : null);
               return (
-                <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: !verified && libre ? "pointer" : "default" }}>
-                  <circle cx={g.x} cy={g.y} r="17" fill="transparent" />
-                  <circle cx={g.x} cy={g.y} r="7" fill={col} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
-                  <text x={g.x + 11} y={g.y + 4} fontFamily="var(--ed-font-display)" fontWeight="800" fontSize="12" fill="#fff" stroke="rgba(0,0,0,0.65)" strokeWidth="2.6" paintOrder="stroke">{g.ciudad}</text>
+                <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: !terminado && !p ? "pointer" : "default" }}>
+                  <circle cx={g.x} cy={g.y} r="19" fill="transparent" />
+                  {elegida && <circle cx={g.x} cy={g.y} r="12" fill="none" stroke="#4fd8ff" strokeWidth="2.5" />}
+                  <circle cx={g.x} cy={g.y} r="7.5" fill={col} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+                  <text x={g.x + 12} y={g.y + 4} fontFamily="var(--ed-font-display)" fontWeight="800" fontSize="13" fill="#fff" stroke="rgba(0,0,0,0.65)" strokeWidth="2.8" paintOrder="stroke">{g.ciudad}</text>
+                  {jefe && <text x={g.x + 12} y={g.y + 17} fontFamily="var(--ed-font-ui)" fontWeight="700" fontSize="10.5" fill={p ? (p.pide === g.id ? "#8cf0c0" : "#ffb3b3") : "#9fe9ff"} stroke="rgba(0,0,0,0.65)" strokeWidth="2.4" paintOrder="stroke">{jefe}</text>}
+                  {p && <text x={g.x - 16} y={g.y + 5} fontFamily="var(--ed-font-display)" fontWeight="900" fontSize="13" textAnchor="middle" fill={p.pide === g.id ? "#8cf0c0" : "#ffb3b3"} stroke="rgba(0,0,0,0.7)" strokeWidth="2.6" paintOrder="stroke">{p.pide === g.id ? "✓" : "✗"}</text>}
                 </g>
               );
-            })}
-            {/* El nombre del gobernante colocado, bajo su ciudad */}
-            {J12_GOBIERNOS.map((g) => {
-              const asignado = puesto[g.id];
-              if (asignado === undefined) return null;
-              const jefe = (J12_GOBIERNOS.find((x) => x.id === asignado) || {}).jefe;
-              return <text key={"n" + g.id} x={g.x + 11} y={g.y + 16} fontFamily="var(--ed-font-ui)" fontWeight="700" fontSize="9.5" fill={verified ? (asignado === g.id ? "#8cf0c0" : "#ffb3b3") : "#fce9a8"} stroke="rgba(0,0,0,0.65)" strokeWidth="2.2" paintOrder="stroke">{jefe}</text>;
             })}
           </svg>
         </div>
@@ -1185,9 +1179,9 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
         {/* La consigna del turno */}
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           {!verified && !terminado && (<>
-            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0, textAlign: "center", lineHeight: 1.25 }}>¿Cuál rompes?<br />{paso + 1} de {b.consignas.length}</span>
+            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>¿Cuál rompes? · {paso + 1} de {b.consignas.length}</span>
             <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fff", textAlign: "center" }}>{(J12_CARTA.find((r) => r.id === consigna) || {}).pide}</span>
           </>)}
           {!verified && terminado && (

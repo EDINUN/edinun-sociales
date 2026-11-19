@@ -38,13 +38,15 @@ const N = 8;
     for (let k = 0; k < 4; k++) {
     // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
     if (!(await p.$("text=¿Dónde manda?"))) break;
-      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
+      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
       seq.push(jefe);
       const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, CIUDAD_DE[jefe]);
       if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(140); }
+      // ⚠ Cada gobernante lleva su PROPIO ¡VERIFICAR!: el último cierra la ronda.
+      await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(500);
     }
     vistos.jefes[seq.join(",")] = 1;
-    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
+    await p.waitForTimeout(4300);
 
     await p.waitForSelector("text=la revolución derribó");
     const papel = await p.evaluate(() => Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0).map((d) => d.textContent.trim().slice(2, 18)).join("|"));
@@ -72,7 +74,7 @@ const N = 8;
   const n = (o) => Object.keys(o).length;
   console.log(`En ${N} partidas:`);
   console.log(`  R1 · orden de la paleta ........ ${n(vistos.paleta)}/${N} distintos (de 120 posibles)`);
-  console.log(`  R2 · orden de los gobernantes .. ${n(vistos.jefes)}/${N} distintos (de 24 posibles)`);
+  console.log(`  R2 · qué dos gobernantes y en qué orden .. ${n(vistos.jefes)}/${N} distintos (de 12 posibles)`);
   console.log(`  R3 · orden del papel ........... ${n(vistos.papel)}/${N} distintos (de 24 posibles)`);
   console.log(`  R3 · orden de las consignas .... ${n(vistos.consignas)}/${N} distintos (de 6 posibles)`);
   console.log("\n⚠ La bandera y los cuatro gobiernos son los del libro: lo que varía es el");

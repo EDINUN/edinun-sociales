@@ -153,11 +153,13 @@ async function abrir(p, tema) {
     for (let k = 0; k < 4; k++) {
       // La R2 pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
       if (!(await p.$("text=¿Dónde manda?"))) break;
-      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
+      const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] span:nth-child(2)")).trim();
       // Corrimiento cíclico: todas mal, para ver el revelado más cargado de texto.
       const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
       const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, ciudad);
-      if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
+      if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(140); }
+      // ⚠ Ahora se verifica UNO A UNO: cada gobernante lleva su propio ¡VERIFICAR!
+      await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(420);
     }
     console.log(await medir(p, et + " T2 R2 llena", fallos));
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);

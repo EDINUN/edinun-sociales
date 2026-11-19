@@ -232,11 +232,20 @@ los temas deben diferenciarse al máximo.
   *"Arma la bandera de la Revolución Marcista."* La bandera vacía lleva el aviso **"toca un
   color de abajo"**, que se va con el primer color.
 - **R2 pide DOS gobernantes, no cuatro** (⭐ 2). Con cuatro se hacía larga. El mapa sigue
-  enseñando las cuatro ciudades. Al verificar, **solo se marcan las que el niño jugó** (las
-  otras quedan en gris: pintarlas de rojo parecía que había fallado cuatro veces) y el
-  cartel dice dónde iba cada una y **dónde la puso él**. Banco de 4, **cap 1**.
+  enseñando las cuatro ciudades. Banco de 4, **cap 1**.
+  - ⚠ **Se verifica UNO A UNO**: se coloca el primero, se pulsa ¡VERIFICAR!, se ve el ✓/✗
+    en su ciudad y **recién entonces** viene el segundo; el último ¡VERIFICAR! cierra la
+    ronda llamando a `onSolve`. Lo pidió así la autora. Mientras no se verifica, la ciudad
+    elegida va en **celeste** y se puede cambiar tocando otra.
+  - ⚠ **Solo se marcan las ciudades jugadas**: pintar de rojo también las vacías parecía
+    que había fallado cuatro veces.
+  - ⚠ **El pedido va en una BANDA centrada sobre el mapa**, no en una columna a la
+    izquierda: así dejaba un hueco grande entre el cartel y el mapa.
 - **R3 decía "Ya no queda nada que romper"** con renglones aún a la vista: lo que se acaba
   son las órdenes, no el papel. Ahora dice **"Listo. Pulsa ¡VERIFICAR!"**, el enunciado es
   **"Rompe lo que la revolución derribó."** y la consigna lleva el rótulo **"¿Cuál
   rompes?"** con el contador, como el *"¿Dónde manda?"* de la R2.
 - **⭐ del tema: 4 + 2 + 3 = 9.**
+- **R1 tiene botón «borrar» a la vista.** Tocar un cuartel ya lo vaciaba, pero eso no se
+  ve: con la bandera llena la paleta se apaga y no quedaba forma visible de rectificar.
+  El botón vacía los tres cuarteles; las estrellas tienen su propio −.
