@@ -808,14 +808,21 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Levanta la bandera del 6 de marzo de 1845.</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Arma la bandera de la Revolución Marcista.</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 11, minHeight: 0, width: "100%" }}>
-        {/* Dato del libro SIEMPRE a la vista: las tres ciudades que se unieron. Así el
-            número de estrellas se DEDUCE de lo que se ve, no se recuerda. */}
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: "2.5px solid rgba(242,194,96,0.6)", background: "rgba(0,0,0,0.34)", padding: "5px 12px 6px", flexShrink: 0 }}>
-          <div className="ed-label" style={{ color: "#fce9a8", fontSize: 9.5, textAlign: "center", marginBottom: 4 }}>Una estrella por cada ciudad que se levantó</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
+        {/* ⚠ CÓMO ERA LA BANDERA, SIEMPRE A LA VISTA. La primera versión solo decía
+            "Levanta la bandera del 6 de marzo" y no explicaba en ninguna parte cómo era:
+            había que saberlo de memoria. La autora lo probó y no entendió qué hacer. La
+            ronda se resuelve LEYENDO esto y aplicándolo, igual que el panel del Art. 12
+            del Tema 1. Las estrellas no se dicen: se CUENTAN de la lista de ciudades. */}
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: "2.5px solid rgba(242,194,96,0.6)", background: "rgba(0,0,0,0.34)", padding: "5px 12px 7px", flexShrink: 0 }}>
+          <div className="ed-label" style={{ color: "#fce9a8", fontSize: 9.5, textAlign: "center", marginBottom: 4 }}>Así era la bandera</div>
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.3, color: "#fff", textAlign: "center" }}>
+            Tres cuarteles: <b style={{ color: "#fdfaf0" }}>blancos los de los lados</b> y <b style={{ color: "#9fc4ff" }}>azul el del centro</b>.<br />
+            En el del centro, <b>una estrella por cada ciudad que se levantó</b>:
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center", marginTop: 4 }}>
             {["Quito", "Guayaquil", "Cuenca"].map((x) => (
               <span key={x} style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "#fff", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 999, padding: "2px 9px" }}>{x}</span>
             ))}
@@ -827,6 +834,13 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
           <div style={{ width: 7, height: 128, borderRadius: 4, background: "linear-gradient(180deg,#a9793a,#6b4a1e)", boxShadow: "0 4px 10px rgba(0,0,0,0.4)" }} />
           <div style={{ position: "relative" }}>
             <J12Bandera cuarteles={cuarteles} estrellas={estrellas} ancho={222} alto={128} />
+            {/* Con la bandera en blanco no se ve que los cuarteles son tocables: el aviso
+                dice dónde empieza todo y se va en cuanto entra el primer color. */}
+            {cuarteles.every((c) => c === null) && (
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12, color: "rgba(255,255,255,0.75)", textShadow: "0 2px 6px rgba(0,0,0,0.7)" }}>toca un color de abajo</span>
+              </div>
+            )}
             {/* Los tres cuarteles son tocables para vaciarlos (no hay "deshacer" escondido). */}
             {!verified && (
               <div style={{ position: "absolute", inset: 0, display: "flex" }}>
@@ -851,7 +865,7 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
 
         {/* Contador de estrellas: otro gesto distinto, y se dibujan en vivo */}
         <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0, borderRadius: 11, border: `2.5px solid ${verified ? (estrOk ? "#2ecc8f" : "#ff6b6b") : "rgba(242,194,96,0.55)"}`, background: "rgba(0,0,0,0.34)", padding: "4px 11px" }}>
-          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#fce9a8" }}>Estrellas</span>
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#fce9a8" }}>Estrellas del centro</span>
           <button onClick={() => !verified && setEstrellas((n) => Math.max(0, n - 1))} disabled={verified || estrellas === 0}
             style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, cursor: verified || estrellas === 0 ? "default" : "pointer", opacity: verified || estrellas === 0 ? 0.4 : 1 }}>−</button>
           <span style={{ minWidth: 20, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 18, color: "#fff" }}>{estrellas}</span>
@@ -895,8 +909,17 @@ const J12_GOBIERNOS = [
 const J12_ZONA_COL = { qui: "#f1c40f", gye: "#4fd8ff", cue: "#b388ff", loj: "#ff9a6b" };
 
 function L6T2R2Mapa({ onSolve, verifyRef }) {
-  // Varía el ORDEN en que se piden los cuatro gobernantes: 4! = 24 recorridos.
-  const [orden] = useStateG(() => j12Shuffle(J12_GOBIERNOS.map((g) => g.id)));
+  // ⚠ Se piden DOS gobernantes, no los cuatro: con cuatro la ronda se hacía larga y
+  // repetitiva (lo pidió la autora jugando). El mapa sigue enseñando las cuatro ciudades,
+  // que es lo que cuenta la historia; lo que se juega son dos.
+  // Cuáles dos varía por partida. ⚠ Cap 1, nunca 2: para un SUBCONJUNTO de K, cap = K
+  // parte el banco en parejas fijas que se alternan igual en cada recarga.
+  const [b] = useStateG(() => {
+    const idx = j12PickIdx(J12_GOBIERNOS, 2, "edinun_j12_l6t2_r2_v1");
+    j12Commit("edinun_j12_l6t2_r2_v1", idx, 1);
+    return { orden: j12Shuffle(idx.map((i) => J12_GOBIERNOS[i].id)) };
+  });
+  const orden = b.orden;
   const [puesto, setPuesto] = useStateG({});   // id de ciudad -> id del gobierno pedido
   const [verified, setVerified] = useStateG(false);
   const hechos = Object.keys(puesto).length;
@@ -908,15 +931,15 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
     setPuesto((p) => Object.assign({}, p, { [ciudadId]: pendiente }));
   }
   function verificar() {
-    if (verified || hechos < J12_GOBIERNOS.length) return;
+    if (verified || hechos < orden.length) return;
     setVerified(true);
     const aciertos = Object.keys(puesto).filter((c) => puesto[c] === c).length;
     const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
     const ciudad = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).ciudad;
-    onSolve(aciertos === J12_GOBIERNOS.length, {
+    onSolve(aciertos === orden.length, {
       emoji: "🗺️", a: "1859: el país con cuatro gobiernos",
       userAnswer: Object.keys(puesto).map((c) => `${nombre(puesto[c])} en ${ciudad(c)}`).join(" · "),
-      correctAnswer: J12_GOBIERNOS.map((g) => `${g.jefe} en ${g.ciudad}`).join(" · "),
+      correctAnswer: orden.map((id) => `${nombre(id)} en ${ciudad(id)}`).join(" · "),
     }, aciertos);
   }
   verifyRef.current = verificar;
@@ -929,7 +952,9 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>En 1859 el país tuvo cuatro gobiernos a la vez.</span>
       </div>
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 0, width: "100%", paddingTop: 6 }}>
+      {/* ⚠ La columna del pedido va ARRIBA, a la altura de la cabecera del mapa: centrada
+          en vertical quedaba a media altura y la autora la quería más arriba. */}
+      <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 22, minHeight: 0, width: "100%", paddingTop: 10 }}>
         {/* Columna del pedido / recuento */}
         <div style={{ width: 150, flexShrink: 0, display: "flex", flexDirection: "column", gap: 7 }}>
           {!verified && pedido && (
@@ -946,13 +971,22 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
           )}
           {verified && (
             <div style={{ borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(0,0,0,0.5)", padding: "7px 10px" }}>
+              {/* Solo los DOS que se jugaron, y cada uno dice si cayó bien o mal y dónde
+                  iba de verdad. Antes se listaban los cuatro gobiernos, incluidos los que
+                  el niño no había colocado, y salían dos ✗ que no eran suyos. */}
               <div className="ed-label" style={{ color: "#fce9a8", fontSize: 8.5, marginBottom: 4 }}>Iban así</div>
-              {J12_GOBIERNOS.map((g) => {
-                const ok = puesto[g.id] === g.id;
+              {orden.map((id) => {
+                const g = J12_GOBIERNOS.find((x) => x.id === id);
+                const ok = puesto[id] === id;
+                const puso = Object.keys(puesto).find((c) => puesto[c] === id);
+                const donde = (J12_GOBIERNOS.find((x) => x.id === puso) || {}).ciudad;
                 return (
-                  <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
-                    <span style={{ flexShrink: 0, width: 13, height: 13, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 8.5 }}>{ok ? "✓" : "✗"}</span>
-                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.15, color: "#fce9a8" }}>{g.jefe} en {g.ciudad}</span>
+                  <div key={id} style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 4 }}>
+                    <span style={{ flexShrink: 0, marginTop: 1, width: 13, height: 13, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 8.5 }}>{ok ? "✓" : "✗"}</span>
+                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.2, color: "#fce9a8" }}>
+                      {g.jefe} en <b>{g.ciudad}</b>
+                      {!ok && donde ? <><br /><span style={{ color: "#ffb3b3" }}>tú lo pusiste en {donde}</span></> : null}
+                    </span>
                   </div>
                 );
               })}
@@ -982,7 +1016,10 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
               const asignado = puesto[g.id];
               const libre = asignado === undefined;
               let col = libre ? "#fdfaf0" : J12_ZONA_COL[asignado];
-              if (verified) col = asignado === g.id ? "#2ecc8f" : "#ff6b6b";
+              // ⚠ Solo se marcan las ciudades que el niño JUGÓ. Pintar de rojo también las
+              // que dejó vacías hacía creer que había fallado cuatro veces.
+              if (verified && !libre) col = asignado === g.id ? "#2ecc8f" : "#ff6b6b";
+              if (verified && libre) col = "rgba(253,250,240,0.5)";
               return (
                 <g key={g.id} onClick={() => tocar(g.id)} style={{ cursor: !verified && libre ? "pointer" : "default" }}>
                   <circle cx={g.x} cy={g.y} r="17" fill="transparent" />
@@ -1144,17 +1181,17 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Tres cosas cayeron con la revolución.</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe lo que la revolución derribó.</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 0, width: "100%" }}>
         {/* La consigna del turno */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           {!verified && !terminado && (<>
-            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>{paso + 1} de {b.consignas.length}</span>
+            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0, textAlign: "center", lineHeight: 1.25 }}>¿Cuál rompes?<br />{paso + 1} de {b.consignas.length}</span>
             <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fff", textAlign: "center" }}>{(J12_CARTA.find((r) => r.id === consigna) || {}).pide}</span>
           </>)}
           {!verified && terminado && (
-            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textAlign: "center" }}>Ya no queda nada que romper. Pulsa ¡VERIFICAR!</span>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: "#fce9a8", textAlign: "center" }}>Listo. Pulsa ¡VERIFICAR!</span>
           )}
           {verified && (
             <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "#fce9a8", textAlign: "center" }}>El renglón de los esclavos no cayó en 1845: hubo que esperar a 1851, con Urbina.</span>

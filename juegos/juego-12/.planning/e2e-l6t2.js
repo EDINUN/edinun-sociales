@@ -1,7 +1,7 @@
 // E2E del Libro 6 · Tema 2 ("Revolución Marcista"): juega el tema entero dos veces,
 // una acertando todo y otra fallando todo, y comprueba las estrellas, el revelado en
 // las tres rondas y que no haya errores de consola.
-// Esperado: R1 4 ⭐ (3 cuarteles + las estrellas) · R2 4 ⭐ · R3 3 ⭐ = 11.
+// Esperado: R1 4 ⭐ (3 cuarteles + las estrellas) · R2 2 ⭐ (dos gobernantes) · R3 3 ⭐ = 9.
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
 const ROOT = "c:/Users/Analist Prod & Platf/OneDrive/Desktop/edinun-sociales", PORT = 8896;
@@ -27,7 +27,7 @@ async function abrirTema(p) {
 
 // ── R1: pinta los tres cuarteles y pone las estrellas ──
 async function jugarR1(p, bien) {
-  await p.waitForSelector("text=Levanta la bandera");
+  await p.waitForSelector("text=Arma la bandera");
   const quiere = bien ? ["blanco", "azul", "blanco"] : ["rojo", "verde", "amarillo"];
   for (const c of quiere) {
     const b = await p.$(`button:has-text('${c}')`);
@@ -45,6 +45,8 @@ async function jugarR2(p, bien) {
   await p.waitForSelector("text=cuatro gobiernos a la vez");
   const usadas = [];
   for (let k = 0; k < 4; k++) {
+    // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
+    if (!(await p.$("text=¿Dónde manda?"))) break;
     const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
     let ciudad = CIUDAD_DE[jefe];
     if (!ciudad) throw new Error("gobernante desconocido: " + jefe);
@@ -78,7 +80,7 @@ const RENGLON_DE = {
   "La Iglesia vuelve al país: rompe lo que la tenía fuera.": "Iglesia",
 };
 async function jugarR3(p, bien) {
-  await p.waitForSelector("text=cayeron con la revolución");
+  await p.waitForSelector("text=la revolución derribó");
   for (let k = 0; k < 3; k++) {
     // Rompiendo mal, la ronda puede acabarse antes de las tres: cuando ya no queda
     // ningún renglón de los pedidos, termina sola (ver sin-callejon-r3.js).
@@ -135,7 +137,7 @@ async function partida(p, bien) {
   p.on("pageerror", (e) => errores.push("pageerror: " + e.message));
   p.on("console", (m) => { if (m.type() === "error") errores.push("console: " + m.text()); });
 
-  console.log("── PARTIDA PERFECTA (esperado 4 · 8 · 11 ⭐) ──");
+  console.log("── PARTIDA PERFECTA (esperado 4 · 6 · 9 ⭐) ──");
   const a = await partida(p, true);
   console.log(`  perfecta: tras R1 → ${a.e1} ⭐ · tras R2 → ${a.e2} ⭐ · total ${a.total} ⭐`);
   console.log(`  reporte: "${a.rep}"`);
@@ -146,7 +148,7 @@ async function partida(p, bien) {
   console.log(`  reporte: "${b.rep}"`);
 
   const mal = [];
-  if (a.total !== 11) mal.push("la partida perfecta no da 11 ⭐ (da " + a.total + ")");
+  if (a.total !== 9) mal.push("la partida perfecta no da 9 ⭐ (da " + a.total + ")");
   if (a.rep.indexOf("3 de 3") < 0) mal.push("la partida perfecta no reporta 3 de 3");
   if (b.total !== 0) mal.push("la partida fallada no da 0 ⭐ (da " + b.total + ")");
   if (b.rep.indexOf("0 de 3") < 0) mal.push("la partida fallada no reporta 0 de 3");

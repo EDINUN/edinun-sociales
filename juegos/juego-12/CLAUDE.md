@@ -204,7 +204,7 @@ los temas deben diferenciarse al máximo.
 | Ronda | Verbo | ⭐ |
 |---|---|---|
 | R1 "La bandera de marzo" | componer (el símbolo se dibuja al tocar) | 4 |
-| R2 "El Ecuador partido" | tocar en el mapa | 4 |
+| R2 "El Ecuador partido" | tocar en el mapa | 2 |
 | R3 "La Carta de la Esclavitud" | rasgar (se rompe pasando el dedo) | 3 |
 
 **Invariantes de este tema:**
@@ -222,3 +222,21 @@ los temas deben diferenciarse al máximo.
 - **La R3 no puede dejar al niño sin salida:** cada turno pide un renglón que **siga
   entero**. Si se rompe uno que una consigna posterior iba a pedir, esa consigna se
   descarta y la ronda termina sola. Lo vigila `.planning/sin-callejon-r3.js`.
+
+**Correcciones de la autora jugando el Tema 2 (2026-11-19):**
+
+- **R1 no se entendía.** El enunciado decía *"Levanta la bandera del 6 de marzo"* y en
+  ningún sitio se contaba cómo era: había que saberlo de memoria. Ahora el panel **"Así
+  era la bandera"** está siempre a la vista con la descripción (blancos los lados, azul el
+  centro) y las tres ciudades, de las que se **cuenta** el número de estrellas. Enunciado:
+  *"Arma la bandera de la Revolución Marcista."* La bandera vacía lleva el aviso **"toca un
+  color de abajo"**, que se va con el primer color.
+- **R2 pide DOS gobernantes, no cuatro** (⭐ 2). Con cuatro se hacía larga. El mapa sigue
+  enseñando las cuatro ciudades. Al verificar, **solo se marcan las que el niño jugó** (las
+  otras quedan en gris: pintarlas de rojo parecía que había fallado cuatro veces) y el
+  cartel dice dónde iba cada una y **dónde la puso él**. Banco de 4, **cap 1**.
+- **R3 decía "Ya no queda nada que romper"** con renglones aún a la vista: lo que se acaba
+  son las órdenes, no el papel. Ahora dice **"Listo. Pulsa ¡VERIFICAR!"**, el enunciado es
+  **"Rompe lo que la revolución derribó."** y la consigna lleva el rótulo **"¿Cuál
+  rompes?"** con el contador, como el *"¿Dónde manda?"* de la R2.
+- **⭐ del tema: 4 + 2 + 3 = 9.**

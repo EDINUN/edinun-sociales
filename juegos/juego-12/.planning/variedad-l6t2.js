@@ -25,7 +25,7 @@ const N = 8;
     await p.waitForTimeout(450);
     const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(650); }
 
-    await p.waitForSelector("text=Levanta la bandera");
+    await p.waitForSelector("text=Arma la bandera");
     const paleta = await p.evaluate(() => Array.from(document.querySelectorAll("button")).filter((b) => /^(blanco|azul|rojo|amarillo|verde)$/.test(b.textContent.trim())).map((b) => b.textContent.trim()).join(","));
     vistos.paleta[paleta] = 1;
     for (const c of ["blanco", "azul", "blanco"]) { const b = await p.$(`button:has-text('${c}')`); await b.click(); await p.waitForTimeout(70); }
@@ -36,6 +36,8 @@ const N = 8;
     const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
     const seq = [];
     for (let k = 0; k < 4; k++) {
+    // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
+    if (!(await p.$("text=¿Dónde manda?"))) break;
       const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
       seq.push(jefe);
       const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, CIUDAD_DE[jefe]);
@@ -44,7 +46,7 @@ const N = 8;
     vistos.jefes[seq.join(",")] = 1;
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
 
-    await p.waitForSelector("text=cayeron con la revolución");
+    await p.waitForSelector("text=la revolución derribó");
     const papel = await p.evaluate(() => Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0).map((d) => d.textContent.trim().slice(2, 18)).join("|"));
     vistos.papel[papel] = 1;
     const RENGLON_DE = {

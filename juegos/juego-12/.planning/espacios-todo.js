@@ -53,7 +53,15 @@ async function medir(p, etiqueta, fallos) {
       if (invisible(e) || enLaMano(e)) return false;
       const b = e.getBoundingClientRect();
       if (b.width <= 2 || b.height <= 2) return false;
-      return e.tagName === "BUTTON" || hojaTexto(e);
+      // Un boton SIN TEXTO y sin fondo ni borde es una ZONA DE TOQUE, no algo que se
+      // vea: los cuarteles de la bandera son eso, y taparlos con el aviso es a proposito.
+      if (e.tagName === "BUTTON") {
+        const s2 = getComputedStyle(e);
+        const pintado = (s2.backgroundColor && s2.backgroundColor !== "rgba(0, 0, 0, 0)") || parseFloat(s2.borderTopWidth) > 0;
+        if (!(e.textContent || "").trim() && !pintado) return false;
+        return true;
+      }
+      return hojaTexto(e);
     });
     cand = cand.filter((e) => !cand.some((o) => o !== e && e.contains(o)));
     const recorte = (e) => { let n = e.parentElement; while (n && n !== document.body) { if (getComputedStyle(n).overflow === "hidden") return n.getBoundingClientRect(); n = n.parentElement; } return null; };
@@ -61,7 +69,10 @@ async function medir(p, etiqueta, fallos) {
       const b = e.getBoundingClientRect(), c = recorte(e);
       const x = c ? Math.max(b.left, c.left) : b.left, rr = c ? Math.min(b.right, c.right) : b.right;
       const y = c ? Math.max(b.top, c.top) : b.top, bo = c ? Math.min(b.bottom, c.bottom) : b.bottom;
-      return { t: (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 24) || "<" + e.tagName.toLowerCase() + ">", x, y, r: rr, b: bo, vis: rr - x > 2 && bo - y > 2, cut: e.scrollWidth > e.clientWidth + 1 };
+      // Para reconocer los trozos de UNA MISMA FRASE: dos inline hermanos se pisan 2-3 px
+      // por la altura de línea, que es como fluye el texto, no un defecto.
+      const enLinea = getComputedStyle(e).display.indexOf("inline") >= 0;
+      return { t: (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 24) || "<" + e.tagName.toLowerCase() + ">", x, y, r: rr, b: bo, padre: e.parentElement, enLinea, vis: rr - x > 2 && bo - y > 2, cut: e.scrollWidth > e.clientWidth + 1 };
     }).filter((c) => c.vis);
     const fuera = cajas.filter((c) => c.x < sr.left - 1 || c.r > sr.right + 1 || c.y < sr.top - 1 || c.b > sr.bottom + 1);
     const cortados = cajas.filter((c) => c.cut);
@@ -69,6 +80,7 @@ async function medir(p, etiqueta, fallos) {
     for (let i = 0; i < cajas.length; i++) for (let j = i + 1; j < cajas.length; j++) {
       const a = cajas[i], b = cajas[j];
       const ox = Math.min(a.r, b.r) - Math.max(a.x, b.x), oy = Math.min(a.b, b.b) - Math.max(a.y, b.y);
+      if (a.enLinea && b.enLinea && a.padre === b.padre) continue;   // trozos de la misma frase
       if (ox > 2 && oy > 2) solapes.push(a.t + " <-> " + b.t + " (" + Math.round(ox) + "x" + Math.round(oy) + ")");
     }
     return { n: cajas.length, fuera: fuera.map((c) => c.t), cortados: cortados.map((c) => c.t), solapes };
@@ -126,7 +138,7 @@ async function abrir(p, tema) {
 
     // ───────── TEMA 2 ─────────
     await abrir(p, "La Revolución Marcista");
-    await p.waitForSelector("text=Levanta la bandera");
+    await p.waitForSelector("text=Arma la bandera");
     console.log(await medir(p, et + " T2 R1 antes", fallos));
     for (const c of ["blanco", "azul", "blanco"]) { const b = await p.$(`button:has-text('${c}')`); await b.click(); await p.waitForTimeout(80); }
     const mas = await p.$("button:has-text('+')"); for (let i = 0; i < 3; i++) { await mas.click(); await p.waitForTimeout(50); }
@@ -139,6 +151,8 @@ async function abrir(p, tema) {
     const CICLO = ["Quito", "Guayaquil", "Cuenca", "Loja"];
     const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
     for (let k = 0; k < 4; k++) {
+      // La R2 pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
+      if (!(await p.$("text=¿Dónde manda?"))) break;
       const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
       // Corrimiento cíclico: todas mal, para ver el revelado más cargado de texto.
       const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
@@ -150,7 +164,7 @@ async function abrir(p, tema) {
     console.log(await medir(p, et + " T2 R2 revelado", fallos));
     await p.waitForTimeout(3500);
 
-    await p.waitForSelector("text=cayeron con la revolución");
+    await p.waitForSelector("text=la revolución derribó");
     console.log(await medir(p, et + " T2 R3 antes", fallos));
     for (let k = 0; k < 3; k++) {
       if (await p.$("text=Pulsa ¡VERIFICAR!")) break;

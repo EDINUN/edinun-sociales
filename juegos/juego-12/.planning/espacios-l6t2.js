@@ -86,7 +86,7 @@ async function medir(p, etiqueta, fallos) {
     const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(700); }
 
     // R1 "La bandera de marzo"
-    await p.waitForSelector("text=Levanta la bandera");
+    await p.waitForSelector("text=Arma la bandera");
     console.log(await medir(p, et + " R1 antes", fallos));
     for (const c of ["blanco", "azul", "blanco"]) { const b = await p.$(`button:has-text('${c}')`); await b.click(); await p.waitForTimeout(90); }
     const mas = await p.$("button:has-text('+')"); for (let i = 0; i < 3; i++) { await mas.click(); await p.waitForTimeout(60); }
@@ -108,7 +108,7 @@ async function medir(p, etiqueta, fallos) {
     await p.waitForTimeout(3500);
 
     // R3 "La Carta de la Esclavitud"
-    await p.waitForSelector("text=cayeron con la revolución");
+    await p.waitForSelector("text=la revolución derribó");
     console.log(await medir(p, et + " R3 antes", fallos));
     for (let k = 0; k < 3; k++) {
       const caja = await p.evaluate(() => { const f = Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0")[0]; if (!f) return null; const r = f.getBoundingClientRect(); return { x: r.left + 12, y: r.top + r.height / 2, w: r.width }; });

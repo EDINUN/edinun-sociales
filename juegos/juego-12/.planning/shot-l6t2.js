@@ -21,7 +21,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   await p.waitForTimeout(500);
   const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(700); }
 
-  await p.waitForSelector("text=Levanta la bandera");
+  await p.waitForSelector("text=Arma la bandera");
   await tiro("r1");
   for (const c of ["blanco", "azul", "blanco"]) { const b = await p.$(`button:has-text('${c}')`); await b.click(); await p.waitForTimeout(110); }
   const mas = await p.$("button:has-text('+')"); for (let i = 0; i < 3; i++) { await mas.click(); await p.waitForTimeout(70); }
@@ -35,6 +35,8 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   const CICLO = ["Quito", "Guayaquil", "Cuenca", "Loja"];
   const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
   for (let k = 0; k < 4; k++) {
+    // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
+    if (!(await p.$("text=¿Dónde manda?"))) break;
     const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
     // ⚠ Para ver el revelado hay que fallar, pero fallando SOLO UNA las demás chocan con
     // una ciudad ya ocupada y la ronda se queda sin completar. Se corre la lista entera
@@ -49,7 +51,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   await tiro("r2-verificada");
   await p.waitForTimeout(3500);
 
-  await p.waitForSelector("text=cayeron con la revolución");
+  await p.waitForSelector("text=la revolución derribó");
   await tiro("r3");
   const RENGLON_DE = {
     "Rompe al hombre contra el que se levantó Guayaquil.": "Flores",

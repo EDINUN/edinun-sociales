@@ -35,19 +35,21 @@ const filas = (p) => p.evaluate(() => Array.from(document.querySelectorAll("div"
   const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(700); }
   // Saltar la R1 y la R2 cuanto antes, dejándolas incompletas no se puede: hay que
   // completarlas para que aparezca ¡VERIFICAR! con efecto.
-  await p.waitForSelector("text=Levanta la bandera");
+  await p.waitForSelector("text=Arma la bandera");
   for (const c of ["rojo", "verde", "amarillo"]) { const b = await p.$(`button:has-text('${c}')`); await b.click(); await p.waitForTimeout(80); }
   await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
   const CICLO = ["Quito", "Guayaquil", "Cuenca", "Loja"];
   const CIUDAD_DE = { "García Moreno": "Quito", "Guillermo Franco": "Guayaquil", "Jerónimo Carrión": "Cuenca", "Manuel Carrión Pinzano": "Loja" };
   for (let k = 0; k < 4; k++) {
+    // La R2 ahora pide SOLO DOS gobernantes: se para cuando el cartel desaparece.
+    if (!(await p.$("text=¿Dónde manda?"))) break;
     const jefe = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)'] div:last-child")).trim();
     const ciudad = CICLO[(CICLO.indexOf(CIUDAD_DE[jefe]) + 1) % 4];
     const pt = await p.evaluate((c) => { const t = Array.from(document.querySelectorAll("text")).find((x) => x.textContent.trim() === c); const g = t && t.closest("g"); if (!g) return null; const r = g.getBoundingClientRect(); return { x: r.left + 8, y: r.top + r.height / 2 }; }, ciudad);
     if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
   }
   await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
-  await p.waitForSelector("text=cayeron con la revolución");
+  await p.waitForSelector("text=la revolución derribó");
 
   let turnos = 0;
   for (let k = 0; k < 6; k++) {
