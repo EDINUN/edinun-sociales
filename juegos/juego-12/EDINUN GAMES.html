@@ -1555,7 +1555,16 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
   }
   verifyRef.current = verificar;
 
-  const ESC = 0.78;
+  // ⚠ La marca del turno anterior se enseña un momento y SE BORRA SOLA: al cambiar de
+  // gobernante el mapa tiene que salir limpio. Antes se quedaba hasta que el niño tocaba
+  // otra ciudad, y parecía que seguía contando.
+  useEffectG(() => {
+    if (!ultimo || terminado) return undefined;
+    const t = setTimeout(() => setUltimo(null), 1300);
+    return () => clearTimeout(t);
+  }, [ultimo, terminado]);
+
+  const ESC = 1.0;   // el mapa ocupa el hueco: a 0,78 sobraba espacio por todos lados
   const MW = J12_ECU_W * ESC, MH = J12_ECU_H * ESC;
   const nombreDe = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
 
@@ -1727,7 +1736,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
     if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
     return (
-      <div key={r.id} style={{ position: "relative", height: 46, flexShrink: 0 }}>
+      <div key={r.id} style={{ position: "relative", height: 62, flexShrink: 0 }}>
         <div
           ref={(el) => { refs.current[r.id] = el; }}
           onPointerDown={(e) => onDown(e, r.id)}
@@ -1745,7 +1754,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
             boxShadow: roto ? "none" : "0 2px 6px rgba(0,0,0,0.2)",
           }}>
           <span style={{ flexShrink: 0, fontSize: 11, color: "#8a6410" }}>▸</span>
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, lineHeight: 1.2, color: "#3a2608" }}>{r.t}</span>
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 13.5, lineHeight: 1.25, color: "#3a2608" }}>{r.t}</span>
           {/* El corte dentado que avanza con el dedo */}
           {cortando > 0 && (
             <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: `${cortando * 100}%`, pointerEvents: "none", borderRight: "3px dashed #c0392b", background: "linear-gradient(90deg, rgba(192,57,43,0.06), rgba(192,57,43,0.16))" }} />
@@ -1790,7 +1799,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
         {/* El papel */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
           <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 7 }}>CARTA DE LA ESCLAVITUD · 1843</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {b.renglones.map((r, i) => renglon(r, i))}
           </div>
         </div>

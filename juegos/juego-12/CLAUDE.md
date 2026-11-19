@@ -262,3 +262,14 @@ los temas deben diferenciarse al máximo.
 - **Los bocadillos no pueden nombrar el dedo.** El mismo juego se juega en celular y en
   computadora: *"Pasa el dedo por el renglón"* pasó a *"Arrastra a lo ancho del renglón y
   se rompe"*. Vale para cualquier aparato.
+  - ⚠ **La marca se borra SOLA** a los 1,3 s: se ve un momento para que el niño sepa si
+    acertó, y al cambiar de gobernante el mapa sale limpio. Lo vigila
+    `.planning/limpia-sola-r2.js`, que comprueba las dos mitades: que la marca **se vea**
+    al verificar y que **se haya ido** poco después sin tocar nada.
+  - **Escala del mapa `ESC = 1.0`.** A 0,78 sobraba espacio por los cuatro lados.
+  - 📌 **La autora dudó dos veces de la posición de los puntos.** Están comprobados con
+    `.planning/comprobar-ciudades.js`, que además de la proyección y del punto-en-polígono
+    contrasta las **seis distancias entre ciudades** con las reales (gran círculo): error
+    **0,0 %** en las seis. Es la comprobación que convence, porque no depende del encuadre.
+- **R3: los renglones miden 62 px y la letra 13,5.** Con 46 px y 11,5 sobraba un hueco
+  grande debajo del papel (lo marcó la autora en rojo sobre una captura).
