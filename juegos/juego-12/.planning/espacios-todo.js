@@ -207,7 +207,7 @@ async function abrir(p, tema) {
 
     await p.waitForSelector("text=Montalvo, Moncayo y Peralta");
     console.log(await medir(p, et + " T3 R2 antes", fallos));
-    const PENS = ["periodismo contra los gobiernos", "concertaje", "Carta Constitucional de 1896"];
+    const PENS = ["periodismo contra los gobiernos", "El Cosmopolita", "concertaje", "Estado laico", "Carta Constitucional de 1896", "posturas liberales"];
     const fichas3 = await p.$$("button.ed-btn-plain");
     for (let i = 0; i < fichas3.length; i++) {
       await fichas3[i].click(); await p.waitForTimeout(210);

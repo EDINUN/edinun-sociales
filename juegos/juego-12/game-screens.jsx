@@ -2319,17 +2319,33 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
 // DEJA destapadas las tres que hicieron los pensadores liberales y vuelve a tapar las
 // otras. Los tres distractores también son del libro (Rocafuerte, García Moreno y
 // Alfaro), así que se aprende quién hizo qué, no se descarta por descarte.
+// ⚠ DOS hechos por persona, todos del libro (pp. 113-115 y cuaderno p. 105). Cada
+// partida saca UNO de cada persona, así que las seis fichas nunca son las mismas: 2^6 =
+// 64 combinaciones. Antes el banco era de seis fichas fijas y solo cambiaba el orden; lo
+// cazó la autora el 2026-11-23 ("verifica si en cada ronda hay variedad").
+// ⚠ Ojo con "el Viejo Luchador": en el libro es como llaman a ALFARO, y lo que dice es
+// que Peralta se ganó SU admiración. No es un apodo de Peralta.
 const J6T3_FICHAS = [
-  { id: "montalvo", ok: true, h: "Luchó con su periodismo contra los gobiernos despóticos.", q: "Juan Montalvo" },
-  { id: "moncayo", ok: true, h: "Denunció el concertaje y defendió el Estado laico.", q: "Abelardo Moncayo" },
-  { id: "peralta", ok: true, h: "Pensó la Carta Constitucional de 1896.", q: "José Peralta" },
-  { id: "rocafuerte", ok: false, h: "Creó la Dirección General de Estudios.", q: "Vicente Rocafuerte" },
-  { id: "garcia", ok: false, h: "Impulsó la educación, pero con visión religiosa.", q: "García Moreno" },
-  { id: "alfaro", ok: false, h: "Concluyó el ferrocarril que unía la Sierra con la Costa.", q: "Eloy Alfaro" },
+  { id: "mon1", ok: true, q: "Juan Montalvo", h: "Luchó con su periodismo contra los gobiernos despóticos." },
+  { id: "mon2", ok: true, q: "Juan Montalvo", h: "Escribió El Cosmopolita y Las Catilinarias." },
+  { id: "mcy1", ok: true, q: "Abelardo Moncayo", h: "Denunció la injusticia del concertaje con los indígenas." },
+  { id: "mcy2", ok: true, q: "Abelardo Moncayo", h: "Aportó a la construcción del Estado laico." },
+  { id: "per1", ok: true, q: "José Peralta", h: "Pensó la Carta Constitucional de 1896." },
+  { id: "per2", ok: true, q: "José Peralta", h: "Defendió las posturas liberales en sus ensayos." },
+  { id: "roc1", ok: false, q: "Vicente Rocafuerte", h: "Creó la Dirección General de Estudios." },
+  { id: "roc2", ok: false, q: "Vicente Rocafuerte", h: "Dictó la primera Ley de Hacienda." },
+  { id: "gar1", ok: false, q: "García Moreno", h: "Impulsó la educación, pero con visión religiosa." },
+  { id: "gar2", ok: false, q: "García Moreno", h: "Construyó la Escuela Politécnica Nacional." },
+  { id: "alf1", ok: false, q: "Eloy Alfaro", h: "Concluyó el ferrocarril que unía la Sierra con la Costa." },
+  { id: "alf2", ok: false, q: "Eloy Alfaro", h: "Creó el Registro Civil." },
 ];
+const J6T3_QUIENES = ["Juan Montalvo", "Abelardo Moncayo", "José Peralta", "Vicente Rocafuerte", "García Moreno", "Eloy Alfaro"];
 
 function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
-  const [b] = useStateG(() => ({ fichas: j12Shuffle(J6T3_FICHAS) }));
+  // Una ficha por persona: tres de los pensadores y tres de los otros.
+  const [b] = useStateG(() => ({
+    fichas: j12Shuffle(J6T3_QUIENES.map((q) => j12Shuffle(J6T3_FICHAS.filter((f) => f.q === q))[0])),
+  }));
   const [giradas, setGiradas] = useStateG([]);
   const [verified, setVerified] = useStateG(false);
   const refs = useRefG({});
@@ -2354,12 +2370,12 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
     return () => onClear(null);
   }, [verified, giradas.length]);
 
-  const buenas = J6T3_FICHAS.filter((f) => f.ok).map((f) => f.id);
+  const buenas = b.fichas.filter((f) => f.ok).map((f) => f.id);
   function verificar() {
     if (verified) return;
     setVerified(true);
     const aciertos = giradas.filter((id) => buenas.indexOf(id) >= 0).length;
-    const nombre = (id) => (J6T3_FICHAS.find((f) => f.id === id) || {}).q;
+    const nombre = (id) => (b.fichas.find((f) => f.id === id) || {}).q;
     onSolve(aciertos === buenas.length && giradas.length === buenas.length, {
       emoji: "✒️", a: "Los pensadores liberales",
       userAnswer: giradas.map(nombre).join(" · ") || "(ninguna)",
@@ -2410,7 +2426,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿Qué hicieron Montalvo, Moncayo y Peralta?</span>
-        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Deja destapadas solo sus tres fichas.</div>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Solo tres fichas son de ellos.</div>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, width: 440, justifyContent: "center", flexShrink: 0 }}>
         {b.fichas.map(ficha)}
@@ -2422,16 +2438,28 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
 // ── R3 · "El sello de Montalvo" ─────────────────────────────────────────────
 // VERBO: estampar. Las frases son TEXTUALES del fragmento de "El Cosmopolita" que trae
 // el cuaderno (p. 106). Se sella a quien Montalvo dice que NO pertenece al pueblo.
+// ⚠ SIETE frases, todas del mismo fragmento del cuaderno (p. 106): cuatro de los que
+// Montalvo deja fuera y tres del pueblo. Cada partida enseña 3 + 2, así que la Carta de
+// respuestas cambia. Con cinco fijas, el ejercicio era idéntico en cada recarga.
 const J6T3_MONTALVO = [
   { id: "tirano", fuera: true, t: "El tirano que se alza con la libertad de sus semejantes." },
   { id: "opulento", fuera: true, t: "El opulento que nada en oro y cierra la mano a la caridad." },
   { id: "soberbio", fuera: true, t: "El soberbio que anda el cuello erguido." },
+  { id: "oprime", fuera: true, t: "El que oprime, el que maltrata, el que desdeña a sus hermanos." },
   { id: "sudor", fuera: false, t: "Tú que vives del sudor de tu frente: tú eres pueblo." },
   { id: "forja", fuera: false, t: "Tú que forjas los metales y construyes casas: tú eres pueblo." },
+  { id: "tierra", fuera: false, t: "Tú que arrancas a la tierra los frutos para la vida: tú eres pueblo." },
 ];
 
 function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
-  const [b] = useStateG(() => ({ frases: j12Shuffle(J6T3_MONTALVO) }));
+  // 3 de las 4 que quedan fuera + 2 de las 3 del pueblo. Cap 2 y cap 1: para un
+  // subconjunto de K nunca se usa cap = K (saldría una rotación previsible).
+  const [b] = useStateG(() => {
+    const malas = J6T3_MONTALVO.filter((f) => f.fuera), buenas2 = J6T3_MONTALVO.filter((f) => !f.fuera);
+    const iM = j12PickIdx(malas, 3, "edinun_j12_l6t3_r3m_v1"); j12Commit("edinun_j12_l6t3_r3m_v1", iM, 2);
+    const iB = j12PickIdx(buenas2, 2, "edinun_j12_l6t3_r3b_v1"); j12Commit("edinun_j12_l6t3_r3b_v1", iB, 1);
+    return { frases: j12Shuffle(iM.map((i) => malas[i]).concat(iB.map((i) => buenas2[i]))) };
+  });
   const [sellados, setSellados] = useStateG([]);
   const [verified, setVerified] = useStateG(false);
   const refs = useRefG({});
@@ -2454,12 +2482,12 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
     return () => onClear(null);
   }, [verified, sellados.length]);
 
-  const fuera = J6T3_MONTALVO.filter((f) => f.fuera).map((f) => f.id);
+  const fuera = b.frases.filter((f) => f.fuera).map((f) => f.id);
   function verificar() {
     if (verified) return;
     setVerified(true);
     const aciertos = sellados.filter((id) => fuera.indexOf(id) >= 0).length;
-    const texto = (id) => (J6T3_MONTALVO.find((f) => f.id === id) || {}).t;
+    const texto = (id) => (J6T3_MONTALVO.find((f) => f.id === id) || {}).t;   // banco entero: el reporte puede citar una que no salió
     onSolve(aciertos === fuera.length && sellados.length === fuera.length, {
       emoji: "🖋️", a: "Quién no pertenece al pueblo, según Montalvo",
       userAnswer: sellados.map(texto).join(" · ") || "(ninguna)",

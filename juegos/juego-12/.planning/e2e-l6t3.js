@@ -38,8 +38,10 @@ async function jugarR1(p, bien) {
 }
 
 // ── R2: girar las fichas y dejar destapadas las de los pensadores ──
-const PENSADORES = ["periodismo contra los gobiernos", "concertaje", "Carta Constitucional de 1896"];
-const OTROS = ["Dirección General de Estudios", "visión religiosa", "ferrocarril"];
+// ⚠ Hay DOS hechos por persona y cada partida saca uno, así que no vale buscar una
+// frase concreta: se reconoce a los pensadores por cualquiera de sus dos hechos.
+const PENSADORES = ["periodismo contra los gobiernos", "El Cosmopolita", "concertaje", "Estado laico", "Carta Constitucional de 1896", "posturas liberales"];
+const OTROS = ["Dirección General de Estudios", "Ley de Hacienda", "visión religiosa", "Escuela Politécnica", "ferrocarril", "Registro Civil"];
 async function jugarR2(p, bien) {
   await p.waitForSelector("text=Montalvo, Moncayo y Peralta");
   // ⚠ Boca abajo las seis fichas dicen lo mismo, así que no se pueden buscar por texto:
@@ -60,23 +62,23 @@ async function jugarR2(p, bien) {
 }
 
 // ── R3: sellar las frases que Montalvo deja fuera del pueblo ──
-const FUERA = ["El tirano", "El opulento", "El soberbio"];
-const PUEBLO = ["sudor de tu frente", "forjas los metales"];
+// ⚠ El banco tiene SIETE frases y cada partida enseña cinco (3 fuera + 2 del pueblo),
+// así que no se puede buscar una frase fija: hay que mirar cuáles salieron.
+const FUERA = ["El tirano", "El opulento", "El soberbio", "El que oprime"];
+const PUEBLO = ["sudor de tu frente", "forjas los metales", "arrancas a la tierra"];
 async function jugarR3(p, bien) {
   await p.waitForSelector("text=fuera del pueblo");
-  for (const clave of (bien ? FUERA : PUEBLO)) {
-    const caja = await p.evaluate((clave) => {
-      // ⚠ Por asidero data-qa: filtrar por "empieza con ▸" agarraba también el
-      //   contenedor de todas las frases, y el clic caía en la del medio.
-      const d = Array.from(document.querySelectorAll("[data-qa=\"frase\"]")).find((x) => x.textContent.indexOf(clave) >= 0);
-      if (!d) return null;
-      const r = d.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    }, clave);
-    if (!caja) throw new Error("no se encontró la frase: " + clave);
-    await p.mouse.click(caja.x, caja.y);
-    await p.waitForTimeout(160);
-  }
+  const cajas = await p.evaluate(({ FUERA, PUEBLO, bien }) => {
+    // ⚠ Por asidero data-qa: filtrar por "empieza con ▸" agarraba también el
+    //   contenedor de todas las frases, y el clic caía en la del medio.
+    const quiere = bien ? FUERA : PUEBLO;
+    return Array.from(document.querySelectorAll("[data-qa=\"frase\"]"))
+      .filter((d) => quiere.some((c) => d.textContent.indexOf(c) >= 0))
+      .map((d) => { const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  }, { FUERA, PUEBLO, bien });
+  const esperadas = bien ? 3 : 2;
+  if (cajas.length !== esperadas) throw new Error("salieron " + cajas.length + " frases de las que buscaba, esperaba " + esperadas);
+  for (const c of cajas) { await p.mouse.click(c.x, c.y); await p.waitForTimeout(160); }
   await p.click("button:has-text('¡VERIFICAR!')");
 }
 

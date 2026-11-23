@@ -93,27 +93,37 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       let y1 = Math.round(H * 0.96);
       for (let y = H - 2; y > H * 0.5; y--) { if (marcadosEnFila(y, 55) > (x1 - x0) * 0.05) { y1 = y; break; } }
 
-      // ── 3. Caja + aire, ajustada a 3:4 sin deformar ──
+      // ── 3. ENCUADRE IGUAL PARA TODOS ──
+      // ⚠ No vale recortar "la figura más un margen proporcional": cada persona sale de
+      // un tamaño distinto en su lámina, así que unas quedaban grandes y otras pequeñas,
+      // y descentradas (lo marcó la autora). Aquí se fuerza que la figura ocupe SIEMPRE
+      // el mismo porcentaje del alto (ALTO_FIG) y quede centrada a lo ancho.
+      const ALTO_FIG = 0.84, PIE = 0.06;      // 84 % de alto, 6 % de aire bajo los pies
       const anchoFig = x1 - x0, altoFig = y1 - y0;
-      let cx0 = x0 - anchoFig * 0.18, cx1 = x1 + anchoFig * 0.18;
-      let cy0 = y0 - altoFig * 0.07, cy1 = y1 + altoFig * 0.04;
-      const necesarioW = (cy1 - cy0) * (ANCHO / ALTO);
-      if (cx1 - cx0 < necesarioW) { const m = (cx0 + cx1) / 2; cx0 = m - necesarioW / 2; cx1 = m + necesarioW / 2; }
-      else { const necesarioH = (cx1 - cx0) * (ALTO / ANCHO); const m = (cy0 + cy1) / 2; cy0 = m - necesarioH / 2; cy1 = m + necesarioH / 2; }
-      // Si se sale del lienzo, se corre en vez de encoger (así no cambia la proporción).
-      if (cx0 < 0) { cx1 -= cx0; cx0 = 0; }
-      if (cx1 > W) { cx0 -= cx1 - W; cx1 = W; }
-      if (cy0 < 0) { cy1 -= cy0; cy0 = 0; }
-      if (cy1 > H) { cy0 -= cy1 - H; cy1 = H; }
-      cx0 = Math.max(0, Math.round(cx0)); cy0 = Math.max(0, Math.round(cy0));
-      cx1 = Math.min(W, Math.round(cx1)); cy1 = Math.min(H, Math.round(cy1));
-
+      const escala = altoFig / ALTO_FIG;      // alto que debe tener el recorte
+      const cxm = (x0 + x1) / 2;
+      let cy1 = y1 + escala * PIE;
+      let cy0 = cy1 - escala;
+      let cx0 = cxm - (escala * (ANCHO / ALTO)) / 2;
+      let cx1 = cx0 + escala * (ANCHO / ALTO);
+      // ⚠ NO se recorta dentro de la lámina y ya: la figura ocupa casi todo el alto del
+      // original, así que recortando nunca se la puede achicar y unas salían más grandes
+      // que otras. El recorte PUEDE salirse de la lámina, y lo que falta se rellena con
+      // el color de la pared, muestreado en la esquina. Así todas miden lo mismo.
+      const pared = (() => {
+        const rr = [], gg = [], bb = [];
+        for (let y = 2; y < Math.round(H * 0.12); y += 3) for (let x = 2; x < Math.round(W * 0.08); x += 3) { const a = px(x, y); rr.push(a[0]); gg.push(a[1]); bb.push(a[2]); }
+        return "rgb(" + mediana(rr) + "," + mediana(gg) + "," + mediana(bb) + ")";
+      })();
       const o = document.createElement("canvas");
       o.width = ANCHO; o.height = ALTO;
       const octx = o.getContext("2d");
       octx.imageSmoothingQuality = "high";
-      octx.drawImage(img, cx0, cy0, cx1 - cx0, cy1 - cy0, 0, 0, ANCHO, ALTO);
-      return { url: o.toDataURL("image/jpeg", q), fig: [x0, y0, x1, y1], recorte: [cx0, cy0, cx1, cy1] };
+      octx.fillStyle = pared;
+      octx.fillRect(0, 0, ANCHO, ALTO);
+      const k = ALTO / (cy1 - cy0);                  // píxeles de salida por píxel fuente
+      octx.drawImage(img, 0, 0, W, H, (0 - cx0) * k, (0 - cy0) * k, W * k, H * k);
+      return { url: o.toDataURL("image/jpeg", q), fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
     }, [dataUrl, ANCHO, ALTO, CALIDAD]);
     if (!out) { console.log(f.padEnd(24) + "  ✗ no se encontró la figura: se deja igual"); continue; }
     const buf = Buffer.from(out.url.split(",")[1], "base64");

@@ -43,7 +43,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   for (let i = 0; i < fichas.length; i++) {
     await fichas[i].click(); await p.waitForTimeout(240);
     const t = (await fichas[i].textContent()) || "";
-    const buena = /periodismo contra los gobiernos|concertaje|Carta Constitucional de 1896/.test(t);
+    const buena = /periodismo contra los gobiernos|El Cosmopolita|concertaje|Estado laico|Carta Constitucional de 1896|posturas liberales/.test(t);
     if (i === 0) await tiro("r2-girada");
     if (!buena) { await fichas[i].click(); await p.waitForTimeout(180); }
   }
