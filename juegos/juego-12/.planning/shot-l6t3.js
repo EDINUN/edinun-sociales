@@ -54,7 +54,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
 
   await p.waitForSelector("text=fuera del pueblo");
   await tiro("r3");
-  for (const clave of ["El tirano", "El opulento", "El soberbio"]) {
+  for (const clave of ["El tirano", "El opulento", "El soberbio", "El que oprime"]) {
     const caja = await p.evaluate((clave) => { const d = Array.from(document.querySelectorAll('[data-qa="frase"]')).find((x) => x.textContent.indexOf(clave) >= 0); if (!d) return null; const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, clave);
     if (caja) { await p.mouse.click(caja.x, caja.y); await p.waitForTimeout(200); }
   }

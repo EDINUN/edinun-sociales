@@ -104,6 +104,13 @@ async function entrar(p, PORT, libro, tema) {
     const fichas = await p.$$("button.ed-btn-plain");
     for (const f of fichas) { await f.click(); await p.waitForTimeout(170); }
     console.log(await medir(p, et + " T3 R2 LAS SEIS DESTAPADAS", fallos));
+    // ⚠ ¡VERIFICAR! solo se enciende con TRES destapadas, así que se vuelven a tapar las
+    //   tres que no son de los pensadores. (Lo medido arriba es el estado con las seis.)
+    const PENS2 = ["periodismo contra los gobiernos", "El Cosmopolita", "concertaje", "Estado laico", "Carta Constitucional de 1896", "posturas liberales"];
+    for (const f of fichas) {
+      const t = (await f.textContent()) || "";
+      if (!PENS2.some((c) => t.indexOf(c) >= 0)) { await f.click(); await p.waitForTimeout(150); }
+    }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
     console.log(await medir(p, et + " T3 R2 revelado con las seis", fallos));
     await p.waitForTimeout(3600);
@@ -111,6 +118,13 @@ async function entrar(p, PORT, libro, tema) {
     const todas = await p.$$('[data-qa="frase"]');
     for (const f of todas) { await f.click(); await p.waitForTimeout(140); }
     console.log(await medir(p, et + " T3 R3 LAS CINCO SELLADAS", fallos));
+    // ⚠ Igual que arriba: para poder verificar hay que dejar TRES selladas, así que se
+    //   quitan los sellos de las dos del pueblo.
+    const PUEBLO2 = ["sudor de tu frente", "forjas los metales", "arrancas a la tierra"];
+    for (const f of todas) {
+      const t = (await f.textContent()) || "";
+      if (PUEBLO2.some((c) => t.indexOf(c) >= 0)) { await f.click(); await p.waitForTimeout(140); }
+    }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
     console.log(await medir(p, et + " T3 R3 revelado con las cinco", fallos));
 

@@ -2044,6 +2044,8 @@ function J12Game({ app, setApp, go, rounds }) {
   const [dice, setDice] = useStateG(null);
   // La ronda que tenga algo que borrar pasa aquí su función; si no, no hay botón.
   const [limpiar, setLimpiar] = useStateG(null);
+  // Si la ronda pide esperar, ¡VERIFICAR! se apaga y el texto dice qué falta.
+  const [falta, setFalta] = useStateG(null);
   const started = useRefG(Date.now());
   const advancing = useRefG(false);
   const verifyRef = useRefG(null);
@@ -2068,7 +2070,7 @@ function J12Game({ app, setApp, go, rounds }) {
       setFeedback(null); setFeedbackMsg("");
       // ⚠ Aquí, NO en un efecto con [round]: un efecto del padre corre después del efecto
       // del hijo y le borraba a la ronda recién montada su bocadillo y su botón BORRAR.
-      setDice(null); setLimpiar(null);
+      setDice(null); setLimpiar(null); setFalta(null);
       if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
       else {
         const solved = newLog.filter((e) => e.isCorrect).length;
@@ -2082,7 +2084,7 @@ function J12Game({ app, setApp, go, rounds }) {
   function confirmRestart() {
     setConfirmingRestart(false); advancing.current = false; setBusy(false);
     setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
-    setDice(null); setLimpiar(null);
+    setDice(null); setLimpiar(null); setFalta(null);
     started.current = Date.now();
   }
 
@@ -2120,12 +2122,20 @@ function J12Game({ app, setApp, go, rounds }) {
       </div>
 
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
-        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} say={setDice} onClear={setLimpiar} />
+        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} say={setDice} onClear={setLimpiar} listo={setFalta} />
       </div>
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
         {ROUNDS[round].verify && !busy && (
-          <button className="ed-btn" onClick={() => verifyRef.current && verifyRef.current()} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none" }}>¡VERIFICAR!</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <button className="ed-btn" disabled={!!falta} onClick={() => { if (!falta && verifyRef.current) verifyRef.current(); }}
+              style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none", opacity: falta ? 0.4 : 1, cursor: falta ? "default" : "pointer" }}>¡VERIFICAR!</button>
+            {/* ⚠ Un botón apagado sin explicación se lee como que el juego se trabó: la
+                ronda dice en una línea qué le falta al niño para poder verificar. */}
+            {falta && (
+              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.15, color: "rgba(255,255,255,0.75)", textAlign: "center" }}>{falta}</span>
+            )}
+          </div>
         )}
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
@@ -2215,7 +2225,7 @@ const J6T3_GENTE = [
 ];
 const J6T3_COLS = 5, J6T3_FILAS = 7, J6T3_CELDAS = J6T3_COLS * J6T3_FILAS;
 
-function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
+function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
   // 4 de 8, cap 3. ⚠ Para un subconjunto de K nunca se usa cap = K (saldría una rotación
   // exacta y previsible): la regla está en memory/anti-repeticion-al-recargar.md.
   const [b] = useStateG(() => {
@@ -2341,7 +2351,7 @@ const J6T3_FICHAS = [
 ];
 const J6T3_QUIENES = ["Juan Montalvo", "Abelardo Moncayo", "José Peralta", "Vicente Rocafuerte", "García Moreno", "Eloy Alfaro"];
 
-function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
+function L6T3R2Plumas({ onSolve, verifyRef, onClear, listo }) {
   // Una ficha por persona: tres de los pensadores y tres de los otros.
   const [b] = useStateG(() => ({
     fichas: j12Shuffle(J6T3_QUIENES.map((q) => j12Shuffle(J6T3_FICHAS.filter((f) => f.q === q))[0])),
@@ -2369,6 +2379,12 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
     onClear(verified ? null : { fn: borrar, puede: giradas.length > 0 });
     return () => onClear(null);
   }, [verified, giradas.length]);
+  // ⚠ Nada de verificar con una o dos: la ronda pide TRES (lo pidió la autora).
+  useEffectG(() => {
+    if (!listo) return undefined;
+    listo(verified || giradas.length === 3 ? null : "Deja 3 fichas destapadas (llevas " + giradas.length + ")");
+    return () => listo(null);
+  }, [verified, giradas.length]);
 
   const buenas = b.fichas.filter((f) => f.ok).map((f) => f.id);
   function verificar() {
@@ -2386,36 +2402,47 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
 
   function ficha(f) {
     const abierta = giradas.indexOf(f.id) >= 0;
-    let bd = abierta ? "#4fd8ff" : "rgba(242,194,96,0.5)";
-    if (verified) bd = abierta ? (f.ok ? "#2ecc8f" : "#ff6b6b") : (f.ok ? "#f2c260" : "rgba(242,194,96,0.5)");
+    // ⚠ Al VERIFICAR se abren TODAS: una ficha boca abajo no cuenta qué escondía, y el
+    // niño se quedaba sin saber qué se perdió. "Bien tapada: no era de ellos" tampoco se
+    // entendía sin ver el hecho (lo marcó la autora). Cuatro casos, cada uno con su
+    // color y su rótulo:
+    //   destapada y suya  → verde, ✓ y el nombre
+    //   destapada y ajena → roja, ✗ y el nombre
+    //   tapada y SUYA     → ÁMBAR, "ESTA TE FALTÓ" bien grande: es el error que enseña
+    //   tapada y ajena    → apagada, "No era de ellos" (hizo bien en no tocarla)
+    const caso = !verified ? "jugando" : (abierta ? (f.ok ? "bien" : "mal") : (f.ok ? "falto" : "ajena"));
+    const COL = { bien: "#2ecc8f", mal: "#ff6b6b", falto: "#f2c260", ajena: "rgba(242,194,96,0.45)" };
+    const bd = !verified ? (abierta ? "#4fd8ff" : "rgba(242,194,96,0.5)") : COL[caso];
+    const papel = !verified ? abierta : true;
+    const fondo = caso === "falto" ? "rgba(255,236,187,0.96)" : caso === "ajena" ? "rgba(236,233,224,0.72)" : "rgba(255,253,246,0.94)";
     return (
       <button key={f.id} className="ed-btn-plain" onClick={() => girar(f.id)}
         ref={(el) => { refs.current[f.id] = el; }}
         style={{
-          width: 138, height: 132, borderRadius: 12, border: `2.5px solid ${bd}`,
-          background: abierta ? "rgba(255,253,246,0.94)" : "linear-gradient(180deg, rgba(20,12,55,0.92), rgba(10,6,35,0.92))",
-          padding: "7px 9px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-          cursor: verified ? "default" : "pointer", boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
+          width: 138, height: 132, borderRadius: 12,
+          border: `${caso === "falto" ? 4 : 2.5}px solid ${bd}`,
+          background: papel ? fondo : "linear-gradient(180deg, rgba(20,12,55,0.92), rgba(10,6,35,0.92))",
+          padding: "6px 8px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+          cursor: verified ? "default" : "pointer",
+          boxShadow: caso === "falto" ? "0 0 0 3px rgba(242,194,96,0.35), 0 3px 10px rgba(0,0,0,0.3)" : "0 3px 10px rgba(0,0,0,0.3)",
+          opacity: caso === "ajena" ? 0.75 : 1,
         }}>
-        {!abierta && !verified && (<>
+        {!papel && (<>
           <span style={{ fontSize: 20, lineHeight: 1 }}>✒️</span>
           <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9, color: "rgba(255,255,255,0.6)" }}>toca para girar</span>
         </>)}
-        {abierta && (
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, lineHeight: 1.25, color: "#3a2608", textAlign: "center" }}>{f.h}</span>
+        {caso === "falto" && (
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 10, letterSpacing: "0.06em", color: "#8a6410", background: "rgba(242,194,96,0.55)", borderRadius: 999, padding: "1px 8px" }}>ESTA TE FALTÓ</span>
         )}
-        {/* ⚠ Al revelar, una ficha BIEN TAPADA no lleva ✗: dejarla boca abajo era lo
-            correcto. Solo se marca lo que el niño destapó, y en ámbar lo que le faltó.
-            Con la ✗ en todas parecía que había fallado seis veces. */}
-        {verified && !abierta && !f.ok && (
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "rgba(255,255,255,0.55)", textAlign: "center" }}>Bien tapada:<br />no era de ellos</span>
+        {papel && (
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: caso === "falto" ? 11 : 12, lineHeight: 1.22, color: "#3a2608", textAlign: "center" }}>{f.h}</span>
         )}
-        {verified && !abierta && f.ok && (
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.2, color: "#fce9a8", textAlign: "center" }}>{"Te faltó: " + f.q}</span>
-        )}
-        {verified && abierta && (
-          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9, color: f.ok ? "#1f8a54" : "#c0392b" }}>
-            {(f.ok ? "✓ " : "✗ ") + f.q}
+        {verified && (
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9.5, textAlign: "center", color: caso === "bien" ? "#1f8a54" : caso === "mal" ? "#c0392b" : caso === "falto" ? "#8a6410" : "#6b6356" }}>
+            {caso === "bien" && "✓ " + f.q}
+            {caso === "mal" && "✗ " + f.q}
+            {caso === "falto" && "era de " + f.q}
+            {caso === "ajena" && "no era de ellos · " + f.q}
           </span>
         )}
       </button>
@@ -2451,7 +2478,7 @@ const J6T3_MONTALVO = [
   { id: "tierra", fuera: false, t: "Tú que arrancas a la tierra los frutos para la vida: tú eres pueblo." },
 ];
 
-function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
+function L6T3R3Sello({ onSolve, verifyRef, onClear, listo }) {
   // 3 de las 4 que quedan fuera + 2 de las 3 del pueblo. Cap 2 y cap 1: para un
   // subconjunto de K nunca se usa cap = K (saldría una rotación previsible).
   const [b] = useStateG(() => {
@@ -2480,6 +2507,11 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
     if (!onClear) return undefined;
     onClear(verified ? null : { fn: borrar, puede: sellados.length > 0 });
     return () => onClear(null);
+  }, [verified, sellados.length]);
+  useEffectG(() => {
+    if (!listo) return undefined;
+    listo(verified || sellados.length === 3 ? null : "Sella 3 frases (llevas " + sellados.length + ")");
+    return () => listo(null);
   }, [verified, sellados.length]);
 
   const fuera = b.frases.filter((f) => f.fuera).map((f) => f.id);

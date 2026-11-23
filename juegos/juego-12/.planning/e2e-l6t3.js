@@ -79,6 +79,18 @@ async function jugarR3(p, bien) {
   const esperadas = bien ? 3 : 2;
   if (cajas.length !== esperadas) throw new Error("salieron " + cajas.length + " frases de las que buscaba, esperaba " + esperadas);
   for (const c of cajas) { await p.mouse.click(c.x, c.y); await p.waitForTimeout(160); }
+  // ⚠ ¡VERIFICAR! no se enciende hasta tener TRES selladas, así que la partida fallada
+  //   (que sella las dos del pueblo) tiene que añadir una tercera: la peor nota posible
+  //   de esta ronda es 1 ⭐, no 0. Es la consecuencia de exigir tres.
+  if (!bien) {
+    const extra = await p.evaluate((FUERA) => {
+      const d = Array.from(document.querySelectorAll("[data-qa=\"frase\"]")).find((x) => FUERA.some((c) => x.textContent.indexOf(c) >= 0));
+      if (!d) return null;
+      const r = d.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }, FUERA);
+    if (extra) { await p.mouse.click(extra.x, extra.y); await p.waitForTimeout(160); }
+  }
   await p.click("button:has-text('¡VERIFICAR!')");
 }
 
@@ -114,15 +126,15 @@ async function partida(p, bien) {
   const a = await partida(p, true);
   console.log(`  perfecta: tras R1 → ${a.e1} ⭐ · tras R2 → ${a.e2} ⭐ · total ${a.total} ⭐ · "${a.rep}"`);
 
-  console.log("\n── PARTIDA FALLADA (esperado 0 ⭐) ──");
+  console.log("\n── PARTIDA FALLADA (esperado 1 ⭐: la R3 obliga a sellar tres) ──");
   const b = await partida(p, false);
   console.log(`  fallada: tras R1 → ${b.e1} ⭐ · tras R2 → ${b.e2} ⭐ · total ${b.total} ⭐ · "${b.rep}"`);
 
   const mal = [];
   if (a.total !== 10) mal.push("la partida perfecta no da 10 ⭐ (da " + a.total + ")");
   if (a.rep.indexOf("3 de 3") < 0) mal.push("la partida perfecta no reporta 3 de 3");
-  if (b.total !== 0) mal.push("la partida fallada no da 0 ⭐ (da " + b.total + ")");
-  if (b.rep.indexOf("0 de 3") < 0) mal.push("la partida fallada no reporta 0 de 3");
+  if (b.total !== 1) mal.push("la partida fallada no da 1 ⭐ (da " + b.total + ")");
+  if (b.rep.indexOf("0 de 3") < 0) mal.push("la partida fallada no reporta 0 de 3");   // ninguna ronda perfecta
   console.log("\nErrores de consola: " + (errores.length ? errores.join(" | ") : "ninguno"));
   console.log(mal.length ? "X " + mal.join(" · ") : "OK e2e del Tema 3 en verde.");
   await br.close(); srv.close();

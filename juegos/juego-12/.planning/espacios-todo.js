@@ -221,10 +221,13 @@ async function abrir(p, tema) {
 
     await p.waitForSelector("text=fuera del pueblo");
     console.log(await medir(p, et + " T3 R3 antes", fallos));
-    for (const clave of ["El tirano", "El opulento", "El soberbio"]) {
-      const caja = await p.evaluate((clave) => { const d = Array.from(document.querySelectorAll('[data-qa="frase"]')).find((x) => x.textContent.indexOf(clave) >= 0); if (!d) return null; const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, clave);
-      if (caja) { await p.mouse.click(caja.x, caja.y); await p.waitForTimeout(170); }
-    }
+    // ⚠ De las cuatro frases "fuera" salen TRES por partida, así que se sellan las que
+    //   estén, no una lista fija: con dos selladas, ¡VERIFICAR! se queda apagado.
+    const FUERA3 = ["El tirano", "El opulento", "El soberbio", "El que oprime"];
+    const sellar = await p.evaluate((FUERA3) => Array.from(document.querySelectorAll('[data-qa="frase"]'))
+      .filter((x) => FUERA3.some((c) => x.textContent.indexOf(c) >= 0))
+      .map((d) => { const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }), FUERA3);
+    for (const caja of sellar) { await p.mouse.click(caja.x, caja.y); await p.waitForTimeout(170); }
     console.log(await medir(p, et + " T3 R3 sellada", fallos));
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
     console.log(await medir(p, et + " T3 R3 revelado", fallos));
