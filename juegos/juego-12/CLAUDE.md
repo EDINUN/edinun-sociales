@@ -279,8 +279,7 @@ los temas deben diferenciarse al máximo.
     (lo pidió así la autora el mismo día). Para eso `J12Game` tiene estado `dice` y pasa
     `say` a la ronda: si la ronda no dice nada, el bocadillo lleva su CÓMO fijo, y al
     cambiar de ronda o reiniciar vuelve solo. El bocadillo va con `whiteSpace: "pre-line"`,
-    así que el salto de línea se escribe con `
-`.
+    así que el salto de línea se escribe con la barra invertida y una ene.
 - **R3 decía "Ya no queda nada que romper"** con renglones aún a la vista: lo que se acaba
   son las órdenes, no el papel. Ahora dice **"Listo. Pulsa ¡VERIFICAR!"**, el enunciado es
   **"Rompe lo que la revolución derribó."** y la consigna lleva el rótulo **"¿Cuál
