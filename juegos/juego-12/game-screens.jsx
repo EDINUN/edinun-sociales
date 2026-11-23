@@ -1084,14 +1084,14 @@ Pulsa ¡VERIFICAR!`);
 // El renglón de los esclavos NO se pide nunca: sobrevive al papel roto, y así se ve que
 // la revolución no lo arregló todo de golpe (la manumisión llega en 1851, con Urbina).
 const J12_CARTA = [
-  { id: "flores", t: "El general Juan José Flores gobierna el Ecuador.", pide: "Rompe al hombre contra el que se levantó Guayaquil." },
-  { id: "pesos", t: "Cada hombre paga tres pesos al año.", pide: "Rompe el impuesto que hizo estallar el 6 de marzo." },
-  { id: "iglesia", t: "La Iglesia queda apartada de los asuntos del país.", pide: "La Iglesia vuelve al país: rompe lo que la tenía fuera." },
+  { id: "flores", t: "El general Juan José Flores gobierna el Ecuador.", pide: "El hombre contra el que se levantó Guayaquil." },
+  { id: "pesos", t: "Cada hombre paga tres pesos al año.", pide: "El impuesto que hizo estallar el 6 de marzo." },
+  { id: "iglesia", t: "La Iglesia queda apartada de los asuntos del país.", pide: "Lo que tenía a la Iglesia fuera del país." },
   { id: "esclavos", t: "Los esclavos siguen sin libertad.", pide: null },
 ];
 const J12_CARTA_PIDEN = J12_CARTA.filter((r) => r.pide).map((r) => r.id);
 
-function L6T2R3Carta({ onSolve, verifyRef }) {
+function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   // Varía el orden de los renglones en el papel (4! = 24) y el orden de las tres
   // consignas (3! = 6). El renglón que sobrevive es siempre el mismo a propósito.
   const [b] = useStateG(() => ({
@@ -1131,6 +1131,14 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     if (verified) return;
     setCorte(null); setRotos([]);
   }
+
+  // Mientras haya papel roto y no se haya verificado, el botón BORRAR vive en la columna
+  // de acciones (lo monta J12Game).
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified || rotos.length === 0 ? null : () => borrar);
+    return () => onClear(null);
+  }, [verified, rotos.length]);
 
   // El corte avanza con el gesto: se mide cuánto ha recorrido el puntero a lo ancho del
   // renglón desde que lo tocó. Al pasar del 72 % el renglón se rompe.
@@ -1181,7 +1189,7 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
     if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
     if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
     return (
-      <div key={r.id} style={{ position: "relative", height: 56, flexShrink: 0 }}>
+      <div key={r.id} style={{ position: "relative", height: 62, flexShrink: 0 }}>
         <div
           ref={(el) => { refs.current[r.id] = el; }}
           onPointerDown={(e) => onDown(e, r.id)}
@@ -1228,18 +1236,21 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe lo que la revolución derribó.</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe en la Carta las 3 que la revolución derribó.</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
         {/* Los tres pedidos, pegados al enunciado: centrados quedaban demasiado bajos. */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
           {!verified && (<>
-            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>¿Cuáles rompes?</span>
+            {/* ⚠ El rótulo AFIRMA y dice el número. "¿Cuál rompes?" era un resto de la
+                versión que los pedía de uno en uno: con los tres a la vista no pregunta
+                nada, y encima el 3 no se leía en ningún sitio. Lo cazó la autora. */}
+            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>Estas 3 cayeron</span>
             <div data-qa="consigna" style={{ display: "flex", flexDirection: "column", gap: 1, width: "100%" }}>
               {/* ⚠ Sin ✓ ni tachado al romper: ningún juicio antes de ¡VERIFICAR!. */}
               {b.consignas.map((id) => (
                 <span key={id} style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10.5, lineHeight: 1.25, color: "#fff" }}>
-                  <span style={{ flexShrink: 0, width: 10, textAlign: "center", color: "rgba(255,255,255,0.45)" }}>▸</span>
+                  <span style={{ flexShrink: 0, width: 10, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, color: "#f2c260" }}>{b.consignas.indexOf(id) + 1}</span>
                   <span style={{ flex: 1, minWidth: 0 }}>{(J12_CARTA.find((x) => x.id === id) || {}).pide}</span>
                 </span>
               ))}
@@ -1253,24 +1264,11 @@ function L6T2R3Carta({ onSolve, verifyRef }) {
         {/* El papel */}
         <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
           <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 7 }}>CARTA DE LA ESCLAVITUD · 1843</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {b.renglones.map((r, i) => renglon(r, i))}
           </div>
         </div>
 
-        {/* BORRAR: vuelve a empezar la Carta con el papel entero. */}
-        {!verified && (
-          <button
-            onClick={borrar}
-            disabled={rotos.length === 0}
-            style={{
-              flexShrink: 0, marginTop: 1, height: 26, padding: "0 16px", borderRadius: 999,
-              border: "1.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.4)",
-              fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5,
-              letterSpacing: "0.08em", color: "#fce9a8", cursor: rotos.length === 0 ? "default" : "pointer",
-              opacity: rotos.length === 0 ? 0.35 : 1,
-            }}>BORRAR</button>
-        )}
       </div>
     </div>
   );
@@ -1306,13 +1304,15 @@ function J12Game({ app, setApp, go, rounds }) {
   // Lo que la ronda quiera decir por el bocadillo (acuses del tipo "Elegiste Quito").
   // Si no dice nada, el bocadillo lleva el CÓMO fijo de la ronda.
   const [dice, setDice] = useStateG(null);
+  // La ronda que tenga algo que borrar pasa aquí su función; si no, no hay botón.
+  const [limpiar, setLimpiar] = useStateG(null);
   const started = useRefG(Date.now());
   const advancing = useRefG(false);
   const verifyRef = useRefG(null);
 
   useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
   // Al cambiar de ronda (o al reiniciar) el bocadillo vuelve a su texto fijo.
-  useEffectG(() => { setDice(null); }, [round, rk]);
+  useEffectG(() => { setDice(null); setLimpiar(null); }, [round, rk]);
   function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
 
   function onSolve(isCorrect, entry, gained) {
@@ -1380,7 +1380,7 @@ function J12Game({ app, setApp, go, rounds }) {
       </div>
 
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
-        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} say={setDice} />
+        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} say={setDice} onClear={setLimpiar} />
       </div>
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
@@ -1389,6 +1389,11 @@ function J12Game({ app, setApp, go, rounds }) {
         )}
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
+        {/* ⚠ BORRAR va AQUÍ, con los demás botones, no suelto bajo la mecánica: lo pidió
+            la autora. Solo aparece cuando la ronda tiene algo que borrar. */}
+        {limpiar && !busy && (
+          <button className="ed-btn" onClick={() => limpiar()} style={{ fontSize: 13, padding: "0 10px", height: 40, fontWeight: 800, letterSpacing: "0.06em", background: "rgba(0,0,0,0.35)", color: "#fce9a8", border: "1.5px solid rgba(242,194,96,0.55)" }}>BORRAR</button>
+        )}
       </div>
 
       {feedback && (

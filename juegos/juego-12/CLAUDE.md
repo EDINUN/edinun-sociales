@@ -232,6 +232,13 @@ los temas deben diferenciarse al máximo.
   - Lo que se arrastra **se rompe y el agujero se queda**; el veredicto de todas llega
     **junto, al pulsar ¡VERIFICAR!**: ✓ en el agujero que tocaba, ✗ con el texto en el que
     no cayó, y en **ámbar** los que había que romper y siguen enteros.
+  - ⚠ **El número 3 tiene que LEERSE, no contarse.** Enunciado: *"Rompe en la Carta las 3
+    que la revolución derribó."*; el panel se llama **"ESTAS 3 CAYERON"** (afirma, no
+    pregunta) y los pedidos van **numerados 1·2·3**, sin repetir "Rompe" en cada línea.
+    El rótulo viejo *"¿Cuál rompes?"* era un resto de la versión que los pedía de uno en
+    uno: con los tres a la vista no preguntaba nada y el 3 no aparecía escrito en ningún
+    sitio. La autora: *"en algún lado debería decir que son 3… no entiendo por qué va eso
+    de cuáles rompes"*.
   - ⚠ **Los pedidos NO se marcan al romper** (nada de ✓ ni tachado): sería juicio antes de
     ¡VERIFICAR!.
   - ⚠ **Tres intentos descartados por la autora el 2026-11-19**, todos por pedir los
@@ -249,10 +256,11 @@ los temas deben diferenciarse al máximo.
   - Lo vigila `.planning/reglas-r3.js` (orden indiferente · agujeros que se quedan · romper
     de más no es ronda perfecta · BORRAR · ningún ✓ antes de verificar). Sustituye a
     `sin-callejon-r3.js` y `borrar-r3.js`, que probaban reglas que ya no existen.
-- **La Carta tiene botón «BORRAR»**, como la bandera de la R1: devuelve el papel **entero**.
-  Sale apagado hasta la primera rotura.
-  - ⚠ Para que quepa: renglones de **56 px** (eran 62), `gap` 8 y `paddingTop` 26. Con 62
-    el botón se salía del lienzo por abajo.
+- **BORRAR vive en la COLUMNA DE ACCIONES**, debajo de SALIR, no suelto bajo la mecánica
+  (lo pidió la autora el 2026-11-23). Lo monta `J12Game`: la ronda que tenga algo que
+  borrar le pasa su función por `onClear` y **el botón solo existe cuando hay algo que
+  borrar** — así no hace falta un estado "apagado". En la Carta devuelve el papel entero.
+  - ⚠ En la R1 (la bandera) el BORRAR sigue junto a la paleta; si se quiere, se mueve igual.
 
 **Correcciones de la autora jugando el Tema 2 (2026-11-19):**
 
