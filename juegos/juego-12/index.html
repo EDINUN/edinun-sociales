@@ -2710,15 +2710,8 @@ function J12Game({ app, setApp, go, rounds }) {
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>
         {ROUNDS[round].verify && !busy && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <button className="ed-btn" disabled={!!falta} onClick={() => { if (!falta && verifyRef.current) verifyRef.current(); }}
-              style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none", opacity: falta ? 0.4 : 1, cursor: falta ? "default" : "pointer" }}>¡VERIFICAR!</button>
-            {/* ⚠ Un botón apagado sin explicación se lee como que el juego se trabó: la
-                ronda dice en una línea qué le falta al niño para poder verificar. */}
-            {falta && (
-              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.15, color: "rgba(255,255,255,0.75)", textAlign: "center" }}>{falta}</span>
-            )}
-          </div>
+          <button className="ed-btn" disabled={!!falta} onClick={() => { if (!falta && verifyRef.current) verifyRef.current(); }}
+            style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em", background: "linear-gradient(180deg, #4fe08a, #1f9d57)", color: "#06381f", border: "none", opacity: falta ? 0.4 : 1, cursor: falta ? "default" : "pointer" }}>¡VERIFICAR!</button>
         )}
         <button className="ed-btn ed-btn-restart" onClick={() => setConfirmingRestart(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>REINICIAR</button>
         <button className="ed-btn ed-btn-ghost" onClick={() => setConfirmingExit(true)} style={{ fontSize: 15, padding: "0 10px", height: 56, fontWeight: 800, letterSpacing: "0.04em" }}>SALIR</button>
@@ -2834,18 +2827,28 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
   const [frotado, setFrotado] = useStateG({});   // { id: [celdas marcadas] }
   const [elegidas, setElegidas] = useStateG([]);
   const [verified, setVerified] = useStateG(false);
-  const limpia = (g) => (frotado[g.id] || []).length >= J6T3_CELDAS * 0.68;
+  const limpia = (g) => (frotado[g.id] || []).length >= J6T3_CELDAS * 0.6;
   const descubiertas = b.gente.filter(limpia).length;
   const todas = descubiertas === b.gente.length;
   const correctas = b.gente.filter((g) => !g.voz).map((g) => g.id);
 
+  // ⚠ Cada pasada limpia la celda que toca Y LAS DE ALREDEDOR (un bloque de 3×3): con
+  // una sola celda había que repasar la foto muchas veces y se hacía lento (lo pidió la
+  // autora). La rejilla sigue siendo fina para que el borrado se vea suave.
   function frotar(id, celda) {
     if (verified) return;
+    const col = celda % J6T3_COLS, fila = Math.floor(celda / J6T3_COLS);
+    const vecinas = [];
+    for (let dc = -1; dc <= 1; dc++) for (let df = -1; df <= 1; df++) {
+      const c = col + dc, f2 = fila + df;
+      if (c >= 0 && c < J6T3_COLS && f2 >= 0 && f2 < J6T3_FILAS) vecinas.push(f2 * J6T3_COLS + c);
+    }
     setFrotado((f) => {
       const ya = f[id] || [];
-      if (ya.indexOf(celda) >= 0) return f;
+      const nuevas = vecinas.filter((k) => ya.indexOf(k) === -1);
+      if (!nuevas.length) return f;
       const n = Object.assign({}, f);
-      n[id] = ya.concat([celda]);
+      n[id] = ya.concat(nuevas);
       return n;
     });
   }
@@ -3206,7 +3209,7 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear, listo }) {
 }
 
 const L6T3_ROUNDS = [
-  { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa por encima<br />y la niebla se va.<br />Luego toca a los tuyos.</>) },
+  { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa por encima<br />y la niebla se va.<br />Después elige tocando.</>) },
   { C: L6T3R2Plumas, verify: true, bubble: (<>Toca una ficha<br />y gira. Tócala otra<br />vez y se tapa.</>) },
   { C: L6T3R3Sello, verify: true, bubble: (<>Toca una frase<br />y queda sellada.</>) },
 ];
