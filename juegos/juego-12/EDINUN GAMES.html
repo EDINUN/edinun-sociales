@@ -382,6 +382,7 @@ const LIBROS = [
   { id: "libro-6", label: "Libro 6", temas: [
     { id: "l6-t1", label: "Los primeros años del Ecuador", desc: "El Estado ecuatoriano en sus primeros años de vida" },
     { id: "l6-t2", label: "La Revolución Marcista", desc: "El 6 de marzo de 1845 y los años marcistas" },
+    { id: "l6-t3", label: "El preámbulo del siglo XX", desc: "Las ideas liberales, los pensadores y la mujer" },
   ] },
   { id: "libro-7", label: "Libro 7", temas: [
     { id: "l7-t1", label: "La Revolución Liberal", desc: "Alfaro, el Estado laico y el ferrocarril" },
@@ -1168,14 +1169,14 @@ function L6T1R3Linea({ onSolve, verifyRef }) {
     const dy = e.clientY - di.y0;
     if (!di.movido && Math.hypot(e.clientX - di.x0, dy) <= 6) return;
     di.movido = true;
-    setDrag({ i: di.i, dy: dy / di.scale, over: destinoDe(e.clientY, di.slots), alto: di.alto, slots: di.slots, scale: di.scale, movido: true });
+    setDrag({ i: di.i, dy: dy / di.scale, over: destinoDe(di.slots[di.i] + dy, di.slots), alto: di.alto, slots: di.slots, scale: di.scale, movido: true });
   }
   function onUp(e) {
     const di = dragInfo.current; if (!di) return;
     dragInfo.current = null;
     if (verified) { setDrag(null); return; }
     if (!di.movido) { setDrag(null); tap(di.i); return; }       // respaldo: toque = intercambio
-    const destino = destinoDe(e.clientY, di.slots);
+    const destino = destinoDe(di.slots[di.i] + (e.clientY - di.y0), di.slots);
     if (destino === di.i) { setDrag(null); return; }
     // Dónde está AHORA cada tarjeta (la arrastrada, siguiendo al dedo).
     const antes = {};
@@ -1888,7 +1889,7 @@ const L6T2_ROUNDS = [
 // ║   R2 "La balanza de 1897" — REPARTIR en tres destinos, la viga se inclina  ║
 // ║   R3 "Expediente abierto" — DESTAPAR pistas y apostar cuanto antes         ║
 // ║                                                                            ║
-// ║ ⭐ 4 + 5 + 6 = **15 maximo**.                                               ║
+// ║ ⭐ 4 + 2 + 2 = **8 maximo**.                                                ║
 // ║                                                                            ║
 // ║ ⚠ DATOS: todo sale del Libro 7 Tema 1 (pp. 10-15) y su cuaderno (pp.       ║
 // ║ 11-14), que la autora entrego el 2026-11-23. No se inventa nada.           ║
@@ -1939,7 +1940,10 @@ const J7T1_HITOS = [
 ];
 
 const J7T1_R1_KEY = "edinun_j12_l7t1_r1_v1";
-const J7T1_ALTO = 74, J7T1_HUECO = 10;          // alto fijo de tarjeta + separacion
+// ⚠ Alto FIJO de tarjeta + separacion. Las tarjetas se estiraron de 74 a 86 para que la
+// columna llene el panel: sobraba un hueco muerto debajo de la ultima y la autora lo
+// marco en rojo sobre una captura el 2026-11-23. De paso cabe letra mas grande.
+const J7T1_ALTO = 86, J7T1_HUECO = 10;
 function j7t1R1Build() {
   // Entran 4 de 6: cambia CUALES se quedan fuera (FIFO de 3, nunca cap = K) y el barajado.
   const fuera = j12PickIdx(J7T1_HITOS, 2, J7T1_R1_KEY);
@@ -1983,6 +1987,12 @@ function L7T1R1Via({ onSolve, verifyRef }) {
 
   // Arrastre con aterrizaje (mismo patron probado en la linea del tiempo del Libro 6:
   // la tarjeta sigue al dedo, nadie se desplaza en vivo, y al soltar TODAS viajan).
+  // ⚠ El destino se mide por el CENTRO DE LA TARJETA ARRASTRADA, no por donde está el
+  // dedo. Las tarjetas son altas (74 px): agarrando una por el borde, el dedo queda hasta
+  // 37 px de su centro, así que la tarjeta ya cubría el hueco de abajo y el dedo seguía
+  // más cerca del de arriba — se soltaba y volvía a su sitio. Lo reportó la autora:
+  // *"si arrastro una opción debe poder colocarse en ese espacio, porque si no arrastro y
+  // no se queda ahí"*.
   function destinoDe(y, slots) {
     let mejor = 0, d = Infinity;
     for (let i = 0; i < slots.length; i++) { const dist = Math.abs(y - slots[i]); if (dist < d) { d = dist; mejor = i; } }
@@ -2002,14 +2012,14 @@ function L7T1R1Via({ onSolve, verifyRef }) {
     const dy = e.clientY - di.y0;
     if (!di.movido && Math.hypot(e.clientX - di.x0, dy) <= 6) return;
     di.movido = true;
-    setDrag({ i: di.i, dy: dy / di.scale, over: destinoDe(e.clientY, di.slots), movido: true });
+    setDrag({ i: di.i, dy: dy / di.scale, over: destinoDe(di.slots[di.i] + dy, di.slots), movido: true });
   }
   function onUp(e) {
     const di = dragInfo.current; if (!di) return;
     dragInfo.current = null;
     if (verified) { setDrag(null); return; }
     if (!di.movido) { setDrag(null); tap(di.i); return; }       // respaldo: toque = intercambio
-    const destino = destinoDe(e.clientY, di.slots);
+    const destino = destinoDe(di.slots[di.i] + (e.clientY - di.y0), di.slots);
     if (destino === di.i) { setDrag(null); return; }
     const antes = {};
     orden.forEach((h, k) => { const el = cardRefs.current[k]; if (el) antes[h.id] = el.getBoundingClientRect().top; });
@@ -2065,7 +2075,7 @@ function L7T1R1Via({ onSolve, verifyRef }) {
           la escena entera, pero dejan un BORDE HORIZONTAL duro a media pantalla que
           parece un defecto. Con las tarjetas ocupando 452 de 470 px no hay encuadre que
           enseñe el tren; si se quiere ver, hay que darle su propio hueco. */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: 16, opacity: 0.22, backgroundImage: "url(assets/j7t1-ferrocarril.jpg)", backgroundSize: "cover", backgroundPosition: "center", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: 22, left: 0, right: 0, bottom: 0, borderRadius: 16, opacity: 0.22, backgroundImage: "url(assets/j7t1-ferrocarril.jpg)", backgroundSize: "cover", backgroundPosition: "center", pointerEvents: "none" }} />
       <div style={{ position: "relative", pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Ordena los hechos del más antiguo al más reciente.</span>
       </div>
@@ -2085,16 +2095,38 @@ function L7T1R1Via({ onSolve, verifyRef }) {
               {verified && tren > 0 && (
                 <div style={{ position: "absolute", left: 3, right: 3, top: 0, height: trenY + 11, background: "linear-gradient(180deg, rgba(79,224,138,0.8), rgba(31,157,87,0.8))", borderRadius: 999, transition: "height 0.9s ease-out" }} />
               )}
-              <div style={{ position: "absolute", left: "50%", top: trenY, transform: "translateX(-50%)", fontSize: 20, lineHeight: 1, transition: "top 0.9s ease-out", filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.6))" }}>🚂</div>
+              {/* ⚠ DÓNDE VA A CAER la tarjeta, mientras la arrastras. La tarjeta cae en el
+                  hueco cuyo centro tiene más cerca; si se suelta sin pasar la mitad del
+                  hueco, vuelve a su sitio — y nada lo avisaba, así que la autora lo leyó
+                  como que el arrastre no funcionaba. La marca va EN LA VÍA porque ahí hay
+                  sitio libre: dentro de las tarjetas taparía texto. */}
+              {drag && drag.movido && !verified && (
+                <div style={{ position: "absolute", left: -4, right: -4, top: drag.over * (J7T1_ALTO + J7T1_HUECO), height: J7T1_ALTO, borderRadius: 7, background: "rgba(79,216,255,0.3)", border: "2px solid #4fd8ff", boxShadow: "0 0 16px rgba(79,216,255,0.8)", pointerEvents: "none" }} />
+              )}
+              <div style={{ position: "absolute", left: "50%", top: trenY, transform: "translateX(-50%)", fontSize: 20, lineHeight: 1, transition: "top 0.9s ease-out", filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.6))", opacity: (drag && drag.movido && !verified) ? 0.25 : 1 }}>🚂</div>
             </div>
             <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 8, color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em" }}>QUITO</span>
           </div>
-          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: J7T1_HUECO }}>
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: J7T1_HUECO }}>
             {orden.map((h, i) => {
               const ok = verified && h.id === b.correcto[i].id;
               const elegida = sel === i;
               const arrastrando = drag && drag.i === i;
               const destino = drag && drag.movido && drag.over === i && drag.i !== i && !verified;
+              // ⚠ LAS DEMÁS SE APARTAN para abrir el hueco donde va a caer la arrastrada:
+              // las de en medio suben o bajan un paso entero (74 + 10 px). Lo pidió la
+              // autora el 2026-11-23: *"si quiero colocarla en algún espacio las dos
+              // opciones deben de moverse, por ejemplo la una hacia arriba y la otra hacia
+              // abajo"*. Sin esto no se veía dónde iba a entrar.
+              // ⚠ Lo que la autora rechazó en el Libro 6 NO era esto, sino que se
+              // reordenara la lista en vivo y la tarjeta arrastrada saltara sola. Aquí la
+              // arrastrada sigue al dedo y la lista solo cambia AL SOLTAR.
+              let empuje = 0;
+              if (drag && drag.movido && !verified && !arrastrando) {
+                const paso = J7T1_ALTO + J7T1_HUECO;
+                if (drag.i < drag.over && i > drag.i && i <= drag.over) empuje = -paso;
+                else if (drag.i > drag.over && i >= drag.over && i < drag.i) empuje = paso;
+              }
               let border = "#d9c48a", bg = "linear-gradient(180deg,#fffdf6,#f6ecd2)", col = "#3a2608";
               if (!verified && (elegida || arrastrando || destino)) { border = "#4fd8ff"; bg = "linear-gradient(180deg,#eaf9ff,#cdeeff)"; }
               if (verified) {
@@ -2105,10 +2137,10 @@ function L7T1R1Via({ onSolve, verifyRef }) {
               return (
                 <button key={h.id} data-qa="via" ref={(el) => { cardRefs.current[i] = el; }}
                   onPointerDown={(e) => onDown(e, i)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={endDrag} disabled={verified}
-                  style={{ position: "relative", width: "100%", height: J7T1_ALTO, touchAction: "none", boxSizing: "border-box", borderRadius: 12, border: `3px solid ${border}`, background: bg, color: col, display: "flex", alignItems: "center", gap: 9, padding: "6px 10px", textAlign: "left", cursor: verified ? "default" : "pointer", transform: arrastrando ? `translateY(${drag.dy}px) scale(1.03)` : ((elegida && !verified) ? "translateX(4px) scale(1.02)" : "none"), zIndex: arrastrando ? 60 : 1, boxShadow: ((elegida || arrastrando || destino) && !verified) ? "0 0 18px rgba(79,216,255,0.6), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.28)", transition: arrastrando ? "none" : "transform 0.16s ease" }}>
+                  style={{ position: "relative", width: "100%", height: J7T1_ALTO, touchAction: "none", boxSizing: "border-box", borderRadius: 12, border: `3px solid ${border}`, background: bg, color: col, display: "flex", alignItems: "center", gap: 9, padding: "6px 10px", textAlign: "left", cursor: verified ? "default" : "pointer", transform: arrastrando ? `translateY(${drag.dy}px) scale(1.03)` : (empuje ? `translateY(${empuje}px)` : ((elegida && !verified) ? "translateX(4px) scale(1.02)" : "none")), zIndex: arrastrando ? 60 : 1, boxShadow: ((elegida || arrastrando || destino) && !verified) ? "0 0 18px rgba(79,216,255,0.6), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.28)", transition: arrastrando ? "none" : "transform 0.16s ease" }}>
                   <span style={{ flexShrink: 0, width: 21, height: 21, borderRadius: "50%", background: "rgba(0,0,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 11 }}>{i + 1}</span>
                   <span style={{ flexShrink: 0, fontSize: 17, lineHeight: 1 }}>{h.e}</span>
-                  <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.22 }}>{h.t}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, lineHeight: 1.25 }}>{h.t}</span>
                   {/* Al verificar aparece el año y, si está mal, el puesto que le tocaba.
                       La columna NO se reordena: el niño tiene que poder ver su respuesta. */}
                   {verified && (
@@ -2133,8 +2165,10 @@ function L7T1R1Via({ onSolve, verifyRef }) {
 // ══════════════════════════════════════════════════════════════════
 // R2 · "La balanza de 1897" — REPARTIR en tres destinos (mano nueva en el tema).
 // Llega un asunto a la vez y se toca su destino: LA IGLESIA · CADA PERSONA · EL ESTADO.
-// La viga se inclina en vivo segun como va quedando el reparto. ⭐ +1 por asunto bien.
+// La viga se inclina en vivo segun como va quedando el reparto. ⭐ +1 por asunto bien
+// colocado (maximo 2).
 //
+// ⚠ Entran DOS asuntos por partida y caen en destinos DISTINTOS.
 // ⚠ Tres destinos, no dos: el libro dice que con el laicismo lo civil paso al Estado, que
 // la Iglesia conservo lo suyo (cuaderno p. 13: el Carnaval, las procesiones, la Novena) y
 // que la creencia quedo "en el ambito de la vida privada y de la conciencia individual"
@@ -2148,7 +2182,11 @@ function L7T1R1Via({ onSolve, verifyRef }) {
 // ══════════════════════════════════════════════════════════════════
 const J7T1_DESTINOS = [
   { id: "igl", nombre: "LA IGLESIA", img: "j7t1-iglesia.jpg", e: "⛪", col: "#f2b84b" },
-  { id: "per", nombre: "CADA PERSONA", img: null, e: "💭", col: "#b48aff" },
+  // ⚠ El emoji de respaldo NO puede ser 💭: es el mismo que lleva el asunto "En qué
+  // religión cree cada uno", y al colocar esa ficha en otro platillo parecían la misma
+  // cosa en dos sitios. La casa va con la idea de la vida privada y hace juego con los
+  // dos edificios de al lado.
+  { id: "per", nombre: "CADA PERSONA", img: "j7t1-persona.jpg", e: "🏠", col: "#b48aff" },
   { id: "est", nombre: "EL ESTADO", img: "j7t1-estado.jpg", e: "🏛️", col: "#4fd8ff" },
 ];
 const J7T1_ASUNTOS = {
@@ -2172,23 +2210,69 @@ const J7T1_ASUNTOS = {
   ],
 };
 const J7T1_R2_KEYS = { est: "edinun_j12_l7t1_r2_est_v1", igl: "edinun_j12_l7t1_r2_igl_v1", per: "edinun_j12_l7t1_r2_per_v1" };
+const J7T1_R2_CAP = { est: 4, igl: 2, per: 2 };
+// Las tres parejas posibles de destinos. Se sortea UNA y entra un asunto de cada uno.
+const J7T1_R2_PARES = [["est", "igl"], ["est", "per"], ["igl", "per"]];
+const J7T1_R2_PAR_KEY = "edinun_j12_l7t1_r2_par_v1";
 function j7t1R2Build() {
-  // Composicion FIJA (3 del Estado + 1 de la Iglesia + 1 de la persona): asi ninguna
-  // partida sale con los cinco asuntos del mismo lado, que no seria una ronda. Lo que
-  // varia es CUALES, con FIFO por grupo.
-  function toma(grupo, k, cap) {
+  // ⚠ SON DOS ASUNTOS, no cinco (lo pidio la autora el 2026-11-23 jugandolo: *"en esta
+  // ronda solo quiero que sean 2 no 5"*). Con cinco se hacia larga.
+  // ⚠ Los dos caen en destinos DISTINTOS: se sortea la pareja de destinos y se saca un
+  // asunto de cada uno. Con dos del mismo lado la ronda no ensenaria el reparto, que es
+  // justo lo que cuenta el tema.
+  const pi = j12PickIdx(J7T1_R2_PARES, 1, J7T1_R2_PAR_KEY)[0];
+  j12Commit(J7T1_R2_PAR_KEY, [pi], 2);
+  function toma(grupo) {
     const pool = J7T1_ASUNTOS[grupo];
-    const idx = j12PickIdx(pool, k, J7T1_R2_KEYS[grupo]);
-    j12Commit(J7T1_R2_KEYS[grupo], idx, cap);
-    return idx.map((i) => Object.assign({}, pool[i], { d: grupo }));
+    const idx = j12PickIdx(pool, 1, J7T1_R2_KEYS[grupo]);
+    j12Commit(J7T1_R2_KEYS[grupo], idx, J7T1_R2_CAP[grupo]);
+    return Object.assign({}, pool[idx[0]], { d: grupo });
   }
-  return { cartas: j12Shuffle(toma("est", 3, 4).concat(toma("igl", 1, 2), toma("per", 1, 2))) };
+  return { cartas: j12Shuffle(J7T1_R2_PARES[pi].map(toma)) };
+}
+
+// ⚠ VA FUERA de L7T1R2Balanza. Definido dentro, su identidad cambiaba en cada render y
+// React desmontaba y volvía a montar el subárbol entero: el J12Img de "CADA PERSONA"
+// —el único sin archivo todavía— reintentaba la carga, fallaba y volvía al emoji una y
+// otra vez. Se veía como un PARPADEO, y así lo reportó la autora el 2026-11-23.
+//
+// ⚠ Con dos asuntos sobra sitio, así que las ilustraciones van GRANDES y casi cuadradas
+// (las fuentes son 1:1, así se recortan lo mínimo).
+//
+// ⚠ Un platillo con ficha se nota desde lejos: marco ámbar grueso, halo y la etiqueta
+// "YA COLOCASTE AQUÍ". En ÁMBAR, nunca en verde: es un acuse, no un veredicto.
+function J7T1Platillo({ dest, fichas, vivo, verified, onPick }) {
+  const lleno = fichas.length > 0;
+  let marco = vivo ? dest.col : "rgba(255,255,255,0.28)", halo = vivo ? `0 0 16px ${dest.col}55` : "none";
+  if (!verified && lleno) { marco = "#f2c260"; halo = "0 0 20px rgba(242,194,96,0.55)"; }
+  return (
+    <button data-qa={"plat-" + dest.id} onClick={onPick} disabled={!vivo}
+      style={{ width: 148, boxSizing: "border-box", borderRadius: 14, border: `${(!verified && lleno) ? 3.5 : 2.5}px solid ${marco}`, background: (!verified && lleno) ? "rgba(60,42,10,0.75)" : "rgba(10,6,35,0.72)", padding: "7px 6px 8px", cursor: vivo ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, boxShadow: halo }}>
+      {dest.img
+        ? <J12Img src={dest.img} e={dest.e} ancho={132} alto={118} radius={9} />
+        : <div style={{ width: 132, height: 118, borderRadius: 9, background: "rgba(180,138,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 54, lineHeight: 1 }}>{dest.e}</div>}
+      <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.05em", color: "#fce9a8" }}>{dest.nombre}</span>
+      <div style={{ minHeight: 34, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center", justifyContent: "center" }}>
+        {fichas.map((c) => (
+          <span key={c.id} title={c.t} style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, lineHeight: 1, background: c.mal ? "rgba(192,57,43,0.95)" : (c.ok ? "rgba(31,138,84,0.95)" : "rgba(242,194,96,0.85)"), border: `2px solid ${c.mal ? "#ff6b6b" : (c.ok ? "#2ecc8f" : "#fce9a8")}`, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{c.e}</span>
+        ))}
+        {!verified && lleno && (
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 7.5, letterSpacing: "0.08em", color: "#3a2608", background: "#f2c260", borderRadius: 999, padding: "2px 6px" }}>YA COLOCASTE AQUÍ</span>
+        )}
+      </div>
+    </button>
+  );
 }
 
 function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
   const [b] = useStateG(() => j7t1R2Build());
   const [puestos, setPuestos] = useStateG([]);     // [{ id, d }] en el orden en que se colocaron
   const [verified, setVerified] = useStateG(false);
+  // ⚠ El acuse ("YA COLOCASTE AQUÍ" + la ficha) se ve un momento y SE BORRA SOLO, para que
+  // el platillo salga limpio con el asunto siguiente. Mismo criterio que el mapa del
+  // Libro 6. Lo pidió la autora el 2026-11-23: *"si voy a la segunda opción se debe borrar
+  // lo que seleccioné en la primera opción"*.
+  const [marca, setMarca] = useStateG(null);        // id del asunto recién colocado
   const cartas = b.cartas;
   const i = puestos.length;                         // la carta que está en la mano
   const actual = i < cartas.length ? cartas[i] : null;
@@ -2197,8 +2281,14 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
   function colocar(d) {
     if (verified || !actual) return;
     setPuestos((ps) => ps.concat([{ id: actual.id, d: d }]));
+    setMarca(actual.id);
   }
-  function borrar() { if (!verified) setPuestos((ps) => ps.slice(0, -1)); }
+  function borrar() { if (!verified) { setPuestos((ps) => ps.slice(0, -1)); setMarca(null); } }
+  useEffectG(() => {
+    if (marca === null) return undefined;
+    const t = setTimeout(() => setMarca(null), 1300);
+    return () => clearTimeout(t);
+  }, [marca]);
 
   useEffectG(() => {
     if (!onClear) return undefined;
@@ -2208,7 +2298,10 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
 
   const nEst = puestos.filter((p) => p.d === "est").length;
   const nIgl = puestos.filter((p) => p.d === "igl").length;
-  const inclina = Math.max(-14, Math.min(14, (nEst - nIgl) * 5));
+  // ⚠ La viga se inclina POCO a propósito: con 14° sus puntas bajaban 35 px y se metían
+  // dentro de las ilustraciones de los platillos. Lo marcó la autora el 2026-11-23. El
+  // detector de solapes no lo ve: la viga es un div decorativo, sin texto.
+  const inclina = Math.max(-8, Math.min(8, (nEst - nIgl) * 5));
 
   function nombreDe(d) { const x = J7T1_DESTINOS.find((z) => z.id === d); return x ? x.nombre : "—"; }
 
@@ -2226,29 +2319,7 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
 
   const fallos = verified ? cartas.filter((c) => (puestoDe(c.id) || {}).d !== c.d) : [];
 
-  function Platillo({ dest }) {
-    const dentro = cartas.filter((c) => (puestoDe(c.id) || {}).d === dest.id);
-    const vivo = !verified && !!actual;
-    return (
-      <button data-qa={"plat-" + dest.id} onClick={() => colocar(dest.id)} disabled={!vivo}
-        style={{ width: 140, boxSizing: "border-box", borderRadius: 14, border: `2.5px solid ${vivo ? dest.col : "rgba(255,255,255,0.28)"}`, background: "rgba(10,6,35,0.72)", padding: "7px 6px 8px", cursor: vivo ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, boxShadow: vivo ? `0 0 16px ${dest.col}55` : "none" }}>
-        {dest.img
-          ? <J12Img src={dest.img} e={dest.e} ancho={124} alto={46} radius={8} />
-          : <div style={{ width: 124, height: 46, borderRadius: 8, background: "rgba(180,138,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, lineHeight: 1 }}>{dest.e}</div>}
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, letterSpacing: "0.05em", color: "#fce9a8" }}>{dest.nombre}</span>
-        <div style={{ minHeight: 24, display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>
-          {dentro.map((c) => {
-            const ok = verified && c.d === dest.id;
-            const mal = verified && c.d !== dest.id;
-            return (
-              <span key={c.id} title={c.t} style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, lineHeight: 1, background: mal ? "rgba(192,57,43,0.9)" : (ok ? "rgba(31,138,84,0.95)" : "rgba(242,194,96,0.22)"), border: `1.5px solid ${mal ? "#ff6b6b" : (ok ? "#2ecc8f" : "rgba(242,194,96,0.7)")}` }}>{c.e}</span>
-            );
-          })}
-        </div>
-      </button>
-    );
-  }
-
+  const vivo = !verified && !!actual;
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
@@ -2256,12 +2327,16 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
       </div>
 
       {/* LA BALANZA. La viga se inclina según tu reparto; es un espejo, no una corrección. */}
-      <div style={{ position: "relative", width: 300, height: 30, marginTop: 8, flexShrink: 0 }}>
+      <div style={{ position: "relative", width: 300, height: 44, marginTop: 8, flexShrink: 0 }}>
         <div style={{ position: "absolute", left: "50%", bottom: 0, transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "12px solid transparent", borderRight: "12px solid transparent", borderBottom: "20px solid rgba(242,194,96,0.7)" }} />
-        <div style={{ position: "absolute", left: "50%", top: 3, width: 288, height: 6, marginLeft: -144, borderRadius: 999, background: "linear-gradient(90deg, rgba(242,184,75,0.95), rgba(180,138,255,0.9), rgba(79,216,255,0.95))", transform: `rotate(${inclina}deg)`, transformOrigin: "50% 50%", transition: "transform 0.35s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.45)" }} />
+        <div style={{ position: "absolute", left: "50%", top: 14, width: 236, height: 6, marginLeft: -118, borderRadius: 999, background: "linear-gradient(90deg, rgba(242,184,75,0.95), rgba(180,138,255,0.9), rgba(79,216,255,0.95))", transform: `rotate(${inclina}deg)`, transformOrigin: "50% 50%", transition: "transform 0.35s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.45)" }} />
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-start", marginTop: 5, flexShrink: 0 }}>
-        {J7T1_DESTINOS.map((d) => <Platillo key={d.id} dest={d} />)}
+        {J7T1_DESTINOS.map((d) => (
+          <J7T1Platillo key={d.id} dest={d} vivo={vivo} verified={verified} onPick={() => colocar(d.id)}
+            fichas={cartas.filter((c) => (puestoDe(c.id) || {}).d === d.id && (verified || c.id === marca))
+              .map((c) => Object.assign({}, c, { ok: verified && c.d === d.id, mal: verified && c.d !== d.id }))} />
+        ))}
       </div>
 
       {/* EN LA MANO: un asunto a la vez. Al terminar, ese sitio lo ocupa el revelado. */}
@@ -2274,12 +2349,12 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
           </div>
         )}
         {!verified && !actual && (
-          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#fce9a8", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Ya repartiste los {cartas.length} asuntos.<br />Toca ¡VERIFICAR!</div>
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#fce9a8", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Ya colocaste los {cartas.length} asuntos.<br />Toca ¡VERIFICAR!</div>
         )}
         {/* Al revelar, la correcta GRITA: panel verde grande con dónde iba cada fallo. */}
         {verified && (
           <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #2ecc8f", background: "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))", color: "#eafff4", padding: "8px 12px", boxShadow: "0 0 28px rgba(46,204,143,0.55)" }}>
-            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11, letterSpacing: "0.1em", color: "#06381f", marginBottom: 4 }}>{fallos.length === 0 ? "¡LOS CINCO EN SU SITIO!" : "LA RESPUESTA ERA"}</div>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11, letterSpacing: "0.1em", color: "#06381f", marginBottom: 4 }}>{fallos.length === 0 ? "¡LOS DOS EN SU SITIO!" : "LA RESPUESTA ERA"}</div>
             {fallos.length === 0 ? (
               <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>Con el laicismo el Estado tomó lo civil, la Iglesia conservó sus fiestas y la creencia quedó en manos de cada persona.</div>
             ) : fallos.slice(0, 3).map((c) => (
@@ -2299,9 +2374,12 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
 
 // ══════════════════════════════════════════════════════════════════
 // R3 · "Expediente abierto" — DESTAPAR y apostar (mano nueva en el tema).
-// Tres expedientes. Cada uno llega con una foto y UNA pista; se pueden destapar dos mas,
-// pero la estrella extra solo la gana quien acierta con la primera.
-// ⭐ +1 por acierto, +1 mas si fue con la PRIMERA pista sola. Maximo 6.
+// UN expediente por partida: un solo intento. Llega con una foto y UNA pista; se pueden
+// destapar dos mas, pero la estrella extra solo la gana quien acierta con la primera.
+// ⭐ +1 por acierto, +1 mas si fue con la PRIMERA pista sola. Maximo 2.
+//
+// ⚠ El codigo sigue preparado para VARIOS expedientes (se verifican uno a uno y la
+// pastilla ensena el numero y los puntos de avance): basta cambiar el 1 de j7t1R3Build.
 //
 // ⚠ Las pistas DAN los hechos: la ronda se resuelve leyendo lo que hay en pantalla, no
 // de memoria. Destapar no quita nada de lo ya ganado, solo deja de sumar el extra.
@@ -2327,8 +2405,12 @@ const J7T1_CASOS = [
 ];
 const J7T1_R3_KEY = "edinun_j12_l7t1_r3_v1";
 function j7t1R3Build() {
-  const idx = j12PickIdx(J7T1_CASOS, 3, J7T1_R3_KEY);
-  j12Commit(J7T1_R3_KEY, idx, 4);
+  // ⚠ UN solo expediente por partida: un único intento (lo pidió la autora el 2026-11-23:
+  // *"en la ronda 3 solo quiero que haya un solo expediente, es decir que no hayan dos
+  // intentos solo uno"*). La variedad la da cuál de los 6 toca.
+  // ⚠ Cap 5 = banco − 1: para UN ítem es el máximo que no deja el sorteo sin opciones.
+  const idx = j12PickIdx(J7T1_CASOS, 1, J7T1_R3_KEY);
+  j12Commit(J7T1_R3_KEY, idx, 5);
   const casos = idx.map((i) => {
     const c = J7T1_CASOS[i];
     const otros = j12Shuffle(J7T1_CASOS.filter((x) => x.id !== c.id)).slice(0, 2).map((x) => x.a);
@@ -2343,62 +2425,73 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
   const [activo, setActivo] = useStateG(0);
   const [abiertas, setAbiertas] = useStateG(() => casos.map(() => 1));   // pistas destapadas
   const [elegido, setElegido] = useStateG(() => casos.map(() => null));
-  const [verified, setVerified] = useStateG(false);
+  // ⚠ Se verifica UNO A UNO: ¡VERIFICAR! resuelve el expediente de turno, enseña la
+  // respuesta y pasa al siguiente; el último cierra la ronda. Lo pidió la autora el
+  // 2026-11-23: *"debo poner en verificar y se cambia al expediente 2"*. Es el mismo
+  // criterio que el mapa del Libro 6.
+  const [resuelto, setResuelto] = useStateG(() => casos.map(() => false));
+  const [pasando, setPasando] = useStateG(false);
+  const ganadas = useRefG(0);
   const c = casos[activo];
+  const verified = resuelto[activo];
 
   function destapar() {
-    if (verified) return;
+    if (verified || pasando) return;
     setAbiertas((a) => a.map((n, k) => (k === activo ? Math.min(3, n + 1) : n)));
   }
   function elegir(op) {
-    if (verified) return;
+    if (verified || pasando) return;
     setElegido((e) => e.map((v, k) => (k === activo ? op : v)));
   }
 
   function verificar() {
-    if (verified || elegido.some((e) => e === null)) return;
-    setVerified(true);
-    let g = 0;
-    casos.forEach((x, k) => { if (elegido[k] === x.a) { g += 1; if (abiertas[k] === 1) g += 1; } });
-    const aciertos = casos.filter((x, k) => elegido[k] === x.a).length;
-    onSolve(aciertos === casos.length, {
-      emoji: "🗂️", a: "Reconocer los hechos de la Revolución liberal",
-      userAnswer: casos.map((x, k) => elegido[k]).join(" · "),
-      correctAnswer: casos.map((x) => x.a).join(" · "),
-    }, g);
+    if (verified || pasando || elegido[activo] === null) return;
+    const acerto = elegido[activo] === c.a;
+    // ⭐ +1 por acierto y +1 más si fue con la PRIMERA pista sola.
+    if (acerto) ganadas.current += (abiertas[activo] === 1 ? 2 : 1);
+    setResuelto((r) => r.map((v, k) => (k === activo ? true : v)));
+    setPasando(true);
+    const ultimo = activo + 1 >= casos.length;
+    setTimeout(() => {
+      if (!ultimo) { setActivo((k) => k + 1); setPasando(false); return; }
+      const aciertos = casos.filter((x, k) => elegido[k] === x.a).length;
+      onSolve(aciertos === casos.length, {
+        emoji: "🗂️", a: "Reconocer los hechos de la Revolución liberal",
+        userAnswer: casos.map((x, k) => elegido[k]).join(" · "),
+        correctAnswer: casos.map((x) => x.a).join(" · "),
+      }, ganadas.current);
+    }, ultimo ? 1500 : 1900);
   }
   verifyRef.current = verificar;
-
-  const okActivo = verified && elegido[activo] === c.a;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Descubre de qué hecho habla cada expediente.</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Descubre de qué hecho habla el expediente.</span>
       </div>
 
-      {/* Pestañas: se ve de un vistazo cuáles quedan por responder. */}
-      <div style={{ display: "flex", gap: 6, marginTop: 9, flexShrink: 0 }}>
-        {casos.map((x, k) => {
-          const ok = verified && elegido[k] === x.a;
-          const mal = verified && elegido[k] !== x.a;
-          const act = k === activo;
-          return (
-            <button key={x.id} data-qa="exp" onClick={() => setActivo(k)}
-              style={{ borderRadius: 10, padding: "5px 11px", cursor: "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.03em",
-                border: `2px solid ${mal ? "#ff6b6b" : ok ? "#2ecc8f" : act ? "#4fd8ff" : "rgba(242,194,96,0.5)"}`,
-                background: mal ? "rgba(178,47,47,0.85)" : ok ? "rgba(26,143,95,0.9)" : act ? "rgba(79,216,255,0.22)" : "rgba(0,0,0,0.35)",
-                color: "#fce9a8", opacity: act || verified ? 1 : 0.75 }}>
-              EXPEDIENTE {k + 1}{verified ? (ok ? " ✓" : " ✗") : (elegido[k] !== null ? " ·" : "")}
-            </button>
-          );
-        })}
+      {/* ⚠ SE VE UN SOLO EXPEDIENTE, el de turno, y bien grande. Antes estaban los dos a
+          la vez y el activo casi no se distinguía del que faltaba; la autora pidió las dos
+          cosas el 2026-11-23: *"lo que dice expediente 1 se vea más porque casi no se
+          nota"* y *"solo quiero que se vea un expediente y ya"*.
+          El avance va en PUNTOS (J12Puntos), que es como lo lleva el resto del juego: un
+          "1 de 2" se lee de dos maneras. */}
+      <div data-qa="exp" data-total={casos.length} style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, flexShrink: 0,
+        borderRadius: 999, padding: "7px 18px",
+        border: `2.5px solid ${verified ? (elegido[activo] === c.a ? "#2ecc8f" : "#ff6b6b") : "#fce9a8"}`,
+        background: verified ? (elegido[activo] === c.a ? "rgba(26,143,95,0.92)" : "rgba(178,47,47,0.9)") : "rgba(0,0,0,0.5)",
+        boxShadow: verified ? "none" : "0 0 18px rgba(242,194,96,0.35)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 14.5, letterSpacing: "0.06em", color: "#fce9a8" }}>
+          EXPEDIENTE{casos.length > 1 ? " " + (activo + 1) : ""}{verified ? (elegido[activo] === c.a ? " ✓" : " ✗") : ""}
+        </span>
+        {/* Con un solo expediente no hay avance que contar: un punto suelto confunde. */}
+        {casos.length > 1 && <J12Puntos total={casos.length} hechos={resuelto.filter(Boolean).length} />}
       </div>
 
       <div style={{ flex: 1, width: 452, display: "flex", flexDirection: "column", minHeight: 0, marginTop: 8 }}>
         <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
           <J12Img src={c.img} e={c.e} ancho={140} alto={140} radius={12} />
-          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 5 }}>
             {[0, 1, 2].map((p) => {
               if (p < abiertas[activo]) {
                 return (
@@ -2408,23 +2501,36 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
                   </div>
                 );
               }
+              // ⚠ La pista que todavía no toca se tiene que LEER. En gris flojo no se veía
+              // y la autora lo marcó: sigue apagada respecto a la de arriba, pero legible.
               if (p > abiertas[activo] || verified) {
-                return <div key={p} style={{ borderRadius: 9, border: "1.5px dashed rgba(255,255,255,0.22)", background: "rgba(0,0,0,0.22)", padding: "8px 9px", fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, color: "rgba(255,255,255,0.35)" }}>Pista {p + 1}, sin destapar</div>;
+                return (
+                  <div key={p} style={{ borderRadius: 9, border: "1.5px dashed rgba(252,233,168,0.5)", background: "rgba(0,0,0,0.3)", padding: "8px 9px", display: "flex", gap: 7, alignItems: "center" }}>
+                    <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 9.5, color: "rgba(252,233,168,0.75)" }}>{p + 1}</span>
+                    <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "rgba(252,233,168,0.75)" }}>Pista todavía tapada</span>
+                  </div>
+                );
               }
+              // ⚠ El botón de destapar es la OTRA acción de la ronda: tiene que verse como
+              // un botón, no como un renglón más. Ámbar sólido, letra oscura y un candado.
               return (
-                <button key={p} onClick={destapar}
-                  style={{ borderRadius: 9, border: "1.5px solid rgba(79,216,255,0.6)", background: "rgba(79,216,255,0.14)", padding: "8px 9px", cursor: "pointer", textAlign: "left", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, color: "#bfeaff", letterSpacing: "0.02em" }}>
-                  DESTAPAR LA PISTA {p + 1} · pierdes la ⭐ extra
+                <button key={p} data-qa="destapar" onClick={destapar}
+                  style={{ borderRadius: 10, border: "2.5px solid #fce9a8", background: "linear-gradient(180deg,#ffd978,#e9a92a)", padding: "9px 10px", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6)" }}>
+                  <span style={{ flexShrink: 0, fontSize: 16, lineHeight: 1 }}>🔒</span>
+                  <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 12.5, letterSpacing: "0.03em", color: "#3a2608", lineHeight: 1.15 }}>
+                    DESTAPAR LA PISTA {p + 1}
+                    <span style={{ display: "block", fontWeight: 700, fontSize: 9.5, letterSpacing: "0.02em", color: "#6b4a0c" }}>Pierdes la ⭐ extra</span>
+                  </span>
                 </button>
               );
             })}
             {abiertas[activo] === 1 && !verified && (
-              <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "rgba(252,233,168,0.9)", paddingLeft: 2 }}>Si aciertas con esta sola pista, ganas 2 ⭐.</div>
+              <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10, color: "rgba(252,233,168,0.9)", paddingLeft: 2 }}>Si aciertas con esta sola pista, ganas 2 ⭐.</div>
             )}
           </div>
         </div>
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 5, minHeight: 0, marginTop: 6 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6, minHeight: 0, marginTop: 6 }}>
           {c.opciones.map((op) => {
             const mia = elegido[activo] === op;
             const esLa = op === c.a;
@@ -2433,8 +2539,8 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
             if (verified && esLa) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))"; col = "#06381f"; }
             if (verified && mia && !esLa) { border = "#ff6b6b"; bg = "rgba(178,47,47,0.9)"; col = "#fff"; }
             return (
-              <button key={op} data-qa="op" onClick={() => elegir(op)} disabled={verified}
-                style={{ width: "100%", boxSizing: "border-box", borderRadius: 11, border: `2.5px solid ${border}`, background: bg, color: col, padding: "12px 12px", textAlign: "left", cursor: verified ? "default" : "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, display: "flex", alignItems: "center", gap: 8, boxShadow: (verified && esLa) ? "0 0 24px rgba(46,204,143,0.6)" : "none" }}>
+              <button key={op} data-qa="op" onClick={() => elegir(op)} disabled={verified || pasando}
+                style={{ width: "100%", boxSizing: "border-box", borderRadius: 11, border: `2.5px solid ${border}`, background: bg, color: col, padding: "12px 12px", textAlign: "left", cursor: (verified || pasando) ? "default" : "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, display: "flex", alignItems: "center", gap: 8, boxShadow: (verified && esLa) ? "0 0 24px rgba(46,204,143,0.6)" : "none" }}>
                 {verified && esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(255,255,255,0.8)", color: "#06381f", borderRadius: 999, padding: "2px 6px" }}>ERA ESTA</span>}
                 <span style={{ flex: 1, minWidth: 0 }}>{op}</span>
                 {verified && mia && !esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "2px 6px" }}>TU ELECCIÓN</span>}
@@ -2442,11 +2548,6 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
             );
           })}
         </div>
-        {verified && (
-          <div style={{ flexShrink: 0, textAlign: "center", fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10.5, color: okActivo ? "#9df0c6" : "#ffc2c2", paddingBottom: 2 }}>
-            Toca las pestañas para ver cómo te fue en los otros expedientes.
-          </div>
-        )}
       </div>
     </div>
   );
@@ -2455,7 +2556,9 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
 // ── Arreglo de rondas del LIBRO 7 · TEMA 1 (3 manos: ordenar · repartir · destapar) ──
 const L7T1_ROUNDS = [
   { C: L7T1R1Via, verify: true, bubble: (<>Arrastra cada tarjeta<br />hasta su lugar en la vía.</>) },
-  { C: L7T1R2Balanza, verify: true, bubble: (<>Toca el platillo donde<br />quedó ese asunto.</>) },
+  // ⚠ Nada de "platillo": es la palabra del codigo, no la del chico, y la autora la
+  // rechazo el 2026-11-23. El CÓMO dice que se lee abajo y se toca arriba.
+  { C: L7T1R2Balanza, verify: true, bubble: (<>Lee el asunto y toca<br />quién se quedó con él.</>) },
   { C: L7T1R3Expediente, verify: true, bubble: (<>Lee la pista y elige.<br />Destapa solo si hace falta.</>) },
 ];
 
@@ -2627,7 +2730,331 @@ function J12Game({ app, setApp, go, rounds }) {
 // no
 // están en el menú todavía, así que una categoría desconocida cae en el Tema 1 en vez de
 // romperse.
-const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS, "l7-t1": L7T1_ROUNDS };
+// ══════════════════════════════════════════════════════════════════
+// LIBRO 6 · TEMA 3 — "El preámbulo del siglo XX" (10 años)
+// D.C.D. CS.3.1.37 · CS.3.1.38 · CS.3.1.39. Material: libro pp. 112-115 + cuaderno
+// pp. 103-106, entregado por la autora el 2026-11-23.
+//
+// Tres verbos que NO existen en los otros temas del Libro 6 (allí se gastaron decidir
+// sí/no, arrastrar a su sitio, ordenar, componer tocando, tocar en el mapa y rasgar):
+//   R1 FROTAR para quitar la niebla · R2 GIRAR la ficha · R3 ESTAMPAR el sello.
+//
+// ⚠ Este tema NO toca el ferrocarril ni la lista de obras de Alfaro: eso es del
+// Libro 7 · Tema 1. Aquí van las ideas liberales, los pensadores y la mujer.
+// ══════════════════════════════════════════════════════════════════
+
+// ── R1 · "Quitar la niebla" ─────────────────────────────────────────────────
+// VERBO: frotar. La niebla se va por donde pasa el dedo y debajo aparece quien estaba
+// "en el anonimato" (libro p. 115). Es una ronda de EXPLORAR: se descubre, no se acierta.
+// Las frases son del libro; las ilustraciones las generó la autora (tipos de persona,
+// NO personajes históricos: a Montalvo, Moncayo y Peralta no se les inventa el rostro).
+const J6T3_GENTE = [
+  { id: "maestra", n: "Maestra", t: "El Estado abrió escuelas públicas y la enseñanza dejó de ser solo de la Iglesia." },
+  { id: "alumna", n: "Alumna", t: "Con las ideas liberales la mujer pudo entrar a la escuela." },
+  { id: "costurera", n: "Costurera", t: "Se crearon escuelas de prácticas y técnicas y colegios femeninos." },
+  { id: "oficinista", n: "Oficinista", t: "La mujer salió del espacio doméstico a los espacios públicos y laborales." },
+  { id: "artesano", n: "Artesano", t: "Los artesanos se unieron en asociaciones gremiales." },
+  { id: "portuario", n: "Trabajador del puerto", t: "Los trabajadores del puerto de Guayaquil fueron militantes alfaristas." },
+  { id: "indigena", n: "Hombre de la Sierra", t: "Los indígenas de la Sierra pusieron su esperanza en la revolución." },
+  { id: "afro", n: "Trabajador afroecuatoriano", t: "La cultura popular unió raíces andinas, españolas y afro." },
+];
+const J6T3_COLS = 5, J6T3_FILAS = 7, J6T3_CELDAS = J6T3_COLS * J6T3_FILAS;
+
+function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
+  // 4 de 8, cap 3. ⚠ Para un subconjunto de K nunca se usa cap = K (saldría una rotación
+  // exacta y previsible): la regla está en memory/anti-repeticion-al-recargar.md.
+  const [b] = useStateG(() => {
+    const idx = j12PickIdx(J6T3_GENTE, 4, "edinun_j12_l6t3_r1_v1");
+    j12Commit("edinun_j12_l6t3_r1_v1", idx, 3);
+    return { gente: idx.map((i) => J6T3_GENTE[i]) };
+  });
+  const [frotado, setFrotado] = useStateG({});   // { id: [celdas marcadas] }
+  const [verified, setVerified] = useStateG(false);
+  const limpias = b.gente.filter((g) => (frotado[g.id] || []).length >= J6T3_CELDAS * 0.68);
+  const todas = limpias.length === b.gente.length;
+
+  function frotar(id, celda) {
+    if (verified) return;
+    setFrotado((f) => {
+      const ya = f[id] || [];
+      if (ya.indexOf(celda) >= 0) return f;
+      const n = Object.assign({}, f);
+      n[id] = ya.concat([celda]);
+      return n;
+    });
+  }
+  function borrar() {
+    if (verified) return;
+    setFrotado({});
+  }
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: Object.keys(frotado).length > 0 });
+    return () => onClear(null);
+  }, [verified, Object.keys(frotado).length]);
+
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    onSolve(todas, {
+      emoji: "🌫️", a: "Los que salieron del anonimato",
+      userAnswer: limpias.map((g) => g.n).join(" · ") || "(nadie)",
+      correctAnswer: b.gente.map((g) => g.n).join(" · "),
+    }, limpias.length);
+  }
+  verifyRef.current = verificar;
+
+  function figura(g) {
+    const marcadas = frotado[g.id] || [];
+    const vista = marcadas.length >= J6T3_CELDAS * 0.68 || verified;
+    return (
+      <div key={g.id} style={{ width: 108, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <div style={{ position: "relative", width: 108, height: 144, borderRadius: 10, overflow: "hidden", border: `2.5px solid ${vista ? "#f2c260" : "rgba(255,255,255,0.3)"}`, background: "#0d2a20", touchAction: "none" }}>
+          <img src={`assets/j6t3-${g.id}.jpg`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
+          {/* La niebla: una rejilla de celdas que se van borrando donde pasa el dedo. */}
+          {!vista && Array.from({ length: J6T3_CELDAS }).map((_, k) => (
+            <div key={k}
+              onPointerDown={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (x) {} frotar(g.id, k); }}
+              onPointerMove={(e) => { if (e.buttons === 1 || e.pointerType !== "mouse") frotar(g.id, k); }}
+              onPointerEnter={(e) => { if (e.buttons === 1 || e.pointerType !== "mouse") frotar(g.id, k); }}
+              style={{
+                position: "absolute", left: `${(k % J6T3_COLS) * (100 / J6T3_COLS)}%`, top: `${Math.floor(k / J6T3_COLS) * (100 / J6T3_FILAS)}%`,
+                width: `${100 / J6T3_COLS}%`, height: `${100 / J6T3_FILAS}%`,
+                background: marcadas.indexOf(k) >= 0 ? "transparent" : "rgba(214,228,226,0.97)",
+                boxShadow: marcadas.indexOf(k) >= 0 ? "none" : "inset 0 0 10px rgba(255,255,255,0.8)",
+                transition: "background 0.18s", cursor: "pointer",
+              }} />
+          ))}
+          {!vista && !Object.keys(frotado).length && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9.5, color: "#44605c", textAlign: "center", lineHeight: 1.2 }}>pasa el dedo<br />por encima</span>
+            </div>
+          )}
+        </div>
+        {/* Franja RESERVADA: si el texto apareciera de golpe, las tarjetas crecerían. */}
+        <div style={{ minHeight: 54, width: "100%", textAlign: "center" }}>
+          {vista && (<>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, color: "#fce9a8" }}>{g.n}</div>
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.22, color: "rgba(255,255,255,0.88)" }}>{g.t}</div>
+          </>)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Saca de la niebla a los que no tenían voz.</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son cuatro.</div>
+      </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", flexShrink: 0 }}>
+        {b.gente.map(figura)}
+      </div>
+    </div>
+  );
+}
+
+// ── R2 · "Tres plumas" ──────────────────────────────────────────────────────
+// VERBO: girar. Seis fichas boca abajo; al tocarlas giran y enseñan un hecho. El niño
+// DEJA destapadas las tres que hicieron los pensadores liberales y vuelve a tapar las
+// otras. Los tres distractores también son del libro (Rocafuerte, García Moreno y
+// Alfaro), así que se aprende quién hizo qué, no se descarta por descarte.
+const J6T3_FICHAS = [
+  { id: "montalvo", ok: true, h: "Luchó con su periodismo contra los gobiernos despóticos.", q: "Juan Montalvo" },
+  { id: "moncayo", ok: true, h: "Denunció el concertaje y defendió el Estado laico.", q: "Abelardo Moncayo" },
+  { id: "peralta", ok: true, h: "Pensó la Carta Constitucional de 1896.", q: "José Peralta" },
+  { id: "rocafuerte", ok: false, h: "Creó la Dirección General de Estudios.", q: "Vicente Rocafuerte" },
+  { id: "garcia", ok: false, h: "Impulsó la educación, pero con visión religiosa.", q: "García Moreno" },
+  { id: "alfaro", ok: false, h: "Concluyó el ferrocarril que unía la Sierra con la Costa.", q: "Eloy Alfaro" },
+];
+
+function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
+  const [b] = useStateG(() => ({ fichas: j12Shuffle(J6T3_FICHAS) }));
+  const [giradas, setGiradas] = useStateG([]);
+  const [verified, setVerified] = useStateG(false);
+  const refs = useRefG({});
+
+  function girar(id) {
+    if (verified) return;
+    const el = refs.current[id];
+    // El giro va con element.animate(): una transición CSS no arranca, porque React
+    // pinta el estado nuevo antes del primer frame (ya pasó en la R3 del Tema 1).
+    if (el && el.animate) {
+      try { el.animate([{ transform: "rotateY(0deg)" }, { transform: "rotateY(90deg)" }, { transform: "rotateY(0deg)" }], { duration: 260, easing: "ease-in-out" }); } catch (x) {}
+    }
+    setGiradas((g) => (g.indexOf(id) >= 0 ? g.filter((x) => x !== id) : g.concat([id])));
+  }
+  function borrar() {
+    if (verified || !giradas.length) return;
+    setGiradas((g) => g.slice(0, -1));
+  }
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: giradas.length > 0 });
+    return () => onClear(null);
+  }, [verified, giradas.length]);
+
+  const buenas = J6T3_FICHAS.filter((f) => f.ok).map((f) => f.id);
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const aciertos = giradas.filter((id) => buenas.indexOf(id) >= 0).length;
+    const nombre = (id) => (J6T3_FICHAS.find((f) => f.id === id) || {}).q;
+    onSolve(aciertos === buenas.length && giradas.length === buenas.length, {
+      emoji: "✒️", a: "Los pensadores liberales",
+      userAnswer: giradas.map(nombre).join(" · ") || "(ninguna)",
+      correctAnswer: buenas.map(nombre).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  function ficha(f) {
+    const abierta = giradas.indexOf(f.id) >= 0;
+    let bd = abierta ? "#4fd8ff" : "rgba(242,194,96,0.5)";
+    if (verified) bd = abierta ? (f.ok ? "#2ecc8f" : "#ff6b6b") : (f.ok ? "#f2c260" : "rgba(242,194,96,0.5)");
+    return (
+      <button key={f.id} className="ed-btn-plain" onClick={() => girar(f.id)}
+        ref={(el) => { refs.current[f.id] = el; }}
+        style={{
+          width: 148, height: 104, borderRadius: 12, border: `2.5px solid ${bd}`,
+          background: abierta ? "rgba(255,253,246,0.94)" : "linear-gradient(180deg, rgba(20,12,55,0.92), rgba(10,6,35,0.92))",
+          padding: "7px 9px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+          cursor: verified ? "default" : "pointer", boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
+        }}>
+        {!abierta && !verified && (<>
+          <span style={{ fontSize: 20, lineHeight: 1 }}>✒️</span>
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9, color: "rgba(255,255,255,0.6)" }}>toca para girar</span>
+        </>)}
+        {abierta && (
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.22, color: "#3a2608", textAlign: "center" }}>{f.h}</span>
+        )}
+        {/* ⚠ Al revelar, una ficha BIEN TAPADA no lleva ✗: dejarla boca abajo era lo
+            correcto. Solo se marca lo que el niño destapó, y en ámbar lo que le faltó.
+            Con la ✗ en todas parecía que había fallado seis veces. */}
+        {verified && !abierta && !f.ok && (
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "rgba(255,255,255,0.55)", textAlign: "center" }}>Bien tapada:<br />no era de ellos</span>
+        )}
+        {verified && !abierta && f.ok && (
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.2, color: "#fce9a8", textAlign: "center" }}>{"Te faltó: " + f.q}</span>
+        )}
+        {verified && abierta && (
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 9, color: f.ok ? "#1f8a54" : "#c0392b" }}>
+            {(f.ok ? "✓ " : "✗ ") + f.q}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿Qué hicieron Montalvo, Moncayo y Peralta?</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Deja destapadas solo sus tres fichas.</div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: 464, justifyContent: "center", flexShrink: 0 }}>
+        {b.fichas.map(ficha)}
+      </div>
+    </div>
+  );
+}
+
+// ── R3 · "El sello de Montalvo" ─────────────────────────────────────────────
+// VERBO: estampar. Las frases son TEXTUALES del fragmento de "El Cosmopolita" que trae
+// el cuaderno (p. 106). Se sella a quien Montalvo dice que NO pertenece al pueblo.
+const J6T3_MONTALVO = [
+  { id: "tirano", fuera: true, t: "El tirano que se alza con la libertad de sus semejantes." },
+  { id: "opulento", fuera: true, t: "El opulento que nada en oro y cierra la mano a la caridad." },
+  { id: "soberbio", fuera: true, t: "El soberbio que anda el cuello erguido." },
+  { id: "sudor", fuera: false, t: "Tú que vives del sudor de tu frente: tú eres pueblo." },
+  { id: "forja", fuera: false, t: "Tú que forjas los metales y construyes casas: tú eres pueblo." },
+];
+
+function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
+  const [b] = useStateG(() => ({ frases: j12Shuffle(J6T3_MONTALVO) }));
+  const [sellados, setSellados] = useStateG([]);
+  const [verified, setVerified] = useStateG(false);
+  const refs = useRefG({});
+
+  function sellar(id) {
+    if (verified) return;
+    const el = refs.current[id];
+    if (el && el.animate) {
+      try { el.animate([{ transform: "scale(1)" }, { transform: "scale(0.97)" }, { transform: "scale(1)" }], { duration: 180, easing: "ease-out" }); } catch (x) {}
+    }
+    setSellados((s) => (s.indexOf(id) >= 0 ? s.filter((x) => x !== id) : s.concat([id])));
+  }
+  function borrar() {
+    if (verified || !sellados.length) return;
+    setSellados((s) => s.slice(0, -1));
+  }
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: sellados.length > 0 });
+    return () => onClear(null);
+  }, [verified, sellados.length]);
+
+  const fuera = J6T3_MONTALVO.filter((f) => f.fuera).map((f) => f.id);
+  function verificar() {
+    if (verified) return;
+    setVerified(true);
+    const aciertos = sellados.filter((id) => fuera.indexOf(id) >= 0).length;
+    const texto = (id) => (J6T3_MONTALVO.find((f) => f.id === id) || {}).t;
+    onSolve(aciertos === fuera.length && sellados.length === fuera.length, {
+      emoji: "🖋️", a: "Quién no pertenece al pueblo, según Montalvo",
+      userAnswer: sellados.map(texto).join(" · ") || "(ninguna)",
+      correctAnswer: fuera.map(texto).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  function frase(f) {
+    const marcada = sellados.indexOf(f.id) >= 0;
+    let bd = marcada ? "#c0392b" : "rgba(120,94,48,0.5)";
+    if (verified) bd = marcada ? (f.fuera ? "#2ecc8f" : "#ff6b6b") : (f.fuera ? "#f2c260" : "rgba(120,94,48,0.5)");
+    return (
+      <div key={f.id} data-qa="frase" ref={(el) => { refs.current[f.id] = el; }} onClick={() => sellar(f.id)}
+        style={{
+          position: "relative", width: "100%", boxSizing: "border-box", minHeight: 56, display: "flex", alignItems: "center", gap: 8,
+          borderRadius: 8, border: `2px solid ${bd}`, background: "rgba(255,253,246,0.93)", padding: "6px 10px",
+          cursor: verified ? "default" : "pointer", userSelect: "none", WebkitUserSelect: "none",
+        }}>
+        <span style={{ flexShrink: 0, fontSize: 11, color: "#8a6410" }}>▸</span>
+        <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 13, lineHeight: 1.25, color: "#3a2608" }}>{f.t}</span>
+        {marcada && (
+          <span style={{ flexShrink: 0, transform: "rotate(-8deg)", border: "2.5px solid rgba(192,57,43,0.85)", borderRadius: 6, padding: "2px 7px", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 9, letterSpacing: "0.06em", color: "rgba(192,57,43,0.9)", background: "rgba(192,57,43,0.08)" }}>NO ES PUEBLO</span>
+        )}
+        {verified && (
+          <span style={{ flexShrink: 0, width: 17, height: 17, borderRadius: "50%", background: (marcada === f.fuera) ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 11 }}>{(marcada === f.fuera) ? "✓" : "✗"}</span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, height: "100%", width: "100%", paddingBottom: 10 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿A quién dejó Montalvo fuera del pueblo?</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son tres.</div>
+      </div>
+      <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "8px 10px 10px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
+        <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 6 }}>EL COSMOPOLITA · JUAN MONTALVO</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {b.frases.map(frase)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const L6T3_ROUNDS = [
+  { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa el dedo o el ratón<br />y la niebla se va.</>) },
+  { C: L6T3R2Plumas, verify: true, bubble: (<>Toca una ficha y gira.<br />Tócala otra vez y se tapa.</>) },
+  { C: L6T3R3Sello, verify: true, bubble: (<>Toca una frase<br />y queda sellada.</>) },
+];
+
+const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS, "l6-t3": L6T3_ROUNDS, "l7-t1": L7T1_ROUNDS };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "l6-t1";
   const rounds = J12_ROUNDS_POR_TEMA[cat] || L6T1_ROUNDS;

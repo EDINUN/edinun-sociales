@@ -141,6 +141,7 @@ const LIBROS = [
   { id: "libro-6", label: "Libro 6", temas: [
     { id: "l6-t1", label: "Los primeros años del Ecuador", desc: "El Estado ecuatoriano en sus primeros años de vida" },
     { id: "l6-t2", label: "La Revolución Marcista", desc: "El 6 de marzo de 1845 y los años marcistas" },
+    { id: "l6-t3", label: "El preámbulo del siglo XX", desc: "Las ideas liberales, los pensadores y la mujer" },
   ] },
   { id: "libro-7", label: "Libro 7", temas: [
     { id: "l7-t1", label: "La Revolución Liberal", desc: "Alfaro, el Estado laico y el ferrocarril" },

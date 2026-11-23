@@ -183,8 +183,54 @@ async function abrir(p, tema) {
     console.log(await medir(p, et + " T2 R3 rota", fallos));
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
     console.log(await medir(p, et + " T2 R3 revelado", fallos));
+
+    // ───────── TEMA 3 ─────────
+    await abrir(p, "El preámbulo del siglo XX");
+    await p.waitForSelector("text=Saca de la niebla");
+    console.log(await medir(p, et + " T3 R1 antes", fallos));
+    const figs = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }));
+    for (let c = 0; c < figs.length; c++) {
+      const caja = figs[c];
+      await p.mouse.move(caja.x + 4, caja.y + 4); await p.mouse.down();
+      for (let k = 0; k < 8; k++) {
+        const y = caja.y + 3 + (caja.h - 6) * (k / 7);
+        await p.mouse.move(caja.x + 3, y, { steps: 3 });
+        await p.mouse.move(caja.x + caja.w - 3, y, { steps: 10 });
+        if (c === 0 && k === 3) console.log(await medir(p, et + " T3 R1 EN PLENO FROTADO", fallos));
+      }
+      await p.mouse.up();
+    }
+    console.log(await medir(p, et + " T3 R1 limpia", fallos));
+    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+    console.log(await medir(p, et + " T3 R1 revelado", fallos));
+    await p.waitForTimeout(3600);
+
+    await p.waitForSelector("text=Montalvo, Moncayo y Peralta");
+    console.log(await medir(p, et + " T3 R2 antes", fallos));
+    const PENS = ["periodismo contra los gobiernos", "concertaje", "Carta Constitucional de 1896"];
+    const fichas3 = await p.$$("button.ed-btn-plain");
+    for (let i = 0; i < fichas3.length; i++) {
+      await fichas3[i].click(); await p.waitForTimeout(210);
+      const t = (await fichas3[i].textContent()) || "";
+      if (!PENS.some((c) => t.indexOf(c) >= 0)) { await fichas3[i].click(); await p.waitForTimeout(170); }
+    }
+    console.log(await medir(p, et + " T3 R2 elegidas", fallos));
+    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+    console.log(await medir(p, et + " T3 R2 revelado", fallos));
+    await p.waitForTimeout(3600);
+
+    await p.waitForSelector("text=fuera del pueblo");
+    console.log(await medir(p, et + " T3 R3 antes", fallos));
+    for (const clave of ["El tirano", "El opulento", "El soberbio"]) {
+      const caja = await p.evaluate((clave) => { const d = Array.from(document.querySelectorAll('[data-qa="frase"]')).find((x) => x.textContent.indexOf(clave) >= 0); if (!d) return null; const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, clave);
+      if (caja) { await p.mouse.click(caja.x, caja.y); await p.waitForTimeout(170); }
+    }
+    console.log(await medir(p, et + " T3 R3 sellada", fallos));
+    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+    console.log(await medir(p, et + " T3 R3 revelado", fallos));
+
     await p.close();
   }
-  console.log("\n" + (fallos.length ? "X PROBLEMAS:\n" + fallos.join("\n") : "OK Lienzo entero, los dos temas, en reposo y en pleno gesto: nada superpuesto, nada fuera del lienzo y ningún texto recortado."));
+  console.log("\n" + (fallos.length ? "X PROBLEMAS:\n" + fallos.join("\n") : "OK Lienzo entero, los tres temas del Libro 6, en reposo y en pleno gesto: nada superpuesto, nada fuera del lienzo y ningún texto recortado."));
   await br.close(); srv.close();
 })();
