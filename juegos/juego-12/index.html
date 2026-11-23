@@ -1937,6 +1937,9 @@ const J7T1_HITOS = [
   { id: "v1906", y: 1906, e: "🏛️", t: "Alfaro implanta el Estado laico y se aprueba su segunda Constitución." },
   { id: "v1908", y: 1908, e: "🚂", t: "Se termina el ferrocarril que une Guayaquil con Quito: 452 km de vía." },
   { id: "v1912", y: 1912, e: "🕯️", t: "Alfaro es apresado y llevado a Quito; allí muere y termina la Revolución liberal." },
+  { id: "v1900", y: 1900, e: "📒", t: "La Ley de Registro Civil pone en manos del Estado los nacimientos y las muertes." },
+  { id: "v1904", y: 1904, e: "⚖️", t: "La Ley de Cultos ordena la relación entre el Estado y la Iglesia." },
+  { id: "v1922", y: 1922, e: "📢", t: "El 15 de noviembre, una gran marcha obrera paraliza Guayaquil." },
 ];
 
 const J7T1_R1_KEY = "edinun_j12_l7t1_r1_v1";
@@ -1945,10 +1948,12 @@ const J7T1_R1_KEY = "edinun_j12_l7t1_r1_v1";
 // marco en rojo sobre una captura el 2026-11-23. De paso cabe letra mas grande.
 const J7T1_ALTO = 86, J7T1_HUECO = 10;
 function j7t1R1Build() {
-  // Entran 4 de 6: cambia CUALES se quedan fuera (FIFO de 3, nunca cap = K) y el barajado.
-  const fuera = j12PickIdx(J7T1_HITOS, 2, J7T1_R1_KEY);
-  j12Commit(J7T1_R1_KEY, fuera, 3);
-  const juegan = J7T1_HITOS.filter((_, i) => fuera.indexOf(i) === -1).slice().sort((a, b) => a.y - b.y);
+  // ⚠ Se sortean LOS QUE JUEGAN (4 de 9), no los que se quedan fuera: con un banco grande,
+  // sortear la exclusión deja la mayoría dentro siempre y la ronda se repite. 9 sobre 4
+  // da 126 combinaciones. FIFO de 6, nunca cap = K.
+  const dentro = j12PickIdx(J7T1_HITOS, 4, J7T1_R1_KEY);
+  j12Commit(J7T1_R1_KEY, dentro, 6);
+  const juegan = J7T1_HITOS.filter((_, i) => dentro.indexOf(i) !== -1).slice().sort((a, b) => a.y - b.y);
   let ini = j12Shuffle(juegan), guard = 0;
   while (guard++ < 30 && ini.every((h, i) => h.id === juegan[i].id)) ini = j12Shuffle(juegan);
   return { correcto: juegan, orden: ini };
@@ -2197,20 +2202,25 @@ const J7T1_ASUNTOS = {
     { id: "e4", e: "⚖️", t: "Las leyes, que valen igual para todos.", p: "El Estado laico se maneja por leyes y normas jurídicas, no por dogmas." },
     { id: "e5", e: "🏥", t: "Los hospitales y las normas de sanidad.", p: "El Estado se ocupó de la salud pública y de las normas sanitarias." },
     { id: "e6", e: "🌾", t: "Las tierras que tenía la Iglesia.", p: "La Ley de Manos Muertas de 1908 las puso en manos del Estado para repartirlas." },
+    { id: "e7", e: "🚢", t: "Quién puede entrar al país a enseñar.", p: "La Constitución de 1897 prohibió el ingreso de comunidades religiosas de enseñanza." },
+    { id: "e8", e: "👩‍🏫", t: "Que las niñas estudien en escuelas laicas.", p: "Antes solo tenían la opción religiosa; el Estado creó escuelas para ellas." },
+    { id: "e9", e: "🧰", t: "La jornada máxima y el salario mínimo de las mujeres.", p: "El Estado fijó esas condiciones al garantizar el derecho femenino al trabajo." },
   ],
   igl: [
     { id: "i1", e: "🕯️", t: "Las procesiones y la Novena a los Santos.", p: "El cuaderno dice que se siguieron celebrando igual que antes." },
     { id: "i2", e: "🎭", t: "El Carnaval y las fiestas religiosas.", p: "Siguieron siendo fiestas de la Iglesia y del pueblo." },
     { id: "i3", e: "⛪", t: "La misa y los bautizos.", p: "La religión siguió con sus propias celebraciones." },
+    { id: "i4", e: "🙏", t: "La Novena a los Santos.", p: "El cuaderno la nombra entre las fiestas que siguieron celebrándose." },
   ],
   per: [
     { id: "p1", e: "💭", t: "En qué religión cree cada uno.", p: "La creencia quedó en la vida privada y en la conciencia individual." },
     { id: "p2", e: "🗣️", t: "Lo que una persona piensa y dice en público.", p: "Es la libertad de pensamiento, por la palabra o por la prensa." },
     { id: "p3", e: "🚶", t: "Si alguien va o no va a la iglesia.", p: "Es libertad de conciencia: la decide cada quien, no el Estado ni la Iglesia." },
+    { id: "p4", e: "📰", t: "Lo que escriben los periódicos.", p: "La libertad de pensamiento se manifiesta también por la prensa." },
   ],
 };
 const J7T1_R2_KEYS = { est: "edinun_j12_l7t1_r2_est_v1", igl: "edinun_j12_l7t1_r2_igl_v1", per: "edinun_j12_l7t1_r2_per_v1" };
-const J7T1_R2_CAP = { est: 4, igl: 2, per: 2 };
+const J7T1_R2_CAP = { est: 6, igl: 3, per: 3 };
 // Las tres parejas posibles de destinos. Se sortea UNA y entra un asunto de cada uno.
 const J7T1_R2_PARES = [["est", "igl"], ["est", "per"], ["igl", "per"]];
 const J7T1_R2_PAR_KEY = "edinun_j12_l7t1_r2_par_v1";
@@ -2241,23 +2251,45 @@ function j7t1R2Build() {
 //
 // ⚠ Un platillo con ficha se nota desde lejos: marco ámbar grueso, halo y la etiqueta
 // "YA COLOCASTE AQUÍ". En ÁMBAR, nunca en verde: es un acuse, no un veredicto.
-function J7T1Platillo({ dest, fichas, vivo, verified, onPick }) {
+function J7T1Platillo({ dest, fichas, faltan, vivo, verified, onPick }) {
   const lleno = fichas.length > 0;
+  const fallo = verified && fichas.some((c) => c.mal);
+  const acierto = verified && lleno && !fallo;
+  // ⚠ EL MARCO DA EL VEREDICTO, no una fichita de 34 px perdida dentro: verde si lo que
+  // pusiste aquí está bien, rojo si hay un error, ámbar a rayas si aquí faltaba algo.
+  // La autora: *"cuando se ve si fue correcto o no, mejora eso, no me agrada cómo se ve"*.
   let marco = vivo ? dest.col : "rgba(255,255,255,0.28)", halo = vivo ? `0 0 16px ${dest.col}55` : "none";
-  if (!verified && lleno) { marco = "#f2c260"; halo = "0 0 20px rgba(242,194,96,0.55)"; }
+  let fondo = "rgba(10,6,35,0.72)", trazo = "solid", grosor = 2.5;
+  if (!verified && lleno) { marco = "#f2c260"; halo = "0 0 20px rgba(242,194,96,0.55)"; fondo = "rgba(60,42,10,0.75)"; grosor = 3.5; }
+  if (fallo) { marco = "#ff6b6b"; halo = "0 0 22px rgba(255,107,107,0.6)"; fondo = "rgba(80,18,18,0.8)"; grosor = 4; }
+  else if (acierto) { marco = "#2ecc8f"; halo = "0 0 22px rgba(46,204,143,0.6)"; fondo = "rgba(12,70,45,0.82)"; grosor = 4; }
+  else if (verified && faltan.length) { marco = "#f2c260"; halo = "0 0 18px rgba(242,194,96,0.45)"; trazo = "dashed"; grosor = 3.5; }
   return (
     <button data-qa={"plat-" + dest.id} onClick={onPick} disabled={!vivo}
-      style={{ width: 148, boxSizing: "border-box", borderRadius: 14, border: `${(!verified && lleno) ? 3.5 : 2.5}px solid ${marco}`, background: (!verified && lleno) ? "rgba(60,42,10,0.75)" : "rgba(10,6,35,0.72)", padding: "7px 6px 8px", cursor: vivo ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, boxShadow: halo }}>
+      style={{ position: "relative", width: 148, boxSizing: "border-box", borderRadius: 14, border: `${grosor}px ${trazo} ${marco}`, background: fondo, padding: "7px 6px 8px", cursor: vivo ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, boxShadow: halo }}>
+      {/* El sello del veredicto, en la esquina de la ilustración: se ve de un vistazo
+          cuál acertó y cuál no, sin tener que leer las fichas. */}
+      {(fallo || acierto) && (
+        <span style={{ position: "absolute", top: -11, right: -11, width: 30, height: 30, borderRadius: "50%", background: acierto ? "#1f8a54" : "#c0392b", border: "2.5px solid #fff", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 17, lineHeight: 1, boxShadow: "0 3px 8px rgba(0,0,0,0.5)" }}>{acierto ? "✓" : "✗"}</span>
+      )}
       {dest.img
         ? <J12Img src={dest.img} e={dest.e} ancho={132} alto={118} radius={9} />
         : <div style={{ width: 132, height: 118, borderRadius: 9, background: "rgba(180,138,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 54, lineHeight: 1 }}>{dest.e}</div>}
-      <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.05em", color: "#fce9a8" }}>{dest.nombre}</span>
-      <div style={{ minHeight: 34, display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center", justifyContent: "center" }}>
+      <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.05em", color: acierto ? "#bdf5da" : (fallo ? "#ffd4d4" : "#fce9a8") }}>{dest.nombre}</span>
+      <div style={{ minHeight: 34, display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center", justifyContent: "center" }}>
         {fichas.map((c) => (
-          <span key={c.id} title={c.t} style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, lineHeight: 1, background: c.mal ? "rgba(192,57,43,0.95)" : (c.ok ? "rgba(31,138,84,0.95)" : "rgba(242,194,96,0.85)"), border: `2px solid ${c.mal ? "#ff6b6b" : (c.ok ? "#2ecc8f" : "#fce9a8")}`, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{c.e}</span>
+          <span key={c.id} title={c.t} style={{ position: "relative", width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, lineHeight: 1, background: c.mal ? "rgba(192,57,43,0.95)" : (c.ok ? "rgba(31,138,84,0.95)" : "rgba(242,194,96,0.85)"), border: `2px solid ${c.mal ? "#ff6b6b" : (c.ok ? "#2ecc8f" : "#fce9a8")}`, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{c.e}</span>
+        ))}
+        {/* ⚠ Lo que TENÍA que haber caído aquí, en hueco de rayas: así el revelado no solo
+            dice "te equivocaste", enseña dónde iba, en el lenguaje de la mecánica. */}
+        {verified && faltan.map((c) => (
+          <span key={c.id} title={c.t} style={{ width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, lineHeight: 1, background: "rgba(242,194,96,0.18)", border: "2px dashed #f2c260", opacity: 0.95 }}>{c.e}</span>
         ))}
         {!verified && lleno && (
           <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 7.5, letterSpacing: "0.08em", color: "#3a2608", background: "#f2c260", borderRadius: 999, padding: "2px 6px" }}>YA COLOCASTE AQUÍ</span>
+        )}
+        {verified && faltan.length > 0 && (
+          <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 7.5, letterSpacing: "0.08em", color: "#3a2608", background: "#f2c260", borderRadius: 999, padding: "2px 6px" }}>AQUÍ IBA</span>
         )}
       </div>
     </button>
@@ -2335,7 +2367,8 @@ function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
         {J7T1_DESTINOS.map((d) => (
           <J7T1Platillo key={d.id} dest={d} vivo={vivo} verified={verified} onPick={() => colocar(d.id)}
             fichas={cartas.filter((c) => (puestoDe(c.id) || {}).d === d.id && (verified || c.id === marca))
-              .map((c) => Object.assign({}, c, { ok: verified && c.d === d.id, mal: verified && c.d !== d.id }))} />
+              .map((c) => Object.assign({}, c, { ok: verified && c.d === d.id, mal: verified && c.d !== d.id }))}
+            faltan={verified ? cartas.filter((c) => c.d === d.id && (puestoDe(c.id) || {}).d !== d.id) : []} />
         ))}
       </div>
 
@@ -2402,15 +2435,20 @@ const J7T1_CASOS = [
     pistas: ["Es de 1902.", "Desde entonces el matrimonio se registra ante un funcionario del Estado.", "Hizo que el sentido religioso quedara después de lo legal."] },
   { id: "estacion", img: "j7t1-estacion.jpg", e: "🚉", a: "El ferrocarril Guayaquil–Quito",
     pistas: ["Alfaro decía que sin él no había progreso posible.", "Se concluyó en 1908.", "Tiene 452 km y unió la Costa con la Sierra."] },
+  { id: "laico", img: "j7t1-estado.jpg", e: "🏛️", a: "La implantación del Estado laico",
+    pistas: ["Desde 1906 el país dejó de regirse por creencias religiosas.", "Las constituciones de 1897 y 1906 pusieron fin a la relación Estado–Iglesia.", "La religión quedó en la vida privada y en la conciencia individual."] },
+  { id: "plutocracia", img: "j7t1-cacao.jpg", e: "💰", a: "El período plutocrático",
+    pistas: ["Va de 1912 a 1925.", "La burguesía bancaria de Guayaquil ejercía su poder sobre el gobierno.", "El Banco Comercial y Agrícola prestaba dinero al Estado y decidía quién gobernaba."] },
 ];
 const J7T1_R3_KEY = "edinun_j12_l7t1_r3_v1";
 function j7t1R3Build() {
   // ⚠ UN solo expediente por partida: un único intento (lo pidió la autora el 2026-11-23:
   // *"en la ronda 3 solo quiero que haya un solo expediente, es decir que no hayan dos
   // intentos solo uno"*). La variedad la da cuál de los 6 toca.
-  // ⚠ Cap 5 = banco − 1: para UN ítem es el máximo que no deja el sorteo sin opciones.
+  // ⚠ Cap 7 = banco − 1: para UN ítem es el máximo que no deja el sorteo sin opciones.
+  // Con 8 expedientes hay que jugar 8 partidas seguidas para volver a ver el mismo.
   const idx = j12PickIdx(J7T1_CASOS, 1, J7T1_R3_KEY);
-  j12Commit(J7T1_R3_KEY, idx, 5);
+  j12Commit(J7T1_R3_KEY, idx, 7);
   const casos = idx.map((i) => {
     const c = J7T1_CASOS[i];
     const otros = j12Shuffle(J7T1_CASOS.filter((x) => x.id !== c.id)).slice(0, 2).map((x) => x.a);
@@ -2808,15 +2846,17 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
     const marcadas = frotado[g.id] || [];
     const vista = marcadas.length >= J6T3_CELDAS * 0.68 || verified;
     return (
-      <div key={g.id} style={{ width: 108, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ position: "relative", width: 108, height: 144, borderRadius: 10, overflow: "hidden", border: `2.5px solid ${vista ? "#f2c260" : "rgba(255,255,255,0.3)"}`, background: "#0d2a20", touchAction: "none" }}>
+      <div key={g.id} style={{ width: 210, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <div style={{ position: "relative", flexShrink: 0, width: 102, height: 136, borderRadius: 10, overflow: "hidden", border: `2.5px solid ${vista ? "#f2c260" : "rgba(255,255,255,0.3)"}`, background: "#0d2a20", touchAction: "none" }}>
           <img src={`assets/j6t3-${g.id}.jpg`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
           {/* La niebla: una rejilla de celdas que se van borrando donde pasa el dedo. */}
           {!vista && Array.from({ length: J6T3_CELDAS }).map((_, k) => (
             <div key={k}
+              // ⚠ Basta con PASAR POR ENCIMA: nada de apretar primero. Lo pidió la
+              // autora, y en una tableta el dedo arrastrando dispara los mismos eventos.
               onPointerDown={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (x) {} frotar(g.id, k); }}
-              onPointerMove={(e) => { if (e.buttons === 1 || e.pointerType !== "mouse") frotar(g.id, k); }}
-              onPointerEnter={(e) => { if (e.buttons === 1 || e.pointerType !== "mouse") frotar(g.id, k); }}
+              onPointerMove={() => frotar(g.id, k)}
+              onPointerEnter={() => frotar(g.id, k)}
               style={{
                 position: "absolute", left: `${(k % J6T3_COLS) * (100 / J6T3_COLS)}%`, top: `${Math.floor(k / J6T3_COLS) * (100 / J6T3_FILAS)}%`,
                 width: `${100 / J6T3_COLS}%`, height: `${100 / J6T3_FILAS}%`,
@@ -2831,11 +2871,13 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
             </div>
           )}
         </div>
-        {/* Franja RESERVADA: si el texto apareciera de golpe, las tarjetas crecerían. */}
-        <div style={{ minHeight: 54, width: "100%", textAlign: "center" }}>
+        {/* ⚠ Franja RESERVADA bajo la foto: con la tarjeta en 2×2 hay ancho de sobra para
+            el texto, y reservando el alto la tarjeta no crece al destaparse. Al lado de
+            la foto quedaba una columna de cuatro palabras por línea. */}
+        <div style={{ minHeight: 44, width: "100%", textAlign: "center" }}>
           {vista && (<>
-            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, color: "#fce9a8" }}>{g.n}</div>
-            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 8.5, lineHeight: 1.22, color: "rgba(255,255,255,0.88)" }}>{g.t}</div>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: "#fce9a8", marginBottom: 2 }}>{g.n}</div>
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.25, color: "rgba(255,255,255,0.88)" }}>{g.t}</div>
           </>)}
         </div>
       </div>
@@ -2843,12 +2885,12 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10, userSelect: "none", WebkitUserSelect: "none" }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Saca de la niebla a los que no tenían voz.</span>
         <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son cuatro.</div>
       </div>
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", flexShrink: 0 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 16px", width: 440, justifyContent: "center", flexShrink: 0 }}>
         {b.gente.map(figura)}
       </div>
     </div>
@@ -2917,7 +2959,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
       <button key={f.id} className="ed-btn-plain" onClick={() => girar(f.id)}
         ref={(el) => { refs.current[f.id] = el; }}
         style={{
-          width: 148, height: 104, borderRadius: 12, border: `2.5px solid ${bd}`,
+          width: 138, height: 132, borderRadius: 12, border: `2.5px solid ${bd}`,
           background: abierta ? "rgba(255,253,246,0.94)" : "linear-gradient(180deg, rgba(20,12,55,0.92), rgba(10,6,35,0.92))",
           padding: "7px 9px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
           cursor: verified ? "default" : "pointer", boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
@@ -2927,7 +2969,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
           <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9, color: "rgba(255,255,255,0.6)" }}>toca para girar</span>
         </>)}
         {abierta && (
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.22, color: "#3a2608", textAlign: "center" }}>{f.h}</span>
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, lineHeight: 1.25, color: "#3a2608", textAlign: "center" }}>{f.h}</span>
         )}
         {/* ⚠ Al revelar, una ficha BIEN TAPADA no lleva ✗: dejarla boca abajo era lo
             correcto. Solo se marca lo que el niño destapó, y en ámbar lo que le faltó.
@@ -2953,7 +2995,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear }) {
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿Qué hicieron Montalvo, Moncayo y Peralta?</span>
         <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Deja destapadas solo sus tres fichas.</div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: 464, justifyContent: "center", flexShrink: 0 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, width: 440, justifyContent: "center", flexShrink: 0 }}>
         {b.fichas.map(ficha)}
       </div>
     </div>
@@ -3050,7 +3092,7 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear }) {
 
 const L6T3_ROUNDS = [
   { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa el dedo o el ratón<br />y la niebla se va.</>) },
-  { C: L6T3R2Plumas, verify: true, bubble: (<>Toca una ficha y gira.<br />Tócala otra vez y se tapa.</>) },
+  { C: L6T3R2Plumas, verify: true, bubble: (<>Toca una ficha<br />y gira. Tócala otra<br />vez y se tapa.</>) },
   { C: L6T3R3Sello, verify: true, bubble: (<>Toca una frase<br />y queda sellada.</>) },
 ];
 
