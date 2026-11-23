@@ -108,7 +108,7 @@ async function medir(p, etiqueta, fallos) {
     await p.waitForTimeout(3500);
 
     // R3 "La Carta de la Esclavitud"
-    await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
+    await p.waitForSelector("text=Son tres");
     console.log(await medir(p, et + " R3 antes", fallos));
     for (let k = 0; k < 3; k++) {
       const caja = await p.evaluate(() => { const f = Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0")[0]; if (!f) return null; const r = f.getBoundingClientRect(); return { x: r.left + 12, y: r.top + r.height / 2, w: r.width }; });

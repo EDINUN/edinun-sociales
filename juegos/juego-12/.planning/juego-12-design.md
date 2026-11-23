@@ -242,3 +242,130 @@ el contenido: la bandera es una sola y los cuatro gobiernos son los del libro.
 calculado**, así que medía el texto de un renglón ya roto (su contenedor está a
 `opacity: 0` pero el hijo sigue diciendo 1). Corregido en `espacios-l6t1.js` y
 `espacios-l6t2.js`: ahora mira también los ancestros.
+
+
+---
+
+# 4. Libro 7 · Tema 1 — "La Revolución Liberal" (11 años)
+
+D.C.D. CS.3.1.40 · CS.3.1.41 · CS.3.1.42 · CS.3.1.43. Material entregado por la autora el
+**2026-11-23** (libro pp. 10-15 + cuaderno pp. 11-14). Es el tema que **enciende el botón
+del Libro 7**, que hasta ahora salía apagado por no tener temas.
+
+## 4.1 Material del libro (única fuente)
+
+Se copia aquí porque es la ÚNICA fuente: lo que no esté en esta lista no sale del libro y
+no se usa sin preguntarle.
+
+- **1895** — la "venta de la bandera"; el **5 de junio** una Junta Patriótica nombra a
+  **Eloy Alfaro jefe supremo** y general en jefe.
+- **1897** — Asamblea Constituyente en Quito: **nueva Constitución** y Alfaro presidente.
+  Mismo año, **Ley de Instrucción Pública** (el clero sale de la enseñanza) y prohibición
+  de que entren comunidades religiosas de enseñanza.
+- **1900** — Ley de **Registro Civil**. **1902** — Ley de **Matrimonio Civil y del
+  Divorcio**. **1904** — Ley de Cultos. **1906** — **Estado laico** y segunda Constitución.
+  **1908** — **Ley de Manos Muertas** y fin del **ferrocarril Guayaquil-Quito (452 km)**.
+- **1912** — Alfaro apresado y llevado a Quito; allí muere. Fin de la Revolución liberal.
+- **Laicismo:** el Estado se rige por leyes y no por dogmas; la religión queda "relegada al
+  ámbito de la vida privada y de la conciencia individual"; libertad de pensamiento por la
+  palabra o la prensa. Y (cuaderno p. 13) **la religión siguió en la vida cotidiana**: el
+  Carnaval, las procesiones, la Novena a los Santos.
+- **Mujer:** educación laica para las niñas, escuelas de artes y oficios, derecho al
+  trabajo, **voto en 1929**, Matilde Hidalgo de Procel.
+- **Plutocracia 1912-1925**, el Banco Comercial y Agrícola, la **crisis cacaotera**
+  (26,76 → 5,75 sucres el quintal; la **monilla** en 1917; la escoba de bruja en 1923),
+  el **levantamiento de Concha** (1913-1916) y la **marcha obrera del 15 de noviembre de
+  1922** en Guayaquil.
+
+## 4.2 Rondas aprobadas
+
+Verbos ya gastados en el Libro 6: *decidir sí/no*, *apilar*, *ordenar*, *componer*,
+*tocar en el mapa*, *rasgar*. Entre **libros distintos** sí se puede reutilizar un gesto
+con otro contenido, y la R1 reutiliza *ordenar*; dentro del Libro 7 las tres manos son
+distintas.
+
+| Ronda | Mano | ⭐ |
+|---|---|:--:|
+| R1 "Tender la vía" | ordenar arrastrando sobre los rieles | 4 |
+| R2 "La balanza de 1897" | repartir en tres destinos, la viga se inclina | 5 |
+| R3 "Expediente abierto" | destapar pistas y apostar cuanto antes | 6 |
+
+**Total 15 ⭐.**
+
+- **R1 «Tender la vía»** — 4 hechos de un banco de **6, todos con año distinto** (si dos
+  compartieran año habría dos ordenaciones correctas). **El año no se ve mientras se
+  juega**: deducir el orden ES el ejercicio. Se arrastra (la tarjeta sigue al dedo y al
+  soltar todas aterrizan) y el toque de dos tarjetas las intercambia, de respaldo. El
+  **revelado habla el idioma de la mecánica**: el tren baja por los rieles y **frena en la
+  primera tarjeta fuera de sitio**; si las cuatro están bien, llega a Quito. Fondo del
+  ferrocarril al 16 % de opacidad, como **background-image**, nunca como `<img>`
+  sobredimensionado.
+- **R2 «La balanza de 1897»** — llega un asunto a la vez y se toca su destino: **LA
+  IGLESIA · CADA PERSONA · EL ESTADO**. La viga se inclina en vivo.
+  ⚠ **Son TRES destinos, y es lo que hace que la ronda exista.** Con solo Iglesia/Estado,
+  todo lo que el libro cuenta cae del lado del Estado y no habría nada que decidir. El
+  tercero sale textual del libro: la creencia queda "en el ámbito de la vida privada y de
+  la conciencia individual". El de la Iglesia sale del cuaderno p. 13 (el Carnaval, las
+  procesiones, la Novena siguieron igual).
+  ⚠ **Composición fija 3 Estado + 1 Iglesia + 1 persona**, para que ninguna partida salga
+  con los cinco del mismo lado. Lo que varía es **cuáles**, con FIFO por grupo.
+  ⚠ La viga que se inclina es un **espejo del reparto**, no una corrección: ni verde ni
+  rojo antes de ¡VERIFICAR!. **BORRAR** devuelve el último asunto a la mano, de uno en uno.
+- **R3 «Expediente abierto»** — 3 expedientes de un banco de 6. Cada uno llega con su
+  ilustración y **una pista**; se pueden destapar dos más. ⭐ **+1 por acierto y +1 más si
+  se acertó con la primera pista sola**: destapar no quita nada de lo ganado, solo deja de
+  sumar el extra. Las **opciones falsas son nombres reales de otros hechos del tema**, no
+  inventos. Volver a tocar la opción ya elegida **no la quita**.
+
+## 4.3 Anti-repetición
+
+| Clave | Qué sortea | cap |
+|---|---|:--:|
+| `edinun_j12_l7t1_r1_v1` | cuáles 2 de los 6 hechos se quedan fuera | 3 |
+| `edinun_j12_l7t1_r2_est_v1` | 3 asuntos del Estado de 6 | 4 |
+| `edinun_j12_l7t1_r2_igl_v1` | 1 asunto de la Iglesia de 3 | 2 |
+| `edinun_j12_l7t1_r2_per_v1` | 1 asunto de la persona de 3 | 2 |
+| `edinun_j12_l7t1_r3_v1` | 3 expedientes de 6 | 4 |
+
+⚠ Regla de cap: para un SUBCONJUNTO de K, nunca cap = K.
+
+## 4.4 Imágenes
+
+**9 archivos en `assets/`**, prompts entregados a la autora el 2026-11-23. El tema entero
+**se juega igual sin ellas** gracias al respaldo de emoji de `J12Img`.
+
+| Archivo | Ratio | Dónde |
+|---|:--:|---|
+| `j7t1-ferrocarril.jpg` | 16:9 | fondo de la R1 |
+| `j7t1-iglesia.jpg` · `j7t1-estado.jpg` | 1:1 | platillos de la R2 |
+| `j7t1-cacao` · `-marcha` · `-montonera` · `-escuela` · `-registro` · `-estacion` | 1:1 | los 6 expedientes de la R3 |
+
+⚠ **Ninguna cara de persona real se dibuja.** Alfaro y Matilde Hidalgo se nombran, no se
+ilustran. Las escenas con gente van a distancia, sin rostros detallados.
+
+## 4.5 Fuera del juego, a propósito
+
+La **"hoguera bárbara"** como escena. Es del libro, pero no se hace un juego con un
+linchamiento: el hecho de 1912 entra en la R1 redactado en seco ("Alfaro es apresado y
+llevado a Quito; allí muere y termina la Revolución liberal").
+
+## 4.6 Verificado (2026-11-23)
+
+- `format-lint` **15/15** · `qa-visual` 6 viewports, sin overflow, colchón **67 px**.
+- `e2e-l7t1.js`: partida perfecta **3/3 · 15 ⭐** (4 · 5 · 6), partida fallada **0/3 · 0 ⭐**
+  con **revelado en las tres rondas**, **BORRAR** de la R2 comprobado, **6 recargas con 6
+  combinaciones distintas y 0 repeticiones seguidas**, 0 errores de consola.
+- `espacios-l7t1.js`: lienzo entero, 3 rondas, **5 viewports**, en reposo, **en pleno
+  arrastre** y con el revelado puesto — nada superpuesto, nada fuera del lienzo, ningún
+  texto recortado (18-34 elementos medidos por pantalla).
+- Regresión del Libro 6 en verde: `e2e-l6t1`, `e2e-l6t2`, `reglas-r3`, `borrar-y-bocadillo`.
+- 🐛 **Cazado por el detector de solapes:** en reposo el tren se dibujaba por encima del
+  rótulo GUAYAQUIL en los cinco tamaños de ventana. Ahora se para en el arranque de los
+  rieles (`top: 0`).
+
+## 4.7 Pendiente
+
+- Las **9 ilustraciones** (las genera la autora).
+- **QA de contenido jugándolo ella**, que es lo único que detecta una ronda que no se
+  entiende.
+- Los **3 temas restantes del Libro 7** y el **tema 3 del Libro 6**.

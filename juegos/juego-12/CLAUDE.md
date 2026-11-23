@@ -154,6 +154,14 @@ cometió en juego-10). `edinun_j12_l6t1_r3_v1` (cuál de los 5 hechos se queda f
 
 **Textos (regla dura):** el **enunciado** dice **QUÉ** y el **bocadillo** dice **CÓMO**.
 
+⚠ **Bocadillo de la R1 del Tema 2:** *"Pinta la bandera tocando los colores de abajo."*
+El anterior (*"Toca un color y entra en el cuartel vacío"*) le pareció feo a la autora el
+2026-11-23: "cuartel" es la palabra técnica del escudo, no la que usa un niño.
+
+📌 **El cartel "ASÍ ERA LA BANDERA" SE QUEDA.** La autora dudó el 2026-11-23 de si hacía
+falta; al recordarle que ella misma lo pidió el 19-11 porque sin él había que saberse la
+bandera de memoria, decidió dejarlo. No quitarlo sin volver a preguntárselo.
+
 ## Contrato del shell
 
 - `app.jsx` (shell, NO tocar): enruta `home → character → game → results`.
@@ -242,8 +250,11 @@ los temas deben diferenciarse al máximo.
     resuelve solo con lo que está en pantalla; hace falta lo que el niño aprendió del
     tema. Si al probarlo resulta duro, la vuelta atrás acordada es **una sola línea** de
     ayuda, no las tres.
-  - **El enunciado PREGUNTA**: *"¿Cuáles cayeron en 1845?"* y, debajo en pequeño, *"Son
-    tres."* Lo eligió la autora entre cuatro redacciones el 2026-11-23; la anterior
+  - **El enunciado PREGUNTA**: *"¿Qué mandatos de la Carta cayeron en 1845?"* y, debajo en
+    pequeño, *"Son tres."*
+  - ⚠ **NO son "decretos".** La autora lo propuso el 2026-11-23 y no cuadra: la Carta de la
+    Esclavitud **era la Constitución de 1843**, así que sus renglones son **mandatos** de
+    esa Constitución, no decretos. Es el término que eligió al explicárselo. Lo eligió la autora entre cuatro redacciones el 2026-11-23; la anterior
     (*"Rompe los 3 renglones que la revolución derribó"*) le pareció fea. El CÓMO sigue
     en el bocadillo, así que la regla QUÉ/CÓMO se mantiene.
   - ⚠ **1845, no 1859**: la Carta cae con la Revolución Marcista. El 1859 es el de la R2.
@@ -361,3 +372,77 @@ los temas deben diferenciarse al máximo.
 - ⚠ **Asideros de prueba `data-qa`** en el pedido de la R2 y en la consigna de la R3. Los
   selectores por posición (`span:nth-child(2)`, `span:last-child`) se rompieron al meter
   los puntos dentro del rótulo: pasaron a casar con un punto y devolvían texto vacío.
+
+
+## Libro 7 · Tema 1 — "La Revolución Liberal" (11 años)
+
+D.C.D. CS.3.1.40/41/42/43 (libro pp. 10-15 + cuaderno pp. 11-14, entregado 2026-11-23).
+**Enciende el botón del Libro 7**, que salía apagado por no tener temas.
+
+| Ronda | Mano | ⭐ |
+|---|---|:--:|
+| R1 `L7T1R1Via` "Tender la vía" | ordenar arrastrando sobre los rieles | 4 |
+| R2 `L7T1R2Balanza` "La balanza de 1897" | repartir en tres destinos | 5 |
+| R3 `L7T1R3Expediente` "Expediente abierto" | destapar pistas y apostar | 6 |
+
+**⭐ del tema: 4 + 5 + 6 = 15.**
+
+**Invariantes de este tema:**
+
+- **R1 · el año NO se ve mientras se juega** (deducir el orden ES el ejercicio) y aparece
+  al verificar con el ✓/✗ y el puesto que le tocaba, **sin reordenar la columna**. Banco de
+  **6 hechos con año explícito y todos distintos**; entran 4. Arrastre con aterrizaje
+  (mismo patrón probado en la línea del tiempo del Libro 6) y toque-intercambio de
+  respaldo.
+  - **El revelado habla el idioma de la mecánica:** el tren baja por los rieles y **frena
+    en la primera tarjeta fuera de sitio**. En reposo se para en `top: 0` — a `-16` se
+    montaba sobre el rótulo GUAYAQUIL, lo cazó `espacios-l7t1.js`.
+  - El fondo del ferrocarril va como **background-image al 16 %**, nunca como `<img>`
+    sobredimensionado.
+- **R2 · son TRES destinos y eso es lo que hace que la ronda exista.** Con solo
+  Iglesia/Estado, todo lo que cuenta el libro cae del lado del Estado y no hay nada que
+  decidir. **CADA PERSONA** sale textual del libro (la creencia queda "en el ámbito de la
+  vida privada y de la conciencia individual"); **LA IGLESIA** sale del cuaderno p. 13 (el
+  Carnaval, las procesiones y la Novena siguieron igual).
+  - **Composición fija 3 Estado + 1 Iglesia + 1 persona**: ninguna partida sale con los
+    cinco del mismo lado. Lo que varía es cuáles, con FIFO por grupo.
+  - La **viga que se inclina es un espejo del reparto**, no una corrección: ni verde ni
+    rojo antes de ¡VERIFICAR!.
+  - **BORRAR** (columna de acciones, vía `onClear`) devuelve **el último** asunto a la
+    mano, de uno en uno.
+  - Al revelar, la correcta **grita**: panel verde grande "LA RESPUESTA ERA" con dónde iba
+    cada fallo y por qué, en el sitio que ocupaba la carta en la mano.
+- **R3 · destapar no castiga lo ya ganado.** ⭐ +1 por acierto y **+1 más si se acertó con
+  la primera pista sola**; destapar solo deja de sumar el extra. Las **opciones falsas son
+  nombres reales de otros hechos del tema**, nunca inventos. **Volver a tocar la opción ya
+  elegida no la quita**: quedarse con ella es una respuesta válida.
+- ⚠ **Ninguna cara de persona real se dibuja.** Alfaro y Matilde Hidalgo se nombran, no se
+  ilustran.
+- ⚠ **Fuera a propósito:** la "hoguera bárbara" como escena. El hecho de 1912 entra en la
+  R1 redactado en seco.
+
+### Imágenes del tema
+
+**9 archivos `assets/j7t1-*.jpg`** (prompts entregados 2026-11-23, las genera la autora):
+`ferrocarril` 16:9 para el fondo de la R1; `iglesia` y `estado` 1:1 para los platillos de
+la R2; `cacao`, `marcha`, `montonera`, `escuela`, `registro`, `estacion` 1:1 para los 6
+expedientes de la R3. **El tema se juega igual sin ellas**: `J12Img` cae a un emoji.
+
+### QA del tema
+
+```bash
+node juegos/juego-12/.planning/e2e-l7t1.js       # perfecta 15 ⭐ · fallada 0 ⭐ · 6 recargas
+node juegos/juego-12/.planning/espacios-l7t1.js  # solapes, 5 viewports, 3 rondas
+```
+
+**Verificado el 2026-11-23:** format-lint 15/15 · qa-visual sin overflow (colchón 67 px) ·
+e2e perfecta **3/3 · 15 ⭐** y fallada **0/3 · 0 ⭐** con revelado en las tres · BORRAR de la
+R2 · 6 recargas con 6 combinaciones distintas y 0 repeticiones seguidas · 0 errores de
+consola · detector de solapes limpio en 5 viewports, también **en pleno arrastre**.
+
+⚠ **Dos trampas del e2e de este tema:**
+1. Los **404 de las `j7t1-*.jpg` que aún no existen** llenan la consola. Se filtran por
+   "Failed to load resource"; cualquier otro error sí cuenta.
+2. **Las recargas en frío tardan más de 20 s** en bajar React + Babel (~3 MB) del CDN. El
+   `waitForSelector` del menú va a **60 s**; con 30 s el test fallaba por red, no por el
+   juego.

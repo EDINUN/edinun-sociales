@@ -47,7 +47,7 @@ async function hastaLaCarta(p) {
     if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(500);
   }
-  await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
+  await p.waitForSelector("text=Son tres");
 }
 
 (async () => {

@@ -48,7 +48,7 @@ const N = 8;
     vistos.jefes[seq.join(",")] = 1;
     await p.waitForTimeout(4300);
 
-    await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
+    await p.waitForSelector("text=Son tres");
     const papel = await p.evaluate(() => Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0).map((d) => d.textContent.trim().slice(2, 18)).join("|"));
     vistos.papel[papel] = 1;
     const RENGLON_DE = {

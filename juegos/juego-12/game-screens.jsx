@@ -1257,11 +1257,11 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", width: "100%", paddingBottom: 34 }}>
       {/* ⚠ Centrado VERTICAL del bloque entero (enunciado + cartel + papel): con un
           paddingTop fijo quedaba más aire debajo del papel que encima del enunciado. */}
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Cuáles cayeron en 1845?</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Qué mandatos de la Carta cayeron en 1845?</span>
         <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son tres.</div>
       </div>
       <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, width: "100%" }}>
@@ -1292,7 +1292,7 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
 }
 
 const L6T2_ROUNDS = [
-  { C: L6T2R1Bandera, verify: true, bubble: (<>Toca un color y entra<br />en el cuartel vacío.</>) },
+  { C: L6T2R1Bandera, verify: true, bubble: (<>Pinta la bandera tocando<br />los colores de abajo.</>) },
   { C: L6T2R2Mapa, verify: true, bubble: (<>Toca en el mapa la<br />ciudad donde mandaba.</>) },
   { C: L6T2R3Carta, verify: true, bubble: (<>Arrastra a lo ancho<br />del renglón y se rompe.</>) },
 ];
