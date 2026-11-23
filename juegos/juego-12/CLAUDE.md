@@ -232,15 +232,20 @@ los temas deben diferenciarse al máximo.
   - Lo que se arrastra **se rompe y el agujero se queda**; el veredicto de todas llega
     **junto, al pulsar ¡VERIFICAR!**: ✓ en el agujero que tocaba, ✗ con el texto en el que
     no cayó, y en **ámbar** los que había que romper y siguen enteros.
-  - ⚠ **El número 3 tiene que LEERSE, no contarse.** Enunciado: *"Rompe en la Carta las 3
-    que la revolución derribó."*; el panel se llama **"ESTAS 3 CAYERON"** (afirma, no
-    pregunta) y los pedidos van **numerados 1·2·3**, sin repetir "Rompe" en cada línea.
-    El rótulo viejo *"¿Cuál rompes?"* era un resto de la versión que los pedía de uno en
-    uno: con los tres a la vista no preguntaba nada y el 3 no aparecía escrito en ningún
-    sitio. La autora: *"en algún lado debería decir que son 3… no entiendo por qué va eso
-    de cuáles rompes"*.
-  - ⚠ **Los pedidos NO se marcan al romper** (nada de ✓ ni tachado): sería juicio antes de
-    ¡VERIFICAR!.
+  - ⚠ **NO hay cuadro de pedidos.** Lo hubo (primero *"¿Cuál rompes?"* de uno en uno,
+    luego *"ESTAS 3 CAYERON"* con los tres numerados) y la autora lo quitó el 2026-11-23:
+    *"¿crees que es necesario el cuadro ESTAS 3 CAYERON o lo podemos quitar?"*. Tenía
+    razón: era **casi un espejo del papel** (*"el impuesto que hizo estallar el 6 de
+    marzo"* ≈ *"Cada hombre paga tres pesos al año"*), así que la ronda se resolvía
+    traduciendo línea por línea en vez de pensar.
+  - 📌 **Consecuencia asumida, dicha a la autora:** sin ese cuadro la ronda **no** se
+    resuelve solo con lo que está en pantalla; hace falta lo que el niño aprendió del
+    tema. Si al probarlo resulta duro, la vuelta atrás acordada es **una sola línea** de
+    ayuda, no las tres.
+  - **El número va en el ENUNCIADO**: *"Rompe los 3 renglones que la revolución derribó."*
+  - ⚠ **El cartel del revelado ocupa sitio desde el principio** (invisible hasta
+    verificar): si apareciera de golpe empujaría el papel hacia abajo justo cuando el niño
+    mira sus respuestas.
   - ⚠ **Tres intentos descartados por la autora el 2026-11-19**, todos por pedir los
     renglones **de uno en uno y en un orden**:
     1. *Roto para siempre* → el pedido cuyo renglón ya no estaba se descartaba y la ronda
@@ -257,9 +262,14 @@ los temas deben diferenciarse al máximo.
     de más no es ronda perfecta · BORRAR · ningún ✓ antes de verificar). Sustituye a
     `sin-callejon-r3.js` y `borrar-r3.js`, que probaban reglas que ya no existen.
 - **BORRAR vive en la COLUMNA DE ACCIONES**, debajo de SALIR, no suelto bajo la mecánica
-  (lo pidió la autora el 2026-11-23). Lo monta `J12Game`: la ronda que tenga algo que
-  borrar le pasa su función por `onClear` y **el botón solo existe cuando hay algo que
-  borrar** — así no hace falta un estado "apagado". En la Carta devuelve el papel entero.
+  (lo pidió la autora el 2026-11-23). Lo monta `J12Game`: la ronda le pasa por `onClear`
+  un `{ fn, puede }`. **Va SIEMPRE a la vista y se apaga** mientras no haya nada que
+  borrar: con la primera versión, que solo lo mostraba al romper algo, la autora no lo
+  encontraba (*"yo no veo el botón de borrar"*).
+  - ⚠ **El padre NO puede limpiar `dice`/`limpiar` en un efecto con `[round]`**: los
+    efectos del hijo corren **antes** que los del padre, así que borraba lo que la ronda
+    acababa de registrar y el botón no aparecía nunca. Se limpia al **avanzar de ronda** y
+    en `confirmRestart`.
   - ⚠ En la R1 (la bandera) el BORRAR sigue junto a la paleta; si se quiere, se mueve igual.
 
 **Correcciones de la autora jugando el Tema 2 (2026-11-19):**

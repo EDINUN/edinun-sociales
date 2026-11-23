@@ -56,21 +56,17 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
 
   await p.waitForSelector("text=la revolución derribó");
   await tiro("r3");
-  const RENGLON_DE = {
-    "Rompe al hombre contra el que se levantó Guayaquil.": "Flores",
-    "Rompe el impuesto que hizo estallar el 6 de marzo.": "tres pesos",
-    "La Iglesia vuelve al país: rompe lo que la tenía fuera.": "Iglesia",
-  };
-  for (let k = 0; k < 3; k++) {
-    const pide = (await p.textContent('[data-qa="consigna"]')).trim();
-    const clave = RENGLON_DE[pide];
-    const caja = await p.evaluate(({ clave, bien }) => {
+  // La R3 ya no va por pedidos: se rompen dos de las que cayeron y una que no, para que
+  // el revelado salga con sus tres casos (✓, ✗ y el ámbar de la que quedó entera).
+  const ROMPER = ["Flores", "tres pesos", "esclavos"];
+  for (let k = 0; k < ROMPER.length; k++) {
+    const caja = await p.evaluate((clave) => {
       const filas = Array.from(document.querySelectorAll("div")).filter((d) => d.style && d.style.touchAction === "none" && d.textContent.trim().indexOf("▸") === 0 && getComputedStyle(d).opacity !== "0");
-      const f = bien ? filas.find((d) => d.textContent.indexOf(clave) >= 0) : filas.find((d) => d.textContent.indexOf(clave) === -1);
+      const f = filas.find((d) => d.textContent.indexOf(clave) >= 0);
       if (!f) return null;
       const r = f.getBoundingClientRect();
       return { x: r.left + 12, y: r.top + r.height / 2, w: r.width };
-    }, { clave, bien: k !== 1 });   // la segunda se falla, para ver el revelado
+    }, ROMPER[k]);
     if (!caja) continue;
     await p.mouse.move(caja.x, caja.y);
     await p.mouse.down();

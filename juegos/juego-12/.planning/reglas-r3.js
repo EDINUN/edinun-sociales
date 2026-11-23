@@ -1,12 +1,13 @@
 // Las reglas de la Carta (R3 del Tema 2), tal como las fijó la autora el 2026-11-19:
-//   · Los TRES pedidos se ven a la vez y EL ORDEN NO IMPORTA. Cayeron tres renglones
-//     (Flores, el impuesto, la Iglesia); el de los esclavos es el único que no cayó.
+//   · EL ORDEN NO IMPORTA. Cayeron tres renglones (Flores, el impuesto, la Iglesia); el
+//     de los esclavos es el único que no cayó, y el ENUNCIADO dice que son 3.
+//   · Ya NO hay cuadro de pedidos: era un espejo del papel y lo quitó la autora.
 //   · Todo lo que se arrastra se rompe y el agujero "DEROGADO" SE QUEDA.
 //   · No hay tope de roturas: ¡VERIFICAR! está siempre disponible, y el veredicto de
 //     todas llega junto.
 //   · Ronda perfecta = los tres que cayeron y NINGUNO de más.
 //   · BORRAR devuelve el papel entero.
-//   · Nada de juicio antes de ¡VERIFICAR!: los pedidos no se marcan al romper.
+//   · BORRAR está SIEMPRE a la vista, apagado mientras no haya nada roto.
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
 const ROOT = "c:/Users/Analist Prod & Platf/OneDrive/Desktop/edinun-sociales", PORT = 8911;
@@ -56,15 +57,17 @@ async function hastaLaCarta(p) {
   const fallos = [];
   p.on("pageerror", (e) => fallos.push("pageerror: " + e.message));
 
-  // ── A. Los tres pedidos a la vez, el orden da igual, y nada se marca antes de verificar.
+  // ── A. El enunciado dice cuántas son, BORRAR se ve desde el principio, y el orden da igual.
   await hastaLaCarta(p);
-  const pedidos = (await p.textContent('[data-qa="consigna"]')).replace(/\s+/g, " ").trim();
-  if (!/Guayaquil/.test(pedidos) || !/6 de marzo/.test(pedidos) || !/Iglesia/.test(pedidos)) fallos.push("no se ven los tres pedidos a la vez: " + pedidos);
+  const enunciado = (await p.textContent("text=/Rompe los 3 renglones/")).trim();
+  if (!/\b3\b/.test(enunciado)) fallos.push("el enunciado no dice cuántos renglones cayeron: " + enunciado);
+  const btn0 = await p.$("button:has-text('BORRAR')");
+  if (!btn0) fallos.push("BORRAR no está a la vista antes de romper nada");
+  else if (!(await btn0.isDisabled())) fallos.push("BORRAR debería estar apagado sin nada roto");
+  if (await p.$('[data-qa="consigna"]')) fallos.push("sigue estando el cuadro de pedidos, que se quitó");
   const antes = await estrellas(p);
-  // Al revés del orden en que están escritos, para que se note que da igual.
+  // En un orden cualquiera, para que se note que da igual.
   await romper(p, "Iglesia"); await romper(p, "tres pesos"); await romper(p, "Flores");
-  const marcasPrematuras = await p.evaluate(() => Array.from(document.querySelectorAll('[data-qa="consigna"] span')).filter((x) => x.textContent.trim() === "✓").length);
-  if (marcasPrematuras) fallos.push("los pedidos se marcan con ✓ ANTES de verificar");
   if ((await derogados(p)) !== 3) fallos.push("no quedan los tres agujeros puestos");
   if ((await filas(p)).length !== 1) fallos.push("el renglón de los esclavos no es el único que queda entero");
   await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(1000);
@@ -92,6 +95,7 @@ async function hastaLaCarta(p) {
   await hastaLaCarta(p);
   await romper(p, CAYERON[0]);
   const btn = await p.$("button:has-text('BORRAR')");
+  if (btn && (await btn.isDisabled())) fallos.push("BORRAR sigue apagado habiendo un renglón roto");
   if (!btn) fallos.push("no hay botón BORRAR en la Carta");
   else {
     await btn.click(); await p.waitForTimeout(400);
@@ -101,6 +105,6 @@ async function hastaLaCarta(p) {
     if (dd !== 0) fallos.push("BORRAR deja un agujero puesto");
   }
 
-  console.log("\n" + (fallos.length ? "X " + fallos.join(" | ") : "OK El orden no importa, los agujeros se quedan, romper de más no es ronda perfecta, y BORRAR devuelve la Carta entera."));
+  console.log("\n" + (fallos.length ? "X " + fallos.join(" | ") : "OK El enunciado dice que son 3, el orden no importa, los agujeros se quedan, romper de más no es ronda perfecta, y BORRAR se ve siempre y devuelve la Carta entera."));
   await br.close(); srv.close();
 })();

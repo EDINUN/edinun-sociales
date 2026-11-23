@@ -1084,12 +1084,13 @@ Pulsa ¡VERIFICAR!`);
 // El renglón de los esclavos NO se pide nunca: sobrevive al papel roto, y así se ve que
 // la revolución no lo arregló todo de golpe (la manumisión llega en 1851, con Urbina).
 const J12_CARTA = [
-  { id: "flores", t: "El general Juan José Flores gobierna el Ecuador.", pide: "El hombre contra el que se levantó Guayaquil." },
-  { id: "pesos", t: "Cada hombre paga tres pesos al año.", pide: "El impuesto que hizo estallar el 6 de marzo." },
-  { id: "iglesia", t: "La Iglesia queda apartada de los asuntos del país.", pide: "Lo que tenía a la Iglesia fuera del país." },
-  { id: "esclavos", t: "Los esclavos siguen sin libertad.", pide: null },
+  { id: "flores", t: "El general Juan José Flores gobierna el Ecuador.", cayo: true },
+  { id: "pesos", t: "Cada hombre paga tres pesos al año.", cayo: true },
+  { id: "iglesia", t: "La Iglesia queda apartada de los asuntos del país.", cayo: true },
+  // ⚠ Este NO cayó con la Revolución Marcista: la manumisión llega en 1851, con Urbina.
+  { id: "esclavos", t: "Los esclavos siguen sin libertad.", cayo: false },
 ];
-const J12_CARTA_PIDEN = J12_CARTA.filter((r) => r.pide).map((r) => r.id);
+const J12_CARTA_PIDEN = J12_CARTA.filter((r) => r.cayo).map((r) => r.id);
 
 function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   // Varía el orden de los renglones en el papel (4! = 24) y el orden de las tres
@@ -1132,11 +1133,12 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
     setCorte(null); setRotos([]);
   }
 
-  // Mientras haya papel roto y no se haya verificado, el botón BORRAR vive en la columna
-  // de acciones (lo monta J12Game).
+  // El botón BORRAR vive en la columna de acciones (lo monta J12Game). ⚠ Va SIEMPRE a la
+  // vista, apagado mientras no haya nada roto: la autora no lo encontraba cuando solo
+  // aparecía al romper el primer renglón.
   useEffectG(() => {
     if (!onClear) return undefined;
-    onClear(verified || rotos.length === 0 ? null : () => borrar);
+    onClear(verified ? null : { fn: borrar, puede: rotos.length > 0 });
     return () => onClear(null);
   }, [verified, rotos.length]);
 
@@ -1236,26 +1238,17 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe en la Carta las 3 que la revolución derribó.</span>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe los 3 renglones que la revolución derribó.</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
-        {/* Los tres pedidos, pegados al enunciado: centrados quedaban demasiado bajos. */}
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
-          {!verified && (<>
-            {/* ⚠ El rótulo AFIRMA y dice el número. "¿Cuál rompes?" era un resto de la
-                versión que los pedía de uno en uno: con los tres a la vista no pregunta
-                nada, y encima el 3 no se leía en ningún sitio. Lo cazó la autora. */}
-            <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5, flexShrink: 0 }}>Estas 3 cayeron</span>
-            <div data-qa="consigna" style={{ display: "flex", flexDirection: "column", gap: 1, width: "100%" }}>
-              {/* ⚠ Sin ✓ ni tachado al romper: ningún juicio antes de ¡VERIFICAR!. */}
-              {b.consignas.map((id) => (
-                <span key={id} style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10.5, lineHeight: 1.25, color: "#fff" }}>
-                  <span style={{ flexShrink: 0, width: 10, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, color: "#f2c260" }}>{b.consignas.indexOf(id) + 1}</span>
-                  <span style={{ flex: 1, minWidth: 0 }}>{(J12_CARTA.find((x) => x.id === id) || {}).pide}</span>
-                </span>
-              ))}
-            </div>
-          </>)}
+        {/* ⚠ Ya NO hay cuadro con los tres pedidos. Era casi un espejo del papel ("el
+            impuesto que hizo estallar el 6 de marzo" ≈ "Cada hombre paga tres pesos al
+            año"), así que la ronda se resolvía traduciendo línea por línea. Lo quitó la
+            autora el 2026-11-23. Solo queda el cartel del REVELADO. */}
+        {/* ⚠ El cartel del revelado OCUPA SITIO DESDE EL PRINCIPIO (invisible hasta que se
+            verifica): si apareciera de golpe, empujaría el papel hacia abajo y todo daría
+            un salto justo cuando el niño está mirando sus respuestas. */}
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "transparent"}`, background: verified ? "rgba(0,0,0,0.45)" : "transparent", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {verified && (
             <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "#fce9a8", textAlign: "center" }}>El renglón de los esclavos no cayó en 1845: hubo que esperar a 1851, con Urbina.</span>
           )}
@@ -1311,8 +1304,6 @@ function J12Game({ app, setApp, go, rounds }) {
   const verifyRef = useRefG(null);
 
   useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
-  // Al cambiar de ronda (o al reiniciar) el bocadillo vuelve a su texto fijo.
-  useEffectG(() => { setDice(null); setLimpiar(null); }, [round, rk]);
   function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
 
   function onSolve(isCorrect, entry, gained) {
@@ -1330,6 +1321,9 @@ function J12Game({ app, setApp, go, rounds }) {
     setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? `+${g} ⭐` : ANIMOS[round % ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
       setFeedback(null); setFeedbackMsg("");
+      // ⚠ Aquí, NO en un efecto con [round]: un efecto del padre corre después del efecto
+      // del hijo y le borraba a la ronda recién montada su bocadillo y su botón BORRAR.
+      setDice(null); setLimpiar(null);
       if (round + 1 < TOTAL) { setRound((r) => r + 1); advancing.current = false; setBusy(false); }
       else {
         const solved = newLog.filter((e) => e.isCorrect).length;
@@ -1343,6 +1337,7 @@ function J12Game({ app, setApp, go, rounds }) {
   function confirmRestart() {
     setConfirmingRestart(false); advancing.current = false; setBusy(false);
     setRound(0); setStars(0); setLog([]); setFeedback(null); setFeedbackMsg(""); setRk((k) => k + 1);
+    setDice(null); setLimpiar(null);
     started.current = Date.now();
   }
 
@@ -1392,7 +1387,8 @@ function J12Game({ app, setApp, go, rounds }) {
         {/* ⚠ BORRAR va AQUÍ, con los demás botones, no suelto bajo la mecánica: lo pidió
             la autora. Solo aparece cuando la ronda tiene algo que borrar. */}
         {limpiar && !busy && (
-          <button className="ed-btn" onClick={() => limpiar()} style={{ fontSize: 13, padding: "0 10px", height: 40, fontWeight: 800, letterSpacing: "0.06em", background: "rgba(0,0,0,0.35)", color: "#fce9a8", border: "1.5px solid rgba(242,194,96,0.55)" }}>BORRAR</button>
+          <button className="ed-btn" onClick={() => limpiar.puede && limpiar.fn()} disabled={!limpiar.puede}
+            style={{ fontSize: 13, padding: "0 10px", height: 40, fontWeight: 800, letterSpacing: "0.06em", background: "rgba(0,0,0,0.35)", color: "#fce9a8", border: "1.5px solid rgba(242,194,96,0.55)", opacity: limpiar.puede ? 1 : 0.35, cursor: limpiar.puede ? "pointer" : "default" }}>BORRAR</button>
         )}
       </div>
 
