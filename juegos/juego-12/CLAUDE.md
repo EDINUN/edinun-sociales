@@ -242,7 +242,14 @@ los temas deben diferenciarse al máximo.
     resuelve solo con lo que está en pantalla; hace falta lo que el niño aprendió del
     tema. Si al probarlo resulta duro, la vuelta atrás acordada es **una sola línea** de
     ayuda, no las tres.
-  - **El número va en el ENUNCIADO**: *"Rompe los 3 renglones que la revolución derribó."*
+  - **El enunciado PREGUNTA**: *"¿Cuáles cayeron en 1845?"* y, debajo en pequeño, *"Son
+    tres."* Lo eligió la autora entre cuatro redacciones el 2026-11-23; la anterior
+    (*"Rompe los 3 renglones que la revolución derribó"*) le pareció fea. El CÓMO sigue
+    en el bocadillo, así que la regla QUÉ/CÓMO se mantiene.
+  - ⚠ **1845, no 1859**: la Carta cae con la Revolución Marcista. El 1859 es el de la R2.
+  - ⚠ **El bloque va CENTRADO en el carril** (`justifyContent: "center"`, sin
+    `paddingTop` fijo): con el padding quedaba más aire debajo del papel que encima del
+    enunciado, y la autora lo marcó.
   - ⚠ **El cartel del revelado ocupa sitio desde el principio** (invisible hasta
     verificar): si apareciera de golpe empujaría el papel hacia abajo justo cuando el niño
     mira sus respuestas.
@@ -266,6 +273,9 @@ los temas deben diferenciarse al máximo.
   un `{ fn, puede }`. **Va SIEMPRE a la vista y se apaga** mientras no haya nada que
   borrar: con la primera versión, que solo lo mostraba al romper algo, la autora no lo
   encontraba (*"yo no veo el botón de borrar"*).
+  - ⚠ **En la Carta deshace SOLO EL ÚLTIMO renglón roto**, no el papel entero (lo pidió la
+    autora el 2026-11-23). Pulsándolo varias veces se vuelve atrás rotura a rotura.
+    **Ojo: en la R1 (la bandera) BORRAR sí vacía todo**, porque allí lo pidió así.
   - ⚠ **El padre NO puede limpiar `dice`/`limpiar` en un efecto con `[round]`**: los
     efectos del hijo corren **antes** que los del padre, así que borraba lo que la ronda
     acababa de registrar y el botón no aparecía nunca. Se limpia al **avanzar de ronda** y

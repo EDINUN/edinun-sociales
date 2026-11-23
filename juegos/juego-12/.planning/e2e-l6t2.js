@@ -83,7 +83,7 @@ async function jugarR2(p, bien) {
 const CAYERON = ["Flores", "tres pesos", "Iglesia"];
 const NO_CAYO = "esclavos";
 async function jugarR3(p, bien) {
-  await p.waitForSelector("text=la revolución derribó");
+  await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
   const quiere = bien ? CAYERON : [NO_CAYO];
   for (const clave of quiere) {
     const caja = await p.evaluate((clave) => {

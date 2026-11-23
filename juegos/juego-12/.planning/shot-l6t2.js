@@ -54,7 +54,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   await tiro("r2-verificada");
   await p.waitForTimeout(3500);
 
-  await p.waitForSelector("text=la revolución derribó");
+  await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
   await tiro("r3");
   // La R3 ya no va por pedidos: se rompen dos de las que cayeron y una que no, para que
   // el revelado salga con sus tres casos (✓, ✗ y el ámbar de la que quedó entera).

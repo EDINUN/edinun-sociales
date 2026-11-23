@@ -47,7 +47,7 @@ async function hastaLaCarta(p) {
     if (pt) { await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(150); }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(500);
   }
-  await p.waitForSelector("text=la revolución derribó");
+  await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
 }
 
 (async () => {
@@ -59,8 +59,8 @@ async function hastaLaCarta(p) {
 
   // ── A. El enunciado dice cuántas son, BORRAR se ve desde el principio, y el orden da igual.
   await hastaLaCarta(p);
-  const enunciado = (await p.textContent("text=/Rompe los 3 renglones/")).trim();
-  if (!/\b3\b/.test(enunciado)) fallos.push("el enunciado no dice cuántos renglones cayeron: " + enunciado);
+  const enunciado = (await p.textContent("text=Son tres")).trim();
+  if (!/tres/i.test(enunciado)) fallos.push("el enunciado no dice cuántos renglones cayeron: " + enunciado);
   const btn0 = await p.$("button:has-text('BORRAR')");
   if (!btn0) fallos.push("BORRAR no está a la vista antes de romper nada");
   else if (!(await btn0.isDisabled())) fallos.push("BORRAR debería estar apagado sin nada roto");
@@ -91,18 +91,28 @@ async function hastaLaCarta(p) {
   // posible sería la R3: si rompiendo de más saliera "2 de 3", estaría contándola perfecta.
   if (!/acertaste 1 de 3/.test(reporteB)) fallos.push("romper de más NO debería contar como ronda perfecta: " + reporteB);
 
-  // ── C. BORRAR devuelve el papel entero.
+  // ── C. BORRAR deshace SOLO el último renglón roto, no el papel entero.
   await hastaLaCarta(p);
   await romper(p, CAYERON[0]);
+  await romper(p, CAYERON[1]);
   const btn = await p.$("button:has-text('BORRAR')");
   if (btn && (await btn.isDisabled())) fallos.push("BORRAR sigue apagado habiendo un renglón roto");
   if (!btn) fallos.push("no hay botón BORRAR en la Carta");
   else {
     await btn.click(); await p.waitForTimeout(400);
-    const tras = await filas(p), dd = await derogados(p);
-    console.log("tras BORRAR: " + tras.length + " renglones enteros · " + dd + " agujeros");
-    if (tras.length !== 4) fallos.push("BORRAR no devolvió los 4 renglones");
-    if (dd !== 0) fallos.push("BORRAR deja un agujero puesto");
+    const unaVez = await filas(p);
+    const vuelve = unaVez.some((x) => x.t.indexOf(CAYERON[1]) >= 0);
+    const sigueRota = !unaVez.some((x) => x.t.indexOf(CAYERON[0]) >= 0);
+    console.log("tras UN BORRAR (había 2 rotas): " + unaVez.length + " renglones enteros · ¿vuelve la última?: " + (vuelve ? "sí" : "no") + " · ¿la primera sigue rota?: " + (sigueRota ? "sí" : "no"));
+    if (unaVez.length !== 3) fallos.push("un BORRAR debería dejar 3 renglones enteros, no " + unaVez.length);
+    if (!vuelve) fallos.push("BORRAR no devolvió el ÚLTIMO renglón roto");
+    if (!sigueRota) fallos.push("BORRAR se llevó también una rotura anterior");
+    // Pulsándolo otra vez se vuelve atrás del todo.
+    await btn.click(); await p.waitForTimeout(400);
+    const dosVeces = await filas(p), dd = await derogados(p);
+    console.log("tras el segundo BORRAR: " + dosVeces.length + " renglones enteros · " + dd + " agujeros");
+    if (dosVeces.length !== 4 || dd !== 0) fallos.push("dos BORRAR no devolvieron el papel entero");
+    if (!(await (await p.$("button:has-text('BORRAR')")).isDisabled())) fallos.push("sin nada roto, BORRAR debería quedar apagado otra vez");
   }
 
   console.log("\n" + (fallos.length ? "X " + fallos.join(" | ") : "OK El enunciado dice que son 3, el orden no importa, los agujeros se quedan, romper de más no es ronda perfecta, y BORRAR se ve siempre y devuelve la Carta entera."));

@@ -168,7 +168,7 @@ async function abrir(p, tema) {
     console.log(await medir(p, et + " T2 R2 revelado", fallos));
     await p.waitForTimeout(3500);
 
-    await p.waitForSelector("text=la revolución derribó");
+    await p.waitForSelector("text=¿Cuáles cayeron en 1845?");
     console.log(await medir(p, et + " T2 R3 antes", fallos));
     for (let k = 0; k < 3; k++) {
       if (await p.$("text=Pulsa ¡VERIFICAR!")) break;

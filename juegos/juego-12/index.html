@@ -1705,12 +1705,13 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
     setRotos((p) => p.concat([id]));
   }
 
-  // BORRAR deja la Carta COMO AL EMPEZAR: el papel entero y los pedidos desde el primero.
-  // Lo pidió la autora, igual que en la bandera de la R1: si no, no hay forma visible de
-  // rectificar.
+  // ⚠ BORRAR deshace SOLO EL ÚLTIMO renglón roto, no el papel entero: lo pidió así la
+  // autora el 2026-11-23. Pulsándolo varias veces se vuelve atrás renglón a renglón, que
+  // es lo que se espera de un botón que repara lo que acabas de hacer.
   function borrar() {
     if (verified) return;
-    setCorte(null); setRotos([]);
+    setCorte(null);
+    setRotos((p) => p.slice(0, -1));
   }
 
   // El botón BORRAR vive en la columna de acciones (lo monta J12Game). ⚠ Va SIEMPRE a la
@@ -1816,11 +1817,14 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 26 }}>
-      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>Rompe los 3 renglones que la revolución derribó.</span>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", width: "100%" }}>
+      {/* ⚠ Centrado VERTICAL del bloque entero (enunciado + cartel + papel): con un
+          paddingTop fijo quedaba más aire debajo del papel que encima del enunciado. */}
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>¿Cuáles cayeron en 1845?</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son tres.</div>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 10, minHeight: 0, width: "100%", paddingTop: 8 }}>
+      <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, width: "100%" }}>
         {/* ⚠ Ya NO hay cuadro con los tres pedidos. Era casi un espejo del papel ("el
             impuesto que hizo estallar el 6 de marzo" ≈ "Cada hombre paga tres pesos al
             año"), así que la ronda se resolvía traduciendo línea por línea. Lo quitó la
