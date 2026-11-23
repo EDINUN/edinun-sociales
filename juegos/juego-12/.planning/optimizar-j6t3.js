@@ -101,7 +101,13 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       const ALTO_FIG = 0.84, PIE = 0.06;      // 84 % de alto, 6 % de aire bajo los pies
       const anchoFig = x1 - x0, altoFig = y1 - y0;
       const escala = altoFig / ALTO_FIG;      // alto que debe tener el recorte
-      const cxm = (x0 + x1) / 2;
+      // ⚠ El centro NO es el punto medio entre los extremos: un mueble pegado a la figura
+      // o su sombra corren ese punto y la persona queda descentrada (pasó con la
+      // oficinista y su mesita). Se usa el CENTRO DE MASA de los píxeles marcados, que
+      // pesa por cuánta figura hay en cada columna.
+      let suma = 0, peso = 0;
+      for (let x = x0; x <= x1; x++) { suma += x * col[x]; peso += col[x]; }
+      const cxm = peso ? suma / peso : (x0 + x1) / 2;
       let cy1 = y1 + escala * PIE;
       let cy0 = cy1 - escala;
       let cx0 = cxm - (escala * (ANCHO / ALTO)) / 2;
