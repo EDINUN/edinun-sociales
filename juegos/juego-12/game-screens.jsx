@@ -2213,30 +2213,48 @@ function J12Game({ app, setApp, go, rounds }) {
 // "en el anonimato" (libro p. 115). Es una ronda de EXPLORAR: se descubre, no se acierta.
 // Las frases son del libro; las ilustraciones las generó la autora (tipos de persona,
 // NO personajes históricos: a Montalvo, Moncayo y Peralta no se les inventa el rostro).
+// Las personas del tema. `voz: false` = de las que el libro dice que estaban "en el
+// anonimato" y salieron a la luz con el liberalismo; `voz: true` = las que YA tenían voz
+// y poder (élites latifundistas p. 104 · la Iglesia con la primacía educativa p. 112 ·
+// la burguesía comercial y bancaria p. 115).
+// ⚠ La SEÑORA de clase alta va entre las que NO tenían voz, aunque fuera rica: el libro
+// dice que la mujer ecuatoriana "permanecía relegada al espacio doméstico" y el cuaderno
+// (p. 104) lo repite para las señoras de clase media y alta. Ponerla como "ya tenía voz"
+// sería enseñar algo falso. La autora la pidió como incorrecta; se le avisó del cambio.
 const J6T3_GENTE = [
-  { id: "maestra", n: "Maestra", t: "El Estado abrió escuelas públicas y la enseñanza dejó de ser solo de la Iglesia." },
-  { id: "alumna", n: "Alumna", t: "Con las ideas liberales la mujer pudo entrar a la escuela." },
-  { id: "costurera", n: "Costurera", t: "Se crearon escuelas de prácticas y técnicas y colegios femeninos." },
-  { id: "oficinista", n: "Oficinista", t: "La mujer salió del espacio doméstico a los espacios públicos y laborales." },
-  { id: "artesano", n: "Artesano", t: "Los artesanos se unieron en asociaciones gremiales." },
-  { id: "portuario", n: "Trabajador del puerto", t: "Los trabajadores del puerto de Guayaquil fueron militantes alfaristas." },
-  { id: "indigena", n: "Hombre de la Sierra", t: "Los indígenas de la Sierra pusieron su esperanza en la revolución." },
-  { id: "afro", n: "Trabajador afroecuatoriano", t: "La cultura popular unió raíces andinas, españolas y afro." },
+  { id: "maestra", voz: false, n: "Maestra", t: "El Estado abrió escuelas públicas y la enseñanza dejó de ser solo de la Iglesia." },
+  { id: "alumna", voz: false, n: "Alumna", t: "Con las ideas liberales la mujer pudo entrar a la escuela." },
+  { id: "costurera", voz: false, n: "Costurera", t: "Se crearon escuelas de prácticas y técnicas y colegios femeninos." },
+  { id: "oficinista", voz: false, n: "Oficinista", t: "La mujer salió del espacio doméstico a los espacios públicos y laborales." },
+  { id: "senora", voz: false, n: "Señora de ciudad", t: "Aun las señoras de clase alta vivían sujetas al papel de madre y esposa." },
+  { id: "artesano", voz: false, n: "Artesano", t: "Los artesanos se unieron en asociaciones gremiales." },
+  { id: "portuario", voz: false, n: "Trabajador del puerto", t: "Los trabajadores del puerto de Guayaquil fueron militantes alfaristas." },
+  { id: "indigena", voz: false, n: "Hombre de la Sierra", t: "Los indígenas de la Sierra pusieron su esperanza en la revolución." },
+  { id: "afro", voz: false, n: "Trabajador afroecuatoriano", t: "La cultura popular unió raíces andinas, españolas y afro." },
+  { id: "hacendado", voz: true, n: "Hacendado", t: "Las élites latifundistas ya controlaban las ciudades y sus privilegios." },
+  { id: "sacerdote", voz: true, n: "Sacerdote", t: "La Iglesia ya tenía la primacía en la educación y en los asuntos del país." },
+  { id: "banquero", voz: true, n: "Banquero", t: "La burguesía bancaria de Guayaquil ya mandaba en el comercio y el dinero." },
 ];
 const J6T3_COLS = 5, J6T3_FILAS = 7, J6T3_CELDAS = J6T3_COLS * J6T3_FILAS;
 
 function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
-  // 4 de 8, cap 3. ⚠ Para un subconjunto de K nunca se usa cap = K (saldría una rotación
-  // exacta y previsible): la regla está en memory/anti-repeticion-al-recargar.md.
+  // Cuatro personas por partida: DOS que no tenían voz y DOS que sí. Así hay algo que
+  // elegir y la ronda se puede fallar (antes salían solo correctas y bastaba con
+  // tocarlas todas; lo cazó la autora el 2026-11-23).
+  // ⚠ Caps: para un subconjunto de K nunca cap = K. 2 de 9 → cap 4; 2 de 3 → cap 1.
   const [b] = useStateG(() => {
-    const idx = j12PickIdx(J6T3_GENTE, 4, "edinun_j12_l6t3_r1_v1");
-    j12Commit("edinun_j12_l6t3_r1_v1", idx, 3);
-    return { gente: idx.map((i) => J6T3_GENTE[i]) };
+    const sin = J6T3_GENTE.filter((g) => !g.voz), con = J6T3_GENTE.filter((g) => g.voz);
+    const iS = j12PickIdx(sin, 2, "edinun_j12_l6t3_r1s_v1"); j12Commit("edinun_j12_l6t3_r1s_v1", iS, 4);
+    const iC = j12PickIdx(con, 2, "edinun_j12_l6t3_r1c_v1"); j12Commit("edinun_j12_l6t3_r1c_v1", iC, 1);
+    return { gente: j12Shuffle(iS.map((i) => sin[i]).concat(iC.map((i) => con[i]))) };
   });
   const [frotado, setFrotado] = useStateG({});   // { id: [celdas marcadas] }
+  const [elegidas, setElegidas] = useStateG([]);
   const [verified, setVerified] = useStateG(false);
-  const limpias = b.gente.filter((g) => (frotado[g.id] || []).length >= J6T3_CELDAS * 0.68);
-  const todas = limpias.length === b.gente.length;
+  const limpia = (g) => (frotado[g.id] || []).length >= J6T3_CELDAS * 0.68;
+  const descubiertas = b.gente.filter(limpia).length;
+  const todas = descubiertas === b.gente.length;
+  const correctas = b.gente.filter((g) => !g.voz).map((g) => g.id);
 
   function frotar(id, celda) {
     if (verified) return;
@@ -2248,33 +2266,61 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
       return n;
     });
   }
+  function elegir(id) {
+    if (verified) return;
+    setElegidas((e) => (e.indexOf(id) >= 0 ? e.filter((x) => x !== id) : e.concat([id])));
+  }
   function borrar() {
     if (verified) return;
-    setFrotado({});
+    // Primero se deshace la última elección; si no hay ninguna, se vuelve a la niebla.
+    if (elegidas.length) setElegidas((e) => e.slice(0, -1));
+    else setFrotado({});
   }
   useEffectG(() => {
     if (!onClear) return undefined;
-    onClear(verified ? null : { fn: borrar, puede: Object.keys(frotado).length > 0 });
+    onClear(verified ? null : { fn: borrar, puede: elegidas.length > 0 || Object.keys(frotado).length > 0 });
     return () => onClear(null);
-  }, [verified, Object.keys(frotado).length]);
+  }, [verified, elegidas.length, Object.keys(frotado).length]);
+  useEffectG(() => {
+    if (!listo) return undefined;
+    const falta = !todas ? "Descubre a las cuatro" : (elegidas.length !== 2 ? "Elige 2 (llevas " + elegidas.length + ")" : null);
+    listo(verified ? null : falta);
+    return () => listo(null);
+  }, [verified, descubiertas, elegidas.length]);
 
   function verificar() {
     if (verified) return;
     setVerified(true);
-    onSolve(todas, {
-      emoji: "🌫️", a: "Los que salieron del anonimato",
-      userAnswer: limpias.map((g) => g.n).join(" · ") || "(nadie)",
-      correctAnswer: b.gente.map((g) => g.n).join(" · "),
-    }, limpias.length);
+    const aciertos = elegidas.filter((id) => correctas.indexOf(id) >= 0).length;
+    const nombre = (id) => (J6T3_GENTE.find((g) => g.id === id) || {}).n;
+    onSolve(aciertos === correctas.length && elegidas.length === correctas.length, {
+      emoji: "🌫️", a: "Los que no tenían voz",
+      userAnswer: elegidas.map(nombre).join(" · ") || "(ninguno)",
+      correctAnswer: correctas.map(nombre).join(" · "),
+    }, aciertos);
   }
   verifyRef.current = verificar;
 
   function figura(g) {
     const marcadas = frotado[g.id] || [];
-    const vista = marcadas.length >= J6T3_CELDAS * 0.68 || verified;
+    const vista = limpia(g) || verified;
+    const elegida = elegidas.indexOf(g.id) >= 0;
+    // ⚠ Mientras se juega solo se ve el NOMBRE: la frase explica si esa persona tenía voz
+    // o no, así que enseñarla antes de ¡VERIFICAR! sería regalar la respuesta.
+    const caso = !verified ? null : (elegida ? (g.voz ? "mal" : "bien") : (g.voz ? "ajena" : "falto"));
+    let bd = vista ? "#f2c260" : "rgba(255,255,255,0.3)";
+    if (!verified && elegida) bd = "#4fd8ff";
+    if (verified) bd = caso === "bien" ? "#2ecc8f" : caso === "mal" ? "#ff6b6b" : caso === "falto" ? "#f2c260" : "rgba(242,194,96,0.4)";
     return (
       <div key={g.id} style={{ width: 210, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ position: "relative", flexShrink: 0, width: 102, height: 136, borderRadius: 10, overflow: "hidden", border: `2.5px solid ${vista ? "#f2c260" : "rgba(255,255,255,0.3)"}`, background: "#0d2a20", touchAction: "none" }}>
+        <div onClick={() => { if (vista) elegir(g.id); }}
+          style={{
+            position: "relative", flexShrink: 0, width: 102, height: 136, borderRadius: 10, overflow: "hidden",
+            border: `${caso === "falto" ? 4 : 2.5}px solid ${bd}`, background: "#0d2a20", touchAction: "none",
+            cursor: vista && !verified ? "pointer" : "default",
+            boxShadow: elegida && !verified ? "0 0 0 3px rgba(79,216,255,0.35)" : caso === "falto" ? "0 0 0 3px rgba(242,194,96,0.35)" : "none",
+            opacity: caso === "ajena" ? 0.72 : 1,
+          }}>
           <img src={`assets/j6t3-${g.id}.jpg`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} />
           {/* La niebla: una rejilla de celdas que se van borrando donde pasa el dedo. */}
           {!vista && Array.from({ length: J6T3_CELDAS }).map((_, k) => (
@@ -2292,20 +2338,29 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
                 transition: "background 0.18s", cursor: "pointer",
               }} />
           ))}
+          {/* La marca de elegido, mientras se juega */}
+          {elegida && !verified && (
+            <div style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "#4fd8ff", color: "#05303c", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 13, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>✓</div>
+          )}
+          {verified && (caso === "bien" || caso === "mal") && (
+            <div style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: caso === "bien" ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 13, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{caso === "bien" ? "✓" : "✗"}</div>
+          )}
           {!vista && !Object.keys(frotado).length && (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
               <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9.5, color: "#44605c", textAlign: "center", lineHeight: 1.2 }}>pasa el dedo<br />por encima</span>
             </div>
           )}
         </div>
-        {/* ⚠ Franja RESERVADA bajo la foto: con la tarjeta en 2×2 hay ancho de sobra para
-            el texto, y reservando el alto la tarjeta no crece al destaparse. Al lado de
-            la foto quedaba una columna de cuatro palabras por línea. */}
+        {/* ⚠ Franja RESERVADA bajo la foto: así la tarjeta no crece al descubrirse. */}
         <div style={{ minHeight: 44, width: "100%", textAlign: "center" }}>
-          {vista && (<>
-            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: "#fce9a8", marginBottom: 2 }}>{g.n}</div>
-            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.25, color: "rgba(255,255,255,0.88)" }}>{g.t}</div>
-          </>)}
+          {vista && (
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: caso === "falto" ? "#f2c260" : "#fce9a8", marginBottom: 2 }}>
+              {caso === "falto" ? "TE FALTÓ: " + g.n : g.n}
+            </div>
+          )}
+          {verified && (
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.25, color: caso === "ajena" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.88)" }}>{g.t}</div>
+          )}
         </div>
       </div>
     );
@@ -2314,8 +2369,8 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10, userSelect: "none", WebkitUserSelect: "none" }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Saca de la niebla a los que no tenían voz.</span>
-        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son cuatro.</div>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿Quiénes no tenían voz antes del liberalismo?</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son dos de las cuatro.</div>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 16px", width: 440, justifyContent: "center", flexShrink: 0 }}>
         {b.gente.map(figura)}
@@ -2568,7 +2623,7 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear, listo }) {
 }
 
 const L6T3_ROUNDS = [
-  { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa el dedo o el ratón<br />y la niebla se va.</>) },
+  { C: L6T3R1Niebla, verify: true, bubble: (<>Pasa por encima<br />y la niebla se va.<br />Luego toca a los tuyos.</>) },
   { C: L6T3R2Plumas, verify: true, bubble: (<>Toca una ficha<br />y gira. Tócala otra<br />vez y se tapa.</>) },
   { C: L6T3R3Sello, verify: true, bubble: (<>Toca una frase<br />y queda sellada.</>) },
 ];

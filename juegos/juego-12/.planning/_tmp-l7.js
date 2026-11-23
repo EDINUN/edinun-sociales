@@ -1,0 +1,20 @@
+const { chromium } = require("playwright");
+const http = require("http"), fs = require("fs"), path = require("path");
+const ROOT = "c:/Users/Analist Prod & Platf/OneDrive/Desktop/edinun-sociales", PORT = 8939;
+const M = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
+const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURIComponent(q.url.split("?")[0])); fs.readFile(p, (e, d) => { if (e) { r.writeHead(404); r.end(); } else { r.writeHead(200, { "Content-Type": M[path.extname(p)] || "application/octet-stream" }); r.end(d); } }); });
+(async () => {
+  srv.listen(PORT);
+  const br = await chromium.launch();
+  const p = await (await br.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
+  p.on("pageerror", (e) => console.log("PAGEERROR: " + e.message.split("\n")[0]));
+  await p.goto("http://localhost:" + PORT + "/juegos/juego-12/index.html", { waitUntil: "load" });
+  await p.waitForTimeout(1500);
+  const botones = await p.evaluate(() => Array.from(document.querySelectorAll("button")).map((b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 40) + (b.disabled ? "  [APAGADO]" : "")));
+  console.log("botones del Home:\n  " + botones.join("\n  "));
+  await p.click("button:has-text('Libro 7')");
+  await p.waitForTimeout(900);
+  const b2 = await p.evaluate(() => Array.from(document.querySelectorAll("button")).map((b) => (b.textContent || "").replace(/\s+/g, " ").trim().slice(0, 40) + (b.disabled ? "  [APAGADO]" : "")));
+  console.log("\ntras tocar Libro 7:\n  " + b2.join("\n  "));
+  await br.close(); srv.close();
+})();

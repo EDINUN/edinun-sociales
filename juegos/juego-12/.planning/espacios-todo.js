@@ -186,9 +186,10 @@ async function abrir(p, tema) {
 
     // ───────── TEMA 3 ─────────
     await abrir(p, "El preámbulo del siglo XX");
-    await p.waitForSelector("text=Saca de la niebla");
+    await p.waitForSelector("text=no tenían voz");
     console.log(await medir(p, et + " T3 R1 antes", fallos));
-    const figs = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }));
+    const CONVOZ = ["hacendado", "sacerdote", "banquero"];
+    const figs = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { id: (i.getAttribute("src") || "").split("j6t3-")[1].replace(".jpg", ""), x: r.left, y: r.top, w: r.width, h: r.height }; }));
     for (let c = 0; c < figs.length; c++) {
       const caja = figs[c];
       await p.mouse.move(caja.x + 4, caja.y + 4); await p.mouse.down();
@@ -201,6 +202,9 @@ async function abrir(p, tema) {
       await p.mouse.up();
     }
     console.log(await medir(p, et + " T3 R1 limpia", fallos));
+    // ⚠ Hay que ELEGIR dos antes de verificar: el botón está apagado hasta entonces.
+    for (const f of figs.filter((x) => CONVOZ.indexOf(x.id) === -1)) { await p.mouse.click(f.x + f.w / 2, f.y + f.h / 2); await p.waitForTimeout(150); }
+    console.log(await medir(p, et + " T3 R1 elegidas", fallos));
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
     console.log(await medir(p, et + " T3 R1 revelado", fallos));
     await p.waitForTimeout(3600);

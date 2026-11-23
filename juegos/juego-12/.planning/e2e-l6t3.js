@@ -1,7 +1,7 @@
 // E2E del Libro 6 · Tema 3 ("El preámbulo del siglo XX"): juega el tema dos veces, una
 // acertando y otra fallando, y comprueba las estrellas y que no haya errores de consola.
-// Esperado perfecto: R1 4 ⭐ (4 figuras destapadas) · R2 3 ⭐ (las 3 fichas de los
-// pensadores) · R3 3 ⭐ (las 3 frases que Montalvo deja fuera del pueblo) = 10.
+// Esperado perfecto: R1 2 ⭐ (las dos que no tenían voz) · R2 3 ⭐ (las 3 fichas de los
+// pensadores) · R3 3 ⭐ (las 3 frases que Montalvo deja fuera del pueblo) = 8.
 // Fallando: R1 0 (no se frota nada) · R2 0 (solo los distractores) · R3 0 = 0 ⭐.
 const { chromium } = require("playwright");
 const http = require("http"), fs = require("fs"), path = require("path");
@@ -14,16 +14,18 @@ const estrellas = (p) => p.evaluate(() => {
   return d ? parseInt(d.textContent.replace(/\D/g, ""), 10) : -1;
 });
 
-// ── R1: frotar la niebla de las cuatro figuras ──
+// ── R1: frotar la niebla de las cuatro figuras y ELEGIR a las dos que no tenían voz ──
+// Por partida salen 2 sin voz + 2 con voz. Los que SÍ tenían voz son hacendado,
+// sacerdote y banquero: se reconocen por el nombre del archivo de su ilustración.
+const CON_VOZ = ["hacendado", "sacerdote", "banquero"];
 async function jugarR1(p, bien) {
-  await p.waitForSelector("text=Saca de la niebla");
-  if (!bien) { await p.click("button:has-text('¡VERIFICAR!')"); return; }
+  await p.waitForSelector("text=no tenían voz");
   const cajas = await p.evaluate(() => Array.from(document.querySelectorAll("img"))
-    .filter((i) => /j6t3-/.test(i.getAttribute("src") || ""))
-    .map((i) => { const r = i.parentElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }));
+    .filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0)
+    .map((i) => { const r = i.parentElement.getBoundingClientRect(); return { id: (i.getAttribute("src") || "").split("j6t3-")[1].replace(".jpg", ""), x: r.left, y: r.top, w: r.width, h: r.height }; }));
   if (cajas.length !== 4) throw new Error("esperaba 4 figuras, hay " + cajas.length);
+  // 1) Se descubren las cuatro: hasta que no están todas, ¡VERIFICAR! sigue apagado.
   for (const c of cajas) {
-    // Barrido en zigzag: hay que descubrir más del 68 % de las celdas.
     await p.mouse.move(c.x + 4, c.y + 4);
     await p.mouse.down();
     for (let f = 0; f < 8; f++) {
@@ -34,6 +36,10 @@ async function jugarR1(p, bien) {
     await p.mouse.up();
     await p.waitForTimeout(120);
   }
+  // 2) Se eligen DOS: las correctas o, para fallar, las dos que sí tenían voz.
+  const quiere = cajas.filter((c) => (bien ? CON_VOZ.indexOf(c.id) === -1 : CON_VOZ.indexOf(c.id) >= 0));
+  if (quiere.length !== 2) throw new Error("salieron " + quiere.length + " figuras del grupo que buscaba, esperaba 2");
+  for (const c of quiere) { await p.mouse.click(c.x + c.w / 2, c.y + c.h / 2); await p.waitForTimeout(160); }
   await p.click("button:has-text('¡VERIFICAR!')");
 }
 
@@ -122,7 +128,7 @@ async function partida(p, bien) {
   p.on("pageerror", (e) => errores.push("pageerror: " + e.message));
   p.on("console", (m) => { if (m.type() === "error" && !/j6t3-.*\.jpg/.test(m.text())) errores.push("console: " + m.text()); });
 
-  console.log("── PARTIDA PERFECTA (esperado 4 · 7 · 10 ⭐) ──");
+  console.log("── PARTIDA PERFECTA (esperado 2 · 5 · 8 ⭐) ──");
   const a = await partida(p, true);
   console.log(`  perfecta: tras R1 → ${a.e1} ⭐ · tras R2 → ${a.e2} ⭐ · total ${a.total} ⭐ · "${a.rep}"`);
 
@@ -131,7 +137,7 @@ async function partida(p, bien) {
   console.log(`  fallada: tras R1 → ${b.e1} ⭐ · tras R2 → ${b.e2} ⭐ · total ${b.total} ⭐ · "${b.rep}"`);
 
   const mal = [];
-  if (a.total !== 10) mal.push("la partida perfecta no da 10 ⭐ (da " + a.total + ")");
+  if (a.total !== 8) mal.push("la partida perfecta no da 8 ⭐ (da " + a.total + ")");
   if (a.rep.indexOf("3 de 3") < 0) mal.push("la partida perfecta no reporta 3 de 3");
   if (b.total !== 1) mal.push("la partida fallada no da 1 ⭐ (da " + b.total + ")");
   if (b.rep.indexOf("0 de 3") < 0) mal.push("la partida fallada no reporta 0 de 3");   // ninguna ronda perfecta

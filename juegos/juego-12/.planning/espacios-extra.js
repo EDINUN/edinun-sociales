@@ -92,13 +92,16 @@ async function entrar(p, PORT, libro, tema) {
 
     // ── Tema 3: el peor caso de texto ──
     await entrar(p, PORT, "Libro 6", "El preámbulo del siglo XX");
-    await p.waitForSelector("text=Saca de la niebla");
+    await p.waitForSelector("text=no tenían voz");
     const cajas = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }));
     for (const c of cajas) {
       await p.mouse.move(c.x + 4, c.y + 4); await p.mouse.down();
       for (let f = 0; f < 8; f++) { const y = c.y + 3 + (c.h - 6) * (f / 7); await p.mouse.move(c.x + 3, y, { steps: 3 }); await p.mouse.move(c.x + c.w - 3, y, { steps: 9 }); }
       await p.mouse.up();
     }
+    const CONVOZ = ["hacendado", "sacerdote", "banquero"];
+    const ids = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { id: (i.getAttribute("src") || "").split("j6t3-")[1].replace(".jpg", ""), x: r.left + r.width / 2, y: r.top + r.height / 2 }; }));
+    for (const f of ids.filter((x) => CONVOZ.indexOf(x.id) === -1)) { await p.mouse.click(f.x, f.y); await p.waitForTimeout(150); }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
     await p.waitForSelector("text=Montalvo, Moncayo y Peralta");
     const fichas = await p.$$("button.ed-btn-plain");

@@ -31,7 +31,7 @@ const PENSADORES = ["periodismo contra los gobiernos", "El Cosmopolita", "concer
     const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(650); }
 
     // R1 · qué cuatro personas salen (por el nombre del archivo de su ilustración)
-    await p.waitForSelector("text=Saca de la niebla");
+    await p.waitForSelector("text=no tenían voz");
     const gente = (await p.evaluate(() => Array.from(document.querySelectorAll("img"))
       .map((im) => im.getAttribute("src") || "")
       .filter((s) => s.indexOf("j6t3-") >= 0)
@@ -50,6 +50,9 @@ const PENSADORES = ["periodismo contra los gobiernos", "El Cosmopolita", "concer
       }
       await p.mouse.up();
     }
+    const CONVOZ = ["hacendado", "sacerdote", "banquero"];
+    const puntos = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { id: (i.getAttribute("src") || "").split("j6t3-")[1].replace(".jpg", ""), x: r.left + r.width / 2, y: r.top + r.height / 2 }; }));
+    for (const f of puntos.filter((x) => CONVOZ.indexOf(x.id) === -1)) { await p.mouse.click(f.x, f.y); await p.waitForTimeout(150); }
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
 
     // R2 · qué seis fichas salen
@@ -74,12 +77,14 @@ const PENSADORES = ["periodismo contra los gobiernos", "El Cosmopolita", "concer
     vistos.frases[frases] = 1;
     if (frases === anterior.frases) repetidasSeguidas.frases++;
     anterior.frases = frases;
-    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(1200);
+    // ⚠ No hace falta terminar la ronda: lo que se mide son las frases que SALIERON, y
+    //   la partida siguiente recarga la página. Además ¡VERIFICAR! está apagado hasta
+    //   sellar tres, así que pulsarlo aquí dejaba la prueba esperando.
   }
 
   const n = (o) => Object.keys(o).length;
   console.log(`En ${N} partidas seguidas:`);
-  console.log(`  R1 · qué cuatro personas ...... ${n(vistos.gente)}/${N} distintas (de 70 combinaciones posibles)`);
+  console.log(`  R1 · qué cuatro personas (2+2) . ${n(vistos.gente)}/${N} distintas (de 108 posibles)`);
   console.log(`  R2 · qué seis fichas .......... ${n(vistos.fichas)}/${N} distintas (de 64 posibles)`);
   console.log(`  R3 · qué cinco frases ......... ${n(vistos.frases)}/${N} distintas (de 12 posibles)`);
   console.log(`  Veces que una partida repitió EXACTAMENTE la anterior: R1 ${repetidasSeguidas.gente} · R2 ${repetidasSeguidas.fichas} · R3 ${repetidasSeguidas.frases}`);

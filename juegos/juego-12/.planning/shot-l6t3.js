@@ -20,7 +20,7 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
   await p.waitForTimeout(600);
   const v = await p.$("button:has-text('VAMOS')"); if (v) { await v.click(); await p.waitForTimeout(700); }
 
-  await p.waitForSelector("text=Saca de la niebla");
+  await p.waitForSelector("text=no tenían voz");
   await tiro("r1");
   const cajas = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => /j6t3-/.test(i.getAttribute("src") || "")).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }));
   for (let c = 0; c < cajas.length; c++) {
@@ -35,7 +35,13 @@ const srv = http.createServer((q, r) => { const p = path.join(ROOT, decodeURICom
     await p.mouse.up();
   }
   await tiro("r1-limpia");
-  await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(4300);
+  const CONVOZ = ["hacendado", "sacerdote", "banquero"];
+  const elegir = await p.evaluate(() => Array.from(document.querySelectorAll("img")).filter((i) => (i.getAttribute("src") || "").indexOf("j6t3-") >= 0).map((i) => { const r = i.parentElement.getBoundingClientRect(); return { id: (i.getAttribute("src") || "").split("j6t3-")[1].replace(".jpg", ""), x: r.left + r.width / 2, y: r.top + r.height / 2 }; }));
+  for (const f of elegir.filter((x) => CONVOZ.indexOf(x.id) === -1)) { await p.mouse.click(f.x, f.y); await p.waitForTimeout(170); }
+  await tiro("r1-elegidas");
+  await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+  await tiro("r1-verificada");
+  await p.waitForTimeout(3500);
 
   await p.waitForSelector("text=Montalvo, Moncayo y Peralta");
   await tiro("r2");
