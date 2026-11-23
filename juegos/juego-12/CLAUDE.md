@@ -183,6 +183,7 @@ gitignoreado — borrarlo antes de subir a producción.
 node juegos/_PLANTILLA/.planning/format-lint.js juego-12   # 15/15 OK
 node juegos/_PLANTILLA/.planning/qa-visual.js  juego-12    # 6 viewports
 node juegos/juego-12/.planning/e2e-l6t1.js                 # partida perfecta y fallada
+node juegos/juego-12/.planning/espacios-todo.js            # solapes y desbordes, los dos temas
 node juegos/juego-12/.planning/shot-l6t1.js <carpeta>      # capturas para mirar a ojo
 ```
 
@@ -362,8 +363,10 @@ los temas deben diferenciarse al máximo.
     `.planning/comprobar-ciudades.js`, que además de la proyección y del punto-en-polígono
     contrasta las **seis distancias entre ciudades** con las reales (gran círculo): error
     **0,0 %** en las seis. Es la comprobación que convence, porque no depende del encuadre.
-- **R3: los renglones miden 62 px y la letra 13,5.** Con 46 px y 11,5 sobraba un hueco
-  grande debajo del papel (lo marcó la autora en rojo sobre una captura).
+- **R3: los renglones miden 68 px y la letra 14,5.** La autora marcó en rojo el hueco
+  vacío debajo del papel dos veces (con 46 px y con 62); el espacio sobrante es de los
+  renglones. **Más altos no caben**: el cartel del revelado cuelga del papel en absoluto y
+  se saldría del lienzo. El `paddingBottom` del bloque (12) es lo que le deja sitio.
 - **Los textos del Tema 2 van en PASADO.** *"¿Dónde manda?"* y *"la ciudad donde manda"*
   pasaron a **mandaba**: es 1859, ya no manda nadie de esos. Lo cazó la autora.
 - **El avance se marca con PUNTOS, no con "2 de 3".** Ese número se leía de dos maneras
@@ -446,3 +449,38 @@ consola · detector de solapes limpio en 5 viewports, también **en pleno arrast
 2. **Las recargas en frío tardan más de 20 s** en bajar React + Babel (~3 MB) del CDN. El
    `waitForSelector` del menú va a **60 s**; con 30 s el test fallaba por red, no por el
    juego.
+
+### Ilustraciones entregadas (2026-11-23)
+
+Las **9 `j7t1-*.jpg` ya están**. Llegaron a 1024×1024 (y el ferrocarril a 1376×768),
+**7,2 MB en total**; reescaladas pesan **302 KB** y en pantalla se ven igual.
+
+```bash
+node .planning/optimizar-j7t1.js <carpeta-de-respaldo-fuera-del-repo>
+```
+
+⚠ **`optimizar-j7t1.js` NO es `optimizar-personas.js`**: este **respeta la proporción**
+(el ferrocarril es 16:9 y forzarlo a cuadrado lo deformaría). Ancho máximo 320 px, salvo
+el fondo del carril, que va a 720. Como el de personas, **jamás pisa un respaldo
+existente**.
+
+⚠ **El fondo de la R1 es TEXTURA, no una escena que se lea.** El carril mide 470×462 (casi
+cuadrado) y la ilustración es 16:9, así que `cover` recorta los lados y **el viaducto con
+el tren queda detrás de las tarjetas**. Se probaron `contain` anclado arriba y abajo:
+encajan la escena entera, pero dejan un **borde horizontal duro a media pantalla** que
+parece un defecto. Con las tarjetas ocupando 452 de los 470 px **no hay encuadre que
+enseñe el tren**; si se quiere ver, hay que darle su propio hueco en la maqueta. Queda al
+22 % de opacidad.
+
+⚠ **"CADA PERSONA" es el único platillo sin ilustración** (lleva el emoji 💭 sobre un
+recuadro violeta) y se nota al lado de los otros dos, que sí tienen foto. Si la autora
+quiere igualarlo, hace falta una décima imagen cuadrada.
+
+**Ajustes de maqueta tras mirar las capturas con las imágenes puestas:**
+- **R3:** la foto pasó de 106 a **140 px** y las pistas y las opciones ganaron aire. Había
+  un **hueco muerto** entre el expediente y las tres opciones, y un hueco distinto se lee
+  como descuido.
+
+```bash
+node juegos/juego-12/.planning/shot-l7t1.js <carpeta>   # capturas para mirar a ojo
+```

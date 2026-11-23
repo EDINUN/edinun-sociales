@@ -1794,7 +1794,7 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
     if (verified && roto) { bd = acerto ? "#2ecc8f" : "#ff6b6b"; }
     if (verified && !roto && debia[r.id] !== undefined) { bd = "#f2c260"; bg = "rgba(255,230,161,0.95)"; }
     return (
-      <div key={r.id} style={{ position: "relative", height: 62, flexShrink: 0 }}>
+      <div key={r.id} style={{ position: "relative", height: 68, flexShrink: 0 }}>
         <div
           ref={(el) => { refs.current[r.id] = el; }}
           onPointerDown={(e) => onDown(e, r.id)}
@@ -1812,7 +1812,7 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
             boxShadow: roto ? "none" : "0 2px 6px rgba(0,0,0,0.2)",
           }}>
           <span style={{ flexShrink: 0, fontSize: 11, color: "#8a6410" }}>▸</span>
-          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 13.5, lineHeight: 1.25, color: "#3a2608" }}>{r.t}</span>
+          <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 14.5, lineHeight: 1.25, color: "#3a2608" }}>{r.t}</span>
           {/* El corte dentado que avanza con el dedo */}
           {cortando > 0 && (
             <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: `${cortando * 100}%`, pointerEvents: "none", borderRight: "3px dashed #c0392b", background: "linear-gradient(90deg, rgba(192,57,43,0.06), rgba(192,57,43,0.16))" }} />
@@ -1839,7 +1839,7 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", width: "100%", paddingBottom: 34 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, height: "100%", width: "100%", paddingBottom: 12 }}>
       {/* ⚠ Centrado VERTICAL del bloque entero (enunciado + cartel + papel): con un
           paddingTop fijo quedaba más aire debajo del papel que encima del enunciado. */}
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
@@ -2057,9 +2057,15 @@ function L7T1R1Via({ onSolve, verifyRef }) {
 
   return (
     <div ref={rootRef} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
-      {/* Fondo del ferrocarril, muy apagado: ambienta sin competir con el texto.
-          ⚠ Va como background-image, nunca como <img> sobredimensionado. */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: 16, opacity: 0.16, backgroundImage: "url(assets/j7t1-ferrocarril.jpg)", backgroundSize: "cover", backgroundPosition: "center", pointerEvents: "none" }} />
+      {/* Fondo del ferrocarril, apagado: ambienta sin competir con el texto.
+          ⚠ Va como background-image, nunca como <img> sobredimensionado.
+          ⚠ Es TEXTURA, no una escena que se lea. El carril mide 470x462 (casi cuadrado)
+          y la ilustración es 16:9, así que `cover` recorta los lados y el viaducto con el
+          tren queda detrás de las tarjetas. Se probaron `contain` arriba y abajo: encajan
+          la escena entera, pero dejan un BORDE HORIZONTAL duro a media pantalla que
+          parece un defecto. Con las tarjetas ocupando 452 de 470 px no hay encuadre que
+          enseñe el tren; si se quiere ver, hay que darle su propio hueco. */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: 16, opacity: 0.22, backgroundImage: "url(assets/j7t1-ferrocarril.jpg)", backgroundSize: "cover", backgroundPosition: "center", pointerEvents: "none" }} />
       <div style={{ position: "relative", pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Ordena los hechos del más antiguo al más reciente.</span>
       </div>
@@ -2391,23 +2397,23 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
 
       <div style={{ flex: 1, width: 452, display: "flex", flexDirection: "column", minHeight: 0, marginTop: 8 }}>
         <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-          <J12Img src={c.img} e={c.e} ancho={106} alto={106} radius={12} />
+          <J12Img src={c.img} e={c.e} ancho={140} alto={140} radius={12} />
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
             {[0, 1, 2].map((p) => {
               if (p < abiertas[activo]) {
                 return (
-                  <div key={p} style={{ borderRadius: 9, border: "1.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.42)", padding: "5px 8px", display: "flex", gap: 7 }}>
+                  <div key={p} style={{ borderRadius: 9, border: "1.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.42)", padding: "8px 9px", display: "flex", gap: 7 }}>
                     <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 9.5, color: "#fce9a8" }}>{p + 1}</span>
-                    <span data-qa="pista" style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, lineHeight: 1.25, color: "#f6f1ff" }}>{c.pistas[p]}</span>
+                    <span data-qa="pista" style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 11.5, lineHeight: 1.25, color: "#f6f1ff" }}>{c.pistas[p]}</span>
                   </div>
                 );
               }
               if (p > abiertas[activo] || verified) {
-                return <div key={p} style={{ borderRadius: 9, border: "1.5px dashed rgba(255,255,255,0.22)", background: "rgba(0,0,0,0.22)", padding: "5px 8px", fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, color: "rgba(255,255,255,0.35)" }}>Pista {p + 1}, sin destapar</div>;
+                return <div key={p} style={{ borderRadius: 9, border: "1.5px dashed rgba(255,255,255,0.22)", background: "rgba(0,0,0,0.22)", padding: "8px 9px", fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, color: "rgba(255,255,255,0.35)" }}>Pista {p + 1}, sin destapar</div>;
               }
               return (
                 <button key={p} onClick={destapar}
-                  style={{ borderRadius: 9, border: "1.5px solid rgba(79,216,255,0.6)", background: "rgba(79,216,255,0.14)", padding: "5px 8px", cursor: "pointer", textAlign: "left", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, color: "#bfeaff", letterSpacing: "0.02em" }}>
+                  style={{ borderRadius: 9, border: "1.5px solid rgba(79,216,255,0.6)", background: "rgba(79,216,255,0.14)", padding: "8px 9px", cursor: "pointer", textAlign: "left", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, color: "#bfeaff", letterSpacing: "0.02em" }}>
                   DESTAPAR LA PISTA {p + 1} · pierdes la ⭐ extra
                 </button>
               );
@@ -2428,7 +2434,7 @@ function L7T1R3Expediente({ onSolve, verifyRef }) {
             if (verified && mia && !esLa) { border = "#ff6b6b"; bg = "rgba(178,47,47,0.9)"; col = "#fff"; }
             return (
               <button key={op} data-qa="op" onClick={() => elegir(op)} disabled={verified}
-                style={{ width: "100%", boxSizing: "border-box", borderRadius: 11, border: `2.5px solid ${border}`, background: bg, color: col, padding: "8px 11px", textAlign: "left", cursor: verified ? "default" : "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, display: "flex", alignItems: "center", gap: 8, boxShadow: (verified && esLa) ? "0 0 24px rgba(46,204,143,0.6)" : "none" }}>
+                style={{ width: "100%", boxSizing: "border-box", borderRadius: 11, border: `2.5px solid ${border}`, background: bg, color: col, padding: "12px 12px", textAlign: "left", cursor: verified ? "default" : "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, display: "flex", alignItems: "center", gap: 8, boxShadow: (verified && esLa) ? "0 0 24px rgba(46,204,143,0.6)" : "none" }}>
                 {verified && esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(255,255,255,0.8)", color: "#06381f", borderRadius: 999, padding: "2px 6px" }}>ERA ESTA</span>}
                 <span style={{ flex: 1, minWidth: 0 }}>{op}</span>
                 {verified && mia && !esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "2px 6px" }}>TU ELECCIÓN</span>}
