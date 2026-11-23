@@ -3,8 +3,8 @@
 // tres rondas, el botón BORRAR de la R2 y que no haya errores de consola. Además recarga
 // 6 veces para ver que no se repite el ejercicio.
 //
-// Esperado perfecto: R1 4 ⭐ (4 tarjetas) · R2 5 ⭐ (5 asuntos) · R3 6 ⭐ (3 aciertos con
-// una sola pista = 2 ⭐ cada uno) = **15**.
+// Esperado perfecto: R1 4 ⭐ (4 tarjetas) · R2 2 ⭐ (2 asuntos) · R3 2 ⭐ (1 acierto con
+// una sola pista) = **8**.
 //
 // ⚠ La clave de respuestas va ESCRITA AQUÍ, no leída del juego: si se lee del propio
 // juego, el test se da la razón a sí mismo y no comprueba nada.
@@ -22,6 +22,9 @@ const ANIO = [
   ["Estado laico", 1906],
   ["ferrocarril que une Guayaquil", 1908],
   ["apresado", 1912],
+  ["Registro Civil pone", 1900],
+  ["Ley de Cultos ordena", 1904],
+  ["marcha obrera paraliza", 1922],
 ];
 const DESTINO = [
   ["Registrar los matrimonios", "est"],
@@ -36,6 +39,11 @@ const DESTINO = [
   ["En qué religión cree", "per"],
   ["Lo que una persona piensa", "per"],
   ["va o no va a la iglesia", "per"],
+  ["entrar al país a enseñar", "est"],
+  ["niñas estudien en escuelas laicas", "est"],
+  ["jornada máxima y el salario", "est"],
+  ["La Novena a los Santos", "igl"],
+  ["escriben los periódicos", "per"],
 ];
 const CASO = [
   ["Primera Guerra Mundial", "La crisis cacaotera"],
@@ -44,6 +52,8 @@ const CASO = [
   ["comunidades religiosas de enseñanza", "La educación laica"],
   ["Es de 1902", "La Ley de Matrimonio Civil"],
   ["sin él no había progreso", "El ferrocarril Guayaquil–Quito"],
+  ["dejó de regirse por creencias", "La implantación del Estado laico"],
+  ["Va de 1912 a 1925", "El período plutocrático"],
 ];
 function busca(tabla, txt, que) {
   const f = tabla.find((r) => txt.indexOf(r[0]) !== -1);
@@ -106,21 +116,26 @@ async function jugarR2(p, bien, probarBorrar) {
     const t2 = await p.textContent('[data-qa="asunto"]');
     if (t2 !== t0) throw new Error("R2: BORRAR no devolvió el último asunto a la mano");
   }
-  for (let k = 0; k < 5; k++) {
+  // La ronda trae 2 asuntos (antes 5): se colocan los que vayan apareciendo en la mano.
+  let puestos = 0;
+  while (await p.$('[data-qa="asunto"]')) {
     const t = await p.textContent('[data-qa="asunto"]');
     const d = busca(DESTINO, t, "destinos");
     await p.click(`[data-qa="plat-${bien ? d : OTRO[d]}"]`);
-    await p.waitForTimeout(160);
+    await p.waitForTimeout(170);
+    if (++puestos > 8) throw new Error("R2: la mano no se vacía");
   }
+  if (puestos !== 2) throw new Error("R2: se esperaban 2 asuntos, hubo " + puestos);
   await p.click("button:has-text('¡VERIFICAR!')");
 }
 
-// ── R3 · tres expedientes, respondidos con la primera pista ──
+// ── R3 · UN expediente, respondido con la primera pista ──
 async function jugarR3(p, bien) {
   await p.waitForSelector("text=Descubre de qué hecho");
-  for (let k = 0; k < 3; k++) {
-    const tabs = await p.$$('[data-qa="exp"]');
-    await tabs[k].click(); await p.waitForTimeout(140);
+  // ⚠ Ya solo se ve el expediente de turno: cuántos hay lo dice su atributo data-total.
+  const n = Number(await p.getAttribute('[data-qa="exp"]', "data-total"));
+  if (n !== 1) throw new Error("R3: se esperaba 1 expediente, hay " + n);
+  for (let k = 0; k < n; k++) {
     const pista = await p.textContent('[data-qa="pista"]');
     const bueno = busca(CASO, pista, "casos");
     const ops = await p.$$eval('[data-qa="op"]', (bs) => bs.map((b) => b.textContent));
@@ -129,9 +144,11 @@ async function jugarR3(p, bien) {
     if (i < 0) throw new Error("R3: no se encontró la opción buscada para: " + bueno);
     const btns = await p.$$('[data-qa="op"]');
     await btns[i].click();
-    await p.waitForTimeout(140);
+    await p.waitForTimeout(150);
+    // ⚠ Cada expediente lleva su propio ¡VERIFICAR!; el último cierra la ronda.
+    await p.click("button:has-text('¡VERIFICAR!')");
+    if (k + 1 < n) await p.waitForTimeout(2200);
   }
-  await p.click("button:has-text('¡VERIFICAR!')");
 }
 
 async function partida(p, bien) {
@@ -164,7 +181,7 @@ async function partida(p, bien) {
   // tema se juega igual con el respaldo de emoji. Cualquier otro error sí cuenta.
   p.on("console", (m) => { if (m.type() === "error" && m.text().indexOf("Failed to load resource") === -1) errores.push("console: " + m.text()); });
 
-  console.log("── PARTIDA PERFECTA (esperado 4 · 9 · 15 ⭐) ──");
+  console.log("── PARTIDA PERFECTA (esperado 4 · 6 · 8 ⭐) ──");
   const a = await partida(p, true);
   console.log(`  perfecta: tras R1 → ${a.e1} ⭐ · tras R2 → ${a.e2} ⭐ · total ${a.total} ⭐`);
   console.log(`  revelado R1/R2/R3: ${a.rev1} / ${a.rev2} / ${a.rev3}`);
@@ -188,13 +205,14 @@ async function partida(p, bien) {
   console.log(`  R1: ${new Set(vistas.r1).size} combinaciones distintas en 6 recargas · repeticiones seguidas: ${repes}`);
 
   const mal = [];
-  if (a.total !== 15) mal.push("la perfecta no da 15 ⭐ (da " + a.total + ")");
+  if (a.total !== 8) mal.push("la perfecta no da 8 ⭐ (da " + a.total + ")");
   if (a.e1 !== 4) mal.push("la R1 perfecta no da 4 ⭐ (da " + a.e1 + ")");
-  if (a.e2 !== 9) mal.push("la R2 perfecta no deja el contador en 9 ⭐ (deja " + a.e2 + ")");
+  if (a.e2 !== 6) mal.push("la R2 perfecta no deja el contador en 6 ⭐ (deja " + a.e2 + ")");
   if (a.rep.indexOf("3 de 3") < 0) mal.push("la perfecta no reporta 3 de 3");
   if (b.total !== 0) mal.push("la fallada no da 0 ⭐ (da " + b.total + ")");
   if (b.rep.indexOf("0 de 3") < 0) mal.push("la fallada no reporta 0 de 3");
   if (!b.rev1 || !b.rev2 || !b.rev3) mal.push("falta el revelado en alguna ronda de la partida fallada");
+  if (!a.rev3 || !b.rev3) mal.push("la R3 no enseña la correcta al cerrar el expediente");
   if (repes > 0) mal.push("la R1 repitió el mismo ejercicio en dos recargas seguidas");
   console.log("\nErrores de consola: " + (errores.length ? errores.join(" | ") : "ninguno"));
   if (errores.length) mal.push("hay errores de consola");

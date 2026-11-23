@@ -113,27 +113,27 @@ async function abrir(p) {
     await p.waitForSelector("text=en manos de quién");
     console.log(await medir(p, et + " R2 antes", fallos));
     // Todo al mismo platillo: es el reparto más desequilibrado, el que más inclina la
-    // viga y el que deja el revelado más largo (cuatro fallos).
-    for (let k = 0; k < 5; k++) { await p.click('[data-qa="plat-est"]'); await p.waitForTimeout(140); }
+    // viga, el que más fallos deja en el revelado y el que apila más fichas en un platillo.
+    while (await p.$('[data-qa="asunto"]')) { await p.click('[data-qa="plat-est"]'); await p.waitForTimeout(150); }
     console.log(await medir(p, et + " R2 llena", fallos));
     await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(1000);
     console.log(await medir(p, et + " R2 revelado", fallos));
     await p.waitForTimeout(3600);
 
-    // ── R3 · los expedientes ──
+    // ── R3 · los expedientes (dos, verificados uno a uno) ──
     await p.waitForSelector("text=Descubre de qué hecho");
     console.log(await medir(p, et + " R3 antes", fallos));
-    for (let k = 0; k < 3; k++) {
-      const tabs = await p.$$('[data-qa="exp"]');
-      await tabs[k].click(); await p.waitForTimeout(130);
+    const nExp = Number(await p.getAttribute('[data-qa="exp"]', "data-total"));
+    for (let k = 0; k < nExp; k++) {
       // Las tres pistas destapadas: es el expediente con más texto posible.
-      for (let d = 0; d < 2; d++) { const bt = await p.$("button:has-text('DESTAPAR')"); if (bt) { await bt.click(); await p.waitForTimeout(110); } }
+      for (let d = 0; d < 2; d++) { const bt = await p.$('[data-qa="destapar"]'); if (bt) { await bt.click(); await p.waitForTimeout(120); } }
+      if (k === 0) console.log(await medir(p, et + " R3 con las 3 pistas", fallos));
       const ops = await p.$$('[data-qa="op"]');
-      await ops[0].click(); await p.waitForTimeout(130);
+      await ops[0].click(); await p.waitForTimeout(140);
+      await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(900);
+      console.log(await medir(p, et + " R3 revelado " + (k + 1), fallos));
+      if (k + 1 < nExp) await p.waitForTimeout(1400);
     }
-    console.log(await medir(p, et + " R3 con las 3 pistas", fallos));
-    await p.click("button:has-text('¡VERIFICAR!')"); await p.waitForTimeout(1000);
-    console.log(await medir(p, et + " R3 revelado", fallos));
     await p.close();
   }
   console.log("\n" + (fallos.length ? "X PROBLEMAS:\n" + fallos.join("\n") : "OK Libro 7 · Tema 1: lienzo entero, 3 rondas, en reposo, en pleno arrastre y con el revelado puesto — nada superpuesto, nada fuera del lienzo y ningún texto recortado."));

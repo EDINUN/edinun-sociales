@@ -397,10 +397,10 @@ D.C.D. CS.3.1.40/41/42/43 (libro pp. 10-15 + cuaderno pp. 11-14, entregado 2026-
 | Ronda | Mano | ⭐ |
 |---|---|:--:|
 | R1 `L7T1R1Via` "Tender la vía" | ordenar arrastrando sobre los rieles | 4 |
-| R2 `L7T1R2Balanza` "La balanza de 1897" | repartir en tres destinos | 5 |
-| R3 `L7T1R3Expediente` "Expediente abierto" | destapar pistas y apostar | 6 |
+| R2 `L7T1R2Balanza` "La balanza de 1897" | repartir en tres destinos | 2 |
+| R3 `L7T1R3Expediente` "Expediente abierto" | destapar pistas y apostar | 2 |
 
-**⭐ del tema: 4 + 5 + 6 = 15.**
+**⭐ del tema: 4 + 2 + 2 = 8.**
 
 **Invariantes de este tema:**
 
@@ -419,12 +419,21 @@ D.C.D. CS.3.1.40/41/42/43 (libro pp. 10-15 + cuaderno pp. 11-14, entregado 2026-
   decidir. **CADA PERSONA** sale textual del libro (la creencia queda "en el ámbito de la
   vida privada y de la conciencia individual"); **LA IGLESIA** sale del cuaderno p. 13 (el
   Carnaval, las procesiones y la Novena siguieron igual).
-  - **Composición fija 3 Estado + 1 Iglesia + 1 persona**: ninguna partida sale con los
-    cinco del mismo lado. Lo que varía es cuáles, con FIFO por grupo.
+  - **Son DOS asuntos por partida, no cinco** (lo pidió la autora el 2026-11-23 jugándolo:
+    *"en esta ronda solo quiero que sean 2 no 5"*; con cinco se hacía larga). Los dos caen
+    en **destinos distintos**: se sortea la pareja de destinos (FIFO de 2 sobre las tres
+    posibles) y se saca un asunto de cada uno. Con los dos del mismo lado la ronda no
+    enseñaría el reparto, que es justo lo que cuenta el tema.
   - La **viga que se inclina es un espejo del reparto**, no una corrección: ni verde ni
     rojo antes de ¡VERIFICAR!.
   - **BORRAR** (columna de acciones, vía `onClear`) devuelve **el último** asunto a la
     mano, de uno en uno.
+  - ⚠ **Un platillo que ya tiene algo se nota desde lejos**: marco ámbar grueso, halo y la
+    etiqueta **"YA COLOCASTE AQUÍ"**, más una ficha de 34 px con el emoji del asunto. Antes
+    solo lo decía una fichita de 22 px y la autora no veía que hubiese colocado nada. Va en
+    **ámbar, nunca en verde**: no es un veredicto, es un acuse.
+  - ⚠ **Las ilustraciones van grandes y casi cuadradas (132×118)**: las fuentes son 1:1, así
+    se recortan lo mínimo. Caben porque solo hay dos asuntos.
   - Al revelar, la correcta **grita**: panel verde grande "LA RESPUESTA ERA" con dónde iba
     cada fallo y por qué, en el sitio que ocupaba la carta en la mano.
 - **R3 · destapar no castiga lo ya ganado.** ⭐ +1 por acierto y **+1 más si se acertó con
@@ -496,3 +505,167 @@ quiere igualarlo, hace falta una décima imagen cuadrada.
 ```bash
 node juegos/juego-12/.planning/shot-l7t1.js <carpeta>   # capturas para mirar a ojo
 ```
+
+### Correcciones de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+- 🐛 **La tarjeta de la R1 no se quedaba donde la soltabas.** *"Si arrastro una opción debe
+  poder colocarse en ese espacio, porque si no arrastro y no se queda ahí."* El destino se
+  medía por la posición del **dedo**; las tarjetas miden 74 px, así que agarrando una por
+  el borde el dedo quedaba hasta 37 px de su centro: la tarjeta ya cubría el hueco de abajo
+  y el dedo seguía más cerca del de arriba, y al soltar volvía a su sitio. Ahora se mide por
+  el **centro de la tarjeta arrastrada** (`slots[i] + dy`), que es lo que se ve.
+  - ⚠ **El mismo fallo estaba en la línea del tiempo del Libro 6** (`L6T1R3Linea`), que
+    comparte el código del arrastre: corregido en las dos.
+  - Lo vigila `.planning/arrastre-l7t1.js`: 15 arrastres (5 recorridos × 3 puntos de agarre
+    — **borde de arriba, centro y borde de abajo**) más el respaldo por toque. Solo el
+    agarre por el centro pasaba antes.
+  - ⚠ **Trampa del test:** la tarjeta lleva dentro su número de puesto, que cambia justo al
+    reordenar; hay que quitarlo del texto o ninguna tarjeta se reconoce después de moverla.
+- **R2: dos asuntos, no cinco** (⭐ 2). Con cinco se hacía larga.
+- **R2: lo ya colocado se nota.** Marco ámbar, halo, ficha de 34 px y "YA COLOCASTE AQUÍ".
+- **R2: ilustraciones a 132×118**, casi cuadradas como las fuentes.
+- ⏳ **`j7t1-persona.jpg` (1:1) está pedida y aún no llega**: es la única ilustración que
+  falta, para que "CADA PERSONA" no sea el único platillo sin foto. Mientras tanto cae al
+  emoji 🏠 — **no 💭**, que es el mismo que lleva el asunto "En qué religión cree cada uno" y
+  parecían la misma cosa en dos sitios.
+
+### Segunda tanda de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+**R1 · la vía**
+
+- 🐛 **Parpadeo / "no se colocan".** Con ratón y con dedo el arrastre sí colocaba la
+  tarjeta (comprobado en `arrastre-l7t1.js` y con una sonda de `pointerType: "touch"`). Lo
+  que faltaba era **ver dónde iba a caer**: la tarjeta cae en el hueco cuyo centro tiene
+  más cerca, y al soltarla sin pasar la mitad volvía a su sitio sin que nada lo avisara.
+  Ahora, mientras arrastras, **se enciende el hueco de destino EN LA VÍA** (barra celeste
+  con halo) y el tren se atenúa. Va en la vía porque ahí hay sitio libre: dentro de las
+  tarjetas taparía texto y el detector de solapes lo marcaría.
+- **El fondo ya no llega hasta arriba** (`top: 22`): el bloque RONDA se montaba sobre el
+  borde del panel translúcido y la autora lo leyó como superposición.
+
+**R2 · la balanza**
+
+- 🐛 **"CADA PERSONA parpadeaba".** `Platillo` estaba definido **dentro** de
+  `L7T1R2Balanza`: su identidad cambiaba en cada render, así que React desmontaba y volvía
+  a montar el subárbol entero. El `J12Img` de "CADA PERSONA" —el único sin archivo— perdía
+  su estado `roto`, reintentaba la carga, fallaba y volvía al emoji. **Un componente que
+  se define dentro de otro se remonta en cada render: nunca hacerlo.** Ahora
+  `J7T1Platillo` vive a nivel de módulo.
+- **El acuse se borra solo a los 1,3 s**, así el platillo sale limpio con el asunto
+  siguiente: *"si voy a la segunda opción se debe borrar lo que seleccioné en la primera"*.
+  Mismo criterio que el mapa del Libro 6. Al verificar se ven **todas** las fichas con su
+  ✓/✗.
+
+**R3 · los expedientes**
+
+- **DOS expedientes, no tres** (⭐ 4): *"solo quiero que hayan dos expedientes para que
+  haya variedad en cada ronda"*. Con 2 de un banco de 6 hay **15 parejas posibles**.
+- **Se verifica UNO A UNO**: ¡VERIFICAR! resuelve el expediente de turno, enseña la
+  respuesta y pasa al siguiente; el último cierra la ronda. Las pestañas de arriba pasaron
+  a ser un **indicador de avance**: ya no se tocan, el orden lo lleva ¡VERIFICAR!.
+- **DESTAPAR es ahora un botón de verdad**: ámbar sólido, candado, letra oscura y el coste
+  en segunda línea. Antes era un renglón celeste y se confundía con las pistas.
+- **"Pista todavía tapada"** sustituye al gris casi invisible de "Pista 3, sin destapar".
+
+**⭐ del tema: 4 + 2 + 2 = 8.**
+
+### Tercera tanda de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+- **R1 · las demás tarjetas SE APARTAN** para abrir el hueco donde va a caer la
+  arrastrada: las de en medio suben o bajan un paso entero (74 + 10 px). *"Si quiero
+  colocarla en algún espacio las dos opciones deben de moverse, por ejemplo la una hacia
+  arriba y la otra hacia abajo."*
+  - ⚠ **Esto NO es lo que rechazó en el Libro 6.** Allí rechazó que se **reordenara la
+    lista en vivo** y la tarjeta arrastrada saltara sola. Aquí la arrastrada sigue al dedo
+    y la lista solo cambia **al soltar**; lo único que se mueve antes es el hueco.
+  - Las tarjetas se desplazan **en bloque y un paso exacto**, así que nunca se pisan entre
+    ellas durante la transición. Lo comprueba `espacios-l7t1.js` midiendo EN PLENO
+    ARRASTRE, y `shot-arrastre-l7t1.js` deja una captura de ese estado para mirarlo.
+- **R2 · fuera "platillo".** Es la palabra del código, no la del chico. El bocadillo pasa a
+  **"Lee el asunto de abajo y toca quién se quedó con él."** (sigue siendo el CÓMO).
+- **R3 · se ve UN SOLO expediente**, el de turno, y en grande: pastilla con borde dorado,
+  letra de 14,5 y halo, más los **puntos de avance** (`J12Puntos`). Antes estaban los dos a
+  la vez y el activo casi no se distinguía del que faltaba: *"lo que dice expediente 1 se
+  vea más porque casi no se nota"* y *"solo quiero que se vea un expediente y ya"*.
+  - ⚠ **El test ya no puede contar las pastillas** para saber cuántos expedientes hay: la
+    pastilla lleva `data-total`.
+
+### Cuarta tanda de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+- 🐛 **El hueco del arrastre se había aplicado a la ronda EQUIVOCADA.** El código del
+  arrastre está **duplicado** en `L6T1R3Linea` (Libro 6) y en `L7T1R1Via` (Libro 7), y un
+  reemplazo por texto cayó en la primera coincidencia: el Libro 6 se llevó el cambio y el
+  Libro 7 se quedó igual. Por eso la autora seguía viendo que las demás tarjetas no se
+  movían. **Al tocar el arrastre hay que decir SIEMPRE en qué ronda**, y comprobarlo con
+  `shot-arrastre-l7t1.js`, que imprime la **y de cada tarjeta** en cuatro momentos del
+  gesto: así se ve en números si las demás se apartan o no, sin depender de mirar una
+  captura.
+  - En el Libro 6 las tarjetas tienen **alto variable** (`minHeight: 70`), así que un paso
+    fijo sería incorrecto: allí el cambio se revirtió.
+- 🐛 **La viga de la balanza se metía dentro de las ilustraciones.** Con 14° sus puntas
+  bajaban 35 px. Ahora el tope es **8°** y la viga mide 236 px (antes 288). ⚠ **El detector
+  de solapes no lo ve**: la viga es un `div` decorativo sin texto, y el detector mide
+  textos hoja y botones pintados. Para lo decorativo hay que mirar la captura.
+- **R3: UN solo expediente** (⭐ 2). *"En la ronda 3 solo quiero que haya un solo
+  expediente, es decir que no hayan dos intentos solo uno."* La variedad la da cuál de los
+  6 toca; cap 5 = banco − 1, que es el máximo para un solo ítem.
+  - El código **sigue preparado para varios**: se verifican uno a uno y la pastilla enseña
+    el número y los puntos de avance en cuanto `casos.length > 1`. Basta cambiar el 1 de
+    `j7t1R3Build`.
+
+**⭐ del tema: 4 + 2 + 2 = 8.**
+
+### Quinta tanda de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+- **R1 · se acabó el hueco muerto bajo la última tarjeta.** Dos cambios:
+  1. Las tarjetas pasaron de **74 a 86 px** de alto (y la letra de 11 a 12,5), así la
+     columna llena el panel en vez de dejar un vacío abajo. La autora lo marcó **en rojo
+     sobre una captura**.
+  2. La columna de tarjetas se **centra** (`justifyContent: "center"`). La columna del
+     riel es más alta que la de las tarjetas —le suman los rótulos GUAYAQUIL y QUITO— y,
+     al estirarse, todo el sobrante se iba abajo: **2,5 px arriba contra 26,5 abajo**.
+  - ⚠ Lo vigila `.planning/huecos-l7t1.js`, que **mide los dos huecos en píxeles del
+    lienzo** y falla si difieren más de 6. Convierte "se ve raro" en dos números: ahora
+    son 15,5 y 13,5. Nació de esta corrección porque mirar la captura no bastaba — el
+    desajuste venía de una columna hermana, no de la que se veía mal.
+- **R3 · el enunciado dice "el expediente"**, no "cada expediente": ya solo hay uno.
+
+### Sexta tanda de la autora jugando el Libro 7 · Tema 1 (2026-11-23)
+
+**R2 · el revelado, rehecho.** *"Cuando se ve si fue correcto o no, mejora eso, no me
+agrada cómo se ve."* Antes el veredicto vivía en una fichita de 34 px perdida dentro del
+platillo. Ahora:
+
+- **El marco del platillo da el veredicto**: verde si lo que pusiste ahí está bien, rojo
+  si hay un error, **ámbar a rayas si ahí faltaba algo**.
+- **Un sello ✓/✗ de 30 px** en la esquina de la ilustración: se ve de un vistazo cuál
+  acertó, sin leer las fichas.
+- **El hueco "AQUÍ IBA"**: en el platillo correcto aparece la ficha del asunto mal
+  colocado, en un círculo de rayas. El revelado ya no solo dice "te equivocaste": enseña
+  **dónde iba**, en el lenguaje de la mecánica.
+- ⚠ **Para mirarlo hay que forzar el fallo.** `shot-l7t1.js` manda **los dos asuntos al
+  MISMO platillo**: como caen en destinos distintos, al menos uno queda mal. Repartirlos
+  en dos platillos distintos acierta los dos por casualidad y la captura sale verde.
+
+**Variedad.** *"Recuerda tener variedad en cada ronda porque ahorita me salieron las
+mismas opciones de hace rato."* La causa no era el sorteo sino **el tamaño de los bancos**:
+
+| Banco | antes | ahora |
+|---|:--:|:--:|
+| R1 · hechos de la vía | 6 | **9** |
+| R2 · asuntos del Estado | 6 | **9** |
+| R2 · asuntos de la Iglesia | 3 | **4** |
+| R2 · asuntos de cada persona | 3 | **4** |
+| R3 · expedientes | 6 | **8** |
+
+- ⚠ **La R1 ahora sortea LOS QUE JUEGAN (4 de 9), no los que se quedan fuera.** Con un
+  banco grande, sortear la exclusión deja a la mayoría dentro en todas las partidas y la
+  ronda se repite igual. 9 sobre 4 son **126 combinaciones**.
+- Caps al día: R1 6 · R2 est 6 / igl 3 / per 3 · R3 **7 = banco − 1** (para un solo ítem).
+- Todo el material nuevo sale del mismo tema del libro (Registro Civil 1900, Ley de Cultos
+  1904, la marcha del 15 de noviembre de 1922, las escuelas laicas para niñas, la jornada
+  y el salario de la mujer, la Novena, la prensa, el Estado laico y el período
+  plutocrático). **Nada inventado.**
+- ⚠ Lo mide `.planning/variedad-l7t1.js [partidas]`, que recarga N veces y cuenta
+  ejercicios distintos y repeticiones consecutivas. **12 partidas: R1 12/12 distintos ·
+  R2 10/12 · R3 8/12 (de 8 posibles) · 0 repeticiones seguidas en las tres.**

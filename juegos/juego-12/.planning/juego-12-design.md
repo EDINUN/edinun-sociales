@@ -287,10 +287,10 @@ distintas.
 | Ronda | Mano | ⭐ |
 |---|---|:--:|
 | R1 "Tender la vía" | ordenar arrastrando sobre los rieles | 4 |
-| R2 "La balanza de 1897" | repartir en tres destinos, la viga se inclina | 5 |
-| R3 "Expediente abierto" | destapar pistas y apostar cuanto antes | 6 |
+| R2 "La balanza de 1897" | repartir en tres destinos, la viga se inclina | 2 |
+| R3 "Expediente abierto" | destapar pistas y apostar cuanto antes | 2 |
 
-**Total 15 ⭐.**
+**Total 8 ⭐.**
 
 - **R1 «Tender la vía»** — 4 hechos de un banco de **6, todos con año distinto** (si dos
   compartieran año habría dos ordenaciones correctas). **El año no se ve mientras se
@@ -307,8 +307,8 @@ distintas.
   tercero sale textual del libro: la creencia queda "en el ámbito de la vida privada y de
   la conciencia individual". El de la Iglesia sale del cuaderno p. 13 (el Carnaval, las
   procesiones, la Novena siguieron igual).
-  ⚠ **Composición fija 3 Estado + 1 Iglesia + 1 persona**, para que ninguna partida salga
-  con los cinco del mismo lado. Lo que varía es **cuáles**, con FIFO por grupo.
+  ⚠ **Dos asuntos por partida, no cinco**, y en **destinos distintos**: se sortea la pareja
+  de destinos y se saca un asunto de cada uno.
   ⚠ La viga que se inclina es un **espejo del reparto**, no una corrección: ni verde ni
   rojo antes de ¡VERIFICAR!. **BORRAR** devuelve el último asunto a la mano, de uno en uno.
 - **R3 «Expediente abierto»** — 3 expedientes de un banco de 6. Cada uno llega con su
@@ -322,10 +322,11 @@ distintas.
 | Clave | Qué sortea | cap |
 |---|---|:--:|
 | `edinun_j12_l7t1_r1_v1` | cuáles 2 de los 6 hechos se quedan fuera | 3 |
-| `edinun_j12_l7t1_r2_est_v1` | 3 asuntos del Estado de 6 | 4 |
+| `edinun_j12_l7t1_r2_par_v1` | cuál de las 3 parejas de destinos entra | 2 |
+| `edinun_j12_l7t1_r2_est_v1` | 1 asunto del Estado de 6 | 4 |
 | `edinun_j12_l7t1_r2_igl_v1` | 1 asunto de la Iglesia de 3 | 2 |
 | `edinun_j12_l7t1_r2_per_v1` | 1 asunto de la persona de 3 | 2 |
-| `edinun_j12_l7t1_r3_v1` | 3 expedientes de 6 | 4 |
+| `edinun_j12_l7t1_r3_v1` | 1 expediente de 6 | 5 |
 
 ⚠ Regla de cap: para un SUBCONJUNTO de K, nunca cap = K.
 
