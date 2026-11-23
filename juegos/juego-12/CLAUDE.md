@@ -223,6 +223,18 @@ los temas deben diferenciarse al máximo.
   (335 puntos), y las cuatro ciudades en coordenadas reales. **Nunca dibujarlo a ojo ni
   generarlo como imagen**: no sería tocable por lugar. Las manchas de color son zonas de
   influencia, **no fronteras** — el libro no las da.
+- 📌 **La Carta se queda en CUATRO renglones y el ejercicio NO varía entre partidas**
+  (decisión de la autora, 2026-11-23). Medido con `.planning/variedad-l6t2.js` sobre 8
+  partidas: R1 paleta **8/8** órdenes distintos · R2 **6/8** parejas de gobernantes
+  distintas (de 12 posibles) · R3 **7/8** órdenes del papel, pero **siempre los mismos
+  cuatro renglones**, así que la respuesta correcta nunca cambia.
+  - Se le ofreció un **quinto renglón** sacado de su propio material (*"Robles abolió la
+    contribución de los indígenas"*, así que en 1845 seguía en pie, igual que la
+    esclavitud): con 3 caídos + 2 supervivientes se enseñarían 4 por partida y el renglón
+    que hay que dejar entero cambiaría. **Dijo que lo dejáramos así.** No montarlo sin
+    volver a preguntárselo.
+  - Con el material entregado, **5 es el máximo posible** sin inventar mandatos: el libro
+    solo da tres cosas que cayeron en 1845 y dos que no.
 - **Los cuatro renglones de la Carta los aprobó la autora uno por uno.** El libro dice que
   la Carta de la Esclavitud cae, pero **no da su articulado**: están redactados solo con
   hechos que el libro sí afirma. No añadir ni cambiar renglones sin pasar por ella.
