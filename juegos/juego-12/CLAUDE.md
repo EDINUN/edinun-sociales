@@ -247,6 +247,9 @@ los temas deben diferenciarse al máximo.
     (*"Rompe los 3 renglones que la revolución derribó"*) le pareció fea. El CÓMO sigue
     en el bocadillo, así que la regla QUÉ/CÓMO se mantiene.
   - ⚠ **1845, no 1859**: la Carta cae con la Revolución Marcista. El 1859 es el de la R2.
+  - ⚠ **El cartel del revelado cuelga del papel en ABSOLUTO** (`top: 100%`), no ocupa
+    sitio en la columna: reservándole hueco, el enunciado subía demasiado (*"el enunciado
+    está muy arriba"*), y sin reservarlo el papel saltaba al verificar.
   - ⚠ **El bloque va CENTRADO en el carril** (`justifyContent: "center"`, sin
     `paddingTop` fijo): con el padding quedaba más aire debajo del papel que encima del
     enunciado, y la autora lo marcó.
@@ -273,9 +276,15 @@ los temas deben diferenciarse al máximo.
   un `{ fn, puede }`. **Va SIEMPRE a la vista y se apaga** mientras no haya nada que
   borrar: con la primera versión, que solo lo mostraba al romper algo, la autora no lo
   encontraba (*"yo no veo el botón de borrar"*).
-  - ⚠ **En la Carta deshace SOLO EL ÚLTIMO renglón roto**, no el papel entero (lo pidió la
-    autora el 2026-11-23). Pulsándolo varias veces se vuelve atrás rotura a rotura.
-    **Ojo: en la R1 (la bandera) BORRAR sí vacía todo**, porque allí lo pidió así.
+  - ⚠ **Deshace SOLO LO ÚLTIMO**, nunca el trabajo entero (lo pidió la autora el
+    2026-11-23, primero para la Carta y enseguida *"sí, igualalo en la ronda 1 también"*).
+    Pulsándolo varias veces se va hacia atrás paso a paso.
+    - En la **Carta**: quita el último renglón roto.
+    - En la **bandera**: la R1 guarda una **foto del estado antes de cada cambio**
+      (`hist`) y BORRAR vuelve a la anterior. Con fotos da igual si lo último fue un color
+      o una estrella; distinguirlo a mano era el camino frágil. El botón de la paleta
+      ("🧽 borrar") desapareció: ahora está en la columna.
+  - ⚠ Lo vigila `.planning/borrar-y-bocadillo.js`.
   - ⚠ **El padre NO puede limpiar `dice`/`limpiar` en un efecto con `[round]`**: los
     efectos del hijo corren **antes** que los del padre, así que borraba lo que la ronda
     acababa de registrar y el botón no aparecía nunca. Se limpia al **avanzar de ronda** y
@@ -296,6 +305,9 @@ los temas deben diferenciarse al máximo.
     en su ciudad y **recién entonces** viene el segundo; el último ¡VERIFICAR! cierra la
     ronda llamando a `onSolve`. Lo pidió así la autora. Mientras no se verifica, la ciudad
     elegida va en **celeste** y se puede cambiar tocando otra.
+  - ⚠ **Al cerrar el SEGUNDO gobernante el bocadillo CAMBIA** a *"¡Listo! Esos eran los
+    dos gobiernos."*: son solo dos, así que seguir diciendo *"Toca en el mapa la ciudad…"*
+    es pedir algo que ya no se puede hacer. Lo marcó la autora.
   - ⚠ **Solo se marcan las ciudades jugadas**: pintar de rojo también las vacías parecía
     que había fallado cuatro veces.
   - ⚠ **El pedido va en una BANDA centrada sobre el mapa**, no en una columna a la

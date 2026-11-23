@@ -241,7 +241,7 @@ Object.assign(window, {
 
 // screens.jsx — juego-6 (Estudios Sociales) · MENÚ DE 2 NIVELES.
 // Home = 4 botones de LIBRO (2 · 3 · 5 · 6). Al tocar un libro se abre su pantalla
-// de TEMAS (Libro 2 → 1 tema, Libro 3 → 3 temas, Libro 5 → 2 temas, Libro 6 → 1 tema).
+// de TEMAS (Libro 6 → 2 temas, Libro 7 → 1 tema; los demas iran llegando).
 // Elegir tema + nombre → ENTRAR → CharacterScreen → juego (placeholder por ahora).
 //
 // Nota: es un 2º nivel de menú propio de juego-6; NO toca el shell compartido
@@ -383,7 +383,9 @@ const LIBROS = [
     { id: "l6-t1", label: "Los primeros años del Ecuador", desc: "El Estado ecuatoriano en sus primeros años de vida" },
     { id: "l6-t2", label: "La Revolución Marcista", desc: "El 6 de marzo de 1845 y los años marcistas" },
   ] },
-  { id: "libro-7", label: "Libro 7", temas: [] },
+  { id: "libro-7", label: "Libro 7", temas: [
+    { id: "l7-t1", label: "La Revolución Liberal", desc: "Alfaro, el Estado laico y el ferrocarril" },
+  ] },
 ];
 
 // Personaje guía por defecto de cada libro (preseleccionado en CharacterScreen; el
@@ -595,6 +597,12 @@ Object.assign(window, { HomeScreen, CharacterScreen, CosmosBg, incrementGamesCom
 //   R1 "La bandera de marzo"       — COMPONER: el símbolo se dibuja al tocar
 //   R2 "El Ecuador partido"        — TOCAR EN EL MAPA (contorno real de Natural Earth)
 //   R3 "La Carta de la Esclavitud" — RASGAR: se rompe pasando el dedo
+//
+// LIBRO 7 · TEMA 1 · "La Revolucion Liberal" — 11 años —
+// D.C.D. CS.3.1.40 / CS.3.1.41 / CS.3.1.42 / CS.3.1.43 — L7T1_ROUNDS:
+//   R1 "Tender la via"      — ORDENAR arrastrando sobre la via del ferrocarril
+//   R2 "La balanza de 1897" — REPARTIR entre la Iglesia / cada persona / el Estado
+//   R3 "Expediente abierto" — DESTAPAR pistas y apostar cuanto antes
 //
 // CONTRATO: GameScreen/ResultsScreen({app,setApp,go}) en window; markFirstAttempt() en la
 // 1a respuesta; incrementGamesCompleted() al fin. Invariantes EDINUN: fallar NO baja el
@@ -1364,27 +1372,46 @@ function J12Bandera({ cuarteles, estrellas, ancho, alto }) {
   );
 }
 
-function L6T2R1Bandera({ onSolve, verifyRef }) {
+function L6T2R1Bandera({ onSolve, verifyRef, onClear }) {
   // Varía el ORDEN de la paleta en cada partida (la bandera, en cambio, es una sola:
   // es un símbolo histórico, no hay nada que sortear). Ver "variedad" en el design-doc.
   const [paleta] = useStateG(() => j12Shuffle(J12_BAN_COLORES));
   const [cuarteles, setCuarteles] = useStateG([null, null, null]);
   const [estrellas, setEstrellas] = useStateG(0);
   const [verified, setVerified] = useStateG(false);
+  // ⚠ BORRAR deshace SOLO LO ÚLTIMO (igual que en la Carta): guarda una FOTO del estado
+  // antes de cada cambio y vuelve a la anterior. Con fotos no hay que distinguir si lo
+  // último fue un color o una estrella. Antes vaciaba la bandera entera.
+  const [hist, setHist] = useStateG([]);
   const completa = cuarteles.every((c) => c !== null);
+  const foto = () => setHist((h) => h.concat([{ cuarteles: cuarteles, estrellas: estrellas }]));
 
   function pintar(id) {
     if (verified) return;
     const i = cuarteles.indexOf(null);
     if (i === -1) return;
+    foto();
     setCuarteles((cs) => { const n = cs.slice(); n[i] = id; return n; });
   }
   function borrar(i) {
     if (verified || cuarteles[i] === null) return;
+    foto();
     // Al quitar un cuartel, los de su derecha se corren para que el siguiente toque
     // entre siempre en el primer hueco: así nunca quedan huecos salteados.
     setCuarteles((cs) => { const n = cs.filter((_, k) => k !== i); n.push(null); return n; });
   }
+  function deshacer() {
+    if (verified || !hist.length) return;
+    const atras = hist[hist.length - 1];
+    setCuarteles(atras.cuarteles); setEstrellas(atras.estrellas);
+    setHist((h) => h.slice(0, -1));
+  }
+  // El botón vive en la columna de acciones (lo monta J12Game), como en la R3.
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: deshacer, puede: hist.length > 0 });
+    return () => onClear(null);
+  }, [verified, hist.length]);
 
   function verificar() {
     if (verified || !completa) return;
@@ -1459,25 +1486,15 @@ function L6T2R1Bandera({ onSolve, verifyRef }) {
               <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: c.id === "bla" || c.id === "ama" ? "#3a2608" : "#fff", textShadow: c.id === "bla" || c.id === "ama" ? "none" : "0 1px 2px rgba(0,0,0,0.6)" }}>{c.t}</span>
             </button>
           ))}
-          {/* ⚠ BORRAR a la vista. Tocar un cuartel ya lo vaciaba, pero eso no se ve por
-              ningún lado: con la bandera llena la paleta se apaga y la autora se quedó
-              sin manera visible de rectificar. Deja la bandera COMO AL EMPEZAR: vacía los
-              tres cuarteles Y pone las estrellas a cero (lo pidió la autora; borrar a
-              medias se siente roto). */}
-          <button onClick={() => { if (!verified) { setCuarteles([null, null, null]); setEstrellas(0); } }} disabled={verified || (cuarteles.every((c) => c === null) && estrellas === 0)}
-            style={{ width: 62, height: 38, borderRadius: 9, border: "2.5px dashed rgba(255,255,255,0.45)", background: "rgba(0,0,0,0.3)", cursor: verified || (cuarteles.every((c) => c === null) && estrellas === 0) ? "default" : "pointer", opacity: verified || (cuarteles.every((c) => c === null) && estrellas === 0) ? 0.35 : 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
-            <span style={{ fontSize: 13, lineHeight: 1 }}>🧽</span>
-            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 8.5, color: "#fff" }}>borrar</span>
-          </button>
         </div>
 
         {/* Contador de estrellas: otro gesto distinto, y se dibujan en vivo */}
         <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0, borderRadius: 11, border: `2.5px solid ${verified ? (estrOk ? "#2ecc8f" : "#ff6b6b") : "rgba(242,194,96,0.55)"}`, background: "rgba(0,0,0,0.34)", padding: "4px 11px" }}>
           <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11.5, color: "#fce9a8" }}>Estrellas del centro</span>
-          <button onClick={() => !verified && setEstrellas((n) => Math.max(0, n - 1))} disabled={verified || estrellas === 0}
+          <button onClick={() => { if (!verified && estrellas > 0) { foto(); setEstrellas((n) => Math.max(0, n - 1)); } }} disabled={verified || estrellas === 0}
             style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, cursor: verified || estrellas === 0 ? "default" : "pointer", opacity: verified || estrellas === 0 ? 0.4 : 1 }}>−</button>
           <span style={{ minWidth: 20, textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 18, color: "#fff" }}>{estrellas}</span>
-          <button onClick={() => !verified && setEstrellas((n) => Math.min(5, n + 1))} disabled={verified || estrellas === 5}
+          <button onClick={() => { if (!verified && estrellas < 5) { foto(); setEstrellas((n) => Math.min(5, n + 1)); } }} disabled={verified || estrellas === 5}
             style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "#fff", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, cursor: verified || estrellas === 5 ? "default" : "pointer", opacity: verified || estrellas === 5 ? 0.4 : 1 }}>+</button>
         </div>
 
@@ -1556,8 +1573,13 @@ Pulsa ¡VERIFICAR!`);
     if (terminado || sel === null) return;
     const nuevo = pasos.concat([{ pide: pendiente, ciudad: sel }]);
     setPasos(nuevo); setSel(null); setUltimo({ pide: pendiente, ciudad: sel });
-    if (say) say(null);                         // el bocadillo vuelve a su CÓMO fijo
-    if (nuevo.length < orden.length) return;    // quedan gobernantes: sigue la ronda
+    if (nuevo.length < orden.length) {
+      if (say) say(null);                       // quedan gobernantes: vuelve el CÓMO fijo
+      return;
+    }
+    // ⚠ Ya no queda nada que tocar: el bocadillo NO puede seguir diciendo "toca en el
+    // mapa". Son solo dos gobernantes y la autora lo marcó.
+    if (say) say("¡Listo! Esos eran\nlos dos gobiernos.");
     const aciertos = nuevo.filter((p) => p.pide === p.ciudad).length;
     const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
     const ciudad = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).ciudad;
@@ -1829,21 +1851,21 @@ function L6T2R3Carta({ onSolve, verifyRef, onClear }) {
             impuesto que hizo estallar el 6 de marzo" ≈ "Cada hombre paga tres pesos al
             año"), así que la ronda se resolvía traduciendo línea por línea. Lo quitó la
             autora el 2026-11-23. Solo queda el cartel del REVELADO. */}
-        {/* ⚠ El cartel del revelado OCUPA SITIO DESDE EL PRINCIPIO (invisible hasta que se
-            verifica): si apareciera de golpe, empujaría el papel hacia abajo y todo daría
-            un salto justo cuando el niño está mirando sus respuestas. */}
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${verified ? "#f2c260" : "transparent"}`, background: verified ? "rgba(0,0,0,0.45)" : "transparent", padding: "6px 12px", flexShrink: 0, minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {verified && (
-            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "#fce9a8", textAlign: "center" }}>El renglón de los esclavos no cayó en 1845: hubo que esperar a 1851, con Urbina.</span>
-          )}
-        </div>
 
-        {/* El papel */}
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
+        {/* El papel. ⚠ `position: relative` porque el cartel del revelado cuelga de él en
+            ABSOLUTO: si ocupara sitio en la columna, al reservarlo empujaría el enunciado
+            hacia arriba (la autora: "el enunciado está muy arriba") y, sin reservarlo,
+            el papel daría un salto al verificar. */}
+        <div style={{ position: "relative", width: 452, boxSizing: "border-box", borderRadius: 10, border: "3px solid rgba(190,158,96,0.75)", background: "linear-gradient(180deg, rgba(255,251,236,0.96), rgba(238,226,198,0.94))", padding: "9px 11px 11px", flexShrink: 0, boxShadow: "0 8px 20px rgba(0,0,0,0.38)" }}>
           <div style={{ textAlign: "center", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, letterSpacing: "0.08em", color: "#7a5a12", borderBottom: "2px solid rgba(190,158,96,0.5)", paddingBottom: 4, marginBottom: 7 }}>CARTA DE LA ESCLAVITUD · 1843</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {b.renglones.map((r, i) => renglon(r, i))}
           </div>
+          {verified && (
+            <div style={{ position: "absolute", top: "100%", left: 0, right: 0, marginTop: 8, boxSizing: "border-box", borderRadius: 12, border: "2.5px solid #f2c260", background: "rgba(10,30,22,0.92)", padding: "7px 12px", textAlign: "center" }}>
+              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25, color: "#fce9a8" }}>El renglón de los esclavos no cayó en 1845: hubo que esperar a 1851, con Urbina.</span>
+            </div>
+          )}
         </div>
 
       </div>
@@ -1856,6 +1878,581 @@ const L6T2_ROUNDS = [
   { C: L6T2R2Mapa, verify: true, bubble: (<>Toca en el mapa la<br />ciudad donde mandaba.</>) },
   { C: L6T2R3Carta, verify: true, bubble: (<>Arrastra a lo ancho<br />del renglón y se rompe.</>) },
 ];
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ LIBRO 7 · TEMA 1 · "La Revolución Liberal"                                 ║
+// ║ Edad objetivo: 11 años (la fija la autora).                                ║
+// ║ D.C.D. CS.3.1.40 · CS.3.1.41 · CS.3.1.42 · CS.3.1.43                       ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 manos distintas:                                               ║
+// ║   R1 "Tender la via"      — ORDENAR arrastrando sobre la via del tren      ║
+// ║   R2 "La balanza de 1897" — REPARTIR en tres destinos, la viga se inclina  ║
+// ║   R3 "Expediente abierto" — DESTAPAR pistas y apostar cuanto antes         ║
+// ║                                                                            ║
+// ║ ⭐ 4 + 5 + 6 = **15 maximo**.                                               ║
+// ║                                                                            ║
+// ║ ⚠ DATOS: todo sale del Libro 7 Tema 1 (pp. 10-15) y su cuaderno (pp.       ║
+// ║ 11-14), que la autora entrego el 2026-11-23. No se inventa nada.           ║
+// ║                                                                            ║
+// ║ ⚠ Fuera del juego a proposito: la "hoguera barbara" como escena (es del    ║
+// ║ libro, pero no se juega con un linchamiento). El hecho de 1912 entra en la ║
+// ║ R1 redactado en seco, sin la escena.                                       ║
+// ║                                                                            ║
+// ║ ⚠ NINGUNA cara de persona real se dibuja. Alfaro y Matilde Hidalgo se      ║
+// ║ nombran; no se ilustran.                                                   ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+// Imagen de `assets/` con respaldo de emoji: el tema entero se juega aunque las
+// ilustraciones todavia no esten subidas (mismo criterio que J12Retrato).
+function J12Img({ src, e, ancho, alto, radius, fit }) {
+  const [roto, setRoto] = useStateG(false);
+  if (roto) {
+    return (
+      <div style={{ width: ancho, height: alto, borderRadius: radius === undefined ? 10 : radius, background: "rgba(0,0,0,0.3)", border: "1.5px solid rgba(242,194,96,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(Math.min(ancho, alto) * 0.5), lineHeight: 1 }}>{e}</div>
+    );
+  }
+  return <img src={`assets/${src}`} alt="" draggable={false} onError={() => setRoto(true)}
+    style={{ width: ancho, height: alto, objectFit: fit || "cover", objectPosition: "center", borderRadius: radius === undefined ? 10 : radius, pointerEvents: "none", WebkitUserDrag: "none" }} />;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R1 · "Tender la via" — ORDENAR arrastrando.
+// Cuatro hechos de la Revolucion liberal, desordenados sobre la via del ferrocarril.
+// Se arrastra la tarjeta (o se tocan dos para intercambiarlas) y ¡VERIFICAR! valida las
+// cuatro de una vez. ⭐ +1 por tarjeta en su sitio.
+//
+// ⚠ El año NO se ve mientras se juega: deducir el orden ES el ejercicio. Aparece al
+// verificar, junto al ✓/✗ y el puesto que le tocaba, SIN reordenar la columna.
+//
+// ⚠ El lenguaje del revelado es la VIA: el tren baja por los rieles y FRENA en la
+// primera tarjeta fuera de sitio. Si estan las cuatro bien, llega hasta Quito.
+//
+// ⚠ Banco de 6 hechos con año explicito en el libro y TODOS distintos: si dos
+// compartieran año habria dos ordenaciones correctas. Entran 4 por partida.
+// ══════════════════════════════════════════════════════════════════
+const J7T1_HITOS = [
+  { id: "v1895", y: 1895, e: "📣", t: "Tras la “venta de la bandera”, el 5 de junio una Junta nombra a Alfaro jefe supremo." },
+  { id: "v1897", y: 1897, e: "📜", t: "Una Asamblea en Quito aprueba una nueva Constitución y Alfaro llega a la presidencia." },
+  { id: "v1902", y: 1902, e: "💍", t: "La Ley de Matrimonio Civil y del Divorcio saca el matrimonio de manos de la Iglesia." },
+  { id: "v1906", y: 1906, e: "🏛️", t: "Alfaro implanta el Estado laico y se aprueba su segunda Constitución." },
+  { id: "v1908", y: 1908, e: "🚂", t: "Se termina el ferrocarril que une Guayaquil con Quito: 452 km de vía." },
+  { id: "v1912", y: 1912, e: "🕯️", t: "Alfaro es apresado y llevado a Quito; allí muere y termina la Revolución liberal." },
+];
+
+const J7T1_R1_KEY = "edinun_j12_l7t1_r1_v1";
+const J7T1_ALTO = 74, J7T1_HUECO = 10;          // alto fijo de tarjeta + separacion
+function j7t1R1Build() {
+  // Entran 4 de 6: cambia CUALES se quedan fuera (FIFO de 3, nunca cap = K) y el barajado.
+  const fuera = j12PickIdx(J7T1_HITOS, 2, J7T1_R1_KEY);
+  j12Commit(J7T1_R1_KEY, fuera, 3);
+  const juegan = J7T1_HITOS.filter((_, i) => fuera.indexOf(i) === -1).slice().sort((a, b) => a.y - b.y);
+  let ini = j12Shuffle(juegan), guard = 0;
+  while (guard++ < 30 && ini.every((h, i) => h.id === juegan[i].id)) ini = j12Shuffle(juegan);
+  return { correcto: juegan, orden: ini };
+}
+
+function L7T1R1Via({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j7t1R1Build());
+  const [st, setSt] = useStateG(() => ({ orden: b.orden, drag: null }));
+  const orden = st.orden, drag = st.drag;
+  const setOrden = (f) => setSt((s) => ({ ...s, orden: typeof f === "function" ? f(s.orden) : f }));
+  const setDrag = (d) => setSt((s) => ({ ...s, drag: d }));
+  const [sel, setSel] = useStateG(null);
+  const [verified, setVerified] = useStateG(false);
+  const [tren, setTren] = useStateG(0);         // hasta que slot llego el tren (0 = en la salida)
+  const rootRef = useRefG(null);
+  const cardRefs = useRefG([]);
+  const dragInfo = useRefG(null);
+  const vuelo = useRefG(null);
+
+  // Cuantas tarjetas seguidas, desde arriba, estan en su sitio: hasta ahi llega el tren.
+  let tope = 0;
+  while (tope < orden.length && orden[tope].id === b.correcto[tope].id) tope++;
+  useEffectG(() => {
+    if (!verified) return undefined;
+    const t = setTimeout(() => setTren(tope), 120);
+    return () => clearTimeout(t);
+  }, [verified, tope]);
+
+  function tap(i) {
+    if (verified) return;
+    if (sel === null) { setSel(i); return; }
+    if (sel === i) { setSel(null); return; }
+    setOrden((o) => { const n = o.slice(); const t = n[i]; n[i] = n[sel]; n[sel] = t; return n; });
+    setSel(null);
+  }
+
+  // Arrastre con aterrizaje (mismo patron probado en la linea del tiempo del Libro 6:
+  // la tarjeta sigue al dedo, nadie se desplaza en vivo, y al soltar TODAS viajan).
+  function destinoDe(y, slots) {
+    let mejor = 0, d = Infinity;
+    for (let i = 0; i < slots.length; i++) { const dist = Math.abs(y - slots[i]); if (dist < d) { d = dist; mejor = i; } }
+    return mejor;
+  }
+  function onDown(e, i) {
+    if (verified) return;
+    if (vuelo.current) { vuelo.current.cortado = true; (vuelo.current.anims || []).forEach((a) => { try { a.cancel(); } catch (err) {} }); vuelo.current = null; }
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    const S = rootRef.current ? (rootRef.current.getBoundingClientRect().width / 470) || 1 : 1;
+    const slots = orden.map((_, k) => { const el = cardRefs.current[k]; if (!el) return 0; const r = el.getBoundingClientRect(); return r.top + r.height / 2; });
+    dragInfo.current = { i, x0: e.clientX, y0: e.clientY, scale: S, slots, movido: false };
+    setDrag({ i, dy: 0, over: i, movido: false });
+  }
+  function onMove(e) {
+    const di = dragInfo.current; if (!di) return;
+    const dy = e.clientY - di.y0;
+    if (!di.movido && Math.hypot(e.clientX - di.x0, dy) <= 6) return;
+    di.movido = true;
+    setDrag({ i: di.i, dy: dy / di.scale, over: destinoDe(e.clientY, di.slots), movido: true });
+  }
+  function onUp(e) {
+    const di = dragInfo.current; if (!di) return;
+    dragInfo.current = null;
+    if (verified) { setDrag(null); return; }
+    if (!di.movido) { setDrag(null); tap(di.i); return; }       // respaldo: toque = intercambio
+    const destino = destinoDe(e.clientY, di.slots);
+    if (destino === di.i) { setDrag(null); return; }
+    const antes = {};
+    orden.forEach((h, k) => { const el = cardRefs.current[k]; if (el) antes[h.id] = el.getBoundingClientRect().top; });
+    const nuevoOrden = orden.slice();
+    const quitada = nuevoOrden.splice(di.i, 1)[0];
+    nuevoOrden.splice(destino, 0, quitada);
+    setSt({ orden: nuevoOrden, drag: null });
+    setSel(null);
+    aterrizarTodas(antes, nuevoOrden, di.scale || 1);
+  }
+  function endDrag() { dragInfo.current = null; setDrag(null); }
+  function aterrizarTodas(antes, nuevo, S) {
+    const v = { cortado: false, anims: [] };
+    vuelo.current = v;
+    requestAnimationFrame(() => {
+      if (v.cortado) return;
+      nuevo.forEach((h, k) => {
+        const el = cardRefs.current[k];
+        if (!el || !el.animate || antes[h.id] === undefined) return;
+        if (el.getAnimations) el.getAnimations().forEach((an) => { try { an.cancel(); } catch (err) {} });
+        const salto = (antes[h.id] - el.getBoundingClientRect().top) / S;
+        if (Math.abs(salto) < 1) return;
+        v.anims.push(el.animate([{ transform: `translateY(${salto}px)` }, { transform: "translateY(0px)" }], { duration: 150, easing: "ease-out", fill: "backwards" }));
+      });
+    });
+  }
+
+  function verificar() {
+    if (verified) return;
+    setSel(null); setVerified(true);
+    const aciertos = orden.filter((h, i) => h.id === b.correcto[i].id).length;
+    onSolve(aciertos === orden.length, {
+      emoji: "🚂", a: "La Revolución liberal, en orden",
+      userAnswer: orden.map((h) => h.t.slice(0, 32)).join(" · "),
+      correctAnswer: b.correcto.map((h) => `${h.y} ${h.t.slice(0, 26)}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  function puestoDe(h) { return b.correcto.findIndex((x) => x.id === h.id) + 1; }
+  const altoVia = orden.length * J7T1_ALTO + (orden.length - 1) * J7T1_HUECO;
+  // ⚠ En reposo el tren se para en el ARRANQUE DE LOS RIELES (top 0), no por encima:
+  // a -16 se montaba sobre el rótulo GUAYAQUIL en los cinco tamaños de ventana.
+  const trenY = tren === 0 ? 0 : (tren - 1) * (J7T1_ALTO + J7T1_HUECO) + J7T1_ALTO / 2 - 11;
+
+  return (
+    <div ref={rootRef} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
+      {/* Fondo del ferrocarril, muy apagado: ambienta sin competir con el texto.
+          ⚠ Va como background-image, nunca como <img> sobredimensionado. */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: 16, opacity: 0.16, backgroundImage: "url(assets/j7t1-ferrocarril.jpg)", backgroundSize: "cover", backgroundPosition: "center", pointerEvents: "none" }} />
+      <div style={{ position: "relative", pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Ordena los hechos del más antiguo al más reciente.</span>
+      </div>
+      <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "stretch", gap: 10, width: 452 }}>
+          {/* La VÍA: rieles verticales, Guayaquil arriba y Quito abajo. El tren baja al
+              verificar y frena en la primera tarjeta fuera de sitio. */}
+          <div style={{ position: "relative", flexShrink: 0, width: 34, display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 8, color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em" }}>GUAYAQUIL</span>
+            <div style={{ position: "relative", height: altoVia, width: 18, margin: "3px 0" }}>
+              <div style={{ position: "absolute", left: 3, top: 0, bottom: 0, width: 3, borderRadius: 999, background: "rgba(242,194,96,0.55)" }} />
+              <div style={{ position: "absolute", right: 3, top: 0, bottom: 0, width: 3, borderRadius: 999, background: "rgba(242,194,96,0.55)" }} />
+              {Array.from({ length: orden.length * 3 }).map((_, k) => (
+                <div key={k} style={{ position: "absolute", left: 0, right: 0, top: 8 + k * ((altoVia - 16) / (orden.length * 3 - 1)), height: 2, borderRadius: 2, background: "rgba(242,194,96,0.35)" }} />
+              ))}
+              {/* Tramo recorrido: se enciende hasta donde llegó el tren. */}
+              {verified && tren > 0 && (
+                <div style={{ position: "absolute", left: 3, right: 3, top: 0, height: trenY + 11, background: "linear-gradient(180deg, rgba(79,224,138,0.8), rgba(31,157,87,0.8))", borderRadius: 999, transition: "height 0.9s ease-out" }} />
+              )}
+              <div style={{ position: "absolute", left: "50%", top: trenY, transform: "translateX(-50%)", fontSize: 20, lineHeight: 1, transition: "top 0.9s ease-out", filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.6))" }}>🚂</div>
+            </div>
+            <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 8, color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em" }}>QUITO</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: J7T1_HUECO }}>
+            {orden.map((h, i) => {
+              const ok = verified && h.id === b.correcto[i].id;
+              const elegida = sel === i;
+              const arrastrando = drag && drag.i === i;
+              const destino = drag && drag.movido && drag.over === i && drag.i !== i && !verified;
+              let border = "#d9c48a", bg = "linear-gradient(180deg,#fffdf6,#f6ecd2)", col = "#3a2608";
+              if (!verified && (elegida || arrastrando || destino)) { border = "#4fd8ff"; bg = "linear-gradient(180deg,#eaf9ff,#cdeeff)"; }
+              if (verified) {
+                border = ok ? "#2ecc8f" : "#ff6b6b";
+                bg = ok ? "linear-gradient(180deg,rgba(72,224,154,0.95),rgba(26,143,95,0.92))" : "linear-gradient(180deg,rgba(255,139,139,0.92),rgba(178,47,47,0.9))";
+                col = ok ? "#06381f" : "#fff";
+              }
+              return (
+                <button key={h.id} data-qa="via" ref={(el) => { cardRefs.current[i] = el; }}
+                  onPointerDown={(e) => onDown(e, i)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={endDrag} disabled={verified}
+                  style={{ position: "relative", width: "100%", height: J7T1_ALTO, touchAction: "none", boxSizing: "border-box", borderRadius: 12, border: `3px solid ${border}`, background: bg, color: col, display: "flex", alignItems: "center", gap: 9, padding: "6px 10px", textAlign: "left", cursor: verified ? "default" : "pointer", transform: arrastrando ? `translateY(${drag.dy}px) scale(1.03)` : ((elegida && !verified) ? "translateX(4px) scale(1.02)" : "none"), zIndex: arrastrando ? 60 : 1, boxShadow: ((elegida || arrastrando || destino) && !verified) ? "0 0 18px rgba(79,216,255,0.6), inset 0 1px 0 rgba(255,255,255,0.7)" : "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.28)", transition: arrastrando ? "none" : "transform 0.16s ease" }}>
+                  <span style={{ flexShrink: 0, width: 21, height: 21, borderRadius: "50%", background: "rgba(0,0,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 11 }}>{i + 1}</span>
+                  <span style={{ flexShrink: 0, fontSize: 17, lineHeight: 1 }}>{h.e}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.22 }}>{h.t}</span>
+                  {/* Al verificar aparece el año y, si está mal, el puesto que le tocaba.
+                      La columna NO se reordena: el niño tiene que poder ver su respuesta. */}
+                  {verified && (
+                    <span style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <span style={{ flexShrink: 0, width: 18, height: 18, borderRadius: "50%", background: ok ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 11, boxShadow: "0 2px 5px rgba(0,0,0,0.35)" }}>{ok ? "✓" : "✗"}</span>
+                        <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 12.5 }}>{h.y}</span>
+                      </span>
+                      {!ok && <span style={{ whiteSpace: "nowrap", background: "linear-gradient(180deg,#ffe6a1,#f1c153)", border: "1.5px solid #e0a72c", borderRadius: 999, padding: "0 6px", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 8.5, color: "#5a3d0a" }}>va {puestoDe(h)}º</span>}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R2 · "La balanza de 1897" — REPARTIR en tres destinos (mano nueva en el tema).
+// Llega un asunto a la vez y se toca su destino: LA IGLESIA · CADA PERSONA · EL ESTADO.
+// La viga se inclina en vivo segun como va quedando el reparto. ⭐ +1 por asunto bien.
+//
+// ⚠ Tres destinos, no dos: el libro dice que con el laicismo lo civil paso al Estado, que
+// la Iglesia conservo lo suyo (cuaderno p. 13: el Carnaval, las procesiones, la Novena) y
+// que la creencia quedo "en el ambito de la vida privada y de la conciencia individual"
+// — ese es el tercer destino. Con solo dos, TODO caeria del lado del Estado y no habria
+// ronda que jugar.
+//
+// ⚠ Ni verde ni rojo antes de ¡VERIFICAR!: lo colocado va en ambar. La viga que se
+// inclina es un espejo de TU reparto, no una correccion.
+//
+// ⚠ BORRAR quita el ULTIMO asunto colocado, de uno en uno, y lo devuelve a la mano.
+// ══════════════════════════════════════════════════════════════════
+const J7T1_DESTINOS = [
+  { id: "igl", nombre: "LA IGLESIA", img: "j7t1-iglesia.jpg", e: "⛪", col: "#f2b84b" },
+  { id: "per", nombre: "CADA PERSONA", img: null, e: "💭", col: "#b48aff" },
+  { id: "est", nombre: "EL ESTADO", img: "j7t1-estado.jpg", e: "🏛️", col: "#4fd8ff" },
+];
+const J7T1_ASUNTOS = {
+  est: [
+    { id: "e1", e: "💍", t: "Registrar los matrimonios.", p: "Con la Ley de Matrimonio Civil de 1902, el matrimonio se registra ante el Estado." },
+    { id: "e2", e: "📒", t: "Anotar quién nace y quién muere.", p: "La Ley de Registro Civil de 1900 puso esos registros en manos del Estado." },
+    { id: "e3", e: "🏫", t: "Las escuelas y quién puede dar clases.", p: "La Ley de Instrucción Pública de 1897 separó al clero de la enseñanza." },
+    { id: "e4", e: "⚖️", t: "Las leyes, que valen igual para todos.", p: "El Estado laico se maneja por leyes y normas jurídicas, no por dogmas." },
+    { id: "e5", e: "🏥", t: "Los hospitales y las normas de sanidad.", p: "El Estado se ocupó de la salud pública y de las normas sanitarias." },
+    { id: "e6", e: "🌾", t: "Las tierras que tenía la Iglesia.", p: "La Ley de Manos Muertas de 1908 las puso en manos del Estado para repartirlas." },
+  ],
+  igl: [
+    { id: "i1", e: "🕯️", t: "Las procesiones y la Novena a los Santos.", p: "El cuaderno dice que se siguieron celebrando igual que antes." },
+    { id: "i2", e: "🎭", t: "El Carnaval y las fiestas religiosas.", p: "Siguieron siendo fiestas de la Iglesia y del pueblo." },
+    { id: "i3", e: "⛪", t: "La misa y los bautizos.", p: "La religión siguió con sus propias celebraciones." },
+  ],
+  per: [
+    { id: "p1", e: "💭", t: "En qué religión cree cada uno.", p: "La creencia quedó en la vida privada y en la conciencia individual." },
+    { id: "p2", e: "🗣️", t: "Lo que una persona piensa y dice en público.", p: "Es la libertad de pensamiento, por la palabra o por la prensa." },
+    { id: "p3", e: "🚶", t: "Si alguien va o no va a la iglesia.", p: "Es libertad de conciencia: la decide cada quien, no el Estado ni la Iglesia." },
+  ],
+};
+const J7T1_R2_KEYS = { est: "edinun_j12_l7t1_r2_est_v1", igl: "edinun_j12_l7t1_r2_igl_v1", per: "edinun_j12_l7t1_r2_per_v1" };
+function j7t1R2Build() {
+  // Composicion FIJA (3 del Estado + 1 de la Iglesia + 1 de la persona): asi ninguna
+  // partida sale con los cinco asuntos del mismo lado, que no seria una ronda. Lo que
+  // varia es CUALES, con FIFO por grupo.
+  function toma(grupo, k, cap) {
+    const pool = J7T1_ASUNTOS[grupo];
+    const idx = j12PickIdx(pool, k, J7T1_R2_KEYS[grupo]);
+    j12Commit(J7T1_R2_KEYS[grupo], idx, cap);
+    return idx.map((i) => Object.assign({}, pool[i], { d: grupo }));
+  }
+  return { cartas: j12Shuffle(toma("est", 3, 4).concat(toma("igl", 1, 2), toma("per", 1, 2))) };
+}
+
+function L7T1R2Balanza({ onSolve, verifyRef, onClear }) {
+  const [b] = useStateG(() => j7t1R2Build());
+  const [puestos, setPuestos] = useStateG([]);     // [{ id, d }] en el orden en que se colocaron
+  const [verified, setVerified] = useStateG(false);
+  const cartas = b.cartas;
+  const i = puestos.length;                         // la carta que está en la mano
+  const actual = i < cartas.length ? cartas[i] : null;
+  function puestoDe(id) { return puestos.find((p) => p.id === id) || null; }
+
+  function colocar(d) {
+    if (verified || !actual) return;
+    setPuestos((ps) => ps.concat([{ id: actual.id, d: d }]));
+  }
+  function borrar() { if (!verified) setPuestos((ps) => ps.slice(0, -1)); }
+
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: puestos.length > 0 });
+    return () => onClear(null);
+  }, [puestos.length, verified]);
+
+  const nEst = puestos.filter((p) => p.d === "est").length;
+  const nIgl = puestos.filter((p) => p.d === "igl").length;
+  const inclina = Math.max(-14, Math.min(14, (nEst - nIgl) * 5));
+
+  function nombreDe(d) { const x = J7T1_DESTINOS.find((z) => z.id === d); return x ? x.nombre : "—"; }
+
+  function verificar() {
+    if (verified || puestos.length < cartas.length) return;
+    setVerified(true);
+    const aciertos = cartas.filter((c) => (puestoDe(c.id) || {}).d === c.d).length;
+    onSolve(aciertos === cartas.length, {
+      emoji: "⚖️", a: "Qué quedó en manos de quién con el Estado laico",
+      userAnswer: cartas.map((c) => `${c.t.slice(0, 24)} → ${nombreDe((puestoDe(c.id) || {}).d)}`).join(" · "),
+      correctAnswer: cartas.map((c) => `${c.t.slice(0, 24)} → ${nombreDe(c.d)}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  const fallos = verified ? cartas.filter((c) => (puestoDe(c.id) || {}).d !== c.d) : [];
+
+  function Platillo({ dest }) {
+    const dentro = cartas.filter((c) => (puestoDe(c.id) || {}).d === dest.id);
+    const vivo = !verified && !!actual;
+    return (
+      <button data-qa={"plat-" + dest.id} onClick={() => colocar(dest.id)} disabled={!vivo}
+        style={{ width: 140, boxSizing: "border-box", borderRadius: 14, border: `2.5px solid ${vivo ? dest.col : "rgba(255,255,255,0.28)"}`, background: "rgba(10,6,35,0.72)", padding: "7px 6px 8px", cursor: vivo ? "pointer" : "default", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, boxShadow: vivo ? `0 0 16px ${dest.col}55` : "none" }}>
+        {dest.img
+          ? <J12Img src={dest.img} e={dest.e} ancho={124} alto={46} radius={8} />
+          : <div style={{ width: 124, height: 46, borderRadius: 8, background: "rgba(180,138,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, lineHeight: 1 }}>{dest.e}</div>}
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10, letterSpacing: "0.05em", color: "#fce9a8" }}>{dest.nombre}</span>
+        <div style={{ minHeight: 24, display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>
+          {dentro.map((c) => {
+            const ok = verified && c.d === dest.id;
+            const mal = verified && c.d !== dest.id;
+            return (
+              <span key={c.id} title={c.t} style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, lineHeight: 1, background: mal ? "rgba(192,57,43,0.9)" : (ok ? "rgba(31,138,84,0.95)" : "rgba(242,194,96,0.22)"), border: `1.5px solid ${mal ? "#ff6b6b" : (ok ? "#2ecc8f" : "rgba(242,194,96,0.7)")}` }}>{c.e}</span>
+            );
+          })}
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>Con el Estado laico, ¿en manos de quién quedó cada asunto?</span>
+      </div>
+
+      {/* LA BALANZA. La viga se inclina según tu reparto; es un espejo, no una corrección. */}
+      <div style={{ position: "relative", width: 300, height: 30, marginTop: 8, flexShrink: 0 }}>
+        <div style={{ position: "absolute", left: "50%", bottom: 0, transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "12px solid transparent", borderRight: "12px solid transparent", borderBottom: "20px solid rgba(242,194,96,0.7)" }} />
+        <div style={{ position: "absolute", left: "50%", top: 3, width: 288, height: 6, marginLeft: -144, borderRadius: 999, background: "linear-gradient(90deg, rgba(242,184,75,0.95), rgba(180,138,255,0.9), rgba(79,216,255,0.95))", transform: `rotate(${inclina}deg)`, transformOrigin: "50% 50%", transition: "transform 0.35s ease", boxShadow: "0 2px 8px rgba(0,0,0,0.45)" }} />
+      </div>
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", marginTop: 5, flexShrink: 0 }}>
+        {J7T1_DESTINOS.map((d) => <Platillo key={d.id} dest={d} />)}
+      </div>
+
+      {/* EN LA MANO: un asunto a la vez. Al terminar, ese sitio lo ocupa el revelado. */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: 0, marginTop: 4 }}>
+        {!verified && actual && (
+          <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #d9c48a", background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", padding: "9px 12px", display: "flex", alignItems: "center", gap: 10, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.28)" }}>
+            <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 10, background: "rgba(0,0,0,0.1)", borderRadius: 999, padding: "2px 7px" }}>{i + 1}/{cartas.length}</span>
+            <span style={{ flexShrink: 0, fontSize: 20, lineHeight: 1 }}>{actual.e}</span>
+            <span data-qa="asunto" style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, lineHeight: 1.25 }}>{actual.t}</span>
+          </div>
+        )}
+        {!verified && !actual && (
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#fce9a8", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Ya repartiste los {cartas.length} asuntos.<br />Toca ¡VERIFICAR!</div>
+        )}
+        {/* Al revelar, la correcta GRITA: panel verde grande con dónde iba cada fallo. */}
+        {verified && (
+          <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #2ecc8f", background: "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))", color: "#eafff4", padding: "8px 12px", boxShadow: "0 0 28px rgba(46,204,143,0.55)" }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11, letterSpacing: "0.1em", color: "#06381f", marginBottom: 4 }}>{fallos.length === 0 ? "¡LOS CINCO EN SU SITIO!" : "LA RESPUESTA ERA"}</div>
+            {fallos.length === 0 ? (
+              <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>Con el laicismo el Estado tomó lo civil, la Iglesia conservó sus fiestas y la creencia quedó en manos de cada persona.</div>
+            ) : fallos.slice(0, 3).map((c) => (
+              <div key={c.id} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 3 }}>
+                <span style={{ flexShrink: 0, fontSize: 14, lineHeight: 1.25 }}>{c.e}</span>
+                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.25 }}>
+                  <b>{nombreDe(c.d)}</b> — {c.p}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R3 · "Expediente abierto" — DESTAPAR y apostar (mano nueva en el tema).
+// Tres expedientes. Cada uno llega con una foto y UNA pista; se pueden destapar dos mas,
+// pero la estrella extra solo la gana quien acierta con la primera.
+// ⭐ +1 por acierto, +1 mas si fue con la PRIMERA pista sola. Maximo 6.
+//
+// ⚠ Las pistas DAN los hechos: la ronda se resuelve leyendo lo que hay en pantalla, no
+// de memoria. Destapar no quita nada de lo ya ganado, solo deja de sumar el extra.
+//
+// ⚠ Ni verde ni rojo antes de ¡VERIFICAR!: lo elegido se marca en azul. Y volver a tocar
+// la opcion ya elegida NO la quita: quedarse con ella es una respuesta valida.
+//
+// ⚠ Las opciones falsas son nombres REALES de otros hechos del mismo tema: nada inventado.
+// ══════════════════════════════════════════════════════════════════
+const J7T1_CASOS = [
+  { id: "cacao", img: "j7t1-cacao.jpg", e: "🫘", a: "La crisis cacaotera",
+    pistas: ["La Primera Guerra Mundial cerró el mercado europeo y encareció el transporte.", "El quintal se desplomó de 26,76 a 5,75 sucres.", "En 1917 apareció la monilla, un hongo que arrasó las plantaciones."] },
+  { id: "marcha", img: "j7t1-marcha.jpg", e: "📢", a: "La marcha obrera del 15 de noviembre de 1922",
+    pistas: ["Guayaquil quedó paralizada por la protesta.", "Se sumaron obreros portuarios, artesanos y migrantes.", "Fue el hito inicial de la lucha laboral en el país."] },
+  { id: "montonera", img: "j7t1-montonera.jpg", e: "🐴", a: "El levantamiento de Concha",
+    pistas: ["Ocurrió entre 1913 y 1916, en la región Litoral.", "Lo lideró el coronel Carlos Concha Torres.", "Pedía cambios en la propiedad de la tierra y mejoras para los campesinos."] },
+  { id: "escuela", img: "j7t1-escuela.jpg", e: "✏️", a: "La educación laica",
+    pistas: ["En 1897 se prohibió el ingreso al país de comunidades religiosas de enseñanza.", "La Ley de Instrucción Pública separó al clero de las escuelas.", "Se crearon escuelas de artes y oficios para niñas."] },
+  { id: "registro", img: "j7t1-registro.jpg", e: "✒️", a: "La Ley de Matrimonio Civil",
+    pistas: ["Es de 1902.", "Desde entonces el matrimonio se registra ante un funcionario del Estado.", "Hizo que el sentido religioso quedara después de lo legal."] },
+  { id: "estacion", img: "j7t1-estacion.jpg", e: "🚉", a: "El ferrocarril Guayaquil–Quito",
+    pistas: ["Alfaro decía que sin él no había progreso posible.", "Se concluyó en 1908.", "Tiene 452 km y unió la Costa con la Sierra."] },
+];
+const J7T1_R3_KEY = "edinun_j12_l7t1_r3_v1";
+function j7t1R3Build() {
+  const idx = j12PickIdx(J7T1_CASOS, 3, J7T1_R3_KEY);
+  j12Commit(J7T1_R3_KEY, idx, 4);
+  const casos = idx.map((i) => {
+    const c = J7T1_CASOS[i];
+    const otros = j12Shuffle(J7T1_CASOS.filter((x) => x.id !== c.id)).slice(0, 2).map((x) => x.a);
+    return Object.assign({}, c, { opciones: j12Shuffle([c.a].concat(otros)) });
+  });
+  return { casos };
+}
+
+function L7T1R3Expediente({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j7t1R3Build());
+  const casos = b.casos;
+  const [activo, setActivo] = useStateG(0);
+  const [abiertas, setAbiertas] = useStateG(() => casos.map(() => 1));   // pistas destapadas
+  const [elegido, setElegido] = useStateG(() => casos.map(() => null));
+  const [verified, setVerified] = useStateG(false);
+  const c = casos[activo];
+
+  function destapar() {
+    if (verified) return;
+    setAbiertas((a) => a.map((n, k) => (k === activo ? Math.min(3, n + 1) : n)));
+  }
+  function elegir(op) {
+    if (verified) return;
+    setElegido((e) => e.map((v, k) => (k === activo ? op : v)));
+  }
+
+  function verificar() {
+    if (verified || elegido.some((e) => e === null)) return;
+    setVerified(true);
+    let g = 0;
+    casos.forEach((x, k) => { if (elegido[k] === x.a) { g += 1; if (abiertas[k] === 1) g += 1; } });
+    const aciertos = casos.filter((x, k) => elegido[k] === x.a).length;
+    onSolve(aciertos === casos.length, {
+      emoji: "🗂️", a: "Reconocer los hechos de la Revolución liberal",
+      userAnswer: casos.map((x, k) => elegido[k]).join(" · "),
+      correctAnswer: casos.map((x) => x.a).join(" · "),
+    }, g);
+  }
+  verifyRef.current = verificar;
+
+  const okActivo = verified && elegido[activo] === c.a;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 36 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>Descubre de qué hecho habla cada expediente.</span>
+      </div>
+
+      {/* Pestañas: se ve de un vistazo cuáles quedan por responder. */}
+      <div style={{ display: "flex", gap: 6, marginTop: 9, flexShrink: 0 }}>
+        {casos.map((x, k) => {
+          const ok = verified && elegido[k] === x.a;
+          const mal = verified && elegido[k] !== x.a;
+          const act = k === activo;
+          return (
+            <button key={x.id} data-qa="exp" onClick={() => setActivo(k)}
+              style={{ borderRadius: 10, padding: "5px 11px", cursor: "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, letterSpacing: "0.03em",
+                border: `2px solid ${mal ? "#ff6b6b" : ok ? "#2ecc8f" : act ? "#4fd8ff" : "rgba(242,194,96,0.5)"}`,
+                background: mal ? "rgba(178,47,47,0.85)" : ok ? "rgba(26,143,95,0.9)" : act ? "rgba(79,216,255,0.22)" : "rgba(0,0,0,0.35)",
+                color: "#fce9a8", opacity: act || verified ? 1 : 0.75 }}>
+              EXPEDIENTE {k + 1}{verified ? (ok ? " ✓" : " ✗") : (elegido[k] !== null ? " ·" : "")}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ flex: 1, width: 452, display: "flex", flexDirection: "column", minHeight: 0, marginTop: 8 }}>
+        <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+          <J12Img src={c.img} e={c.e} ancho={106} alto={106} radius={12} />
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 }}>
+            {[0, 1, 2].map((p) => {
+              if (p < abiertas[activo]) {
+                return (
+                  <div key={p} style={{ borderRadius: 9, border: "1.5px solid rgba(242,194,96,0.55)", background: "rgba(0,0,0,0.42)", padding: "5px 8px", display: "flex", gap: 7 }}>
+                    <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 9.5, color: "#fce9a8" }}>{p + 1}</span>
+                    <span data-qa="pista" style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, lineHeight: 1.25, color: "#f6f1ff" }}>{c.pistas[p]}</span>
+                  </div>
+                );
+              }
+              if (p > abiertas[activo] || verified) {
+                return <div key={p} style={{ borderRadius: 9, border: "1.5px dashed rgba(255,255,255,0.22)", background: "rgba(0,0,0,0.22)", padding: "5px 8px", fontFamily: "var(--ed-font-ui)", fontWeight: 600, fontSize: 10.5, color: "rgba(255,255,255,0.35)" }}>Pista {p + 1}, sin destapar</div>;
+              }
+              return (
+                <button key={p} onClick={destapar}
+                  style={{ borderRadius: 9, border: "1.5px solid rgba(79,216,255,0.6)", background: "rgba(79,216,255,0.14)", padding: "5px 8px", cursor: "pointer", textAlign: "left", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 10.5, color: "#bfeaff", letterSpacing: "0.02em" }}>
+                  DESTAPAR LA PISTA {p + 1} · pierdes la ⭐ extra
+                </button>
+              );
+            })}
+            {abiertas[activo] === 1 && !verified && (
+              <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "rgba(252,233,168,0.9)", paddingLeft: 2 }}>Si aciertas con esta sola pista, ganas 2 ⭐.</div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 5, minHeight: 0, marginTop: 6 }}>
+          {c.opciones.map((op) => {
+            const mia = elegido[activo] === op;
+            const esLa = op === c.a;
+            let border = "rgba(242,194,96,0.5)", bg = "rgba(0,0,0,0.35)", col = "#f6f1ff";
+            if (!verified && mia) { border = "#4fd8ff"; bg = "rgba(79,216,255,0.2)"; col = "#eaf9ff"; }
+            if (verified && esLa) { border = "#2ecc8f"; bg = "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))"; col = "#06381f"; }
+            if (verified && mia && !esLa) { border = "#ff6b6b"; bg = "rgba(178,47,47,0.9)"; col = "#fff"; }
+            return (
+              <button key={op} data-qa="op" onClick={() => elegir(op)} disabled={verified}
+                style={{ width: "100%", boxSizing: "border-box", borderRadius: 11, border: `2.5px solid ${border}`, background: bg, color: col, padding: "8px 11px", textAlign: "left", cursor: verified ? "default" : "pointer", fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, display: "flex", alignItems: "center", gap: 8, boxShadow: (verified && esLa) ? "0 0 24px rgba(46,204,143,0.6)" : "none" }}>
+                {verified && esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(255,255,255,0.8)", color: "#06381f", borderRadius: 999, padding: "2px 6px" }}>ERA ESTA</span>}
+                <span style={{ flex: 1, minWidth: 0 }}>{op}</span>
+                {verified && mia && !esLa && <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 8.5, letterSpacing: "0.09em", background: "rgba(0,0,0,0.35)", borderRadius: 999, padding: "2px 6px" }}>TU ELECCIÓN</span>}
+              </button>
+            );
+          })}
+        </div>
+        {verified && (
+          <div style={{ flexShrink: 0, textAlign: "center", fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10.5, color: okActivo ? "#9df0c6" : "#ffc2c2", paddingBottom: 2 }}>
+            Toca las pestañas para ver cómo te fue en los otros expedientes.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Arreglo de rondas del LIBRO 7 · TEMA 1 (3 manos: ordenar · repartir · destapar) ──
+const L7T1_ROUNDS = [
+  { C: L7T1R1Via, verify: true, bubble: (<>Arrastra cada tarjeta<br />hasta su lugar en la vía.</>) },
+  { C: L7T1R2Balanza, verify: true, bubble: (<>Toca el platillo donde<br />quedó ese asunto.</>) },
+  { C: L7T1R3Expediente, verify: true, bubble: (<>Lee la pista y elige.<br />Destapa solo si hace falta.</>) },
+];
+
 
 // ══════════════════════════════════════════════════════════════════
 // ORQUESTADOR compartido por TODOS los temas — chrome EDINUN (HUD, personaje, acciones,
@@ -2020,10 +2617,11 @@ function J12Game({ app, setApp, go, rounds }) {
   );
 }
 
-// Despacho por TEMA. Los temas que faltan (2 y 3 del Libro 6, y los 4 del Libro 7) no
+// Despacho por TEMA. Los temas que faltan (el 3 del Libro 6 y los 3 ultimos del Libro 7)
+// no
 // están en el menú todavía, así que una categoría desconocida cae en el Tema 1 en vez de
 // romperse.
-const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS };
+const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS, "l7-t1": L7T1_ROUNDS };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "l6-t1";
   const rounds = J12_ROUNDS_POR_TEMA[cat] || L6T1_ROUNDS;

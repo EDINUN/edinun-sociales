@@ -1,6 +1,6 @@
 // screens.jsx — juego-6 (Estudios Sociales) · MENÚ DE 2 NIVELES.
 // Home = 4 botones de LIBRO (2 · 3 · 5 · 6). Al tocar un libro se abre su pantalla
-// de TEMAS (Libro 2 → 1 tema, Libro 3 → 3 temas, Libro 5 → 2 temas, Libro 6 → 1 tema).
+// de TEMAS (Libro 6 → 2 temas, Libro 7 → 1 tema; los demas iran llegando).
 // Elegir tema + nombre → ENTRAR → CharacterScreen → juego (placeholder por ahora).
 //
 // Nota: es un 2º nivel de menú propio de juego-6; NO toca el shell compartido
@@ -142,7 +142,9 @@ const LIBROS = [
     { id: "l6-t1", label: "Los primeros años del Ecuador", desc: "El Estado ecuatoriano en sus primeros años de vida" },
     { id: "l6-t2", label: "La Revolución Marcista", desc: "El 6 de marzo de 1845 y los años marcistas" },
   ] },
-  { id: "libro-7", label: "Libro 7", temas: [] },
+  { id: "libro-7", label: "Libro 7", temas: [
+    { id: "l7-t1", label: "La Revolución Liberal", desc: "Alfaro, el Estado laico y el ferrocarril" },
+  ] },
 ];
 
 // Personaje guía por defecto de cada libro (preseleccionado en CharacterScreen; el
