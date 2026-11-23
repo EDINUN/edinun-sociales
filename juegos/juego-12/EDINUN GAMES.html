@@ -1516,7 +1516,7 @@ const J12_GOBIERNOS = [
 ];
 const J12_ZONA_COL = { qui: "#f1c40f", gye: "#4fd8ff", cue: "#b388ff", loj: "#ff9a6b" };
 
-function L6T2R2Mapa({ onSolve, verifyRef }) {
+function L6T2R2Mapa({ onSolve, verifyRef, say }) {
   // ⚠ Se piden DOS gobernantes, no los cuatro: con cuatro la ronda se hacía larga y
   // repetitiva (lo pidió la autora jugando). El mapa sigue enseñando las cuatro ciudades,
   // que es lo que cuenta la historia; lo que se juega son dos.
@@ -1548,11 +1548,15 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
     if (terminado) return;
     setUltimo(null);                            // al elegir, el mapa se limpia
     setSel(ciudadId);                           // se puede cambiar de idea antes de verificar
+    // ⚠ El acuse va POR EL BOCADILLO, no en la banda del pedido: lo pidió la autora.
+    if (say) say(`Elegiste ${(J12_GOBIERNOS.find((g) => g.id === ciudadId) || {}).ciudad}.
+Pulsa ¡VERIFICAR!`);
   }
   function verificar() {
     if (terminado || sel === null) return;
     const nuevo = pasos.concat([{ pide: pendiente, ciudad: sel }]);
     setPasos(nuevo); setSel(null); setUltimo({ pide: pendiente, ciudad: sel });
+    if (say) say(null);                         // el bocadillo vuelve a su CÓMO fijo
     if (nuevo.length < orden.length) return;    // quedan gobernantes: sigue la ronda
     const aciertos = nuevo.filter((p) => p.pide === p.ciudad).length;
     const nombre = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
@@ -1574,12 +1578,13 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
     return () => clearTimeout(t);
   }, [ultimo, terminado]);
 
-  const ESC = 1.0;   // el mapa ocupa el hueco: a 0,78 sobraba espacio por todos lados
+  const ESC = 1.05;  // el mapa ocupa el hueco: a 0,78 sobraba espacio por todos lados, y al
+                     // quitar la tercera línea de la banda quedó sitio para agrandarlo
   const MW = J12_ECU_W * ESC, MH = J12_ECU_H * ESC;
   const nombreDe = (id) => (J12_GOBIERNOS.find((g) => g.id === id) || {}).jefe;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 40 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", height: "100%", width: "100%", paddingTop: 32 }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 20, color: "#fff" }}>En 1859 el país tuvo cuatro gobiernos a la vez.</span>
       </div>
@@ -1587,13 +1592,11 @@ function L6T2R2Mapa({ onSolve, verifyRef }) {
           Antes iba en una columna a la izquierda y dejaba un hueco grande y feo entre el
           cartel y el mapa. */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: 8, minHeight: 0, width: "100%", paddingTop: 8 }}>
-        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${terminado ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 44, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 452, boxSizing: "border-box", borderRadius: 12, border: `2.5px solid ${terminado ? "#f2c260" : "#4fd8ff"}`, background: "rgba(0,0,0,0.45)", padding: "6px 12px", flexShrink: 0, minHeight: 50, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
           {!terminado && (<>
             <span className="ed-label" style={{ color: "#9fe9ff", fontSize: 8.5 }}>¿Dónde mandaba?<J12Puntos total={orden.length} hechos={idx} /></span>
             <span data-qa="pedido" style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, lineHeight: 1.15, color: "#fff" }}>{pedido.jefe}</span>
-            <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: sel ? "#fce9a8" : "rgba(255,255,255,0.65)", marginTop: 1 }}>
-              {sel ? `Elegiste ${(J12_GOBIERNOS.find((g) => g.id === sel) || {}).ciudad}. Pulsa ¡VERIFICAR!` : "Toca en el mapa la ciudad desde la que gobernaba."}
-            </span>
+
           </>)}
           {terminado && (
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
@@ -1880,11 +1883,16 @@ function J12Game({ app, setApp, go, rounds }) {
   const [confirmingRestart, setConfirmingRestart] = useStateG(false);
   const [rk, setRk] = useStateG(0);
   const [busy, setBusy] = useStateG(false);
+  // Lo que la ronda quiera decir por el bocadillo (acuses del tipo "Elegiste Quito").
+  // Si no dice nada, el bocadillo lleva el CÓMO fijo de la ronda.
+  const [dice, setDice] = useStateG(null);
   const started = useRefG(Date.now());
   const advancing = useRefG(false);
   const verifyRef = useRefG(null);
 
   useEffectG(() => { const t = setInterval(() => setElapsed(Math.floor((Date.now() - started.current) / 1000)), 500); return () => clearInterval(t); }, []);
+  // Al cambiar de ronda (o al reiniciar) el bocadillo vuelve a su texto fijo.
+  useEffectG(() => { setDice(null); }, [round, rk]);
   function formatTime(s) { const m = Math.floor(s / 60), ss = s % 60; return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; }
 
   function onSolve(isCorrect, entry, gained) {
@@ -1939,8 +1947,8 @@ function J12Game({ app, setApp, go, rounds }) {
 
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
-          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-            {ROUNDS[round].bubble}
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", whiteSpace: "pre-line", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+            {dice || ROUNDS[round].bubble}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
         </div>
@@ -1952,7 +1960,7 @@ function J12Game({ app, setApp, go, rounds }) {
       </div>
 
       <div style={{ position: "absolute", top: 60, bottom: 18, left: 215, right: 215 }}>
-        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} />
+        <Comp key={`r${round}-${rk}`} onSolve={onSolve} verifyRef={verifyRef} say={setDice} />
       </div>
 
       <div style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 12, width: 150 }}>

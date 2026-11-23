@@ -54,7 +54,12 @@ const rotulosMapa = (p) => p.evaluate(() => Array.from(document.querySelectorAll
   const pt2 = await punto(p, equivocada);          // ¡la MISMA que ya se usó!
   await p.mouse.click(pt2.x, pt2.y); await p.waitForTimeout(220);
   const despues = await rotulosMapa(p);
-  const banda = (await p.textContent("div[style*='border: 2.5px solid rgb(79, 216, 255)']")).replace(/\s+/g, " ");
+  // ⚠ El acuse "Elegiste X" vive en el BOCADILLO del personaje, no en la banda del
+  //   pedido: lo movió ahí la autora el 2026-11-23.
+  const banda = (await p.evaluate(() => {
+    const d = Array.from(document.querySelectorAll("div")).reverse().find((x) => x.textContent.trim().indexOf("Elegiste") === 0);
+    return d ? d.textContent : "(el bocadillo no dice nada)";
+  })).replace(/\s+/g, " ");
 
   console.log("turno 1: se pidió " + jefe1 + " (su ciudad es " + suya1 + ") y se puso en " + equivocada);
   console.log("turno 2: se pide " + jefe2 + "; rótulos en el mapa antes de tocar: [" + antes.join(", ") + "] · después: [" + despues.join(", ") + "]");

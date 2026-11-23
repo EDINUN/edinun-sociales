@@ -272,6 +272,15 @@ los temas deben diferenciarse al máximo.
     que había fallado cuatro veces.
   - ⚠ **El pedido va en una BANDA centrada sobre el mapa**, no en una columna a la
     izquierda: así dejaba un hueco grande entre el cartel y el mapa.
+  - ⚠ **La banda lleva SOLO dos líneas**: el rótulo *"¿Dónde mandaba?"* con sus puntos y el
+    nombre del gobernante. La tercera —*"Toca en el mapa la ciudad desde la que
+    gobernaba"*— la quitó la autora el 2026-11-23: repetía el bocadillo.
+  - ⚠ **El acuse "Elegiste Quito. Pulsa ¡VERIFICAR!" va POR EL BOCADILLO**, no en la banda
+    (lo pidió así la autora el mismo día). Para eso `J12Game` tiene estado `dice` y pasa
+    `say` a la ronda: si la ronda no dice nada, el bocadillo lleva su CÓMO fijo, y al
+    cambiar de ronda o reiniciar vuelve solo. El bocadillo va con `whiteSpace: "pre-line"`,
+    así que el salto de línea se escribe con `
+`.
 - **R3 decía "Ya no queda nada que romper"** con renglones aún a la vista: lo que se acaba
   son las órdenes, no el papel. Ahora dice **"Listo. Pulsa ¡VERIFICAR!"**, el enunciado es
   **"Rompe lo que la revolución derribó."** y la consigna lleva el rótulo **"¿Cuál
@@ -297,7 +306,8 @@ los temas deben diferenciarse al máximo.
     acertó, y al cambiar de gobernante el mapa sale limpio. Lo vigila
     `.planning/limpia-sola-r2.js`, que comprueba las dos mitades: que la marca **se vea**
     al verificar y que **se haya ido** poco después sin tocar nada.
-  - **Escala del mapa `ESC = 1.0`.** A 0,78 sobraba espacio por los cuatro lados.
+  - **Escala del mapa `ESC = 1.05`.** A 0,78 sobraba espacio por los cuatro lados; al
+    quitar la tercera línea de la banda quedó sitio para agrandarlo otro poco.
   - 📌 **La autora dudó dos veces de la posición de los puntos.** Están comprobados con
     `.planning/comprobar-ciudades.js`, que además de la proyección y del punto-en-polígono
     contrasta las **seis distancias entre ciudades** con las reales (gran círculo): error
