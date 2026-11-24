@@ -3171,22 +3171,34 @@ function L6T3R3Sello({ onSolve, verifyRef, onClear, listo }) {
 
   function frase(f) {
     const marcada = sellados.indexOf(f.id) >= 0;
+    // ⚠ Al revelar hay que ver CUÁLES ERAN las correctas, no solo si acertaste: una
+    // frase que había que sellar y se quedó sin sello sale en ÁMBAR con "ERA ESTA".
+    // Antes llevaba una ✗ a secas y la autora no veía cuáles eran las buenas.
+    const caso = !verified ? null : (marcada ? (f.fuera ? "bien" : "mal") : (f.fuera ? "falto" : "ajena"));
     let bd = marcada ? "#c0392b" : "rgba(120,94,48,0.5)";
-    if (verified) bd = marcada ? (f.fuera ? "#2ecc8f" : "#ff6b6b") : (f.fuera ? "#f2c260" : "rgba(120,94,48,0.5)");
+    if (verified) bd = caso === "bien" ? "#2ecc8f" : caso === "mal" ? "#ff6b6b" : caso === "falto" ? "#f2c260" : "rgba(120,94,48,0.4)";
     return (
       <div key={f.id} data-qa="frase" ref={(el) => { refs.current[f.id] = el; }} onClick={() => sellar(f.id)}
         style={{
           position: "relative", width: "100%", boxSizing: "border-box", minHeight: 56, display: "flex", alignItems: "center", gap: 8,
-          borderRadius: 8, border: `2px solid ${bd}`, background: "rgba(255,253,246,0.93)", padding: "6px 10px",
-          cursor: verified ? "default" : "pointer", userSelect: "none", WebkitUserSelect: "none",
+          borderRadius: 8, border: `${caso === "falto" ? 3 : 2}px solid ${bd}`,
+          background: caso === "falto" ? "rgba(255,236,187,0.96)" : "rgba(255,253,246,0.93)",
+          boxShadow: caso === "falto" ? "0 0 0 3px rgba(242,194,96,0.3)" : "none",
+          padding: "6px 10px", cursor: verified ? "default" : "pointer", userSelect: "none", WebkitUserSelect: "none",
+          opacity: caso === "ajena" ? 0.8 : 1,
         }}>
         <span style={{ flexShrink: 0, fontSize: 11, color: "#8a6410" }}>▸</span>
         <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 13, lineHeight: 1.25, color: "#3a2608" }}>{f.t}</span>
         {marcada && (
           <span style={{ flexShrink: 0, transform: "rotate(-8deg)", border: "2.5px solid rgba(192,57,43,0.85)", borderRadius: 6, padding: "2px 7px", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 9, letterSpacing: "0.06em", color: "rgba(192,57,43,0.9)", background: "rgba(192,57,43,0.08)" }}>NO ES PUEBLO</span>
         )}
+        {caso === "falto" && (
+          <span style={{ flexShrink: 0, borderRadius: 999, padding: "2px 9px", background: "rgba(242,194,96,0.55)", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 9, letterSpacing: "0.06em", color: "#8a6410" }}>ERA ESTA</span>
+        )}
         {verified && (
-          <span style={{ flexShrink: 0, width: 17, height: 17, borderRadius: "50%", background: (marcada === f.fuera) ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 11 }}>{(marcada === f.fuera) ? "✓" : "✗"}</span>
+          <span style={{ flexShrink: 0, width: 17, height: 17, borderRadius: "50%", background: caso === "bien" ? "#1f8a54" : caso === "mal" ? "#c0392b" : caso === "falto" ? "#d8a32a" : "rgba(120,94,48,0.35)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 11 }}>
+            {caso === "bien" ? "✓" : caso === "mal" ? "✗" : caso === "falto" ? "!" : "✓"}
+          </span>
         )}
       </div>
     );

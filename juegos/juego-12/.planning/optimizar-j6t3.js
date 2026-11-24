@@ -79,6 +79,14 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       }
       if (!mejor) return null;
       let [x0, x1] = mejor;
+      // ⚠ Recortar los FLANCOS FLOJOS de la racha: un mueble pegado a la persona (la
+      // mesita de la oficinista) o su sombra marcan pocos píxeles por columna, pero
+      // bastan para alargar la caja y descentrarla. Se quitan los bordes que no llegan
+      // a la cuarta parte de la columna más llena.
+      let pico = 0;
+      for (let x = x0; x <= x1; x++) pico = Math.max(pico, col[x]);
+      while (x0 < x1 && col[x0] < pico * 0.25) x0++;
+      while (x1 > x0 && col[x1] < pico * 0.25) x1--;
 
       // ── 2. La cabeza y los pies, dentro de esa franja ──
       const marcadosEnFila = (y, umbral) => {
@@ -105,8 +113,18 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       // o su sombra corren ese punto y la persona queda descentrada (pasó con la
       // oficinista y su mesita). Se usa el CENTRO DE MASA de los píxeles marcados, que
       // pesa por cuánta figura hay en cada columna.
+      // Se mide en la franja de la CABEZA Y LOS HOMBROS (15 %-38 % del alto): ahí solo
+      // está la persona. Más abajo entran la mesa, la silla o el borde del piso, que
+      // corren el centro (la oficinista salía pegada a la derecha dos veces seguidas).
+      const yC0 = Math.round(H * 0.15), yC1 = Math.round(H * 0.38);
+      const colC = new Array(W).fill(0);
+      for (let y = yC0; y < yC1; y++) {
+        const fondo = fondoDeFila(y);
+        for (let x = x0; x <= x1; x++) if (difiere(x, y, fondo, 60)) colC[x]++;
+      }
       let suma = 0, peso = 0;
-      for (let x = x0; x <= x1; x++) { suma += x * col[x]; peso += col[x]; }
+      for (let x = x0; x <= x1; x++) { suma += x * colC[x]; peso += colC[x]; }
+      if (!peso) { for (let x = x0; x <= x1; x++) { suma += x * col[x]; peso += col[x]; } }
       const cxm = peso ? suma / peso : (x0 + x1) / 2;
       let cy1 = y1 + escala * PIE;
       let cy0 = cy1 - escala;
