@@ -2500,7 +2500,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear, listo }) {
             {caso === "bien" && "✓ " + f.q}
             {caso === "mal" && "✗ " + f.q}
             {caso === "falto" && "era de " + f.q}
-            {caso === "ajena" && "no era de ellos · " + f.q}
+            {caso === "ajena" && f.q}
           </span>
         )}
       </button>
