@@ -27,14 +27,20 @@ const TOLERANCIA = 12;   // píxeles sobre 330 de ancho
       const rr = [], gg = [], bb = [];
       for (let y = 2; y < Math.round(H * 0.07); y++) for (const x of [3, 5, 7, W - 8, W - 6, W - 4]) { const a = px(x, y); rr.push(a[0]); gg.push(a[1]); bb.push(a[2]); }
       const fr = med(rr), fg = med(gg), fb = med(bb);
-      let x0 = W, x1 = -1;
-      for (let y = Math.round(H * 0.08); y < Math.round(H * 0.55); y++) {
-        for (let x = 3; x < W - 3; x++) {
-          const a = px(x, y);
-          if (Math.abs(a[0] - fr) + Math.abs(a[1] - fg) + Math.abs(a[2] - fb) > 70) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
-        }
+      const marca = (x, y) => { const a = px(x, y); return Math.abs(a[0] - fr) + Math.abs(a[1] - fg) + Math.abs(a[2] - fb) > 70; };
+      // ⚠ Se mide LA CABEZA: la silueta entera incluye la mesita, el saco o el vuelo de
+      // una falda, y eso corre el centro. Mirando las imágenes se veía que el número
+      // decía "centrada" con la persona pegada a un lado.
+      let yTop = -1;
+      for (let y = 2; y < Math.round(H * 0.5) && yTop < 0; y++) {
+        let n = 0;
+        for (let x = 4; x < W - 4; x++) if (marca(x, y)) n++;
+        if (n >= 3) yTop = y;
       }
-      return { centro: x1 >= x0 ? Math.round((x0 + x1) / 2) : Math.round(W / 2), medio: Math.round(W / 2) };
+      const yFin = Math.min(H - 2, (yTop < 0 ? 0 : yTop) + Math.round(H * 0.14));
+      let suma = 0, peso = 0;
+      for (let y = Math.max(0, yTop); y < yFin; y++) for (let x = 3; x < W - 3; x++) if (marca(x, y)) { suma += x; peso++; }
+      return { centro: peso ? Math.round(suma / peso) : Math.round(W / 2), medio: Math.round(W / 2) };
     }, url);
     const desvio = r.centro - r.medio;
     if (Math.abs(desvio) > TOLERANCIA) malas.push(f + " (" + (desvio > 0 ? "+" : "") + desvio + " px)");

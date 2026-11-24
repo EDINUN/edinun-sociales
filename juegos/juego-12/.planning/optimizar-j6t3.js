@@ -167,14 +167,22 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
         const rr = [], gg = [], bb = [];
         for (let y = 2; y < Math.round(ALTO * 0.07); y++) for (const x of [3, 5, 7, ANCHO - 8, ANCHO - 6, ANCHO - 4]) { const a2 = po(x, y); rr.push(a2[0]); gg.push(a2[1]); bb.push(a2[2]); }
         const fr = mediana(rr), fg = mediana(gg), fb = mediana(bb);
-        let a0 = ANCHO, a1 = -1;
-        for (let y = Math.round(ALTO * 0.08); y < Math.round(ALTO * 0.55); y++) {
-          for (let x = 3; x < ANCHO - 3; x++) {
-            const a2 = po(x, y);
-            if (Math.abs(a2[0] - fr) + Math.abs(a2[1] - fg) + Math.abs(a2[2] - fb) > 70) { if (x < a0) a0 = x; if (x > a1) a1 = x; }
-          }
+        const marca = (x, y) => { const a2 = po(x, y); return Math.abs(a2[0] - fr) + Math.abs(a2[1] - fg) + Math.abs(a2[2] - fb) > 70; };
+        // ⚠ Se mide LA CABEZA, no la silueta entera: lo que la persona lleva al lado (la
+        // mesita de la oficinista, el saco del portuario, el vuelo de una falda) entra en
+        // la silueta y corre el centro, así que el número decía "centrada" con el cuerpo
+        // pegado a un borde. La cabeza siempre está sobre el eje del cuerpo.
+        let yTop = -1;
+        for (let y = 2; y < Math.round(ALTO * 0.5) && yTop < 0; y++) {
+          let n = 0;
+          for (let x = 4; x < ANCHO - 4; x++) if (marca(x, y)) n++;
+          if (n >= 3) yTop = y;
         }
-        return a1 >= a0 ? (a0 + a1) / 2 : ANCHO / 2;
+        if (yTop < 0) return ANCHO / 2;
+        const yFin = Math.min(ALTO - 2, yTop + Math.round(ALTO * 0.14));
+        let suma = 0, peso = 0;
+        for (let y = yTop; y < yFin; y++) for (let x = 3; x < ANCHO - 3; x++) if (marca(x, y)) { suma += x; peso++; }
+        return peso ? suma / peso : ANCHO / 2;
       };
       let desvio = 0;
       for (let paso = 0; paso < 3; paso++) {

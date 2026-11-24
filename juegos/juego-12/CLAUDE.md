@@ -726,7 +726,13 @@ figura pequeña y descentrada; `.planning/optimizar-j6t3.js` las deja en **330×
 - ⚠ **El centrado se MIDE y se CORRIGE**: dibuja, mide la silueta en el resultado y
   reencuadra, hasta tres veces. Centrar por el torso falla porque un libro o un saco en la
   mano corren el centro de masa. Lo comprueba `.planning/centros-j6t3.js` (las doce con
-  8 px de desvío o menos sobre 330).
+  3 px de desvío o menos sobre 330, salvo la maestra con 11).
+- ⚠ **Se mide LA CABEZA, no la silueta entera.** Lo que la persona lleva al lado —la
+  mesita de la oficinista, el saco del portuario, el vuelo de una falda— entra en la
+  silueta y corre el centro: el número decía "centrada" con el cuerpo pegado a un borde,
+  y la autora lo vio a ojo. La cabeza siempre está sobre el eje del cuerpo.
+- 📌 **Para juzgarlo, hoja de contacto con una línea roja en el centro de cada recuadro**:
+  doce números no dicen lo que doce imágenes en fila.
 - 4,9 MB → ~230 KB en total. Los originales se respaldan fuera del repo (el script nunca
   pisa un respaldo existente).
 
