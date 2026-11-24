@@ -113,10 +113,11 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       // o su sombra corren ese punto y la persona queda descentrada (pasó con la
       // oficinista y su mesita). Se usa el CENTRO DE MASA de los píxeles marcados, que
       // pesa por cuánta figura hay en cada columna.
-      // Se mide en la franja de la CABEZA Y LOS HOMBROS (15 %-38 % del alto): ahí solo
-      // está la persona. Más abajo entran la mesa, la silla o el borde del piso, que
-      // corren el centro (la oficinista salía pegada a la derecha dos veces seguidas).
-      const yC0 = Math.round(H * 0.15), yC1 = Math.round(H * 0.38);
+      // ⚠ Se mide SOLO LA CABEZA (el 16 % de arriba de la figura). Ni el torso ni los
+      // hombros valen: un libro, una pizarra o un saco en una mano corren el centro de
+      // masa y la persona queda pegada a un lado (la alumna salía a la izquierda y la
+      // oficinista a la derecha). La cabeza siempre está sobre el eje del cuerpo.
+      const yC0 = y0, yC1 = y0 + Math.round((y1 - y0) * 0.16);
       const colC = new Array(W).fill(0);
       for (let y = yC0; y < yC1; y++) {
         const fondo = fondoDeFila(y);
@@ -143,25 +144,57 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       o.width = ANCHO; o.height = ALTO;
       const octx = o.getContext("2d");
       octx.imageSmoothingQuality = "high";
-      octx.fillStyle = pared;
-      octx.fillRect(0, 0, ANCHO, ALTO);
+      // ⚠ Aquí NO se da por bueno el centro calculado: se DIBUJA, se MIDE la silueta en
+      // el resultado y se corrige, hasta tres veces. Cualquier heurística previa falla
+      // con alguna lámina (el libro de la alumna, la mesita de la oficinista), y lo único
+      // que importa es cómo queda la imagen final.
       const k = ALTO / (cy1 - cy0);                  // píxeles de salida por píxel fuente
-      const dx = (0 - cx0) * k, dy = (0 - cy0) * k, dw = W * k, dh = H * k;
+      const pintar = () => {
+        const dx = (0 - cx0) * k, dy = (0 - cy0) * k, dw = W * k, dh = H * k;
+        octx.fillStyle = pared;
+        octx.fillRect(0, 0, ANCHO, ALTO);
+        if (dx > 0) octx.drawImage(img, 0, 0, 2, H, 0, dy, Math.ceil(dx) + 1, dh);
+        if (dx + dw < ANCHO) octx.drawImage(img, W - 2, 0, 2, H, Math.floor(dx + dw) - 1, dy, ANCHO - (dx + dw) + 2, dh);
+        if (dy > 0) octx.drawImage(img, 0, 0, W, 2, dx, 0, dw, Math.ceil(dy) + 1);
+        if (dy + dh < ALTO) octx.drawImage(img, 0, H - 2, W, 2, dx, Math.floor(dy + dh) - 1, dw, ALTO - (dy + dh) + 2);
+        octx.drawImage(img, 0, 0, W, H, dx, dy, dw, dh);
+      };
+      // Mide dónde está la silueta en el RESULTADO: fondo = esquinas de arriba, y se
+      // mira solo de 8 % a 55 % de alto para no tropezar con el piso, que cruza entero.
+      const medirCentro = () => {
+        const dd = octx.getImageData(0, 0, ANCHO, ALTO).data;
+        const po = (x, y) => { const i = (y * ANCHO + x) * 4; return [dd[i], dd[i + 1], dd[i + 2]]; };
+        const rr = [], gg = [], bb = [];
+        for (let y = 2; y < Math.round(ALTO * 0.07); y++) for (const x of [3, 5, 7, ANCHO - 8, ANCHO - 6, ANCHO - 4]) { const a2 = po(x, y); rr.push(a2[0]); gg.push(a2[1]); bb.push(a2[2]); }
+        const fr = mediana(rr), fg = mediana(gg), fb = mediana(bb);
+        let a0 = ANCHO, a1 = -1;
+        for (let y = Math.round(ALTO * 0.08); y < Math.round(ALTO * 0.55); y++) {
+          for (let x = 3; x < ANCHO - 3; x++) {
+            const a2 = po(x, y);
+            if (Math.abs(a2[0] - fr) + Math.abs(a2[1] - fg) + Math.abs(a2[2] - fb) > 70) { if (x < a0) a0 = x; if (x > a1) a1 = x; }
+          }
+        }
+        return a1 >= a0 ? (a0 + a1) / 2 : ANCHO / 2;
+      };
+      let desvio = 0;
+      for (let paso = 0; paso < 3; paso++) {
+        pintar();
+        desvio = medirCentro() - ANCHO / 2;
+        if (Math.abs(desvio) <= 3) break;
+        const corre = desvio / k;                    // de píxeles de salida a los de la lámina
+        cx0 += corre; cx1 += corre;
+      }
+      pintar();
       // ⚠ El relleno NO puede ser un color plano: el fondo de las láminas es un degradado
       // con viñeta, así que un tono sacado de la esquina se nota como un marco (la autora
       // lo vio en la alumna). Se ESTIRA el propio borde de la lámina hacia afuera, que es
       // lo que hace cualquier editor, y la unión no se ve.
-      if (dx > 0) octx.drawImage(img, 0, 0, 2, H, 0, dy, Math.ceil(dx) + 1, dh);
-      if (dx + dw < ANCHO) octx.drawImage(img, W - 2, 0, 2, H, Math.floor(dx + dw) - 1, dy, ANCHO - (dx + dw) + 2, dh);
-      if (dy > 0) octx.drawImage(img, 0, 0, W, 2, dx, 0, dw, Math.ceil(dy) + 1);
-      if (dy + dh < ALTO) octx.drawImage(img, 0, H - 2, W, 2, dx, Math.floor(dy + dh) - 1, dw, ALTO - (dy + dh) + 2);
-      octx.drawImage(img, 0, 0, W, H, dx, dy, dw, dh);
-      return { url: o.toDataURL("image/jpeg", q), fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
+      return { url: o.toDataURL("image/jpeg", q), desvio: Math.round(desvio), fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
     }, [dataUrl, ANCHO, ALTO, CALIDAD]);
     if (!out) { console.log(f.padEnd(24) + "  ✗ no se encontró la figura: se deja igual"); continue; }
     const buf = Buffer.from(out.url.split(",")[1], "base64");
     fs.writeFileSync(src, buf); despues += buf.length;
-    console.log(f.padEnd(24) + Math.round(b0 / 1024) + " KB → " + Math.round(buf.length / 1024) + " KB   figura x[" + out.fig[0] + "-" + out.fig[2] + "] y[" + out.fig[1] + "-" + out.fig[3] + "]  recorte " + out.recorte.join(","));
+    console.log(f.padEnd(24) + Math.round(b0 / 1024) + " KB → " + Math.round(buf.length / 1024) + " KB   desvío final " + out.desvio + " px   figura x[" + out.fig[0] + "-" + out.fig[2] + "] y[" + out.fig[1] + "-" + out.fig[3] + "]  recorte " + out.recorte.join(","));
   }
   console.log("\nTotal: " + Math.round(antes / 1024) + " KB → " + Math.round(despues / 1024) + " KB");
   console.log("Respaldo de los originales en: " + BAK);

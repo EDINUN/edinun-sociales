@@ -2822,7 +2822,17 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
     const sin = J6T3_GENTE.filter((g) => !g.voz), con = J6T3_GENTE.filter((g) => g.voz);
     const iS = j12PickIdx(sin, 2, "edinun_j12_l6t3_r1s_v1"); j12Commit("edinun_j12_l6t3_r1s_v1", iS, 4);
     const iC = j12PickIdx(con, 2, "edinun_j12_l6t3_r1c_v1"); j12Commit("edinun_j12_l6t3_r1c_v1", iC, 1);
-    return { gente: j12Shuffle(iS.map((i) => sin[i]).concat(iC.map((i) => con[i]))) };
+    // ⚠ Además de cambiar QUIÉNES salen, se evita repetir el MISMO ORDEN en pantalla:
+    // la autora jugó dos veces seguidas y le aparecieron en los mismos sitios.
+    const elegidas2 = iS.map((i) => sin[i]).concat(iC.map((i) => con[i]));
+    const KEY = "edinun_j12_l6t3_r1pos_v1";
+    let orden = j12Shuffle(elegidas2);
+    try {
+      const antes = localStorage.getItem(KEY);
+      for (let k = 0; k < 8 && antes && orden.map((g) => g.id).join(",") === antes; k++) orden = j12Shuffle(elegidas2);
+      localStorage.setItem(KEY, orden.map((g) => g.id).join(","));
+    } catch (e) {}
+    return { gente: orden };
   });
   const [frotado, setFrotado] = useStateG({});   // { id: [celdas marcadas] }
   const [elegidas, setElegidas] = useStateG([]);
@@ -2901,7 +2911,7 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
       <div key={g.id} style={{ width: 210, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
         <div onClick={() => { if (vista) elegir(g.id); }}
           style={{
-            position: "relative", flexShrink: 0, width: 102, height: 136, borderRadius: 10, overflow: "hidden",
+            position: "relative", flexShrink: 0, width: 120, height: 160, borderRadius: 10, overflow: "hidden",
             border: `${caso === "falto" ? 4 : 2.5}px solid ${bd}`, background: "#0d2a20", touchAction: "none",
             cursor: vista && !verified ? "pointer" : "default",
             boxShadow: elegida && !verified ? "0 0 0 3px rgba(79,216,255,0.35)" : caso === "falto" ? "0 0 0 3px rgba(242,194,96,0.35)" : "none",
@@ -2931,21 +2941,23 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
           {verified && (caso === "bien" || caso === "mal") && (
             <div style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: caso === "bien" ? "#1f8a54" : "#c0392b", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 13, boxShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>{caso === "bien" ? "✓" : "✗"}</div>
           )}
+          {verified && (
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "rgba(8,22,18,0.82)", padding: "4px 6px" }}>
+              <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9, lineHeight: 1.2, color: caso === "ajena" ? "rgba(255,255,255,0.7)" : "#fff", display: "block", textAlign: "center" }}>{g.t}</span>
+            </div>
+          )}
           {!vista && !Object.keys(frotado).length && (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
               <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 9.5, color: "#44605c", textAlign: "center", lineHeight: 1.2 }}>pasa el dedo<br />por encima</span>
             </div>
           )}
         </div>
-        {/* ⚠ Franja RESERVADA bajo la foto: así la tarjeta no crece al descubrirse. */}
-        <div style={{ minHeight: 44, width: "100%", textAlign: "center" }}>
+        {/* Debajo solo el NOMBRE: la explicación aparece sobre la foto al verificar. */}
+        <div style={{ minHeight: 18, width: "100%", textAlign: "center" }}>
           {vista && (
-            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: caso === "falto" ? "#f2c260" : "#fce9a8", marginBottom: 2 }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 11, color: caso === "falto" ? "#f2c260" : "#fce9a8" }}>
               {caso === "falto" ? "TE FALTÓ: " + g.n : g.n}
             </div>
-          )}
-          {verified && (
-            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.25, color: caso === "ajena" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.88)" }}>{g.t}</div>
           )}
         </div>
       </div>
@@ -3060,7 +3072,7 @@ function L6T3R2Plumas({ onSolve, verifyRef, onClear, listo }) {
       <button key={f.id} className="ed-btn-plain" onClick={() => girar(f.id)}
         ref={(el) => { refs.current[f.id] = el; }}
         style={{
-          width: 138, height: 132, borderRadius: 12,
+          width: 138, height: 172, borderRadius: 12,
           border: `${caso === "falto" ? 4 : 2.5}px solid ${bd}`,
           background: papel ? fondo : "linear-gradient(180deg, rgba(20,12,55,0.92), rgba(10,6,35,0.92))",
           padding: "6px 8px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
