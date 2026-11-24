@@ -15,14 +15,16 @@ del elenco (`memory/orden-personajes.md`: 12 mod 4 = 0), no por temática.
 
 | Libro | Actividades | Estado |
 |---|:--:|---|
-| Libro 6 | 3 | 1 hecha · 2 por definir |
+| Libro 6 | 3 | ✅ las 3 hechas |
 | Libro 7 | 4 | ⏳ sin material |
 
 | Libro · Tema | id | Edad | Estado |
 |---|---|:--:|---|
 | **6 · 1. Estado ecuatoriano en sus primeros años de vida** (D.C.D. CS.3.1.30 / 31 / 32) | `l6-t1` | **10** | ✅ 3 rondas · 11 ⭐ |
-| 6 · 2 y 3 | — | — | ⏳ falta material |
-| 7 · 1 a 4 | — | — | ⏳ falta material |
+| **6 · 2. La Revolución Marcista** | `l6-t2` | **10** | ✅ 3 rondas · 9 ⭐ |
+| **6 · 3. El preámbulo del siglo XX** (D.C.D. CS.3.1.37 / 38 / 39) | `l6-t3` | **10** | ✅ 3 rondas · 8 ⭐ |
+| **7 · 1. La Revolución Liberal** | `l7-t1` | **11** | ✅ (otra sesión) |
+| 7 · 2 a 4 | — | — | ⏳ falta material |
 
 ⚠ **El Libro 7 no se puede abrir todavía:** su botón sale apagado (patrón "Próximamente"
 del estándar §8) porque no tiene temas. En cuanto llegue el primero, se añade a `LIBROS`
@@ -669,3 +671,78 @@ mismas opciones de hace rato."* La causa no era el sorteo sino **el tamaño de l
 - ⚠ Lo mide `.planning/variedad-l7t1.js [partidas]`, que recarga N veces y cuenta
   ejercicios distintos y repeticiones consecutivas. **12 partidas: R1 12/12 distintos ·
   R2 10/12 · R3 8/12 (de 8 posibles) · 0 repeticiones seguidas en las tres.**
+
+
+## Libro 6 · Tema 3 — "El preámbulo del siglo XX" (10 años)
+
+D.C.D. CS.3.1.37 · CS.3.1.38 · CS.3.1.39. Material: libro pp. 112-115 + cuaderno
+pp. 103-106 (entregado el 2026-11-23). Diseño completo en `.planning/juego-12-design.md`
+§5. Cierra el Libro 6.
+
+| Ronda | Verbo | ⭐ |
+|---|---|:--:|
+| R1 "Quitar la niebla" | frotar para descubrir **y elegir** | 2 |
+| R2 "Tres plumas" | girar la ficha | 3 |
+| R3 "El sello de Montalvo" | estampar | 3 |
+
+⚠ **Este tema NO toca el ferrocarril ni las obras de Alfaro**: son del Libro 7 · Tema 1.
+Aquí van las ideas liberales, los tres pensadores y la mujer.
+
+**Invariantes:**
+
+- **R1 · 2 sin voz + 2 con voz.** Se descubre frotando (basta **pasar por encima**, sin
+  apretar; cada pasada limpia un bloque de 3×3 celdas) y **después se eligen** los dos que
+  no tenían voz. Nació sin poder fallarse —las ocho primeras ilustraciones eran todas
+  correctas— y la autora lo cazó.
+  - ⚠ **La señora de clase alta va entre las que NO tenían voz.** El libro dice que la
+    mujer "permanecía relegada al espacio doméstico" y el cuaderno lo repite para las de
+    clase media y alta. La autora la pidió como incorrecta; se le avisó del cambio.
+  - ⚠ **Mientras se juega solo se ve el NOMBRE.** La frase explica si esa persona tenía
+    voz, así que aparece al verificar, **sobre la foto** (no debajo: reservarle una franja
+    dejaba un hueco vacío que la autora marcó en rojo).
+- **R2 · 12 fichas, una por persona.** Dos hechos de cada uno de los seis (Montalvo,
+  Moncayo, Peralta · Rocafuerte, García Moreno, Alfaro) y cada partida saca uno de cada
+  uno: 2⁶ = 64 combinaciones. Los distractores son **del mismo tema**, así que no se
+  acierta por descarte.
+  - ⚠ **"El Viejo Luchador" es ALFARO**, no Peralta: el libro dice que Peralta se ganó su
+    admiración.
+- **R3 · 7 frases textuales** del fragmento de *El Cosmopolita* (cuaderno p. 106); salen
+  **3 que quedan fuera del pueblo + 2 que sí lo son**.
+- **¡VERIFICAR! se apaga** hasta elegir lo que pide la ronda (2 · 3 · 3). **Sin letrero
+  debajo**: la autora lo quitó.
+- **El revelado enseña CUÁLES eran**, no solo el veredicto: lo que había que marcar y no
+  se marcó sale en ámbar ("TE FALTÓ" / "ERA ESTA"), y en la R2 se abren **todas** las
+  fichas con su hecho y su nombre.
+- **BORRAR** deshace lo último (la última elección; si no hay ninguna, vuelve la niebla).
+
+### Las 12 ilustraciones
+
+`assets/j6t3-<id>.jpg`, generadas por la autora. Llegaron en 16:9 (y una en 1:1) con la
+figura pequeña y descentrada; `.planning/optimizar-j6t3.js` las deja en **330×440**:
+
+- La figura ocupa siempre el **84 % del alto** y el recorte **puede salirse de la lámina**:
+  el aire que falta se rellena **estirando el borde**, no con un color plano (un tono
+  sacado de la esquina dejaba un marco visible sobre el degradado).
+- ⚠ **El centrado se MIDE y se CORRIGE**: dibuja, mide la silueta en el resultado y
+  reencuadra, hasta tres veces. Centrar por el torso falla porque un libro o un saco en la
+  mano corren el centro de masa. Lo comprueba `.planning/centros-j6t3.js` (las doce con
+  8 px de desvío o menos sobre 330).
+- 4,9 MB → ~230 KB en total. Los originales se respaldan fuera del repo (el script nunca
+  pisa un respaldo existente).
+
+### QA del tema
+
+```bash
+node juegos/juego-12/.planning/e2e-l6t3.js        # perfecta 8 ⭐ · fallada 1 ⭐
+node juegos/juego-12/.planning/variedad-l6t3.js   # 8 partidas seguidas
+node juegos/juego-12/.planning/centros-j6t3.js    # encuadre de las 12 fotos
+node juegos/juego-12/.planning/espacios-todo.js   # solapes: los TRES temas
+node juegos/juego-12/.planning/espacios-extra.js  # peores casos + Libro 7
+node juegos/juego-12/.planning/shot-l6t3.js <carpeta>
+```
+
+**Verificado (2026-11-24):** perfecta 3/3 · **8 ⭐** · fallada **1 ⭐** (la R3 obliga a
+sellar tres, así que su peor nota es 1, no 0). Variedad en 8 partidas: R1 **8/8**, R2
+**7/8**, R3 **8/8**, sin repetir la partida anterior. Nada superpuesto en 6 viewports ni
+en los casos peores (seis fichas abiertas, cinco frases selladas, en pleno frotado).
+0 errores de consola.

@@ -370,3 +370,81 @@ llevado a Quito; allí muere y termina la Revolución liberal").
 - **QA de contenido jugándolo ella**, que es lo único que detecta una ronda que no se
   entiende.
 - Los **3 temas restantes del Libro 7** y el **tema 3 del Libro 6**.
+
+---
+
+# 5. Libro 6 · Tema 3 — "El preámbulo del siglo XX" (10 años)
+
+D.C.D. CS.3.1.37 · CS.3.1.38 · CS.3.1.39. Material entregado por la autora el
+**2026-11-23** (libro pp. 112-115 + cuaderno pp. 103-106). Cierra el Libro 6.
+
+## 5.1 Material del libro (única fuente)
+
+- **Ideas liberales:** la industrialización europea trae la propiedad privada, la libertad
+  y el sufragio; llegan a fines del siglo XIX y prenden en la literatura, la educación y
+  la filosofía. El **Estado asume la educación** creando instituciones **dependientes del
+  erario público**, que abren el ingreso **de la mujer** y usan materiales **sin
+  connotación confesional**, contrarrestando la primacía de la **Iglesia Católica**.
+- **Pensadores:** **Juan Montalvo** (Ambato 1833 – París 1889; periodismo contra los
+  gobiernos despóticos de García Moreno y Veintimilla; *El Cosmopolita*, *Las
+  Catilinarias*), **Abelardo Moncayo** (luchas alfaristas, Estado laico, denunció el
+  concertaje) y **José Peralta** (mentalizador de la Carta Constitucional de 1896-97).
+  También se nombran Belisario Quevedo, Julio Zaldumbide y Medardo Ángel Silva.
+- **La mujer:** relegada al espacio doméstico a fines del XIX; con el liberalismo accede a
+  la **educación** y a **espacios públicos y laborales**; se crean **escuelas de prácticas
+  y técnicas, colegios femeninos** y el mutualismo. El cuaderno (p. 104) añade que **las
+  señoras de clase media y alta** seguían sujetas al papel de **madre y esposa**.
+- **Unidad nacional:** Rocafuerte (Dirección General de Estudios, colegios, primera Ley de
+  Hacienda) · García Moreno (ferrocarril y educación con visión religiosa) · la Revolución
+  Liberal y Alfaro (las 12 obras: ferrocarril, vías, agua potable, Registro Civil, fin del
+  concertaje, bienes de la Iglesia al Estado…).
+- **Identidad:** el liberalismo saca del **anonimato** a los artesanos y trabajadores del
+  puerto de Guayaquil y a los **indígenas de la Sierra**; la cultura popular une raíces
+  **andinas, españolas y afro**. Y aparecen las **oligarquías** y la **burguesía bancaria**
+  (Banco Comercial y Agrícola, Guayaquil).
+- **Fragmento de Montalvo** (cuaderno p. 106): quién **no** pertenece al pueblo (el
+  tirano, el opulento, el soberbio, el que oprime) y quién **sí** (el que vive del sudor
+  de su frente, el que arranca a la tierra los frutos, el que forja los metales).
+
+⚠ **El ferrocarril y la lista de obras de Alfaro se dejan al Libro 7 · Tema 1**, que ya
+los usa. Este tema se queda con las ideas, los pensadores y la mujer.
+
+## 5.2 Rondas aprobadas (una a una, con la autora)
+
+| Ronda | Verbo | ⭐ |
+|---|---|:--:|
+| R1 «Quitar la niebla» | frotar para descubrir **y elegir** | 2 |
+| R2 «Tres plumas» | girar la ficha | 3 |
+| R3 «El sello de Montalvo» | estampar | 3 |
+
+Tres verbos que **no existen** en los otros temas del Libro 6 (allí se gastaron decidir
+sí/no, arrastrar, ordenar, componer tocando, tocar en el mapa y rasgar). **⭐ 2+3+3 = 8.**
+
+## 5.3 Cómo quedó, y lo que costó
+
+- **La R1 nació sin poder fallarse.** Con las 8 ilustraciones iniciales **todas** eran
+  correctas, así que bastaba tocarlas todas. La autora lo vio y pidió lo que ahora está:
+  se descubre frotando y **después se eligen** los que no tenían voz. Para eso hizo falta
+  material nuevo: **hacendado, sacerdote y banquero** (los que el libro dice que ya tenían
+  poder). Cada partida saca **2 sin voz + 2 con voz**.
+  - ⚠ La **señora de clase alta** quedó entre las que **NO** tenían voz, no entre las
+    poderosas: el libro y el cuaderno dicen que la mujer seguía sujeta al espacio
+    doméstico. Se le avisó del cambio a la autora.
+  - Mientras se juega solo se ve el **nombre**; la frase que explica si esa persona tenía
+    voz aparece **al verificar**, sobre la foto. Enseñarla antes sería regalar la respuesta.
+- **Las 12 ilustraciones las generó la autora** y llegaron en 16:9 con la figura pequeña y
+  descentrada. `.planning/optimizar-j6t3.js` las recorta a **330×440**: encuadra para que
+  la figura ocupe siempre el **84 % del alto**, rellena el aire **estirando el borde** de
+  la lámina (un color plano dejaba un marco visible) y, sobre todo, **dibuja, mide la
+  silueta en el resultado y corrige** hasta tres veces. Centrar por el torso fallaba: un
+  libro o un saco en la mano corre el centro. Lo vigila `.planning/centros-j6t3.js`.
+- **Variedad.** La autora pidió comprobarla. Medido en 8 partidas seguidas con
+  `.planning/variedad-l6t3.js`: R1 **8/8** repartos distintos, R2 **7/8**, R3 **8/8**, y
+  **ninguna partida repitió la anterior**. Para lograrlo hubo que ampliar los bancos: la
+  R2 tiene **dos hechos por persona** (12 fichas, sale una de cada una) y la R3 **siete
+  frases**, de las que se enseñan cinco. La R1 además evita repetir la **colocación**.
+- **¡VERIFICAR! se apaga** hasta elegir exactamente lo que pide la ronda (2 en la R1, 3 en
+  la R2 y la R3). Sin letrero debajo: la autora lo quitó.
+- **El revelado enseña las correctas, no solo el veredicto**: lo que había que marcar y no
+  se marcó sale en **ámbar** («TE FALTÓ» / «ERA ESTA»), y en la R2 se abren **todas** las
+  fichas, también las que quedaron boca abajo, con su hecho y su nombre.
