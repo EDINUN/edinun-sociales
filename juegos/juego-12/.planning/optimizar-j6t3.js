@@ -185,24 +185,34 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
         return peso ? suma / peso : ANCHO / 2;
       };
       let desvio = 0;
-      for (let paso = 0; paso < 3; paso++) {
+      // ⚠ La corrección va AMORTIGUADA (60 %) y se guarda el MEJOR encuadre visto.
+      // Con la corrección entera, dos láminas rebotaban sin parar (la maestra:
+      // -12 → 10 → -9 → 12 …): la medida cambia un poco al mover el recorte, así que
+      // aplicar el desvío completo se pasa de largo. Amortiguada converge, y quedarse
+      // con el mejor garantiza que nunca se guarda un encuadre peor que el visto.
+      const pasos = [];
+      let mejorD = Infinity, mejorX0 = cx0, mejorX1 = cx1;
+      for (let paso = 0; paso < 8; paso++) {
         pintar();
         desvio = medirCentro() - ANCHO / 2;
-        if (Math.abs(desvio) <= 3) break;
-        const corre = desvio / k;                    // de píxeles de salida a los de la lámina
-        cx0 += corre; cx1 += corre;
+        pasos.push(Math.round(desvio));
+        if (Math.abs(desvio) < Math.abs(mejorD)) { mejorD = desvio; mejorX0 = cx0; mejorX1 = cx1; }
+        if (Math.abs(desvio) <= 2) break;
+        cx0 += (desvio * 0.6) / k; cx1 += (desvio * 0.6) / k;   // de salida a la lámina
       }
+      cx0 = mejorX0; cx1 = mejorX1;
       pintar();
+      desvio = medirCentro() - ANCHO / 2;            // el de la imagen que de verdad se guarda
       // ⚠ El relleno NO puede ser un color plano: el fondo de las láminas es un degradado
       // con viñeta, así que un tono sacado de la esquina se nota como un marco (la autora
       // lo vio en la alumna). Se ESTIRA el propio borde de la lámina hacia afuera, que es
       // lo que hace cualquier editor, y la unión no se ve.
-      return { url: o.toDataURL("image/jpeg", q), desvio: Math.round(desvio), fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
+      return { url: o.toDataURL("image/jpeg", q), desvio: Math.round(desvio), pasos: pasos, fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
     }, [dataUrl, ANCHO, ALTO, CALIDAD]);
     if (!out) { console.log(f.padEnd(24) + "  ✗ no se encontró la figura: se deja igual"); continue; }
     const buf = Buffer.from(out.url.split(",")[1], "base64");
     fs.writeFileSync(src, buf); despues += buf.length;
-    console.log(f.padEnd(24) + Math.round(b0 / 1024) + " KB → " + Math.round(buf.length / 1024) + " KB   desvío final " + out.desvio + " px   figura x[" + out.fig[0] + "-" + out.fig[2] + "] y[" + out.fig[1] + "-" + out.fig[3] + "]  recorte " + out.recorte.join(","));
+    console.log(f.padEnd(24) + Math.round(b0 / 1024) + " KB → " + Math.round(buf.length / 1024) + " KB   desvío " + out.pasos.join("→") + " ⇒ " + out.desvio + " px   figura x[" + out.fig[0] + "-" + out.fig[2] + "] y[" + out.fig[1] + "-" + out.fig[3] + "]  recorte " + out.recorte.join(","));
   }
   console.log("\nTotal: " + Math.round(antes / 1024) + " KB → " + Math.round(despues / 1024) + " KB");
   console.log("Respaldo de los originales en: " + BAK);

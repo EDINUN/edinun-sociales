@@ -726,7 +726,11 @@ figura pequeña y descentrada; `.planning/optimizar-j6t3.js` las deja en **330×
 - ⚠ **El centrado se MIDE y se CORRIGE**: dibuja, mide la silueta en el resultado y
   reencuadra, hasta tres veces. Centrar por el torso falla porque un libro o un saco en la
   mano corren el centro de masa. Lo comprueba `.planning/centros-j6t3.js` (las doce con
-  3 px de desvío o menos sobre 330, salvo la maestra con 11).
+  2 px de desvío o menos sobre 330).
+- ⚠ **La corrección va AMORTIGUADA (60 %) y se guarda el mejor encuadre visto.** Con la
+  corrección entera, dos láminas rebotaban sin converger (la maestra: −12 → 10 → −9 → 12…):
+  la medida cambia un poco al mover el recorte, así que aplicar el desvío completo se pasa
+  de largo.
 - ⚠ **Se mide LA CABEZA, no la silueta entera.** Lo que la persona lleva al lado —la
   mesita de la oficinista, el saco del portuario, el vuelo de una falda— entra en la
   silueta y corre el centro: el número decía "centrada" con el cuerpo pegado a un borde,
