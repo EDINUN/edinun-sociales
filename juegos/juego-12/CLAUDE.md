@@ -16,19 +16,21 @@ del elenco (`memory/orden-personajes.md`: 12 mod 4 = 0), no por temática.
 | Libro | Actividades | Estado |
 |---|:--:|---|
 | Libro 6 | 3 | ✅ las 3 hechas |
-| Libro 7 | 4 | ⏳ sin material |
+| Libro 7 | 4 | ⏳ 3 de 4 hechas |
 
 | Libro · Tema | id | Edad | Estado |
 |---|---|:--:|---|
 | **6 · 1. Estado ecuatoriano en sus primeros años de vida** (D.C.D. CS.3.1.30 / 31 / 32) | `l6-t1` | **10** | ✅ 3 rondas · 11 ⭐ |
 | **6 · 2. La Revolución Marcista** | `l6-t2` | **10** | ✅ 3 rondas · 9 ⭐ |
 | **6 · 3. El preámbulo del siglo XX** (D.C.D. CS.3.1.37 / 38 / 39) | `l6-t3` | **10** | ✅ 3 rondas · 8 ⭐ |
-| **7 · 1. La Revolución Liberal** | `l7-t1` | **11** | ✅ (otra sesión) |
-| 7 · 2 a 4 | — | — | ⏳ falta material |
+| **7 · 1. La Revolución Liberal** | `l7-t1` | **11** | ✅ 3 rondas · 8 ⭐ |
+| **7 · 2. Insurgencia, cambio social y velasquismo** (D.C.D. CS.3.1.45 a 48) | `l7-t2` | **11** | ✅ 3 rondas · 9 ⭐ |
+| **7 · 3. Transformación agraria** (D.C.D. CS.3.1.52 a 56) | `l7-t3` | **11** | ✅ 3 rondas · 9 ⭐ |
+| 7 · 4 | — | — | ⏳ falta material |
 
-⚠ **El Libro 7 no se puede abrir todavía:** su botón sale apagado (patrón "Próximamente"
-del estándar §8) porque no tiene temas. En cuanto llegue el primero, se añade a `LIBROS`
-en `screens.jsx` y el botón se activa solo.
+⚠ **El Libro 7 ya tiene DOS temas**, así que al entrar hay que **elegir uno**: con más de
+un tema `openLibro` no preselecciona y ENTRAR queda apagado. Cada vez que un libro estrena
+tema hay que revisar los scripts de QA de sus temas anteriores, que entraban directos.
 
 ⚠ **El Libro 6 ya tiene un tema jugado en otro juego:** *"La Amazonía, nido de vida
 silvestre"* (Tema 2 del Libro 6) está en `juego-6`. Si cae entre los tres de aquí, avisar
@@ -757,3 +759,566 @@ sellar tres, así que su peor nota es 1, no 0). Variedad en 8 partidas: R1 **8/8
 **7/8**, R3 **8/8**, sin repetir la partida anterior. Nada superpuesto en 6 viewports ni
 en los casos peores (seis fichas abiertas, cinco frases selladas, en pleno frotado).
 0 errores de consola.
+
+
+## Libro 7 · Tema 2 — "Insurgencia, cambio social y velasquismo" (11 años)
+
+D.C.D. CS.3.1.45/46/47/48 (libro pp. 32-38 + cuaderno pp. 27-32, entregado 2026-11-24).
+Diseño completo en `.planning/juego-12-design.md` §6.
+
+⚠ **En el libro es el "Tema 1" de la Unidad 2**; dentro del juego entra como Libro 7 ·
+Tema 2, porque el Tema 1 del juego es la Revolución Liberal.
+
+| Ronda | Mano | ⭐ |
+|---|---|:--:|
+| R1 `L7T2R1Curva` "El quintal se desploma" | deformar una curva arrastrando su nudo | 3 |
+| R2 `L7T2R2Feria` "La feria de juegos" | hacer el gesto con el que se juega | 3 |
+| R3 `L7T2R3Hilos` "La peña del Grupo de Guayaquil" | tender un hilo de punto a punto | 3 |
+
+**⭐ del tema: 3 + 3 + 3 = 9.** Las tres manos son **nuevas**: el Tema 1 del mismo libro ya
+gastó *ordenar arrastrando*, *repartir en destinos* y *destapar pistas*.
+
+**Invariantes de este tema:**
+
+- **R1 · la respuesta es CUÁNTO, no CUÁL.** No hay opciones: se arrastra el nudo del año y
+  la línea se deforma pegada al dedo. Acierto = quedar a **12 niveles o menos** del valor
+  real. El revelado habla el idioma de la mecánica: la curva correcta aparece en **dorado
+  punteado sobre la tuya**.
+  - ⚠ **Soltar SIEMPRE coloca, aunque no se haya movido**: "se quedó igual" es una
+    respuesta válida y el chico tiene que poder darla.
+  - **Tres curvas** (cacao · sombrero de paja · lo que alcanza el sueldo), cada una con su
+    banco de 6 hechos, de los que entran 3.
+- **R2 · el gesto ES la respuesta.** Aparece un juguete de los que nombra el libro (p. 38)
+  y el chico hace con el dedo lo que haría con el de verdad: **lanzar** el trompo hacia
+  abajo, **tirar** del hilo de la cometa hacia arriba, **dar vueltas** a la soga,
+  **estirar** la liga de las pallas, **mecer** la muñeca de lado a lado, **saltar** la
+  rayuela con dos toques. Banco de 6, entran 3.
+  - ⚠ **NO hay menú de gestos.** Ponerlo convertiría la ronda en una opción múltiple de
+    seis botones, que es justo lo que se quería evitar. Si el trazo no se reconoce no se
+    pierde nada: se avisa y se repite.
+  - ⚠ **El reconocedor es GENEROSO a propósito**: 25 px de trazo mínimo, 250° para dar por
+    buena una vuelta, 90 px de margen en el vaivén. Lo juega un niño de 11 con el dedo.
+  - ⚠ La zona de juego mide **452×280 y se come todo lo que sobra del carril**
+    (30+22+5+18+6+280+6+86 = 461 de 462): con 236 px quedaba hueco muerto debajo.
+- **R3 · ninguna cara de autor se dibuja**: son personas reales (regla del repo). Lo
+  ilustrado es **la obra**; el autor va con su nombre y un icono.
+  - ⚠ **La obra nunca queda enfrente de su autor**: regalaría la respuesta por posición.
+  - Un hilo nuevo desde el mismo autor **reemplaza** al anterior, y **dos autores no pueden
+    colgar de la misma obra** (el viejo se suelta solo): así no hay estados imposibles.
+  - ⚠ **Las filas miden 92 px, no 102.** Con 102 la columna medía 336 px y al revelar el
+    panel verde no cabía en lo que queda del carril y **se montaba sobre las tarjetas**. Lo
+    cazó `espacios-l7t2.js` en los cinco viewports. Por lo mismo el panel enseña **tres
+    líneas cortas** (✓/✗ + autor — obra) y el porqué de **un solo** fallo: con el párrafo de
+    cada obra volvía a crecer.
+
+### Mecánicas que la autora descartó (2026-11-24)
+
+- **"El reloj de Carondelet"** — girar la manecilla hasta los días/meses/años que duró cada
+  gobernante. Le gustó **el tema** y no la mecánica.
+- **"El dominó de Carondelet"** — empujar la ficha que tumbó al gobierno. Se descartó con
+  argumento, y conviene recordarlo: **era una pregunta de opción múltiple disfrazada**. Hay
+  cuatro fichas y se elige una; quitando los dominós y poniendo cuatro botones el juego es
+  el mismo. La caída en cadena es una animación **posterior** a la decisión, no parte de
+  ella.
+- **"El mural de los años 30"** — frotar para descubrir. Era mi recomendación, pero frotar
+  se parece a *destapar pistas* del Tema 1 y ella eligió los hilos.
+
+### La pregunta de la variedad, respondida antes de construir
+
+La autora preguntó *"¿pero cómo garantizamos variedad en la ronda 1?"* **antes** de que se
+escribiera una línea, y la sospecha era correcta: con una sola curva, la del cacao, **todos
+los hechos empujan hacia abajo** y se acierta arrastrando abajo sin leer. Tres arreglos,
+los tres en el código:
+
+1. **Tres curvas**, no solo la del cacao.
+2. Dentro de cada una, hechos que **suben** y hechos que **bajan** (el auge agroexportador,
+   el sombrero en los veinte y en los cuarenta, el Banco Central, el Código del Trabajo).
+3. Entran **3 de 6** por partida ⇒ 20 combinaciones por curva, **60 ejercicios**.
+
+Caps FIFO: curva **2** (= banco − 1, para un solo ítem) · hechos **4** (nunca 3 = K) · R2
+**5** · R3 **5**.
+
+### Imágenes del tema
+
+**8 archivos `assets/j7t2-*.jpg`, todos 1:1**, uno por obra: `huasipungo`, `nuestro-pan`,
+`cruces-agua`, `hoguera`, `sangurimas`, `mitas`, `indio`, `plata-bronce`. Prompts
+entregados el 2026-11-24 con una línea de estilo común (mural indigenista de los treinta,
+figuras de lejos o de espaldas, sin texto). Opcional y aún sin montar: `j7t2-billete.jpg`
+en 16:9 como fondo de la R2. **El tema se juega igual sin ellas**: `J12Img` cae a un emoji.
+
+### QA del tema
+
+```bash
+node juegos/juego-12/.planning/e2e-l7t2.js        # perfecta 9 ⭐ · fallada 0 ⭐ · 6 recargas
+node juegos/juego-12/.planning/espacios-l7t2.js   # solapes, 5 viewports, 3 rondas
+node juegos/juego-12/.planning/arrastre-l7t2.js   # el nudo y los hilos, con ratón de verdad
+node juegos/juego-12/.planning/variedad-l7t2.js 12
+```
+
+**Verificado el 2026-11-24:** format-lint 15/15 · e2e perfecta **3/3 · 9 ⭐** y fallada
+**0/3 · 0 ⭐** con revelado en las tres y el BORRAR de la R1 · detector de solapes limpio en
+5 viewports, también en pleno arrastre, con la barra a tope y con los hilos cruzados ·
+arrastre 11/11 · variedad medida otra vez con la ronda nueva: **8 partidas, 8/8 ejercicios distintos en
+las tres rondas y 0 repeticiones seguidas** · 0 errores de consola.
+
+⚠ **Al añadir este tema, el Libro 7 pasó a tener DOS**, así que ya **no se preselecciona
+solo** y ENTRAR queda apagado hasta elegir uno (`openLibro` solo autoselecciona con
+`temas.length === 1`). Hubo que añadir el click del tema a **los siete scripts del Tema
+1** (`e2e`, `espacios`, `arrastre`, `huecos`, `variedad`, `shot`, `shot-arrastre`). Es el
+mismo tropiezo que ya tuvo `arrastre-r3.js` cuando el Libro 6 estrenó su segundo tema:
+**cada vez que un libro estrena tema, revisar los scripts de sus temas anteriores.**
+
+### Lo que cazaron las capturas del Tema 2 (y ningún detector)
+
+Tres cosas que el detector de solapes no puede ver, porque son **decorativas o de color**:
+
+- **La franja verde iba DEBAJO del relleno de la barra.** En cuanto se emitían unos
+  billetes, el relleno tapaba el borde izquierdo de la franja y se perdía de vista dónde
+  había que parar. Ahora la franja se pinta **encima**, translúcida.
+- **Las dos etiquetas de la barra se tocaban.** Centradas en su marca, con una franja
+  estrecha "HACE FALTA" y "HASTA AQUÍ HAY ORO" quedaban pegadas. Ahora **crecen hacia
+  fuera**: una termina en el borde izquierdo y la otra empieza en el derecho.
+- **El pasillo de los hilos pasó de 44 a 66 px.** Al revelar conviven hasta **seis** hilos
+  (el tuyo y el dorado de cada pareja) y en 44 px se trenzaban. Además el dorado va más
+  grueso y el equivocado se apaga al 55 %.
+
+Y un plural mal escrito que solo se ve jugando: *"Te faltan 1 hilo"*.
+
+⚠ **Para mirar el revelado de la R3 hay que FORZAR el fallo**, y el corrimiento cíclico no
+basta: como las dos columnas se barajan por separado, "el de al lado" puede ser el
+correcto y la captura sale toda en verde. `shot-l7t2.js` lleva la clave escrita y cuelga
+cada autor de **la obra siguiente a la suya**. Mandarlos todos a la misma obra tampoco
+sirve: dos autores no pueden colgar de una sola, así que quedaría **un solo hilo** y
+¡VERIFICAR! no haría nada.
+
+
+### La ronda 2, rehecha entera (2026-11-24)
+
+La primera R2 fue **"La imprenta sin respaldo"**: se pulsaba IMPRIMIR y había que parar
+dentro de la franja que respaldaba el oro. La autora la descartó jugándola, con la frase
+que más vale la pena recordar: *"en esta ronda no entiendo nada de cómo se juega"*.
+
+**El diagnóstico, para no repetirlo:** la ronda pedía entender una idea abstracta —que los
+billetes necesitan respaldo en oro— **antes** de poder tocar nada. Eso no se arregla con
+más dibujos ni con mejor copy: si la mecánica solo cobra sentido después de entender el
+concepto, el juego no está enseñando, está examinando. Las otras dos rondas del tema se
+entienden mirándolas (una línea que sube y baja, un hilo de un sitio a otro) y esta no.
+
+**Lo que la sustituye: "La feria de juegos"**, con los juegos de infancia de la p. 38. Se
+entiende sin leer, porque el gesto es la respuesta.
+
+Antes de rehacerla se le ofrecieron tres caminos y eligió este:
+
+- **A · "La torre de los gobiernos"** (apilar un bloque por año; las tres torres juntas
+  enseñan la inestabilidad). Era mi recomendación.
+- **B · "El pliego de la huelga"** (sellar lo que los obreros consiguieron). Descartada por
+  ser, en el fondo, decidir sí/no sobre cada línea, que ya existe en el Libro 6.
+- **C · "La feria de juegos"** ← la elegida. Se le dijo de frente que es la que **menos
+  contenido histórico** tiene: enseña cómo se jugaba, no por qué pasó lo que pasó.
+
+### La R1, rehecha el mismo día
+
+*"Aquí nunca vamos a tener una respuesta correcta porque nunca vamos a poner el nudo en el
+lugar exacto."* Tenía razón: con una tolerancia de ±12 sobre 100 había que clavar el píxel
+y un nudo que se veía bien salía ✗.
+
+Ahora el gráfico tiene **cuatro alturas con nombre** —MUY ALTO · ALTO · BAJO · MUY BAJO—
+dibujadas como rieles, y al soltar **el nudo se imanta** al riel más cercano.
+
+- ⚠ **Son cuatro y no dos.** Ella proponía solo alto/bajo; con dos, el auge y el desplome
+  quedarían a la misma altura, la curva perdería la forma y cada nudo sería una moneda al
+  aire. Con cuatro, acertar depende de entender, no de la puntería.
+- **El recuadro del hecho va ENCIMA del gráfico**, no debajo (lo pidió ella), y el bloque
+  tiene **altura reservada** para que el gráfico no salte cuando el revelado ocupa su
+  sitio.
+- El gráfico pasó de 206 a **290 px de alto**: se comió el hueco que sobraba abajo.
+
+### Imágenes de la R2
+
+**6 archivos "assets/j7t2-*.jpg", 1:1**: "trompo", "cometa", "soga", "pallas",
+"muneca", "rayuela" (prompts entregados el 2026-11-24, estilo de ilustración infantil
+pintada a mano, fondo liso, sin texto ni personas). **La ronda se juega igual sin ellas**:
+"J12Img" cae a un emoji.
+
+## Libro 7 · Tema 3 — "Transformación agraria" (11 años)
+
+D.C.D. CS.3.1.52 a CS.3.1.56 (libro pp. 52-58 + cuaderno pp. 49-52, entregado 2026-11-24).
+
+⚠ **En el libro es el "Tema 1" de la Unidad 3**, igual que pasó con el Tema 2; dentro del
+juego entra como Libro 7 · Tema 3. **El título NO es un arrastre del banner**: la autora
+preguntó por él y el cuaderno (p. 49) lo repite, así que el tema se llama de verdad
+"Transformación agraria" aunque sus dos primeras páginas hablen de la guerra de 1941.
+
+| Ronda | Mano | ⭐ |
+|---|---|:--:|
+| R1 `L7T3R1Mandatos` "¿Cuánto le duró?" | estirar el borde de una barra | 3 |
+| R2 `L7T3R2Banano` "La bodega del banano" | apilar | 3 |
+| R3 `L7T3R3Lamparas` "Lo que cambió y lo que no" | encender y apagar | 3 |
+
+**⭐ del tema: 3 + 3 + 3 = 9.** Las tres manos son nuevas en el Libro 7, que ya gastó
+*ordenar arrastrando*, *repartir en destinos*, *destapar pistas*, *deformar una curva*,
+*pulsar y frenar* y *tender hilos*.
+
+**El arco del tema lo recorren las tres rondas enteras**, no solo su arranque: primero la
+guerra (p. 52), luego la plata del banano (p. 55) y al final la Reforma Agraria (pp.
+56-57), que es la que da nombre al tema. Las primeras propuestas se quedaban en las pp.
+52-53 (frontera, Protocolo, velasquismo) y el tema se habría llamado "Transformación
+agraria" sin hablar de ella; se le dijo a la autora y aceptó cambiar el contenido
+conservando los tres gestos que ya había elegido.
+
+**Invariantes de este tema:**
+
+- **R1 · la respuesta es CUÁNTO, no cuál.** Tres gobiernos a la vez, con su año de inicio
+  YA PUESTO, y se estira el borde derecho de su barra sobre la línea 1948-1972. Acierto =
+  quedar a **un año o menos**. Cada uno lleva una frase de lo que hizo, SIN años. Banco de
+  **8 gobiernos** (pp. 54-57), 3 por partida ⇒ 56
+  combinaciones.
+  - ⚠ **SUSTITUYE a "Uno contra ocho"** (poner soldados en la fila), que la autora no
+    entendió jugándola el 2026-11-24: *"no entiendo para nada cómo es esa ronda"*. El
+    diagnóstico no era el copy: **la pantalla no decía por ningún lado que lo correcto
+    fuera dejar UN soldado sin armas y sin jefes**, así que solo se acertaba recordando la
+    frase de la p.52. Las dos ilustraciones de soldados quedaron sin uso.
+  - ⚠ **También se descartaron tres versiones de "medir el territorio perdido"** (cortar
+    con tijeras, estirar una cinta, doblar el mapa): los 200 000 km² son UN SOLO dato, así
+    que la ronda sería idéntica en todas las partidas. **Lo marcó la autora**, que pidió
+    variedad al recargar antes de elegir.
+  - ⚠ **Nunca dos mandatos de la MISMA persona en la misma partida**: salían el 3.er y el
+    4.º de Velasco juntos y la pantalla parecía repetida. Campo `q` + repesca en el build.
+  - ⚠ **El año se calcula con el ancho REAL del eje** (`getBoundingClientRect`), no con los
+    398 lógicos: el lienzo va escalado con `transform`.
+  - ⚠ **Clemente Yerovi queda fuera del banco**: gobernó de marzo a noviembre de 1966 y la
+    barra se mide en años enteros, así que no tendría respuesta clara.
+  - ⚠ **El libro se contradice con Arosemena Monroy**: el titular dice "(1960-1963)" pero
+    el texto cuenta que Velasco ganó en 1960 y lo desconocieron en 1961. En el juego entra
+    como **1961-1963**. Conviene que la autora lo revise en el libro.
+  - Lo que enseña sin explicarlo: los tres primeros duran cuatro años justos (el "período
+    de estabilidad") y desde 1960 **ninguno llega al final**.
+- **R2 · las cifras son las de la tabla de la p. 55** (99 · 169,6 · 612,6 · 895,1 mil
+  toneladas) y **1 caja = 100 mil toneladas**, que es lo único que se inventa: la unidad
+  del juego, no el dato. **Acierto solo si es EXACTO** (pasarse no vale). Entran 3 de los 4 años.
+  - ⚠ **El PASO de la pila es 22 px, no 26.** Con 26 la columna de diez medía 280 y al
+    verificar el cartel verde se montaba sobre los años. **Lo vio la captura, no el
+    detector de solapes** (se tocaban por pocos píxeles).
+  - Tocar la columna sube una caja; **tocar una caja baja la pila hasta ahí**, igual que
+    la fila de la R1. BORRAR quita la última.
+- **R3 · las cinco frases salen de las pp. 56-57**, y las falsas son lo que el libro dice
+  EXPRESAMENTE que no ocurrió (no hubo créditos ni préstamos, no mejoró la calidad de
+  vida, no pudieron tecnificarse ni frenar las plagas). **Nada inventado.**
+  - Banco: **5 verdaderas + 3 falsas**; salen 3 + 2 ⇒ **30 combinaciones**.
+  - El revelado marca en ámbar **"ESTA SÍ PASÓ"** la verdadera que no se encendió, y el
+    cartel verde cita el porqué de las falsas que tocaron esa partida.
+  - 📌 **Su peor nota es 1 ⭐, no 0**: hay que encender tres y solo hay dos falsas, así que
+    al menos una verdadera entra siempre. El e2e lo espera así.
+- **Caps FIFO:** R2 años **2** (nunca 3 = K) · R3 verdaderas **2** (nunca 3) · R3 falsas
+  **1** (nunca 2).
+
+### Imágenes del tema
+
+**4 archivos `assets/j7t3-*.jpg`, entregados por la autora el 2026-11-24**:
+`soldado-ecuador` y `soldado-peru` (3:4, misma pose y misma escala, uno sin arma y el
+otro equipado), `caja-banano` (1:1, con la tapa plana porque se apila) y `campesino`
+(3:4, junto a las lámparas de la R3). **2 266 KB → 41 KB** con
+`.planning/optimizar-j7t3.js <carpeta-de-respaldo-fuera-del-repo>`, que respeta la
+proporción y nunca pisa un respaldo existente.
+
+⚠ **`J7T3Fig` cae a un emoji si falta el archivo** (🪖 · 📦 · 🧑‍🌾): el tema se puede jugar y
+probar sin esperar a las ilustraciones.
+
+⚠ **Ninguna cara de persona real.** Arroyo del Río, Tobar Donoso y Velasco Ibarra se
+nombran en los textos; no se ilustran. Los soldados y el campesino son tipos, no personas.
+
+### Mecánicas que se descartaron (2026-11-24)
+
+- **"La franja que se va"** (arrastrar el borde del mapa hasta los 200 000 km² perdidos) —
+  era mi recomendación; la autora prefirió otras.
+- **"El telegrama"** (jalar la cinta y marcar los partes ciertos) — **la eligió y luego
+  cayó** al llegar el material completo: su contenido eran las pp. 52-53 y el tema pedía
+  llegar hasta la reforma agraria. Su ilustración (`j7t3-telegrafo.jpg`) se canceló antes
+  de generarla.
+- **"El rodillo de censura"** — se le ofreció avisando de que ahí el chico de 11 años hace
+  el papel del dictador y la pantalla suelta, sin el final, se lee mal. No la eligió.
+
+### QA del tema
+
+```bash
+node juegos/juego-12/.planning/e2e-l7t3.js        # perfecta 9 ⭐ · fallada 1 ⭐
+node juegos/juego-12/.planning/espacios-l7t3.js   # solapes, 3 viewports, 9 estados
+node juegos/juego-12/.planning/variedad-l7t3.js 8
+node juegos/juego-12/.planning/shot-l7t3.js <carpeta>
+```
+
+**Verificado el 2026-11-24:** format-lint 15/15 · e2e perfecta **3/3 · 9 ⭐** y fallada
+**1 ⭐** con revelado en las tres rondas · detector de solapes limpio en 27 estados (las
+tres rondas vacías, en su estado más lleno y reveladas, en 3 viewports) · variedad en 8 partidas: **R1 6/8 distintos · R2 4/8 (de 4
+posibles) · R3 6/8 · 0 repeticiones seguidas** ·
+`espacios-todo.js` sigue limpio en los tres temas del Libro 6 · 0 errores de consola.
+
+⚠ **El overlay ¡EXCELENTE!/¡UPS! tapa el revelado** durante todo el tiempo que la ronda
+sigue en pantalla, así que una captura nunca lo enseña limpio: lo que haya que comprobar
+del revelado se mide en el DOM (colores, textos), no mirando una foto.
+
+### Cuarta tanda de la autora jugando el Libro 7 · Tema 2 (2026-11-24)
+
+**R1 · los nudos ya colocados se pueden volver a mover.** *"Una vez que muevo los nudos me
+doy cuenta que me equivoqué, debe dejarme mover, no así como se queda estático."* Ahora
+hay **una zona de agarre por nudo**, no una sola para el que toca, y la tarjeta del hecho
+**sigue al nudo que tienes en la mano** (estado `foco`), no al turno.
+
+- ⚠ **Y por eso esta ronda ya NO registra BORRAR** — lo quitó ella en la misma frase. Con
+  los nudos libres, rectificar es mover otra vez; un botón de deshacer sería un segundo
+  camino para lo mismo.
+- 🐛 **El punto de PARTIDA se encendía** como si fuera el nudo activo en cuanto estaban
+  los tres colocados: es `i = 0`, o sea `k = -1`, y `activo` vale −1 al terminar. Falta
+  la guarda `k >= 0`. Lo cazó un diagnóstico que imprimía todos los círculos del SVG.
+
+**R2 · fuera la rayuela.** *"Si juego rayuela, ¿cómo indico que se juega?"* Tenía razón, y
+el defecto era de ese juguete, no de la mecánica: los otros cinco gestos salen solos
+—lanzar, tirar, dar vueltas, estirar, mecer— y **saltar no se parece a nada que se pueda
+hacer con el dedo**, así que había que adivinar una convención nuestra. El banco baja de
+6 a 5 (de 20 tríos a 10) y se gana que los cinco sean honestos. Un toque suelto ya no
+anota nada: todos los gestos son trazos.
+
+- 📌 Ella propuso en su lugar **dar pistas y adivinar el juego**. Se descartó con
+  argumento: eso es exactamente *"Expediente abierto"*, la R3 del **Tema 1 de este mismo
+  libro**, y rompería su propia regla de no repetir manos dentro de un libro.
+
+**R3 · el hueco de debajo no era aire suelto.** Era el sitio **reservado** para el panel
+del revelado (86 px). Se ganó haciendo el panel más bajo: ya **no repite las tres parejas
+en texto**, porque el veredicto lo dan el **hilo dorado** y el **marco de cada tarjeta**;
+queda el título y el porqué. Con eso las filas suben de 92 a **106** y las fotos de las
+obras a 96 px de ancho. Cuentas: 34 + 22 + 10 + 342 + 4 + 44 = **456 de 462**.
+
+- ⚠ **112 px por fila NO caben** (364 > 306 disponibles): el panel se montaba sobre la
+  última tarjeta en los cinco viewports. Lo cazó `espacios-l7t2.js`.
+- 📌 **Los emojis de las obras son el respaldo**, no una decisión de diseño: las 8
+  `j7t2-*.jpg` todavía no están subidas. En cuanto estén, aparecen solas.
+
+**⚠ Trampa de los parches, apuntada para no repetirla:** en `String.replace`, un `$$` en
+el **texto de reemplazo** significa un `$` literal. Varios parches a los scripts de QA
+dejaron `p.$(` donde debía ir `p.$$(` y los tests fallaban con *"cannot read properties of
+undefined"*. Para reemplazos con `$` usar `split(...).join(...)`.
+
+**⚠ Trampa del test del arrastre:** la zona de agarre es tan alta que un salto de varias
+bandas sacaba el ratón fuera de la ventana y Playwright lo recortaba — el nudo no llegaba
+y parecía un fallo del juego. Ahora se mueve **un escalón** y el punto de agarre se corre
+si el gesto no cabría.
+
+### Las 13 ilustraciones, entregadas (2026-11-24)
+
+Ya están las **13 `j7t2-*.jpg`**: 5 juguetes (R2) y 8 obras (R3), todas 1:1.
+
+```bash
+node .planning/optimizar-j7t2.js <carpeta-de-respaldo-fuera-del-repo>
+```
+
+Llegaron a 1024×1024 y **11 435 KB en total**; reescaladas a 360 px pesan **444 KB** y en
+pantalla se ven igual (el juguete se muestra a 168 px y las obras a 96). Como
+`optimizar-j7t1.js`, **respeta la proporción** y **nunca pisa un respaldo existente**.
+
+**Dos estilos a propósito, y no es un descuido:**
+
+- **Juguetes (R2): ilustración pintada a mano**, fondo liso. Un juguete fotográfico
+  recortado sobre fondo neutro queda frío y además compite con el rastro del dedo.
+- **Obras (R3): fotografía documental de los años treinta.** La autora rechazó el estilo
+  de mural indigenista que se había propuesto primero: *"cambia el estilo de las obras, no
+  me gusta, debería ser algo más realista"*. Las dos rondas no se ven juntas nunca, así
+  que la mezcla no se nota.
+
+⚠ **Ninguna lleva texto ni caras reconocibles.** Son novelas sobre personas reales y no
+puede parecer el retrato de nadie; las figuras van de lejos o de espaldas.
+
+### Por qué NO se usaron imágenes reales de las obras
+
+La autora preguntó si se podían sacar de internet. Se buscó en **Wikimedia Commons
+comprobando la licencia por la API**, archivo por archivo, y el resultado no alcanza:
+
+- **Con derechos vigentes** todas las portadas: en Ecuador la protección es **vida del
+  autor + 70 años** (Icaza † 1978 → ~2048; Pareja Diezcanseco † 1993 → ~2063), y aunque la
+  novela entrara en dominio público **la portada tiene su propio dueño**, el que la
+  diseñó.
+- **Trampa del CC0:** los óleos de **Camilo Egas** aparecen como CC0 en Commons, pero ese
+  CC0 lo puso quien **fotografió** el cuadro y cubre la foto, no la pintura — Egas murió en
+  1962. Lo mismo con la caricatura de Gil Gilbert, que es el diseño de **una estampilla de
+  Correos del Ecuador**. **Una licencia libre sobre la reproducción no libera la obra
+  reproducida.**
+- Lo único realmente limpio: el retrato de **José de la Cuadra** (dominio público) y la
+  portada de *El indio ecuatoriano* (dominio público, repositorio de la Casa de la
+  Cultura), esta última de **191×263 px**, demasiado pequeña. Todo lo demás, CC BY-SA de
+  tumbas, monumentos y casas: esa licencia obliga a **compartir igual**, que no se puede
+  cumplir dentro de un juego escolar.
+
+### Quinta tanda: los movimientos de la R2 se VEN (2026-11-24)
+
+*"Habíamos quedado que debería ser diferente porque si no, no se entiende qué movimientos
+se deberían realizar."* El problema era más hondo que el de la rayuela: el chico puede
+mover el dedo de mil maneras y **solo cinco significan algo**, así que estaba adivinando
+una convención nuestra — el mismo defecto que hundió a la imprenta.
+
+Ahora, debajo del juguete, salen **tres tarjetas** con la flecha y el nombre del
+movimiento (el suyo y dos de los otros cuatro, barajados).
+
+- ⚠ **Son una LEYENDA, no botones** (`pointerEvents: none`): hay que **hacer** el
+  movimiento sobre el juguete. Si se pudieran tocar, la ronda sería una pregunta de tres
+  botones y la mano dejaría de pintar nada.
+- ⚠ **Un movimiento que no esté entre los tres no se anota**: avisa *"Ese no es ninguno de
+  los tres"* y se repite. Si se anotara, el chico gastaría el juguete sin haber elegido
+  nada de lo que se le ofrecía.
+- 📌 **Se le dijo el precio antes de hacerlo:** con las tres a la vista la ronda se acerca
+  a una opción múltiple. Lo eligió sabiéndolo, frente a cambiar de ronda — que además
+  habría tirado las 5 ilustraciones de juguetes que acababa de generar. Las alternativas
+  ofrecidas fueron otra vez la torre de los gobiernos y el pliego de la huelga.
+
+**R3 · "unir", no "tender".** *"Eso que dice ya tendiste los tres, cambiado sería algo así
+como que ya uniste los 3."* Tender un hilo es la palabra del código, no la de un chico de
+11 — mismo caso que "platillo" en el Tema 1. Ahora: *"Te falta unir 1"* / *"Te faltan 2
+por unir"* / *"Ya uniste los 3. Toca ¡VERIFICAR!"*.
+
+⚠ **Y una trampa de los scripts, por tercera vez:** los de QA hacían siempre el mismo
+trazo, y desde esta regla un movimiento fuera de los tres no avanza: se colgaban. Ahora
+`espacios`, `variedad` y `shot` **leen las opciones de la pantalla** y hacen la primera.
+
+### Segunda tanda de la autora jugando el Tema 3 (2026-11-24)
+
+Tres huecos marcados **en rojo sobre las capturas** y una regla de juego:
+
+- **R1 · la regla de años empieza en el gobierno más antiguo de la partida, no en 1948.**
+  *"¿Por qué mostrar desde 1948 si tenemos todo ese espacio vacío?"* — con el 1948 fijo,
+  una partida de los años sesenta dejaba media regla muerta a la izquierda. Ahora el eje
+  va de `min(ini)` a 1972 y el paso de las marcas se calcula para no pasar de siete.
+  - ⚠ **El e2e tenía el 1948 escrito**: al volverse dinámico el eje, pinchaba en años que
+    no eran y la partida "fallada" acertaba de casualidad (daba 3 ⭐ en vez de 1). El test
+    calcula ahora el origen con los gobiernos que le tocaron.
+- **R1 · cada gobierno lleva una frase de lo que hizo** y la ronda tiene una ilustración.
+  *"Está horrible, pongámosle algo más, si no está muy pobre"*. Eran tres nombres pelados
+  sobre tres barras.
+  - ⚠ **Las frases NO llevan años**: si los llevaran regalarían la respuesta. Son obras
+    (*"Creó TAME y el decimotercer sueldo"*), nunca fechas.
+  - ⏳ Falta `assets/j7t3-carondelet.jpg` (1:1, el Palacio de Carondelet). Mientras no
+    esté, cae al emoji 🏛️ y la ronda se juega igual.
+- **R2 · pasarse NO es acierto.** *"Solo cuando pongo los bananos correctos debe salir
+  correcto, no cuando lo supero"*. Antes valía con quedar a una caja, de más o de menos;
+  ahora el acierto es **exacto**. Tenía razón: poner de más no es aproximarse.
+- **R2 y R3 · bloques centrados y cartel del revelado en absoluto**, como ya estaba la R1.
+  El hueco que marcó en rojo era el sitio reservado al cartel, que se veía vacío mientras
+  se jugaba. Además la R3 tiene **fichas más altas (34 px) y la foto a 140×196**, y la R2
+  columnas más anchas y un paso de 20 px.
+
+**Verificado tras los cambios (2026-11-24):** format-lint 15/15 · e2e perfecta **9 ⭐** y
+fallada **1 ⭐** · solapes limpios en 27 estados · variedad en 8 partidas: **R1 8/8 ·
+R2 4/8 (de 4 posibles) · R3 8/8 · 0 repeticiones seguidas**.
+
+⚠ **Las dos ilustraciones de soldados (`j7t3-soldado-*.jpg`) quedaron SIN USO** al caer
+"Uno contra ocho". Siguen en `assets/` por si sirven para otro tema; si no, se borran.
+
+## Libro 7 · Tema 3 — correcciones de la autora (2026-11-24)
+
+⚠ **Este tema lo construyó OTRA sesión en paralelo.** Estas correcciones se hicieron desde
+la sesión del Tema 2 después de comprobar que el fichero no se tocaba desde hacía rato y
+que el último commit de la otra sesión era de horas antes. **Dos sesiones escribiendo en
+`game-screens.jsx` a la vez se pisan**: antes de entrar, mirar `stat` del fichero y el
+`git log`, y avisar a la autora de que no abra el otro chat.
+
+**R1 · el retrato de cada gobierno, y el nombre que se lee.**
+
+- El nombre iba en blanco entre más texto blanco y no se distinguía: ahora en **ámbar**.
+- Fuera el **Palacio único** de la izquierda (no decía nada de cada gobierno) y en su
+  lugar un **retrato por fila**, `assets/j7t3-<q>.jpg`. Con el sitio ganado, las barras
+  pasaron de 322 a **356** y las filas de 22 a 26 de alto.
+- ⚠ **Ninguna cara se genera.** El archivo es una foto real o no hay foto: si falta, cae
+  a un icono y la fila sigue entera.
+
+**R2 · columnas más grandes y la caja recortada.**
+
+- 84 px de ancho (antes 62) y más separación. ⚠ **El paso quedó en 21, no en 26**: con 26
+  la columna medía 278 y el año de abajo chocaba con el cartel del revelado en los tres
+  viewports. Lo cazó `espacios-l7t3`.
+- 🐛 **El "celeste" que no le gustaba a la autora era el fondo de la ilustración.** La
+  caja de banano venía con un marco gris clarísimo y mucho aire alrededor; al apilarse,
+  de las cajas de abajo solo se veía ese fondo, que **contra el verde del juego se lee
+  azul**. No era un color del código: era la imagen. Se recorta con
+  `.planning/recortar-margen.js`, que detecta el color de las cuatro esquinas y corta
+  hasta el primer píxel distinto. 200×200 → 240×166.
+
+**R3 · el veredicto se ve.** Cada frase lleva su **sello ✓/✗** (verde, rojo o ámbar)
+además del color del marco. ⚠ Sin rótulo al lado: con él, el texto se iba a tres líneas,
+la lista crecía y el cartel del revelado tapaba la última ficha.
+
+**Variedad.** La R1 tenía el **mismo fallo del cap** que se corrigió en el Tema 2: cap 4
+sobre un banco de 8 deja solo 4 libres para elegir 3, así que salía casi siempre el mismo
+trío. Con cap 2 quedan 6 libres. Medido en 10 partidas: **R1 7/10 · R2 4/10 · R3 8/10**, y
+ninguna repitió la anterior.
+
+📌 **La R2 tiene un techo real de 4 combinaciones**: el libro solo da cuatro años en la
+tabla de la p. 55 (1948, 1950, 1955, 1960) y se juegan tres. No se sube sin más material;
+inventar cifras no es una opción.
+
+**Retratos: lo que hay en dominio público.** Comprobado con la API de Commons, archivo
+por archivo:
+
+| Gobierno | Foto libre |
+|---|---|
+| Galo Plaza Lasso | sí (varias, PD) |
+| Camilo Ponce Enríquez | sí (PD, 230×280) |
+| Carlos Julio Arosemena Monroy | sí (PD, recortada de una con Kennedy) |
+| Velasco Ibarra | sí (PD), las mejores con su esposa |
+| Otto Arosemena Gómez | **no** |
+| Primera Junta Militar | **no** |
+| Palacio de Carondelet | **no** (todas CC BY-SA) |
+
+⚠ **Para los que no tienen foto NO se genera un retrato**: se genera un **símbolo del
+cargo** (la banda presidencial sobre una silla, los uniformes vacíos en un perchero). Una
+cara inventada de una persona real no puede salir en material escolar.
+
+⚠ **Descargar de Wikimedia da HTTP 429 si se piden varias seguidas.** Hay que espaciar
+las peticiones y mandar un User-Agent propio — y **nunca el correo de la autora**.
+
+`.planning/retrato-a-asset.js <origen> <nombre> [recorte]` deja cualquier foto lista:
+recorta a 3:4 por arriba (donde está la cara) y guarda 180×240 en `assets/`.
+
+### Las seis figuras de la R1, completas (2026-11-24)
+
+| Archivo | Qué es |
+|---|---|
+| `j7t3-plaza.jpg` | foto real, dominio público (Commons) |
+| `j7t3-ponce.jpg` | foto real, dominio público |
+| `j7t3-arosemena.jpg` | foto real, dominio público (recortada de una con Kennedy) |
+| `j7t3-velasco.jpg` | foto real, dominio público (recortada de una con su esposa) |
+| `j7t3-otto.jpg` | **símbolo del cargo**: la banda presidencial sobre una silla |
+| `j7t3-junta.jpg` | **símbolo del cargo**: cuatro uniformes vacíos en un perchero |
+
+Las seis a 180×240 (3:4), de 7 a 13 KB cada una. Las dos generadas llegaron a 1024×1024 y
+casi 800 KB.
+
+⚠ **Otto Arosemena y la Junta NO llevan retrato inventado.** No hay foto libre de ellos y
+una cara generada de una persona real no sale en material escolar: en su hueco va un
+objeto que representa el cargo. Es la misma salida que con los autores del Tema 2.
+
+⚠ **`upload.wikimedia.org` corta con HTTP 429** a quien baja varias seguidas, y el corte
+dura un buen rato. Se baja de una en una, con pausas; si se atasca, el agente `web-fetch`
+lo consigue porque sale por otro cliente.
+
+⚠ **`retrato-a-asset.js` tiene ancla horizontal** (`0` izquierda · `0.5` centro · `1`
+derecha) justo para estos casos: la única foto libre de Velasco Ibarra es con su esposa,
+y su retrato está en la mitad izquierda. Se usó `0.42 0.04` (42 % del alto, pegado a la
+izquierda).
+
+### El doble clic ya no pinta de azul (2026-11-24)
+
+Al hacer **doble clic** sobre una ficha, el navegador seleccionaba su texto y la pintaba
+del azul de selección del sistema. La autora lo cazó apilando cajas de banano: dos toques
+seguidos en la misma caja y se quedaba azul, como si fuera un estado del juego.
+
+Arreglado en **`styles.css` de juego-12**, así que vale para los **seis temas** a la vez:
+`user-select: none` en `body`/`.ed-body` más `-webkit-tap-highlight-color: transparent`
+(el destello gris del toque en móvil).
+
+- ⚠ **Los campos de texto se excluyen** (`input, textarea, select`): en el Home hay que
+  poder escribir y corregir el nombre, y ahí seleccionar sí tiene sentido.
+- ⚠ `styles.css` **no se empaqueta**: va enlazado desde el HTML, así que no hace falta
+  `bundle.js` para este cambio.
+- 📌 Es una copia del `styles.css` maestro: **los demás juegos siguen sin el arreglo**. Si
+  se quiere para todos, hay que replicarlo en cada `juegos/<slug>/styles.css`, en la raíz
+  y en `_PLANTILLA` (ver la sección de editar el shell en el CLAUDE.md del repo).
+
+Lo vigila `.planning/sin-seleccion.js`: hace doble clic en el tablero de los tres temas
+del Libro 7 y comprueba que no se selecciona nada, **y que el nombre del Home sí**.

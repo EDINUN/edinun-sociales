@@ -2017,6 +2017,858 @@ const L7T1_ROUNDS = [
   { C: L7T1R3Expediente, verify: true, bubble: (<>Lee la pista y elige.<br />Destapa solo si hace falta.</>) },
 ];
 
+// ╔════════════════════════════════════════════════════════════════════════════╗
+// ║ LIBRO 7 · TEMA 2 · "Insurgencia, cambio social y velasquismo"              ║
+// ║ Edad objetivo: 11 años (la fija la autora).                                ║
+// ║ D.C.D. CS.3.1.45 · CS.3.1.46 · CS.3.1.47 · CS.3.1.48                       ║
+// ║                                                                            ║
+// ║ 3 rondas, 3 manos NUEVAS (ninguna se repite con el Tema 1, que gasto        ║
+// ║ ordenar-arrastrando, repartir-en-destinos y destapar-pistas):              ║
+// ║   R1 "El quintal se desploma" — DEFORMAR una curva arrastrando su nudo     ║
+// ║   R2 "La imprenta sin respaldo" — PULSAR y FRENAR a tiempo                 ║
+// ║   R3 "La pena del Grupo de Guayaquil" — TENDER un hilo de punto a punto    ║
+// ║                                                                            ║
+// ║ ⭐ 3 + 3 + 3 = **9 maximo**.                                                ║
+// ║                                                                            ║
+// ║ ⚠ DATOS: todo sale del Libro 7 Tema 2 (pp. 32-38) y su cuaderno (pp.       ║
+// ║ 27-32), que la autora entrego el 2026-11-24. No se inventa nada.           ║
+// ║                                                                            ║
+// ║ ⚠ NINGUNA cifra historica inventada. En la R2 las marcas de la barra son   ║
+// ║ un artefacto del juego, SIN numeros: el libro no da montos de emision, y   ║
+// ║ poner "45 millones" seria inventarselo. Lo que si sale del libro es el     ║
+// ║ hecho de cada tarjeta.                                                     ║
+// ║                                                                            ║
+// ║ ⚠ NINGUNA cara de persona real se dibuja. En la R3 lo ilustrado son las    ║
+// ║ OBRAS; los autores van con su nombre y un icono.                           ║
+// ╚════════════════════════════════════════════════════════════════════════════╝
+
+// ══════════════════════════════════════════════════════════════════
+// R1 · "El quintal se desploma" — DEFORMAR UNA CURVA (mano nueva).
+// Sale un hecho con su año; el nudo de ese año se arrastra arriba o abajo y la linea se
+// deforma pegada al dedo. La respuesta es CUANTO, no CUAL: no hay opciones que elegir.
+// ⭐ +1 por nudo dentro de la tolerancia. Tres nudos por partida.
+//
+// ⚠ VARIEDAD: la autora pregunto como se garantiza (2026-11-24). Tres respuestas, y las
+// tres estan aqui: (a) hay TRES curvas distintas, no solo la del cacao; (b) dentro de
+// cada curva el banco trae hechos que SUBEN y hechos que BAJAN, asi que "arrastra abajo
+// y aciertas" no funciona; (c) entran 3 de 6 hechos por partida. 3 curvas x 20
+// combinaciones = 60 ejercicios, con FIFO para que no se repita el anterior.
+//
+// ⚠ La curva correcta NO se ve mientras se juega: aparece al verificar, en dorado
+// punteado sobre la tuya. Ese es el lenguaje de la mecanica para revelar.
+// ══════════════════════════════════════════════════════════════════
+const J7T2_CURVAS = [
+  {
+    id: "cacao", e: "🫘",
+    q: "¿Qué le pasó al cacao ecuatoriano?",
+    eje: "PRECIO Y EXPORTACIÓN DEL CACAO",
+    ini: { y: 1910, b: 2 },
+    hechos: [
+      { y: 1915, b: 3, e: "🚢", t: "El cacao sostiene la economía: es el gran producto de exportación del país." },
+      { y: 1917, b: 2, e: "🍂", t: "La monilla y la escoba de bruja atacan gran parte de las plantaciones." },
+      { y: 1920, b: 1, e: "📉", t: "Se devalúa el precio del quintal de cacao en Nueva York." },
+      { y: 1922, b: 1, e: "🌍", t: "Brasil y Costa de Marfil aumentan su producción y venden más barato." },
+      { y: 1929, b: 1, e: "🏦", t: "El mercado de valores de Wall Street se derrumba y Estados Unidos compra menos." },
+      { y: 1930, b: 0, e: "⚓", t: "Se reducen notablemente el precio y el volumen de exportación del cacao." },
+      { y: 1919, b: 3, e: "💰", t: "La burguesía comercial y la bancaria se benefician del auge del cacao." },
+      { y: 1931, b: 0, e: "🏚️", t: "Quiebran instituciones bancarias y los negocios que giraban alrededor del cacao." },
+    ],
+  },
+  {
+    id: "sombrero", e: "👒",
+    q: "¿Qué pasó con el sombrero de paja de la Sierra Sur?",
+    eje: "PRODUCCIÓN DE SOMBREROS DE PAJA",
+    ini: { y: 1918, b: 1 },
+    hechos: [
+      { y: 1922, b: 2, e: "📈", t: "En la Sierra Sur la producción de sombreros de paja experimenta un crecimiento." },
+      { y: 1925, b: 3, e: "🧺", t: "La diversificación da productos para el consumo interno y trabajo a los campesinos." },
+      { y: 1930, b: 1, e: "🌫️", t: "La crisis mundial golpea también a este sector de la economía." },
+      { y: 1934, b: 0, e: "🪙", t: "La clase trabajadora percibe bajos salarios en todo el país." },
+      { y: 1940, b: 2, e: "👒", t: "La producción de sombreros vuelve a crecer en los años cuarenta." },
+      { y: 1945, b: 3, e: "🧶", t: "Los trabajadores campesinos pueden acceder a trabajo en varias actividades." },
+      { y: 1928, b: 3, e: "🧵", t: "El crecimiento del sombrero de paja se mantiene durante los años veinte." },
+      { y: 1936, b: 0, e: "📉", t: "La crisis de los años treinta afecta con fuerza a la clase trabajadora." },
+    ],
+  },
+  {
+    id: "bolsillo", e: "🪙",
+    q: "¿Cuánto alcanzaba el sueldo de un trabajador?",
+    eje: "LO QUE ALCANZA EL SUELDO",
+    ini: { y: 1924, b: 2 },
+    hechos: [
+      { y: 1926, b: 3, e: "🏛️", t: "Se crea el Banco Central: será el único organismo que emita moneda en el país." },
+      { y: 1928, b: 2, e: "🖨️", t: "Los bancos habían emitido dinero sin respaldo, sin reservas en oro que lo garanticen." },
+      { y: 1930, b: 1, e: "💱", t: "Las devaluaciones de la moneda frente al dólar suben el costo de la vida." },
+      { y: 1933, b: 0, e: "🏭", t: "La crisis afecta con fuerza a la clase trabajadora, que percibe bajos salarios." },
+      { y: 1936, b: 0, e: "🩺", t: "A los bajos salarios se suma la carencia de seguridad social." },
+      { y: 1938, b: 1, e: "📜", t: "El Código del Trabajo reconoce algunos derechos a los trabajadores." },
+      { y: 1929, b: 2, e: "🏦", t: "El derrumbe de Wall Street reduce las exportaciones y el trabajo." },
+      { y: 1940, b: 1, e: "⚖️", t: "La Ley de Control de Trabajo y Desocupación busca mejorar la situación obrera." },
+    ],
+  },
+];
+
+// ⚠ CUATRO ALTURAS CON NOMBRE, no una escala continua. La autora lo pidió el 2026-11-24
+// jugándolo: *"aquí nunca vamos a tener una respuesta correcta porque nunca vamos a poner
+// el nudo en el lugar exacto"*. Tenía razón: con una tolerancia de ±12 sobre 100 había
+// que clavar el píxel, y un nudo que se veía bien salía ✗.
+//
+// Ella proponía solo ALTO/BAJO. Son cuatro y no dos porque con dos la curva pierde la
+// forma —el auge y el desplome quedarían a la misma altura— y cada nudo sería una moneda
+// al aire. Con cuatro, el gesto sigue siendo arrastrar y la curva sigue contando la
+// historia, pero acertar depende de ENTENDER, no de la puntería: el nudo **se imanta** a
+// la altura más cercana al soltarlo y los cuatro rieles se ven desde el principio.
+const J7T2_BANDAS = ["MUY BAJO", "BAJO", "ALTO", "MUY ALTO"];
+const J7T2_R1_CKEY = "edinun_j12_l7t2_r1c_v1";
+// Geometria del grafico, en px del lienzo logico. X0 deja sitio a los rotulos de banda.
+const J7T2_X0 = 72, J7T2_X1 = 450, J7T2_Y0 = 16, J7T2_Y1 = 262;
+function j7t2Niv(b) { return 12.5 + b * 25; }                 // centro de la banda, 0-100
+function j7t2Y(n) { return J7T2_Y1 - (n / 100) * (J7T2_Y1 - J7T2_Y0); }
+function j7t2X(i, p) { return J7T2_X0 + (i * (J7T2_X1 - J7T2_X0)) / (p - 1); }
+function j7t2Banda(n) { return Math.max(0, Math.min(3, Math.round((n - 12.5) / 25))); }
+
+function j7t2R1Build() {
+  // ⚠ Cap 2 = banco − 1 para UN item (la curva): nunca repite la de la partida anterior.
+  const ci = j12PickIdx(J7T2_CURVAS, 1, J7T2_R1_CKEY);
+  j12Commit(J7T2_R1_CKEY, ci, 2);
+  const curva = J7T2_CURVAS[ci[0]];
+  // ⚠ Cap 2 sobre un banco de 8, NO 4 sobre 6. Con 4 de 6 quedaban solo 2 libres, menos
+  // que los 3 que entran: la partida siguiente sacaba el trío complementario entero y a
+  // la tercera volvían los mismos. La autora lo vio: *"me salen las 3 mismas opciones ya
+  // 2 veces"*. Lo que manda no es el cap, es cuántos quedan LIBRES: han de ser bastantes
+  // más que K. Con 8 y cap 2 quedan 6 libres → 20 tríos por curva, 60 en total.
+  const hk = "edinun_j12_l7t2_r1h_" + curva.id + "_v2";
+  const hi = j12PickIdx(curva.hechos, 3, hk);
+  j12Commit(hk, hi, 2);
+  const juegan = curva.hechos.filter((_, i) => hi.indexOf(i) !== -1).slice().sort((a, b) => a.y - b.y);
+  return { curva: curva, juegan: juegan };
+}
+
+function L7T2R1Curva({ onSolve, verifyRef }) {
+  const [b] = useStateG(() => j7t2R1Build());
+  const curva = b.curva, juegan = b.juegan;
+  const P = juegan.length + 1;
+  const [bandas, setBandas] = useStateG(() => juegan.map(() => null));
+  const [arr, setArr] = useStateG(null);        // { i, n } mientras se arrastra (continuo)
+  // ⚠ `foco` es el nudo que se está tocando (o el último tocado). Existe porque los nudos
+  // YA COLOCADOS se pueden volver a mover: la tarjeta tiene que enseñar el hecho del año
+  // que tienes en la mano, no el del turno.
+  const [foco, setFoco] = useStateG(null);
+  const [verified, setVerified] = useStateG(false);
+  const cajaRef = useRefG(null);
+  const di = useRefG(null);
+
+  const puestos = bandas.filter((x) => x !== null).length;
+  const activo = puestos < juegan.length ? puestos : -1;
+
+  // Nivel que se DIBUJA para cada punto: el colocado, el que se esta arrastrando, o —si
+  // todavia no se toco— el del punto anterior, para que el nudo se vea y se pueda agarrar.
+  function nivelDe(i) {               // i = 0 es el punto de partida, fijo
+    if (i === 0) return j7t2Niv(curva.ini.b);
+    const k = i - 1;
+    if (arr && arr.i === k) return arr.n;
+    if (bandas[k] !== null) return j7t2Niv(bandas[k]);
+    return nivelDe(i - 1);
+  }
+
+  function escala() {
+    const r = cajaRef.current ? cajaRef.current.getBoundingClientRect() : null;
+    return r && r.height ? r.height / (J7T2_Y1 + 26) : 1;
+  }
+  // ⚠ Se puede agarrar CUALQUIER nudo, esté colocado o no. Lo pidió la autora el
+  // 2026-11-24 jugándolo: *"una vez que muevo los nudos me doy cuenta que me equivoqué,
+  // debe dejarme mover, no así como se queda estático"*. Con eso, el BORRAR de esta ronda
+  // sobra —lo quitó ella en la misma frase— porque rectificar es mover otra vez.
+  function onDown(k, e) {
+    if (verified) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    di.current = { k: k, y0: e.clientY, n0: nivelDe(k + 1), esc: escala() };
+    setFoco(k);
+    setArr({ i: k, n: di.current.n0 });
+  }
+  function onMove(e) {
+    if (!di.current) return;
+    const dy = (e.clientY - di.current.y0) / (di.current.esc || 1);
+    const n = Math.max(2, Math.min(100, di.current.n0 - (dy / (J7T2_Y1 - J7T2_Y0)) * 100));
+    setArr({ i: di.current.k, n: n });
+  }
+  function onUp() {
+    if (!di.current) return;
+    const n = arr ? arr.n : di.current.n0;
+    const k = di.current.k;
+    di.current = null;
+    setArr(null);
+    // ⚠ Soltar SIEMPRE coloca, aunque no se haya movido: "se quedó igual" es una
+    // respuesta valida. Y el nudo se IMANTA a la altura mas cercana de las cuatro.
+    setBandas((bs) => { const m = bs.slice(); m[k] = j7t2Banda(n); return m; });
+    // ⚠ Al soltar se SUELTA TAMBIÉN EL FOCO: si no, la tarjeta se quedaba enseñando el
+    //   hecho del año que acabas de colocar mientras el nudo encendido ya era el
+    //   siguiente. Lo cazó la autora el 2026-11-24 ("una vez que arrastré el nudo, el
+    //   texto del cuadro beige debe cambiarse porque vamos al siguiente nudo"). Mientras
+    //   se arrastra, `foco` sigue mandando, así que volver a mover uno ya colocado sigue
+    //   enseñando SU año.
+    setFoco(null);
+  }
+
+  // ⚠ Esta ronda NO registra BORRAR: se rectifica moviendo el nudo otra vez, así que un
+  // botón de deshacer sería un segundo camino para lo mismo.
+
+  function verificar() {
+    if (verified || puestos < juegan.length) return;
+    setVerified(true);
+    const aciertos = juegan.filter((h, k) => bandas[k] === h.b).length;
+    onSolve(aciertos === juegan.length, {
+      emoji: curva.e, a: curva.q,
+      userAnswer: juegan.map((h, k) => `${h.y}: ${J7T2_BANDAS[bandas[k]]}`).join(" · "),
+      correctAnswer: juegan.map((h) => `${h.y}: ${J7T2_BANDAS[h.b]}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // El hecho que se enseña: el del nudo que tienes en la mano; si no hay ninguno, el del
+  // año que todavía falta.
+  const iCarta = foco !== null ? foco : activo;
+  const actual = iCarta >= 0 ? juegan[iCarta] : null;
+  const pts = [];
+  for (let i = 0; i < P; i++) pts.push({ x: j7t2X(i, P), y: j7t2Y(nivelDe(i)) });
+  const buenos = [{ x: j7t2X(0, P), y: j7t2Y(j7t2Niv(curva.ini.b)) }].concat(juegan.map((h, k) => ({ x: j7t2X(k + 1, P), y: j7t2Y(j7t2Niv(h.b)) })));
+  const linea = (a) => a.map((p) => `${p.x},${p.y}`).join(" ");
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>{curva.q}</span>
+      </div>
+      <div style={{ pointerEvents: "none", fontFamily: "var(--ed-font-mono)", fontWeight: 700, fontSize: 9.5, letterSpacing: "0.12em", color: "rgba(252,233,168,0.85)", marginTop: 2 }}>{curva.eje}</div>
+
+      {/* ⚠ EL HECHO VA ARRIBA DEL GRAFICO, no debajo: lo pidió la autora el 2026-11-24
+          (*"el texto que está en el recuadro beige debería estar encima de la gráfica"*).
+          Se lee primero lo que pasó y después se mueve el nudo. El bloque tiene altura
+          RESERVADA para que el grafico no salte cuando el revelado ocupa su sitio. */}
+      <div style={{ width: "100%", minHeight: 78, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 5, flexShrink: 0 }}>
+        {!verified && actual && (
+          <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #d9c48a", background: "linear-gradient(180deg,#fffdf6,#f6ecd2)", color: "#3a2608", padding: "9px 12px", display: "flex", alignItems: "center", gap: 10, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 10px rgba(0,0,0,0.28)" }}>
+            <span style={{ flexShrink: 0, fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 11, background: "rgba(0,0,0,0.1)", borderRadius: 999, padding: "2px 7px" }}>{actual.y}</span>
+            <span style={{ flexShrink: 0, fontSize: 20, lineHeight: 1 }}>{actual.e}</span>
+            <span data-qa="hecho" style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, lineHeight: 1.25 }}>{actual.t}</span>
+          </div>
+        )}
+        {!verified && !actual && (
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#fce9a8", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Ya moviste los {juegan.length} años.<br />Toca ¡VERIFICAR!</div>
+        )}
+        {verified && (
+          <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #2ecc8f", background: "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))", color: "#eafff4", padding: "6px 12px", boxShadow: "0 0 28px rgba(46,204,143,0.55)" }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11, letterSpacing: "0.1em", color: "#06381f", marginBottom: 2 }}>LA LÍNEA DORADA ES LA QUE PASÓ</div>
+            {juegan.map((h, k) => (
+              <div key={h.y} style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 1 }}>
+                <span style={{ flexShrink: 0, fontSize: 11, lineHeight: 1.2 }}>{bandas[k] === h.b ? "✓" : "✗"}</span>
+                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.2 }}>
+                  <b>{h.y}</b> — {J7T2_BANDAS[h.b]}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* EL GRAFICO. El nudo del año activo sigue al dedo y se imanta al soltarlo. */}
+      <div ref={cajaRef} style={{ position: "relative", width: J7T2_X1 + 8, height: J7T2_Y1 + 26, marginTop: 4, flexShrink: 0, touchAction: "none" }}>
+        <svg width="100%" height="100%" viewBox={`0 0 ${J7T2_X1 + 8} ${J7T2_Y1 + 26}`} style={{ display: "block", overflow: "visible" }}>
+          <line x1={J7T2_X0 - 6} y1={J7T2_Y0} x2={J7T2_X0 - 6} y2={J7T2_Y1} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+          <line x1={J7T2_X0 - 6} y1={J7T2_Y1} x2={J7T2_X1 + 6} y2={J7T2_Y1} stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+          {/* Los CUATRO RIELES, con su nombre: son las alturas a las que se imanta el nudo */}
+          {J7T2_BANDAS.map((nom, bi) => (
+            <g key={nom}>
+              <line x1={J7T2_X0 - 6} y1={j7t2Y(j7t2Niv(bi))} x2={J7T2_X1 + 6} y2={j7t2Y(j7t2Niv(bi))} stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" strokeDasharray="5 6" />
+              <text x={J7T2_X0 - 12} y={j7t2Y(j7t2Niv(bi)) + 3.5} textAnchor="end" fill="rgba(255,255,255,0.6)" style={{ fontSize: 8.5, fontFamily: "var(--ed-font-mono)", fontWeight: 800, letterSpacing: "0.05em" }}>{nom}</text>
+            </g>
+          ))}
+          {/* la curva correcta, solo al revelar: dorada y punteada SOBRE la tuya */}
+          {verified && (<polyline points={linea(buenos)} fill="none" stroke="#f2c260" strokeWidth="3" strokeDasharray="7 5" strokeLinejoin="round" opacity="0.95" />)}
+          <polyline points={linea(pts)} fill="none" stroke="#4fd8ff" strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+          {pts.map((p, i) => {
+            const k = i - 1;
+            // ⚠ `k >= 0` es imprescindible: el punto de PARTIDA es i = 0, o sea k = -1, y
+            // cuando ya están los tres colocados `activo` vale -1 — sin esta guarda se
+            // encendía el punto fijo como si fuera el que hay que mover.
+            const esActivo = !verified && k >= 0 && k === (foco !== null && arr ? foco : activo);
+            const ok = verified && k >= 0 && bandas[k] === juegan[k].b;
+            const col = i === 0 ? "#cfd6e4" : (verified ? (ok ? "#2ecc8f" : "#ff6b6b") : (esActivo ? "#ffe79a" : "#4fd8ff"));
+            return (
+              <g key={i}>
+                {esActivo && (<circle cx={p.x} cy={p.y} r="17" fill="rgba(255,231,154,0.22)" />)}
+                <circle cx={p.x} cy={p.y} r={esActivo ? 10 : 7} fill={col} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+                <text x={p.x} y={J7T2_Y1 + 17} textAnchor="middle" fill={esActivo ? "#ffe79a" : "rgba(255,255,255,0.65)"} style={{ fontSize: 10.5, fontFamily: "var(--ed-font-mono)", fontWeight: 800 }}>
+                  {i === 0 ? curva.ini.y : juegan[k].y}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+        {/* zona de agarre del nudo activo: un cuadro invisible, generoso para un dedo */}
+        {!verified && juegan.map((h, k) => (
+          <div key={h.y} data-qa="nudo" onPointerDown={(e) => onDown(k, e)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+            style={{ position: "absolute", left: j7t2X(k + 1, P) - 34, top: 0, width: 68, height: J7T2_Y1 + 4, cursor: "ns-resize", touchAction: "none" }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R2 · "La feria de juegos" — HACER EL GESTO con el que se juega (mano nueva).
+// Aparece un juguete de los que nombra el libro y el chico hace con el dedo lo que haría
+// con el de verdad: lanzar el trompo hacia abajo, tirar del hilo de la cometa hacia
+// arriba, dar vueltas a la soga, estirar la liga de las pallas, mecer la muñeca de lado a
+// lado o saltar la rayuela con dos toques. ⭐ +1 por juguete. Tres por partida.
+//
+// ⚠ SUSTITUYE a "La imprenta sin respaldo", que la autora descartó el 2026-11-24 jugándola:
+// *"en esta ronda no entiendo nada de cómo se juega"*. El diagnóstico: pedía entender una
+// idea abstracta —el respaldo en oro— ANTES de poder tocar nada, y eso no se arregla con
+// dibujos. Esta ronda es lo contrario: se entiende sin leer, porque el gesto ES la
+// respuesta.
+//
+// ⚠ NO hay menú de gestos a elegir. Ponerlo convertiría la ronda en una opción múltiple
+// con seis botones, que es justo lo que no queremos. Si el trazo no se reconoce, no se
+// pierde nada: se avisa y se vuelve a intentar.
+//
+// ⚠ El reconocedor es GENEROSO a propósito (25 px de trazo mínimo, 250° para dar por
+// buena una vuelta, 90 px de margen en el vaivén): esto lo juega un niño de 11 con el
+// dedo, no un ratón.
+// ══════════════════════════════════════════════════════════════════
+// ⚠ LOS GESTOS POSIBLES SE VEN. La autora lo pidió el 2026-11-24, jugándola: *"habíamos
+// quedado que debería ser diferente porque si no, no se entiende qué movimientos se
+// deberían realizar"*. Tenía razón y el problema era más hondo que el de la rayuela: el
+// chico puede mover el dedo de mil maneras y solo cinco significan algo, así que estaba
+// adivinando una convención nuestra.
+//
+// ⚠ Las tres tarjetas son UNA LEYENDA, no botones (`pointerEvents: none`): hay que HACER
+// el movimiento. Si se pudieran tocar, la ronda sería una pregunta de tres botones y la
+// mano dejaría de pintar nada.
+//
+// 📌 Se le dijo de frente el precio: con las tres a la vista la ronda se acerca a una
+// opción múltiple. Lo eligió sabiéndolo, frente a cambiar de ronda —que además habría
+// tirado las 5 ilustraciones de juguetes que acababa de generar.
+const J7T2_FLECHAS = { abajo: "↓", arriba: "↑", circulo: "↻", atras: "←", vaiven: "↔" };
+// ⚠ Cada tarjeta dice el NOMBRE y, debajo, QUÉ HACER con el dedo. Con solo el nombre, la
+// autora no supo cómo se mecía la muñeca: *"el movimiento que se debe hacer con la muñeca
+// no está nada claro"*. Y la flecha se MUEVE (Web Animations API, como el aterrizaje del
+// arrastre): un dibujo del gesto vale más que la frase.
+const J7T2_COMO = {
+  abajo: "baja el dedo de golpe",
+  arriba: "sube el dedo",
+  circulo: "haz un círculo",
+  atras: "lleva el dedo hacia atrás",
+  vaiven: "mueve el dedo de un lado al otro",
+};
+const J7T2_NOMBRE = { abajo: "LANZAR", arriba: "TIRAR", circulo: "DAR VUELTAS", atras: "ESTIRAR", vaiven: "MECER" };
+const J7T2_VAIVENES = {
+  abajo: [{ transform: "translateY(-5px)" }, { transform: "translateY(5px)" }],
+  arriba: [{ transform: "translateY(5px)" }, { transform: "translateY(-5px)" }],
+  atras: [{ transform: "translateX(5px)" }, { transform: "translateX(-5px)" }],
+  vaiven: [{ transform: "translateX(-5px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-5px)" }],
+  circulo: [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
+};
+function J7T2Flecha({ g }) {
+  const ref = useRefG(null);
+  useEffectG(() => {
+    const el = ref.current;
+    if (!el || !el.animate) return undefined;
+    const a = el.animate(J7T2_VAIVENES[g], { duration: g === "circulo" ? 1600 : 900, iterations: Infinity, direction: g === "circulo" ? "normal" : "alternate", easing: "ease-in-out" });
+    return () => { try { a.cancel(); } catch (e) {} };
+  }, [g]);
+  return (<span ref={ref} style={{ display: "inline-block", fontFamily: "var(--ed-font-mono)", fontWeight: 900, fontSize: 19, color: "#4fd8ff", lineHeight: 1 }}>{J7T2_FLECHAS[g]}</span>);
+}
+const J7T2_GESTOS = {
+  abajo: "lanzar hacia abajo",
+  arriba: "tirar hacia arriba",
+  circulo: "dar vueltas",
+  atras: "estirar hacia atrás",
+  vaiven: "mecer de lado a lado",
+};
+const J7T2_JUEGOS = [
+  { id: "trompo", img: "j7t2-trompo.jpg", e: "🪀", n: "EL TROMPO", g: "abajo",
+    p: "El trompo es uno de los juegos tradicionales del Ecuador: se enrolla la piola y se lanza al suelo." },
+  { id: "cometa", img: "j7t2-cometa.jpg", e: "🪁", n: "LA COMETA", g: "arriba",
+    p: "La cometa se construía con tela y se elevaba tirando del hilo. Era otro juego tradicional." },
+  { id: "soga", img: "j7t2-soga.jpg", e: "🪢", n: "LA SOGA", g: "circulo",
+    p: "La soga se hacía girar sobre la cabeza y los pies. Niños y niñas jugaban a la soga." },
+  { id: "pallas", img: "j7t2-pallas.jpg", e: "🎯", n: "LAS PALLAS", g: "atras",
+    p: "Las pallas, o catas, eran ramas en forma de Y con un material elástico para lanzar piedras a larga distancia." },
+  { id: "muneca", img: "j7t2-muneca.jpg", e: "🧸", n: "LA MUÑECA DE TRAPO", g: "vaiven",
+    p: "La muñeca de trapo era el juguete favorito de las niñas; algunas tenían el rostro de porcelana." },
+  // ⚠ LA RAYUELA SE QUEDÓ FUERA, aunque está en el libro. Lo cazó la autora jugándolo el
+  // 2026-11-24: *"si juego rayuela, ¿cómo indico que se juega?"*. Los otros cinco gestos
+  // salen solos —lanzar, tirar, dar vueltas, estirar, mecer—; saltar no se parece a nada
+  // que se pueda hacer con el dedo, así que había que adivinar una convención nuestra, y
+  // eso es justo lo que esta ronda no debe pedir. Mejor cinco juguetes honestos que seis
+  // con uno arbitrario, aunque el banco baje de 20 tríos a 10.
+];
+const J7T2_R2_KEY = "edinun_j12_l7t2_r2_v2";
+// ⚠ La zona ocupa TODO lo que sobra del carril (30+22+5+18+6+H+6+86 = 461 de 462): con
+// 236 px quedaba un hueco muerto debajo, que es lo primero que marca la autora.
+const J7T2_ZONA_W = 452, J7T2_ZONA_H = 280;
+
+function j7t2R2Build() {
+  // ⚠ DOS juguetes por partida, no tres: lo pidió la autora el 2026-11-24 (*"quiero que
+  // sean solo 2 intentos no 3"*). Banco de 5 sobre 2 = 10 parejas; cap 2 deja 3 libres.
+  const idx = j12PickIdx(J7T2_JUEGOS, 2, J7T2_R2_KEY);
+  j12Commit(J7T2_R2_KEY, idx, 2);
+  const claves = Object.keys(J7T2_GESTOS);
+  const juegos = j12Shuffle(J7T2_JUEGOS.filter((_, i) => idx.indexOf(i) !== -1)).map((j) => {
+    // El suyo más dos de los otros cuatro, barajados.
+    const otros = j12Shuffle(claves.filter((g) => g !== j.g)).slice(0, 2);
+    return Object.assign({}, j, { opciones: j12Shuffle([j.g].concat(otros)) });
+  });
+  return { juegos: juegos };
+}
+
+// Clasifica el trazo del dedo. Devuelve una clave de J7T2_GESTOS, "otro" si el trazo no
+// se parece a ninguno, o null si casi no hubo movimiento.
+function j7t2Clasifica(pts) {
+  if (!pts || pts.length < 2) return null;
+  let largo = 0;
+  for (let i = 1; i < pts.length; i++) largo += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  if (largo < 25) return null;
+  const dx = pts[pts.length - 1].x - pts[0].x, dy = pts[pts.length - 1].y - pts[0].y;
+  // Vuelta: ángulo acumulado alrededor del centro del trazo.
+  let cx = 0, cy = 0;
+  pts.forEach((p) => { cx += p.x; cy += p.y; });
+  cx /= pts.length; cy /= pts.length;
+  let giro = 0, prev = null;
+  for (let i = 0; i < pts.length; i++) {
+    const a = Math.atan2(pts[i].y - cy, pts[i].x - cx);
+    if (prev !== null) { let d = a - prev; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; giro += d; }
+    prev = a;
+  }
+  if (Math.abs(giro) * 180 / Math.PI >= 250) return "circulo";
+  // Vaivén: la mano cambia de sentido en horizontal al menos dos veces.
+  let cambios = 0, signo = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = pts[i].x - pts[i - 1].x;
+    if (Math.abs(d) < 5) continue;
+    const s = d > 0 ? 1 : -1;
+    if (signo && s !== signo) cambios++;
+    signo = s;
+  }
+  if (cambios >= 2 && Math.abs(dy) < 90) return "vaiven";
+  if (Math.abs(dy) > Math.abs(dx)) return dy > 0 ? "abajo" : "arriba";
+  if (dx < 0) return "atras";
+  return "otro";
+}
+
+function L7T2R2Feria({ onSolve, verifyRef, onClear, say }) {
+  const [b] = useStateG(() => j7t2R2Build());
+  const juegos = b.juegos;
+  const [puestos, setPuestos] = useStateG([]);      // [{ id, g }]
+  const [trazo, setTrazo] = useStateG(null);        // puntos mientras se dibuja
+  const [aviso, setAviso] = useStateG(null);        // "no entendí el gesto"
+  const [verified, setVerified] = useStateG(false);
+  const zonaRef = useRefG(null);
+  const di = useRefG(null);
+
+  const i = puestos.length;
+  const actual = i < juegos.length ? juegos[i] : null;
+
+  function local(e) {
+    const r = zonaRef.current.getBoundingClientRect();
+    const esc = r.width / J7T2_ZONA_W;
+    return { x: (e.clientX - r.left) / esc, y: (e.clientY - r.top) / esc };
+  }
+  function anota(g) {
+    setPuestos((ps) => ps.concat([{ id: actual.id, g: g }]));
+    setAviso(null);
+  }
+  function onDown(e) {
+    if (verified || !actual) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    di.current = [local(e)];
+    setTrazo(di.current.slice());
+  }
+  function onMove(e) {
+    if (!di.current) return;
+    di.current = di.current.concat([local(e)]);
+    setTrazo(di.current.slice());
+  }
+  function onUp() {
+    if (!di.current) return;
+    const pts = di.current;
+    di.current = null;
+    setTrazo(null);
+    const g = j7t2Clasifica(pts);
+    // ⚠ Un toque suelto no anota nada: todos los gestos son trazos, así un roce
+    // accidental no gasta un juguete.
+    if (g === null) return;
+    // ⚠ Y un movimiento que NO esté entre los tres de la leyenda tampoco: si se anotara,
+    // el chico gastaría el juguete sin haber elegido nada de lo que se le ofrecía.
+    if (g === "otro" || actual.opciones.indexOf(g) === -1) {
+      setAviso("Ese no es ninguno de los tres. Mira los de abajo.");
+      return;
+    }
+    anota(g);
+  }
+
+  useEffectG(() => {
+    if (aviso === null) return undefined;
+    const t = setTimeout(() => setAviso(null), 1800);
+    return () => clearTimeout(t);
+  }, [aviso]);
+
+  function borrar() { if (!verified && puestos.length > 0) { setPuestos((ps) => ps.slice(0, -1)); setAviso(null); } }
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: puestos.length > 0 });
+    return () => onClear(null);
+  }, [puestos.length, verified]);
+
+  function verificar() {
+    if (verified || puestos.length < juegos.length) return;
+    setVerified(true);
+    const aciertos = juegos.filter((j, k) => puestos[k].g === j.g).length;
+    onSolve(aciertos === juegos.length, {
+      emoji: "🪀", a: "Cómo se jugaba con los juguetes de los años treinta",
+      userAnswer: juegos.map((j, k) => `${j.n}: ${J7T2_GESTOS[puestos[k].g] || "—"}`).join(" · "),
+      correctAnswer: juegos.map((j) => `${j.n}: ${J7T2_GESTOS[j.g]}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  const muestra = actual || juegos[juegos.length - 1];
+  const hecho = puestos.length > 0 ? puestos[puestos.length - 1] : null;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 30 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>¿Cómo se jugaba con esto?</span>
+      </div>
+      <div style={{ marginTop: 5, flexShrink: 0 }}>
+        <J12Puntos total={juegos.length} hechos={puestos.length} />
+      </div>
+
+      {/* LA ZONA DE JUEGO: el juguete y, encima, el rastro del dedo. */}
+      <div ref={zonaRef} data-qa="zona"
+        onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+        style={{ position: "relative", width: J7T2_ZONA_W, height: J7T2_ZONA_H, marginTop: 6, flexShrink: 0, borderRadius: 16, border: "3px solid rgba(242,194,96,0.45)", background: "linear-gradient(180deg, rgba(40,28,10,0.55), rgba(16,11,4,0.6))", touchAction: "none", cursor: verified ? "default" : "crosshair", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, pointerEvents: "none" }}>
+          <J12Img src={muestra.img} e={muestra.e} ancho={140} alto={140} radius={14} />
+          <span data-qa="juguete" style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 15, letterSpacing: "0.06em", color: "#fce9a8", textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}>{muestra.n}</span>
+          <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+            {muestra.opciones.map((g) => (
+              <div key={g} data-qa="opcion" data-g={g}
+                style={{ width: 140, boxSizing: "border-box", borderRadius: 10, border: "2px solid rgba(255,255,255,0.3)", background: "rgba(8,14,34,0.72)", padding: "5px 7px", display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ flexShrink: 0, width: 22, textAlign: "center" }}><J7T2Flecha g={g} /></span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: "block", fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 10.5, letterSpacing: "0.04em", lineHeight: 1.1, color: "#fce9a8" }}>{J7T2_NOMBRE[g]}</span>
+                  <span style={{ display: "block", fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, lineHeight: 1.15, color: "rgba(255,255,255,0.85)" }}>{J7T2_COMO[g]}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {trazo && trazo.length > 1 && (
+          <svg width="100%" height="100%" viewBox={`0 0 ${J7T2_ZONA_W} ${J7T2_ZONA_H}`} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+            <polyline points={trazo.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="#4fd8ff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+          </svg>
+        )}
+      </div>
+
+      {/* ACUSE / AVISO / REVELADO, con la altura reservada para que nada salte. */}
+      <div style={{ width: "100%", minHeight: 86, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 6 }}>
+        {!verified && aviso && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, color: "#ffd980", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{aviso}</div>
+        )}
+        {!verified && !aviso && actual && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, color: "rgba(255,255,255,0.8)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+            {hecho ? <>Con el anterior hiciste: <b style={{ color: "#fce9a8" }}>{J7T2_GESTOS[hecho.g]}</b>.<br /></> : null}
+            {/* ⚠ Va en DOS PASOS NUMERADOS. Antes decía "dibuja el movimiento… las tarjetas
+                solo te dicen cuáles valen: no se tocan" y la autora no sabía por dónde
+                empezar (2026-11-24): *"debes decir primero ve las tarjetas y luego dibuja
+                el movimiento"*. El orden tiene que estar escrito, no deducirse. */}
+            <b style={{ color: "#fce9a8" }}>1.</b> Mira las tres tarjetas: son los movimientos que valen.<br />
+            <b style={{ color: "#fce9a8" }}>2.</b> Dibuja uno con el dedo <b style={{ color: "#fce9a8" }}>encima del juguete</b>.
+          </div>
+        )}
+        {!verified && !aviso && !actual && (
+          <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 14, color: "#fce9a8", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Ya jugaste con los {juegos.length}.<br />Toca ¡VERIFICAR!</div>
+        )}
+        {verified && (
+          <div style={{ width: 448, boxSizing: "border-box", borderRadius: 14, border: "3px solid #2ecc8f", background: "linear-gradient(180deg, rgba(46,204,143,0.96), rgba(22,120,80,0.96))", color: "#eafff4", padding: "6px 12px", boxShadow: "0 0 28px rgba(46,204,143,0.55)" }}>
+            <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 11, letterSpacing: "0.1em", color: "#06381f", marginBottom: 2 }}>ASÍ SE JUGABA</div>
+            {juegos.map((j, k) => (
+              <div key={j.id} style={{ display: "flex", gap: 7, alignItems: "center", marginBottom: 1 }}>
+                <span style={{ flexShrink: 0, fontSize: 11, lineHeight: 1.2 }}>{puestos[k].g === j.g ? "✓" : "✗"}</span>
+                <span style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11, lineHeight: 1.2 }}><b>{j.n}</b> — {J7T2_GESTOS[j.g]}</span>
+              </div>
+            ))}
+            {(() => {
+              const f = juegos.find((j, k) => puestos[k].g !== j.g) || juegos[0];
+              return (<div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 10.5, lineHeight: 1.2, marginTop: 3, color: "#06381f" }}>{f.p}</div>);
+            })()}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// R3 · "La peña del Grupo de Guayaquil" — TENDER UN HILO (mano nueva).
+// Se arrastra desde el punto del autor hasta la obra y el hilo sigue al dedo. Tambien
+// vale tocar autor y luego obra. ⭐ +1 por hilo bien tendido. Tres por partida.
+//
+// ⚠ NO se dibuja la cara de ningun autor: son personas reales (regla del repo). Lo
+// ilustrado es la OBRA; el autor va con su nombre y un icono.
+//
+// ⚠ Un hilo nuevo desde el mismo autor REEMPLAZA al anterior, y colgar dos autores de la
+// misma obra no se permite: el hilo viejo se suelta solo. Asi no hay estados imposibles.
+// ══════════════════════════════════════════════════════════════════
+const J7T2_OBRAS = [
+  { id: "huasipungo", autor: "Jorge Icaza", ae: "✒️", obra: "Huasipungo", img: "j7t2-huasipungo.jpg", oe: "🏚️", p: "Mostró la explotación que vivía la población indígena en las haciendas de la Sierra." },
+  { id: "pan", autor: "Enrique Gil Gilbert", ae: "🖋️", obra: "Nuestro Pan", img: "j7t2-nuestro-pan.jpg", oe: "🌾", p: "Del Grupo de Guayaquil, escritores de obras de corte social entre 1930 y 1940." },
+  { id: "cruces", autor: "Joaquín Gallegos Lara", ae: "📘", obra: "Las cruces sobre el agua", img: "j7t2-cruces-agua.jpg", oe: "✝️", p: "Novela del Grupo de Guayaquil sobre la lucha de los trabajadores del puerto." },
+  { id: "hoguera", autor: "Alfredo Pareja Diezcanseco", ae: "📗", obra: "La hoguera bárbara", img: "j7t2-hoguera.jpg", oe: "🔥", p: "Otro de los escritores del Grupo de Guayaquil." },
+  { id: "sangurimas", autor: "José de la Cuadra", ae: "📙", obra: "Los Sangurimas", img: "j7t2-sangurimas.jpg", oe: "🛶", p: "Del Grupo de Guayaquil; su obra puso en escena al montuvio." },
+  { id: "mitas", autor: "César Dávila Andrade", ae: "🕯️", obra: "Boletín y Elegía de las Mitas", img: "j7t2-mitas.jpg", oe: "⛏️", p: "Nacido en Cuenca en 1917; su poemario despertó un alto sentimiento nacional." },
+  { id: "indio", autor: "Pío Jaramillo Alvarado", ae: "📕", obra: "El indio ecuatoriano", img: "j7t2-indio.jpg", oe: "🏔️", p: "Uno de los mayores representantes de la corriente indigenista." },
+  { id: "plata", autor: "Fernando Chaves", ae: "📓", obra: "Plata y Bronce", img: "j7t2-plata-bronce.jpg", oe: "🔔", p: "Figura de la Sierra dentro de la narrativa social de la época." },
+];
+const J7T2_R3_KEY = "edinun_j12_l7t2_r3_v1";
+// ⚠ FILA 92, no 102: con 102 la columna medía 336 px y al revelar el panel verde no
+// cabía en lo que queda del carril y se montaba sobre las tarjetas de las obras. Lo cazó
+// espacios-l7t2.js en los 5 viewports.
+// 34 (padding) + 22 (enunciado) + 10 + 342 (filas) + 4 + 44 (revelado) = 456 de 462.
+// ⚠ Las filas volvieron a 106 al quitarse el cartel verde del pie: sin él sobra sitio.
+const J7T2_FILA = 106, J7T2_SEP = 12, J7T2_ANCHO = 470;
+// ⚠ Un COLOR POR LÍNEA, no todas celestes: lo pidió la autora el 2026-11-24. Con tres
+// hilos cruzados del mismo color no se sigue cuál sale de dónde. El color lo da el AUTOR
+// (la fila de la izquierda), así que el hilo se lee desde su origen.
+const J7T2_COLORES = ["#4fd8ff", "#ffb86b", "#b48aff"];
+// ⚠ El pasillo de los hilos mide 66 px, no 44: al revelar conviven hasta SEIS hilos (el
+// tuyo y el dorado de cada pareja) y en 44 px se trenzaban hasta no leerse.
+const J7T2_XA = 160, J7T2_XB = 226;   // punto del autor / borde de la obra
+function j7t2R3Build() {
+  // ⚠ Cap 5, nunca 3 (= K). Banco de 8 sobre 3 = 56 trios distintos.
+  const idx = j12PickIdx(J7T2_OBRAS, 3, J7T2_R3_KEY);
+  j12Commit(J7T2_R3_KEY, idx, 5);
+  const tres = J7T2_OBRAS.filter((_, i) => idx.indexOf(i) !== -1);
+  const izq = j12Shuffle(tres);
+  let der = j12Shuffle(tres), guard = 0;
+  // Que la obra no quede enfrente de su autor: regalaria la respuesta por posicion.
+  while (guard++ < 30 && der.some((o, k) => o.id === izq[k].id)) der = j12Shuffle(tres);
+  return { izq: izq, der: der };
+}
+
+function L7T2R3Hilos({ onSolve, verifyRef, onClear }) {
+  const [b] = useStateG(() => j7t2R3Build());
+  const izq = b.izq, der = b.der;
+  const [enlaces, setEnlaces] = useStateG(() => izq.map(() => null));   // indice de la obra
+  const [sel, setSel] = useStateG(null);
+  // ⚠ Se puede empezar por CUALQUIERA de los dos lados: tocar primero la obra y después
+  //   el autor también une. Lo pidió la autora el 2026-11-24 ("si quiero unir tocando
+  //   primero el huasipungo y luego Jorge Icaza se debe poder").
+  const [selO, setSelO] = useStateG(null);     // la obra tocada primero
+  const [drag, setDrag] = useStateG(null);     // { i, x, y }
+  const [verified, setVerified] = useStateG(false);
+  const cajaRef = useRefG(null);
+  const di = useRefG(null);
+
+  const alto = izq.length * J7T2_FILA + (izq.length - 1) * J7T2_SEP;
+  const filaY = (k) => k * (J7T2_FILA + J7T2_SEP) + J7T2_FILA / 2;
+
+  function unir(i, j) {
+    setEnlaces((es) => {
+      const n = es.slice();
+      for (let k = 0; k < n.length; k++) if (n[k] === j) n[k] = null;   // una obra, un hilo
+      n[i] = j;
+      return n;
+    });
+    setSel(null);
+    setSelO(null);
+  }
+  function local(e) {
+    const r = cajaRef.current.getBoundingClientRect();
+    const esc = r.width / J7T2_ANCHO;
+    return { x: (e.clientX - r.left) / esc, y: (e.clientY - r.top) / esc };
+  }
+  function filaDe(y) {
+    for (let k = 0; k < izq.length; k++) { const c = filaY(k); if (Math.abs(y - c) <= J7T2_FILA / 2 + J7T2_SEP / 2) return k; }
+    return -1;
+  }
+  function onDown(i, e) {
+    if (verified) return;
+    e.preventDefault();
+    // ⚠ Si ya había una OBRA tocada, este toque cierra la unión: no hace falta arrastrar
+    //   ni empezar por el autor.
+    if (selO !== null) { unir(i, selO); return; }
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    const p = local(e);
+    di.current = { i: i };
+    setSel(i);
+    setDrag({ i: i, x: p.x, y: p.y, movido: false });
+  }
+  function onMove(e) {
+    if (!di.current) return;
+    const p = local(e);
+    setDrag({ i: di.current.i, x: p.x, y: p.y, movido: true });
+  }
+  function onUp(e) {
+    if (!di.current) return;
+    const i = di.current.i;
+    const p = local(e);
+    di.current = null;
+    const movido = drag && drag.movido;
+    setDrag(null);
+    if (!movido) return;                       // fue un toque: queda seleccionado
+    const k = p.x > J7T2_XB - 30 ? filaDe(p.y) : -1;
+    if (k >= 0) unir(i, k); else setSel(null);
+  }
+
+  const hechos = enlaces.filter((x) => x !== null).length;
+  // ⚠ Esta ronda NO lleva BORRAR: lo quitó la autora el 2026-11-24. No hace falta, porque
+  //   un hilo nuevo desde el mismo autor reemplaza al anterior y una obra solo admite uno,
+  //   así que todo se puede cambiar sin deshacer. `J12Game` solo pinta el botón si la
+  //   ronda le registra algo con `onClear`, así que basta con no registrar nada.
+
+  function verificar() {
+    if (verified || hechos < izq.length) return;
+    setVerified(true);
+    const aciertos = izq.filter((a, i) => enlaces[i] !== null && der[enlaces[i]].id === a.id).length;
+    onSolve(aciertos === izq.length, {
+      emoji: "🧵", a: "De quién es cada obra de los años treinta",
+      userAnswer: izq.map((a, i) => `${a.autor} → ${enlaces[i] === null ? "—" : der[enlaces[i]].obra}`).join(" · "),
+      correctAnswer: izq.map((a) => `${a.autor} → ${a.obra}`).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  // ⚠ AL VERIFICAR, los hilos que se ven son LOS CORRECTOS, no los tuyos: son tres y no
+  //   se trenzan, y enseñan de dónde a dónde iba cada obra. Lo que tú pusiste no
+  //   desaparece — va escrito en la tarjeta de la obra que fallaste ("tú pusiste: …"),
+  //   que es la regla del juego: revelar sin borrar lo que eligió el niño.
+  //   Antes se veían los seis a la vez (los tuyos + los dorados) y era una maraña; luego
+  //   solo los tuyos, y entonces no se entendía cuál era la buena. Las dos versiones las
+  //   descartó la autora el 2026-11-24.
+  const hilos = [];
+  if (verified) {
+    // PRIMERA PASADA · TUS hilos, al fondo: gruesos, verde si acertaste y rojo si no.
+    izq.forEach((a, i) => {
+      if (enlaces[i] === null) return;
+      const ok = der[enlaces[i]].id === a.id;
+      hilos.push({ i: i, j: enlaces[i], col: ok ? "#2ecc8f" : "#ff6b6b", ancho: 9, op: 0.85, dash: null });
+    });
+    // SEGUNDA PASADA · los hilos CORRECTOS, encima y más finos. Solo donde fallaste: si
+    // acertaste, tu hilo verde ya es el bueno y dibujar el dorado encima lo taparía.
+    // ⚠ Las dos pasadas van en este orden a propósito — lo pidió así la autora el
+    //   2026-11-24: "mis líneas al fondo, verde o roja, y encima las correctas".
+    izq.forEach((a, i) => {
+      const j = der.findIndex((o) => o.id === a.id);
+      if (enlaces[i] === j) return;
+      hilos.push({ i: i, j: j, col: "#f2c260", ancho: 3.5, op: 1, dash: "7 5" });
+    });
+  } else {
+    izq.forEach((a, i) => {
+      if (enlaces[i] === null) return;
+      hilos.push({ i: i, j: enlaces[i], col: J7T2_COLORES[i % J7T2_COLORES.length], ancho: 4, op: 0.95, dash: null });
+    });
+  }
+  // ⚠ En el revelado se ven SOLO TUS HILOS: verde el acertado, rojo a rayas el fallado.
+  //   Los hilos dorados con la respuesta buena se quitaron el 2026-11-24 a petición de la
+  //   autora: con seis líneas cruzándose el revelado era una maraña y no se entendía nada
+  //   ("eso que dice el hilo dorado es el que iba no me gusta"). Dónde iba cada obra se
+  //   dice ahora EN TEXTO, una línea por error, debajo de las tarjetas.
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", width: "100%", paddingTop: 34 }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>¿De quién es cada obra?</span>
+      </div>
+
+      <div ref={cajaRef} style={{ position: "relative", width: J7T2_ANCHO, height: alto, marginTop: 10, touchAction: "none" }}>
+        {/* LOS HILOS, encima de todo pero sin robar el dedo */}
+        <svg width="100%" height="100%" viewBox={`0 0 ${J7T2_ANCHO} ${alto}`} style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible", zIndex: 4 }}>
+          {hilos.map((h, n) => (
+            // El grosor y la opacidad los decide cada hilo: los tuyos van gruesos al
+            // fondo y el dorado, fino y encima.
+            <line key={n} x1={J7T2_XA} y1={filaY(h.i)} x2={J7T2_XB} y2={filaY(h.j)} stroke={h.col} strokeWidth={h.ancho} strokeLinecap="round" strokeDasharray={h.dash || undefined} opacity={h.op} />
+          ))}
+          {drag && drag.movido && (
+            <line x1={J7T2_XA} y1={filaY(drag.i)} x2={drag.x} y2={drag.y} stroke={J7T2_COLORES[drag.i % J7T2_COLORES.length]} strokeWidth="4" strokeLinecap="round" opacity="0.95" />
+          )}
+          {izq.map((a, k) => (<circle key={a.id} cx={J7T2_XA} cy={filaY(k)} r={sel === k && !verified ? 7.5 : 6} fill={sel === k && !verified ? "#ffe79a" : J7T2_COLORES[k % J7T2_COLORES.length]} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />))}
+          {der.map((o, k) => (<circle key={o.id} cx={J7T2_XB} cy={filaY(k)} r={selO === k && !verified ? 7.5 : 5} fill={selO === k && !verified ? "#ffe79a" : "rgba(255,255,255,0.75)"} stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />))}
+        </svg>
+
+        {/* COLUMNA DE AUTORES — de aqui sale el hilo */}
+        {izq.map((a, k) => (
+          <div key={a.id} data-qa="autor" onPointerDown={(e) => onDown(k, e)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+            style={{ position: "absolute", left: 0, top: k * (J7T2_FILA + J7T2_SEP), width: J7T2_XA - 10, height: J7T2_FILA, boxSizing: "border-box", borderRadius: 12, cursor: verified ? "default" : "grab", touchAction: "none", display: "flex", alignItems: "center", gap: 8, padding: "6px 9px", border: sel === k && !verified ? "3px solid #ffe79a" : "3px solid rgba(255,255,255,0.3)", background: "linear-gradient(180deg, rgba(14,22,48,0.92), rgba(8,14,34,0.92))", boxShadow: sel === k && !verified ? "0 0 18px rgba(255,231,154,0.5)" : "0 3px 8px rgba(0,0,0,0.3)" }}>
+            {/* ⚠ Sin icono de libro delante del nombre (lo quitó la autora el 2026-11-24):
+                eran cinco libros distintos que no significaban nada. Queda una barra del
+                color de su hilo, que sí dice algo. */}
+            <span style={{ flexShrink: 0, width: 5, alignSelf: "stretch", borderRadius: 999, background: J7T2_COLORES[k % J7T2_COLORES.length] }} />
+            <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 13, lineHeight: 1.2, color: "#fff" }}>{a.autor}</span>
+          </div>
+        ))}
+
+        {/* COLUMNA DE OBRAS — aqui aterriza */}
+        {der.map((o, k) => {
+          const i = enlaces.indexOf(k);
+          const ok = verified && i >= 0 && izq[i].id === o.id;
+          const mal = verified && i >= 0 && izq[i].id !== o.id;
+          return (
+            <div key={o.id} data-qa="obra" onClick={() => { if (verified) return; if (sel !== null) { unir(sel, k); return; } setSelO(selO === k ? null : k); }}
+              style={{ position: "absolute", left: J7T2_XB + 10, top: k * (J7T2_FILA + J7T2_SEP), width: J7T2_ANCHO - J7T2_XB - 10, height: J7T2_FILA, boxSizing: "border-box", borderRadius: 12, cursor: verified ? "default" : "pointer", display: "flex", alignItems: "center", gap: 9, padding: "6px 9px", border: `3px solid ${ok ? "#2ecc8f" : mal ? "#ff6b6b" : (selO === k && !verified ? "#ffe79a" : "rgba(242,194,96,0.45)")}`, background: "linear-gradient(180deg, rgba(40,28,10,0.92), rgba(22,15,5,0.92))", boxShadow: ok ? "0 0 18px rgba(46,204,143,0.5)" : (selO === k && !verified ? "0 0 18px rgba(255,231,154,0.5)" : "0 3px 8px rgba(0,0,0,0.3)") }}>
+              <J12Img src={o.img} e={o.oe} ancho={96} alto={J7T2_FILA - 20} radius={11} />
+              {/* ⚠ SIN el rótulo "TÚ PUSISTE: …": lo quitó la autora el 2026-11-24. Lo que
+                  elegiste ya se ve —es tu hilo rojo, que sigue dibujado debajo del dorado—,
+                  así que el rótulo repetía en texto lo que la línea ya dice. */}
+              <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 800, fontSize: 12.5, lineHeight: 1.2, color: "#fce9a8" }}>“{o.obra}”</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ flex: 1, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: 4 }}>
+        {!verified && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.75)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+            {hechos < izq.length ? (izq.length - hechos === 1 ? "Te falta unir 1." : `Te faltan ${izq.length - hechos} por unir.`) : `Ya uniste los ${izq.length}. Toca ¡VERIFICAR!`}
+          </div>
+        )}
+        {/* ⚠ SIN cartel verde al pie: lo quitó la autora el 2026-11-24. La respuesta ya
+            la dicen los hilos (los correctos) y el "TÚ PUSISTE" de cada obra fallada, así
+            que el cartel repetía lo mismo en texto y se comía el espacio de abajo.
+            Queda UNA línea suelta, sin recuadro, que explica qué es la línea dorada: sin
+            ella, el color no significa nada para quien la ve por primera vez. */}
+        {/* ⚠ Si están los tres bien, AQUÍ NO VA NADA. Antes salía siempre "la línea
+            dorada lleva cada obra hasta su autor", y en una partida perfecta no hay
+            ninguna línea dorada: el mensaje hablaba de algo que no estaba en pantalla.
+            Lo cazó la autora el 2026-11-24. Ahora solo aparece lo que falta por saber:
+            de quién era cada obra que se falló. */}
+        {verified && (() => {
+          const fallos = izq.filter((x, i) => !(enlaces[i] !== null && der[enlaces[i]].id === x.id));
+          if (!fallos.length) return null;
+          return (
+            <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, lineHeight: 1.3, color: "rgba(255,255,255,0.85)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.65)" }}>
+              {fallos.map((x) => (
+                <div key={x.id}>“{x.obra}” era de <b style={{ color: "#fce9a8" }}>{x.autor}</b>.</div>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
+// ── Arreglo de rondas del LIBRO 7 · TEMA 2 (3 manos: deformar · pulsar · tender) ──
+const L7T2_ROUNDS = [
+  { C: L7T2R1Curva, verify: true, bubble: (<>Arrastra cada nudo<br />hasta su altura.</>) },
+  { C: L7T2R2Feria, verify: true, bubble: (<>Mira las tarjetas y<br />dibuja ese movimiento<br />encima del juguete.</>) },
+  { C: L7T2R3Hilos, verify: true, lento: true, bubble: (<>Toca un autor<br />y luego su obra.</>) },
+];
+
 
 // ══════════════════════════════════════════════════════════════════
 // ORQUESTADOR compartido por TODOS los temas — chrome EDINUN (HUD, personaje, acciones,
@@ -2062,8 +2914,13 @@ function J12Game({ app, setApp, go, rounds }) {
     const newStars = stars + g;
     setLog(newLog); setStars(newStars);
     if (g > 0) setApp((s) => ({ ...s, stars: (s.stars || 0) + g }));
-    const showFbAt = isCorrect ? 900 : 2400;
-    const advanceAt = showFbAt + (isCorrect ? 1100 : 1000);
+    // ⚠ El revelado dura MÁS SOLO EN LAS RONDAS QUE LO PIDEN, con  en su
+    //   entrada del arreglo de rondas. Lo decidió así la autora el 2026-11-24: subirlo a
+    //   todas alargaba partidas que ya estaban bien. Normal: 2 s acertando y 3,4 s
+    //   fallando. Lenta: 4 s y 5,6 s.
+    const lento = !!(ROUNDS[round] && ROUNDS[round].lento);
+    const showFbAt = lento ? (isCorrect ? 1200 : 2600) : (isCorrect ? 900 : 2400);
+    const advanceAt = showFbAt + (lento ? (isCorrect ? 2800 : 3000) : (isCorrect ? 1100 : 1000));
     // ⚠ En "¡UPS!" NUNCA se muestran estrellas, aunque la ronda haya dado algunas.
     setTimeout(() => { setFeedback(isCorrect ? "ok" : "err"); setFeedbackMsg(isCorrect ? `+${g} ⭐` : ANIMOS[round % ANIMOS.length]); }, showFbAt);
     setTimeout(() => {
@@ -2109,7 +2966,7 @@ function J12Game({ app, setApp, go, rounds }) {
 
       <div style={{ position: "absolute", left: 8, bottom: 78, width: 220, pointerEvents: "none", textAlign: "center" }}>
         <div className="ed-float-soft" style={{ position: "absolute", left: 0, right: 0, bottom: "100%", display: "flex", justifyContent: "center" }}>
-          <div style={{ position: "relative", display: "inline-block", maxWidth: 210, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", whiteSpace: "pre-line", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: 188, background: "linear-gradient(180deg, rgba(20,12,55,0.95), rgba(10,6,35,0.95))", border: "1.5px solid rgba(242,194,96,0.65)", borderRadius: 16, padding: "10px 14px", fontFamily: "var(--ed-font-display)", fontWeight: 700, fontSize: 14, lineHeight: 1.3, color: "#fce9a8", textAlign: "center", whiteSpace: "pre-line", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)" }}>
             {dice || ROUNDS[round].bubble}
             <div style={{ position: "absolute", bottom: -10, left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "9px solid transparent", borderRight: "9px solid transparent", borderTop: "10px solid rgba(20,12,55,0.95)", filter: "drop-shadow(0 1px 0 rgba(242,194,96,0.55))" }} />
           </div>
@@ -2655,7 +3512,454 @@ const L6T3_ROUNDS = [
   { C: L6T3R3Sello, verify: true, bubble: (<>Toca una frase<br />y queda sellada.</>) },
 ];
 
-const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS, "l6-t3": L6T3_ROUNDS, "l7-t1": L7T1_ROUNDS };
+// ══════════════════════════════════════════════════════════════════
+// LIBRO 7 · TEMA 3 — "Transformación agraria" (11 años)
+// Material: libro pp. 52-58 + cuaderno pp. 49-52.
+//
+// El tema se llama así en el libro (Unidad 3, Tema 1) y el cuaderno lo confirma. Las
+// rondas recorren el arco entero: los gobiernos de 1948-1972 (pp. 54-57) → el boom
+// bananero (p. 55) → la Reforma Agraria de 1964 (pp. 56-57), que da nombre al tema.
+//
+// Tres gestos, y ninguno repetido en el juego:
+//   R1 estirar el borde de una barra · R2 apilar · R3 encender/apagar
+//
+// ⚠ Las ilustraciones pueden no estar todavía. Cada figura cae a un emoji si el archivo
+//    falta, para que el tema se pueda jugar y probar sin esperar a las imágenes.
+// ══════════════════════════════════════════════════════════════════
+function J7T3Fig({ src, emoji, w, h, radius }) {
+  const [mal, setMal] = useStateG(false);
+  if (mal) return <div style={{ width: w, height: h, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34, lineHeight: 1 }}>{emoji}</div>;
+  return <img src={src} alt="" onError={() => setMal(true)} style={{ width: w, height: h, objectFit: "cover", objectPosition: "center top", display: "block", borderRadius: radius || 6 }} />;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// R1 · "¿Cuánto le duró?" — ESTIRAR EL BORDE DE UNA BARRA (mano nueva).
+// Tres gobiernos a la vez, cada uno con su año de inicio YA PUESTO y una frase de lo que
+// hizo. Se estira el borde derecho de su barra hasta donde se cree que terminó.
+// ⭐ +1 por gobierno que quede a un año o menos del real.
+//
+// ⚠ SUSTITUYE a "Uno contra ocho" (poner soldados en la fila): la autora no la entendió
+// (2026-11-24) y tenía razón — la pantalla no decía por ningún lado que lo correcto fuera
+// dejar UN soldado, así que solo se acertaba recordando la frase de la p.52.
+// ⚠ También se descartaron tres versiones de "medir el territorio perdido" (tijeras,
+// cinta métrica, doblar el mapa): los 200 000 km² son UN SOLO dato y la ronda habría sido
+// idéntica en todas las partidas. Lo marcó la autora.
+//
+// ⚠ LA REGLA DE AÑOS EMPIEZA EN EL GOBIERNO MÁS ANTIGUO DE LA PARTIDA, no en 1948: con el
+// 1948 fijo, una partida de los años sesenta dejaba media pantalla vacía a la izquierda.
+// Lo marcó la autora. El paso de las marcas se calcula para que nunca pasen de siete.
+// ──────────────────────────────────────────────────────────────────
+const J7T3_FIN = 1972, J7T3_EJE = 356;
+const J7T3_GOB = [
+  { id: "plaza", q: "plaza", n: "Galo Plaza Lasso", ini: 1948, fin: 1952, o: "Construyó escuelas y combatió la malaria.", p: "Gobierno democrático y tolerante: escuelas, colegios técnicos y, en 1950, el Primer Censo Nacional." },
+  { id: "velasco3", q: "velasco", n: "Velasco Ibarra · 3.er mandato", ini: 1952, fin: 1956, o: "Carreteras, puentes y colegios nuevos.", p: "El único de sus cinco mandatos que llegó al final: obras públicas y equipamiento de las Fuerzas Armadas." },
+  { id: "ponce", q: "ponce", n: "Camilo Ponce Enríquez", ini: 1956, fin: 1960, o: "Levantó el Palacio Legislativo.", p: "Finanzas ordenadas y administración austera: el Palacio Legislativo y el Puente de la Unidad Nacional." },
+  { id: "velasco4", q: "velasco", n: "Velasco Ibarra · 4.º mandato", ini: 1960, fin: 1961, o: "Declaró nulo el Protocolo de Río de Janeiro.", p: "La crisis fiscal y las protestas acabaron con él: el Congreso y las Fuerzas Armadas lo desconocieron." },
+  { id: "arosemena", q: "arosemena", n: "Carlos Julio Arosemena Monroy", ini: 1961, fin: 1963, o: "Creó TAME y el decimotercer sueldo.", p: "Hizo carreteras, la ley de inquilinato y las universidades Laica y Católica; lo derrocaron los militares." },
+  { id: "junta", q: "junta", n: "Primera Junta Militar", ini: 1963, fin: 1966, o: "Cuatro oficiales al mando del país.", p: "Dictaron la Reforma Agraria de 1964 y crearon el IERAC; cayeron con las paralizaciones de 1966." },
+  { id: "otto", q: "otto", n: "Otto Arosemena Gómez", ini: 1966, fin: 1968, o: "Creó el Ministerio de Salud Pública.", p: "Obras para la educación, electrificación y carreteras; convocó las elecciones que ganó Velasco." },
+  { id: "velasco5", q: "velasco", n: "Velasco Ibarra · 5.º mandato", ini: 1968, fin: 1972, o: "Se proclamó dictador y disolvió el Congreso.", p: "Dos años de agitación social; en febrero de 1972 el general Rodríguez Lara lo derrocó." },
+];
+// ⚠ Clemente Yerovi (marzo-noviembre de 1966) queda FUERA del banco a propósito: duró
+// menos de un año y la barra se mide en años enteros, así que no tendría respuesta clara.
+const J7T3_R1_KEY = "edinun_j12_l7t3_r1_v1";
+function j7t3R1Build() {
+  let idx = j12PickIdx(J7T3_GOB, 3, J7T3_R1_KEY);   // ⚠ cap 2: ver j12Commit de abajo
+  // ⚠ NUNCA dos mandatos de la misma persona en la misma partida: salían el 3.er y el 4.º
+  //   de Velasco juntos y la pantalla parecía repetida, aunque la respuesta fuera distinta.
+  const usados = {}, libres = J7T3_GOB.map((_, i) => i).filter((i) => idx.indexOf(i) < 0);
+  idx = idx.filter((i) => { const q = J7T3_GOB[i].q; if (usados[q]) return false; usados[q] = 1; return true; });
+  while (idx.length < 3) {
+    const k = libres.findIndex((i) => !usados[J7T3_GOB[i].q]);
+    if (k < 0) break;
+    const i = libres.splice(k, 1)[0];
+    usados[J7T3_GOB[i].q] = 1;
+    idx.push(i);
+  }
+  // ⚠ Cap 3 = los tres del juego anterior, para que NO pueda repetirse el trío exacto:
+  // el relleno que evita dos mandatos de la misma persona reintroducía uno de los
+  // anteriores y una de cada diez partidas salía idéntica. Con 8 en el banco quedan 5
+  // libres, que siguen dando 10 tríos.
+  j12Commit(J7T3_R1_KEY, idx, 3);
+  const sel = J7T3_GOB.filter((_, i) => idx.indexOf(i) !== -1).sort((a, b) => a.ini - b.ini);
+  const a0 = sel[0].ini;
+  const span = J7T3_FIN - a0;
+  const paso = Math.max(2, Math.ceil(span / 6 / 2) * 2);
+  const marcas = [];
+  for (let a = a0; a <= J7T3_FIN; a += paso) marcas.push(a);
+  if (marcas[marcas.length - 1] !== J7T3_FIN) marcas.push(J7T3_FIN);
+  return { gob: sel, a0: a0, marcas: marcas };
+}
+
+function L7T3R1Mandatos({ onSolve, verifyRef, listo }) {
+  const [b] = useStateG(() => j7t3R1Build());
+  const gob = b.gob, A0 = b.a0;
+  const X = (a) => ((a - A0) / (J7T3_FIN - A0)) * J7T3_EJE;
+  const [fin, setFin] = useStateG(() => { const o = {}; gob.forEach((g) => { o[g.id] = g.ini; }); return o; });
+  const [ultimo, setUltimo] = useStateG(null);
+  const [verified, setVerified] = useStateG(false);
+  const ejes = useRefG({});
+
+  // ⚠ El año se saca del ancho REAL del eje, no de los 322 lógicos: el lienzo va escalado
+  //   con transform, así que getBoundingClientRect devuelve píxeles de pantalla.
+  function anioEn(g, clientX) {
+    const el = ejes.current[g.id];
+    if (!el) return g.ini;
+    const r = el.getBoundingClientRect();
+    const a = A0 + ((clientX - r.left) / r.width) * (J7T3_FIN - A0);
+    return Math.max(g.ini, Math.min(J7T3_FIN, Math.round(a)));
+  }
+  function mover(g, e) { if (verified) return; setFin((f) => { const o = Object.assign({}, f); o[g.id] = anioEn(g, e.clientX); return o; }); setUltimo(g.id); }
+  function agarrar(g, e) { if (verified) return; e.currentTarget.setPointerCapture(e.pointerId); mover(g, e); }
+  // Cuántas barras se han movido ya de su año de inicio.
+  const estirados = gob.filter((g) => fin[g.id] > g.ini).length;
+  // ⚠ Esta ronda NO registra BORRAR: cualquier barra se puede volver a estirar cuando
+  // quieras, así que rectificar es mover otra vez (lo pidió la autora el 2026-11-24).
+  useEffectG(() => {
+    if (!listo) return undefined;
+    listo(verified ? null : (estirados < gob.length ? "Estira las " + gob.length + " barras" : null));
+    return () => listo(null);
+  }, [fin, verified]);
+
+  function verificar() {
+    if (verified || estirados < gob.length) return;
+    setVerified(true);
+    const dur = (g) => fin[g.id] - g.ini;
+    const bien = (g) => Math.abs(dur(g) - (g.fin - g.ini)) <= 1;
+    const aciertos = gob.filter(bien).length;
+    const anios = (n) => n + (n === 1 ? " año" : " años");
+    onSolve(aciertos === gob.length, {
+      emoji: "📅", a: "Cuánto le duró a cada gobierno",
+      userAnswer: gob.map((g) => g.n + ": " + anios(dur(g))).join(" · "),
+      correctAnswer: gob.map((g) => g.n + ": " + g.ini + "-" + g.fin + " (" + anios(g.fin - g.ini) + ")").join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  const falla = verified ? gob.filter((g) => Math.abs((fin[g.id] - g.ini) - (g.fin - g.ini)) > 1)[0] : null;
+
+  return (
+    // ⚠ Bloque CENTRADO y cartel del revelado en ABSOLUTO: así nada se mueve al verificar
+    //   y no queda un vacío grande debajo (lo marcó la autora en rojo sobre una captura).
+    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%" }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>¿Hasta cuándo gobernó cada uno?</span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, width: 462, flexShrink: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 18 }}>
+          {gob.map((g) => {
+            const d = fin[g.id] - g.ini, real = g.fin - g.ini;
+            const ok = verified && Math.abs(d - real) <= 1;
+            const x0 = X(g.ini), x1 = X(fin[g.id]), xr = X(g.fin);
+            return (
+              <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                {/* EL RETRATO. Foto real o escudo: nunca una cara inventada.
+                    ⚠ 84x98 es el TOPE: con 84x104 y 21 de separación, el bloque crece
+                      hacia arriba (va centrado) y el enunciado se mete en el bloque
+                      RONDA. Lo cazó  por 3 px. */}
+                <div style={{ width: 84, height: 98, flexShrink: 0, borderRadius: 8, overflow: "hidden", border: "2px solid " + (verified ? (ok ? "#2ecc8f" : "#ff6b6b") : "rgba(255,255,255,0.28)"), background: "rgba(255,255,255,0.07)" }}>
+                  <J7T3Fig src={"assets/j7t3-" + g.q + ".jpg"} emoji="🎖️" w="100%" h="100%" radius={6} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 12.5, color: verified ? (ok ? "#8fffcb" : "#ffb3b3") : "#fce9a8", textShadow: "0 2px 6px rgba(0,0,0,0.6)" }}>
+                    {g.n}<span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 9, color: "rgba(255,255,255,0.6)", marginLeft: 6 }}>DESDE {g.ini}</span>
+                  </span>
+                  <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 10, color: verified ? (ok ? "#8fffcb" : "#ffb3b3") : "#ffe79a", whiteSpace: "nowrap" }}>
+                    {verified ? g.ini + "-" + g.fin : (d === 1 ? "1 año" : d + " años")}
+                  </span>
+                </div>
+                {/* ⚠ La frase de lo que hizo NO lleva años: si los llevara regalaría la
+                    respuesta. Está para que la ronda no sea una lista de nombres pelados. */}
+                <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 9.5, color: "rgba(255,255,255,0.66)", marginBottom: 2 }}>{g.o}</div>
+                <div ref={(el) => { ejes.current[g.id] = el; }}
+                  data-qa="eje" onPointerDown={(e) => agarrar(g, e)} onPointerMove={(e) => { if (e.buttons) mover(g, e); }}
+                  style={{ position: "relative", width: J7T3_EJE, height: 30, borderRadius: 9, background: "rgba(0,0,0,0.3)", border: "2px solid rgba(255,255,255,0.18)", cursor: verified ? "default" : "ew-resize", touchAction: "none" }}>
+                  <div data-qa="barra" style={{ position: "absolute", left: x0, width: Math.max(0, x1 - x0), top: 3, bottom: 3, borderRadius: 5, background: verified ? (ok ? "linear-gradient(90deg,#2ecc8f,#17a06a)" : "linear-gradient(90deg,#ff8f8f,#d94b4b)") : "linear-gradient(90deg,#f2b84b,#ffe79a)" }} />
+                  {!verified && (
+                    <div style={{ position: "absolute", left: x1 - 6, top: -1, width: 15, height: 30, borderRadius: 5, background: "#4fd8ff", border: "2px solid #fff", boxShadow: "0 0 10px rgba(79,216,255,0.8)" }} />
+                  )}
+                  {verified && (
+                    <div style={{ position: "absolute", left: xr - 2, top: -4, width: 4, height: 28, background: "#ffd980", borderRadius: 2, boxShadow: "0 0 10px rgba(255,217,128,0.9)" }} />
+                  )}
+                </div>
+                </div>
+              </div>
+            );
+          })}
+          {/* LA REGLA DE AÑOS, una sola vez abajo */}
+          <div style={{ position: "relative", width: J7T3_EJE, height: 12, marginLeft: 93 }}>
+            {b.marcas.map((a) => (
+              <span key={a} style={{ position: "absolute", left: X(a), transform: "translateX(-50%)", fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 8.5, color: "rgba(255,255,255,0.55)" }}>{a}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* REVELADO: una línea, sin recuadro, solo para leer la raya dorada. */}
+      <div style={{ width: 462, minHeight: 20, marginTop: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {verified && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.85)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.65)" }}>
+            La raya <b style={{ color: "#ffd980" }}>dorada</b> marca dónde terminó de verdad cada gobierno.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────
+// R2 · "La bodega del banano" — APILAR (mano nueva).
+// Cada año es una columna vacía: tocas y sube una caja; tocas una caja y la columna baja
+// hasta ahí. Una caja = 100 mil toneladas, y las cifras son las de la tabla de la p.55.
+// ⭐ +1 por año EXACTO.
+//
+// ⚠ PASARSE NO ES ACIERTO. Antes valía con quedar a una caja, de más o de menos, y la
+// autora lo cazó jugando: *"solo cuando pongo los bananos correctos debe salir correcto,
+// no cuando lo supero"*. Tiene razón: poner de más no es aproximarse, es equivocarse.
+// ──────────────────────────────────────────────────────────────────
+const J7T3_ANIOS = [
+  { id: "a1948", y: 1948, v: "99", c: 1 },
+  { id: "a1950", y: 1950, v: "169,6", c: 2 },
+  { id: "a1955", y: 1955, v: "612,6", c: 6 },
+  { id: "a1960", y: 1960, v: "895,1", c: 9 },
+];
+const J7T3_R2_KEY = "edinun_j12_l7t3_r2_v1";
+// ⚠ El PASO (lo que sube cada caja) y el alto de la columna están calculados para que las
+// diez quepan SIN dejar un hueco muerto debajo: el bloque va centrado y el cartel del
+// revelado cuelga en absoluto, así que lo que sobre abajo se nota.
+// ⚠ PASO 25 = alto de la caja: antes el paso era menor y cada caja tapaba un tercio de
+// la de abajo. Con 26 la columna medía 278 y el año chocaba con el cartel del revelado.
+const J7T3_MAXC = 10, J7T3_CW = 84, J7T3_PASO = 30, J7T3_CH = 30;
+function j7t3R2Build() {
+  // ⚠ Cap 2, nunca 3 (= K): con cap = K se alternarían dos grupos fijos.
+  const idx = j12PickIdx(J7T3_ANIOS, 3, J7T3_R2_KEY);
+  j12Commit(J7T3_R2_KEY, idx, 2);
+  const sel = J7T3_ANIOS.filter((_, i) => idx.indexOf(i) !== -1);
+  return { anios: sel.slice().sort((a, b) => a.y - b.y) };   // los años siempre en orden
+}
+
+function L7T3R2Banano({ onSolve, verifyRef, onClear, listo }) {
+  const [b] = useStateG(() => j7t3R2Build());
+  const anios = b.anios;
+  const [pila, setPila] = useStateG(() => { const o = {}; anios.forEach((a) => { o[a.id] = 0; }); return o; });
+  const [ultima, setUltima] = useStateG(null);
+  const [verified, setVerified] = useStateG(false);
+
+  function subir(id) { if (verified) return; setPila((p) => { if (p[id] >= J7T3_MAXC) return p; const o = Object.assign({}, p); o[id] = p[id] + 1; return o; }); setUltima(id); }
+  function bajarHasta(id, k) { if (verified) return; setPila((p) => { const o = Object.assign({}, p); o[id] = k; return o; }); setUltima(id); }
+  function borrar() {
+    if (verified) return;
+    const id = ultima && pila[ultima] > 0 ? ultima : (anios.map((a) => a.id).filter((x) => pila[x] > 0).pop() || null);
+    if (id) bajarHasta(id, pila[id] - 1);
+  }
+  const algo = anios.some((a) => pila[a.id] > 0);
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: algo });
+    return () => onClear(null);
+  }, [pila, verified, ultima]);
+  useEffectG(() => {
+    if (!listo) return undefined;
+    const faltan = anios.filter((a) => pila[a.id] === 0).length;
+    listo(verified ? null : (faltan ? "Sube cajas en los " + anios.length + " años" : null));
+    return () => listo(null);
+  }, [pila, verified]);
+
+  function verificar() {
+    if (verified || anios.some((a) => pila[a.id] === 0)) return;
+    setVerified(true);
+    const aciertos = anios.filter((a) => pila[a.id] === a.c).length;
+    onSolve(aciertos === anios.length, {
+      emoji: "🍌", a: "Cuánto banano salió del Ecuador",
+      userAnswer: anios.map((a) => a.y + ": " + pila[a.id] + (pila[a.id] === 1 ? " caja" : " cajas")).join(" · "),
+      correctAnswer: anios.map((a) => a.y + ": " + a.v + " mil toneladas").join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  return (
+    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 24, height: "100%", width: "100%" }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>¿Cuánto banano salió del Ecuador en cada año?</span>
+      </div>
+      <div style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 9.5, color: "rgba(255,255,255,0.62)", letterSpacing: "0.08em", marginTop: 3, flexShrink: 0 }}>1 CAJA = 100 MIL TONELADAS</div>
+
+      {/* LAS COLUMNAS */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 44, marginTop: 6, flexShrink: 0 }}>
+        {anios.map((a) => {
+          const n = pila[a.id];
+          const ok = verified && n === a.c;
+          return (
+            <div key={a.id} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 11, color: verified ? (ok ? "#8fffcb" : "#ffb3b3") : "#ffe79a", marginBottom: 5, whiteSpace: "nowrap", textShadow: "0 2px 6px rgba(0,0,0,0.75)" }}>
+                {verified ? a.v + " mil t" : n + (n === 1 ? " caja" : " cajas")}
+              </div>
+              <div data-qa="columna" onClick={() => subir(a.id)}
+                style={{ position: "relative", width: J7T3_CW, height: J7T3_MAXC * J7T3_PASO + 18, cursor: verified ? "default" : "pointer", borderRadius: 10, border: "2px dashed " + (verified ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.2)"), background: "rgba(0,0,0,0.2)" }}>
+                {Array.from({ length: n }).map((_, k) => (
+                  <div key={k} data-qa="caja" onClick={(e) => { e.stopPropagation(); bajarHasta(a.id, k); }}
+                    style={{ position: "absolute", left: 2, bottom: 4 + k * J7T3_PASO, width: J7T3_CW - 4, height: J7T3_CH }}>
+                    <J7T3Fig src="assets/j7t3-caja-banano.jpg" emoji="📦" w="100%" h="100%" radius={6} />
+                  </div>
+                ))}
+                {verified && (
+                  <div style={{ position: "absolute", left: -5, right: -5, bottom: 4 + a.c * J7T3_PASO, height: 3, background: "#2ecc8f", boxShadow: "0 0 10px rgba(46,204,143,0.9)", borderRadius: 2 }} />
+                )}
+              </div>
+              <div style={{ fontFamily: "var(--ed-font-display)", fontWeight: 900, fontSize: 13, letterSpacing: "0.03em", marginTop: 6, borderRadius: 999, padding: "2px 11px",
+                color: verified ? "#0b1020" : "#0b1020",
+                background: verified ? (ok ? "#2ecc8f" : "#ff6b6b") : "rgba(255,255,255,0.88)",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.35)" }}>{a.y}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ⚠ El revelado va AQUÍ, pegado a las columnas, no en un cartel al pie: abajo
+          dejaba una franja vacía mientras se juega y la autora la marcó en rojo. Su
+          altura está reservada, así que al verificar no salta nada. */}
+      <div style={{ width: 468, minHeight: 32, marginTop: 4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {verified && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, lineHeight: 1.25, color: "rgba(255,255,255,0.88)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.65)" }}>
+            <b style={{ color: "#8fffcb" }}>El boom bananero:</b> entre 1948 y 1960 la exportación se multiplicó por nueve.<br />
+            Con esa plata se hicieron carreteras y escuelas, y mucha gente de la Sierra bajó a la Costa.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────
+// R3 · "Lo que cambió y lo que no" — ENCENDER y APAGAR.
+// Cinco frases sobre la Reforma Agraria de 1964: tres pasaron y dos no. Todas salen de
+// las pp.56-57; las falsas son lo que el libro dice EXPRESAMENTE que no ocurrió.
+// ⭐ +1 por cada frase verdadera encendida.
+// ──────────────────────────────────────────────────────────────────
+const J7T3_SI = [
+  { id: "huasipungo", t: "Se eliminó el huasipungo en las haciendas.", p: "El IERAC se creó para eliminar las formas de trabajo serviles en las haciendas serranas." },
+  { id: "tierras", t: "Se repartieron tierras de las haciendas del Estado.", p: "Tierras de colegios, universidades, bancos y la Caja del Seguro, que no eran precisamente agrícolas." },
+  { id: "migracion", t: "Mucha gente tuvo que migrar a las ciudades.", p: "Su situación económica siguió siendo precaria y se vieron obligados a buscar empleo en las grandes ciudades." },
+  { id: "produccion", t: "Bajó la producción de alimentos en el país.", p: "Hubo desabastecimiento, sobre todo en la Costa con la producción de arroz." },
+  { id: "leche", t: "Las haciendas de la Sierra se tecnificaron.", p: "Se fueron desarrollando en la industria ganadera para producir leche y sus derivados." },
+];
+const J7T3_NO = [
+  { id: "creditos", t: "Los campesinos recibieron créditos del gobierno.", p: "No recibieron apoyo del gobierno con créditos ni préstamos." },
+  { id: "vida", t: "Los indígenas mejoraron su calidad de vida.", p: "La Reforma Agraria no brindó una mejor calidad de vida a los campesinos ni a las comunidades indígenas." },
+  { id: "herramientas", t: "Pudieron comprar herramientas y frenar las plagas.", p: "No pudieron tecnificar sus herramientas de trabajo ni combatir las heladas o plagas." },
+];
+const J7T3_R3_SI = "edinun_j12_l7t3_r3si_v1", J7T3_R3_NO = "edinun_j12_l7t3_r3no_v1";
+function j7t3R3Build() {
+  // ⚠ Cap 1 en las dos: con 5 verdaderas y cap 2 quedaban 3 libres para elegir 3, así que
+  // salía siempre el mismo trío; con cap 1 quedan 4 libres y hay 4 tríos posibles cada
+  // vez. Con 3 falsas y cap 1 quedan 2 libres para elegir 2 — ahí el banco es el techo.
+  const iS = j12PickIdx(J7T3_SI, 3, J7T3_R3_SI); j12Commit(J7T3_R3_SI, iS, 1);
+  const iN = j12PickIdx(J7T3_NO, 2, J7T3_R3_NO); j12Commit(J7T3_R3_NO, iN, 1);
+  const si = iS.map((i) => Object.assign({ si: true }, J7T3_SI[i]));
+  const no = iN.map((i) => Object.assign({ si: false }, J7T3_NO[i]));
+  return { frases: j12Shuffle(si.concat(no)) };
+}
+
+function L7T3R3Lamparas({ onSolve, verifyRef, onClear, listo }) {
+  const [b] = useStateG(() => j7t3R3Build());
+  const frases = b.frases;
+  const [on, setOn] = useStateG([]);
+  const [verified, setVerified] = useStateG(false);
+  const CUANTAS = frases.filter((f) => f.si).length;
+
+  function tocar(id) { if (verified) return; setOn((v) => (v.indexOf(id) >= 0 ? v.filter((x) => x !== id) : v.concat([id]))); }
+  function borrar() { if (!verified) setOn((v) => v.slice(0, -1)); }
+  useEffectG(() => {
+    if (!onClear) return undefined;
+    onClear(verified ? null : { fn: borrar, puede: on.length > 0 });
+    return () => onClear(null);
+  }, [on.length, verified]);
+  useEffectG(() => {
+    if (!listo) return undefined;
+    listo(verified ? null : (on.length === CUANTAS ? null : "Enciende " + CUANTAS + " (llevas " + on.length + ")"));
+    return () => listo(null);
+  }, [on.length, verified]);
+
+  function verificar() {
+    if (verified || on.length !== CUANTAS) return;
+    setVerified(true);
+    const aciertos = frases.filter((f) => f.si && on.indexOf(f.id) >= 0).length;
+    onSolve(aciertos === CUANTAS, {
+      emoji: "💡", a: "Lo que de verdad cambió con la Reforma Agraria",
+      userAnswer: frases.filter((f) => on.indexOf(f.id) >= 0).map((f) => f.t).join(" · ") || "(ninguna)",
+      correctAnswer: frases.filter((f) => f.si).map((f) => f.t).join(" · "),
+    }, aciertos);
+  }
+  verifyRef.current = verificar;
+
+  return (
+    // ⚠ Bloque CENTRADO, fichas grandes y cartel en absoluto: con las filas pequeñas
+    //   sobraba media pantalla debajo y la autora lo marcó en rojo.
+    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%" }}>
+      <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
+        <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 18, color: "#fff" }}>La Reforma Agraria de 1964: ¿qué pasó de verdad?</span>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, color: "#ffe79a", marginTop: 2 }}>Son {CUANTAS}.</div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, width: 440, flexShrink: 0 }}>
+        <div style={{ width: 160, height: 268, borderRadius: 12, overflow: "hidden", border: "2px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.07)", flexShrink: 0 }}>
+          <J7T3Fig src="assets/j7t3-campesino.jpg" emoji="🧑‍🌾" w="100%" h="100%" radius={10} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+          {frases.map((f) => {
+            const enc = on.indexOf(f.id) >= 0;
+            const caso = !verified ? null : (enc ? (f.si ? "bien" : "mal") : (f.si ? "falto" : "fuera"));
+            let bd = enc ? "#ffd980" : "rgba(255,255,255,0.26)";
+            let bg = enc ? "linear-gradient(180deg,#fff6d8,#f6e3a8)" : "rgba(0,0,0,0.3)";
+            let col = enc ? "#3a2608" : "rgba(255,255,255,0.86)";
+            if (caso === "bien") { bd = "#2ecc8f"; bg = "linear-gradient(180deg,#d8ffee,#a8f0cf)"; col = "#06381f"; }
+            if (caso === "mal") { bd = "#ff6b6b"; bg = "linear-gradient(180deg,#ffdede,#ffb3b3)"; col = "#4a0d0d"; }
+            if (caso === "falto") { bd = "#f2b84b"; bg = "rgba(242,184,75,0.2)"; col = "#ffe79a"; }
+            if (caso === "fuera") { bd = "rgba(255,255,255,0.16)"; bg = "rgba(0,0,0,0.26)"; col = "rgba(255,255,255,0.6)"; }
+            return (
+              <div key={f.id} data-qa="lampara" onClick={() => tocar(f.id)}
+                style={{ display: "flex", alignItems: "center", gap: 9, boxSizing: "border-box", minHeight: 46, borderRadius: 11, border: "2px solid " + bd, background: bg, color: col, padding: "12px 10px", cursor: verified ? "default" : "pointer", boxShadow: enc && !verified ? "0 0 16px rgba(255,217,128,0.5)" : "none" }}>
+                <span style={{ flexShrink: 0, fontSize: 17, lineHeight: 1, filter: enc ? "none" : "grayscale(1) brightness(0.7)" }}>💡</span>
+                <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 12.5, lineHeight: 1.22 }}>
+                  {f.t}
+                  {caso === "falto" && <span style={{ fontFamily: "var(--ed-font-mono)", fontWeight: 800, fontSize: 8.5, background: "#f2b84b", color: "#2a1a00", borderRadius: 999, padding: "1px 6px", marginLeft: 6, whiteSpace: "nowrap" }}>ESTA SÍ PASÓ</span>}
+                </span>
+                {verified && (
+                  <span data-qa="sello" style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ width: 24, height: 24, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, lineHeight: 1,
+                      background: caso === "bien" ? "#2ecc8f" : caso === "mal" ? "#ff6b6b" : caso === "falto" ? "#f2b84b" : "rgba(255,255,255,0.18)",
+                      color: caso === "falto" ? "#2a1a00" : (caso === "fuera" ? "rgba(255,255,255,0.8)" : "#06381f"),
+                      border: "2px solid rgba(0,0,0,0.25)" }}>{caso === "bien" || caso === "fuera" ? "✓" : "✗"}</span>
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* REVELADO: una línea, sin recuadro. El ✓/✗ de cada ficha ya da el veredicto;
+          esto solo añade POR QUÉ no pasó la primera que estaba apagada en el libro. */}
+      <div style={{ width: 420, minHeight: 22, marginTop: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {verified && (
+          <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, lineHeight: 1.25, color: "rgba(255,255,255,0.85)", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.65)" }}>
+            {(frases.filter((f) => !f.si)[0] || {}).p}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const L7T3_ROUNDS = [
+  { C: L7T3R1Mandatos, verify: true, bubble: (<>Estira el borde<br />de cada barra.<br />Son tres gobiernos.</>) },
+  { C: L7T3R2Banano, verify: true, bubble: (<>Toca una columna<br />y sube una caja.<br />Toca una caja y baja.</>) },
+  { C: L7T3R3Lamparas, verify: true, bubble: (<>Toca una lámpara<br />y se enciende. Tócala<br />otra vez y se apaga.</>) },
+];
+
+const J12_ROUNDS_POR_TEMA = { "l6-t1": L6T1_ROUNDS, "l6-t2": L6T2_ROUNDS, "l6-t3": L6T3_ROUNDS, "l7-t1": L7T1_ROUNDS, "l7-t2": L7T2_ROUNDS, "l7-t3": L7T3_ROUNDS };
 function GameScreen({ app, setApp, go }) {
   const cat = app.currentCategory || "l6-t1";
   const rounds = J12_ROUNDS_POR_TEMA[cat] || L6T1_ROUNDS;

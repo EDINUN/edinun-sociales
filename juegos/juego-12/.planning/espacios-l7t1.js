@@ -79,6 +79,9 @@ async function abrir(p) {
   // ⚠ 60 s: en frío el navegador baja React + Babel Standalone del CDN.
   await p.waitForSelector("button:has-text('Libro 7')", { timeout: 60000 });
   await p.click("button:has-text('Libro 7')");
+  // Desde que el Libro 7 tiene dos temas hay que ELEGIR uno: con mas de uno no se
+  // preselecciona solo y ENTRAR queda apagado (mismo tropiezo que arrastre-r3 en el Libro 6).
+  await p.click("button:has-text('La Revolución Liberal')");
   await p.fill("input.ed-input", "QA");
   await p.click("button:has-text('ENTRAR')");
   await p.waitForTimeout(500);

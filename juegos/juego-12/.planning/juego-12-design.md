@@ -448,3 +448,187 @@ sí/no, arrastrar, ordenar, componer tocando, tocar en el mapa y rasgar). **⭐ 
 - **El revelado enseña las correctas, no solo el veredicto**: lo que había que marcar y no
   se marcó sale en **ámbar** («TE FALTÓ» / «ERA ESTA»), y en la R2 se abren **todas** las
   fichas, también las que quedaron boca abajo, con su hecho y su nombre.
+
+---
+
+# 6. Libro 7 · Tema 2 — "Insurgencia, cambio social y surgimiento del velasquismo" (11 años)
+
+D.C.D. **CS.3.1.45 · CS.3.1.46 · CS.3.1.47 · CS.3.1.48**. Material entregado por la autora
+el **2026-11-24**: libro pp. 32-38 (Unidad 2, Tema 1) + cuaderno pp. 27-32.
+
+⚠ En el libro es el **Tema 1 de la Unidad 2**; dentro del juego entra como **Libro 7 ·
+Tema 2**, porque el Tema 1 del juego es la Revolución Liberal.
+
+## 6.1 Material del libro (ÚNICA fuente)
+
+Copiado aquí porque es lo único de lo que pueden salir los datos del tema. Lo que no esté
+en esta lista no sale del libro y no se usa sin preguntarle a la autora.
+
+**La crisis cacaotera (pp. 32-33)**
+- De 1870 a 1920 el Ecuador vive un período agroexportador con el cacao como producto de
+  comercio internacional; la economía se sustenta en ese solo producto.
+- No se sentaron bases sólidas para un desarrollo autosostenible: el beneficio fue de la
+  burguesía comercial y la bancaria.
+- Causas de la crisis, a partir de 1920: **plagas de la monilla y la escoba de bruja** ·
+  **devaluación del precio del quintal en Nueva York** · **incremento de la producción de
+  Brasil y Costa de Marfil**, que vendían más barato.
+- Consecuencias: en **1930** se reducen notablemente precio y volumen de exportación;
+  quiebran instituciones bancarias; **devaluaciones frente al dólar** y subida del costo
+  de vida.
+- Diversificación: **café en Manabí, Los Ríos y El Oro**; **arroz** en la cuenca del
+  Guayas; **tagua** en Manabí y Esmeraldas; modernización ganadera en la Sierra Norte;
+  **sombreros de paja en la Sierra Sur**, que crecen en los años veinte y otra vez en los
+  cuarenta. Crecen la industria textil, alimenticia, de la construcción, maderera, química
+  y farmacéutica.
+- La crisis golpea a la clase trabajadora: **bajos salarios y carencia de seguridad
+  social**.
+
+**Las organizaciones sociales y la insurgencia (pp. 33-34)**
+- SAIP (Sociedad Artística e Industrial de Pichincha), **1892**; **FEU 1919**; Federación
+  Textil del Ecuador; **CEDOC 1934**; **CTE** y **FEI**, bajo las ideas socialistas.
+- Reclamos: disminución de la jornada, seguridad laboral y social, derecho a la huelga y a
+  la organización.
+- El **1 de mayo** y la jornada de 8 horas (Chicago, 1886).
+
+**La Revolución Juliana y Ayora (p. 35)**
+- **1925**: militares jóvenes forman la "Liga Militar" y buscan modernizar el Estado; las
+  medidas resultan débiles y limitadas.
+- Los bancos **emitían dinero sin respaldo**, sin institución que garantizara reservas en
+  oro.
+- **Isidro Ayora (1926-1931)** crea el **Banco Central**, único organismo encargado de
+  emitir moneda. Obras: tramo del **ferrocarril Quito–Ibarra**, **Primeras Olimpiadas
+  Nacionales en Riobamba**, pavimentación de las calles de Quito, trazado de carreteras.
+- Renuncia en agosto de 1931. **Neptalí Bonifaz** electo en octubre de 1931 y
+  descalificado el **20 de agosto de 1932**: la **"Guerra de los Cuatro Días"** (29 de
+  agosto al 1 de septiembre), más de dos mil muertos.
+- Wall Street, **octubre de 1929**.
+
+**El velasquismo (p. 36)**
+- Martínez Mera (1932-1933), Abelardo Montalvo (octubre de 1933, renuncia a los pocos
+  días), **Velasco Ibarra** elegido en 1933 — primer período **septiembre de 1934 a 1935**,
+  derrocado por el ejército; cinco veces presidente y solo una terminó su período.
+- Pons, **Páez (1935-1937)**, **Enríquez Gallo (1937-1938)**, **Mosquera Narváez
+  (1938-1939)**, **Arroyo del Río (1940-1944)**.
+- Cuaderno p. 30: **21 presidentes entre 1929 y 1947**; **Código del Trabajo**, Ley de
+  Cooperativas, Ley de Petróleos; tratado de Río de Janeiro; "La Gloriosa", 28 de mayo de
+  1944.
+
+**El arte y la vida (pp. 37-38)**
+- **Generación de los treinta**; corriente indigenista.
+- **Pío Jaramillo Alvarado**, *El indio ecuatoriano* · **César Dávila Andrade** (Cuenca,
+  1917), *Boletín y Elegía de las Mitas* · **Grupo de Guayaquil**: **Enrique Gil Gilbert**
+  (*Relatos de Emmanuel*, *Nuestro Pan*), **Joaquín Gallegos Lara** (*Las cruces sobre el
+  agua*), **Demetrio Aguilera Malta**, **Alfredo Pareja Diezcanseco** (*La hoguera
+  bárbara*), **José de la Cuadra** (*Los Sangurimas*), **Ángel Felicísimo Rojas** (*El
+  éxodo de Yangana*) · **Fernando Chaves**, *Plata y Bronce* · **Jorge Icaza**
+  (*Huasipungo*, *Chulla Romero y Flores*).
+- Plástica: **Camilo Egas**, y después Guayasamín y Kingman. **Luis Wallpper** (sic en el
+  libro) pintó una representación de *Huasipungo*.
+- Vida cotidiana: el pasillo, Nicasio Safadi, Carlota Jaramillo, el dúo Benítez y Valencia;
+  Ernesto Albán ("Don Evaristo"); el trompo, las muñecas de trapo, la cometa, las pallas,
+  la perinola, la rayuela, la soga.
+
+## 6.2 Rondas aprobadas (una a una, con la autora)
+
+Las tres manos son **nuevas**: el Tema 1 del mismo libro ya gastó *ordenar arrastrando*,
+*repartir en destinos* y *destapar pistas*.
+
+| Ronda | Mano | Contenido | ⭐ |
+|---|---|---|:--:|
+| R1 `L7T2R1Curva` "El quintal se desploma" | **deformar una curva** arrastrando su nudo | la crisis cacaotera | 3 |
+| R2 `L7T2R2Imprenta` "La imprenta sin respaldo" | **pulsar y frenar** a tiempo | la emisión sin respaldo y el Banco Central | 3 |
+| R3 `L7T2R3Hilos` "La peña del Grupo de Guayaquil" | **tender un hilo** de punto a punto | las obras de los años treinta | 3 |
+
+**⭐ del tema: 3 + 3 + 3 = 9.**
+
+### Lo que se propuso y se descartó
+
+- **R2 "El reloj de Carondelet"** (girar la manecilla hasta los días / meses / años que
+  duró cada gobernante). A la autora le gustó **el tema** y no la mecánica.
+- **R2 "La cinta de los años"** (estirar una cinta sobre la línea de tiempo) y **R2 "El
+  dominó de Carondelet"** (empujar la ficha que lo tumbó). El dominó se le explicó y se
+  descartó con argumento: **es una pregunta de opción múltiple con un disfraz** — hay
+  cuatro fichas y se elige una; quitar los dominós y poner cuatro botones daría el mismo
+  juego. La caída es una animación posterior a la decisión, no parte de ella.
+- **R3 "El mural de los años 30"** (frotar para descubrir). Era mi recomendación, pero
+  frotar se parece a *destapar pistas* del Tema 1 y la autora eligió los hilos.
+
+### R1 · "El quintal se desploma"
+
+Sale un hecho con su año y se arrastra el nudo de ese año arriba o abajo; la línea se
+deforma pegada al dedo. **La respuesta es CUÁNTO, no CUÁL**: no hay opciones que elegir.
+Acierto = quedar a **12 niveles o menos** del valor real. Al verificar, la curva correcta
+aparece en **dorado punteado sobre la tuya**.
+
+⚠ **Soltar siempre coloca, aunque no se haya movido**: "se quedó igual" es una respuesta
+válida y el chico tiene que poder darla.
+
+### R2 · "La imprenta sin respaldo"
+
+Cada toque en IMPRIMIR emite más billetes: la barra sube y **el precio del pan sube con
+ella**. Hay que llegar a lo que el país necesita **sin pasar del oro que lo respalda**.
+Tres años por partida; ⭐ +1 por año dentro de la franja.
+
+⚠ **SIN CIFRAS.** Las marcas de la barra no llevan números ni dicen millones de nada: el
+libro **no da montos de emisión** y ponerlos sería inventar datos. Lo histórico es la
+tarjeta de cada año; la barra es el artefacto del juego. Así la ronda **se resuelve con lo
+que se ve**, que es la otra regla.
+
+⚠ **La franja correcta se ve desde el principio, a propósito**: el ejercicio es frenar a
+tiempo, no adivinar dónde está. Pasarse tiene consecuencia visible.
+
+### R3 · "La peña del Grupo de Guayaquil"
+
+Se arrastra desde el punto del autor hasta la obra y el hilo sigue al dedo; también vale
+tocar autor y luego obra. Un hilo nuevo desde el mismo autor **reemplaza** al anterior, y
+**dos autores no pueden colgar de la misma obra** (el viejo se suelta solo).
+
+⚠ **Ninguna cara de autor se dibuja**: son personas reales. Lo ilustrado es **la obra**;
+el autor va con su nombre y un icono.
+
+⚠ **La obra nunca queda enfrente de su autor**: regalaría la respuesta por posición.
+
+## 6.3 Anti-repetición
+
+| Ronda | Banco | Entran | Clave FIFO | Cap |
+|---|---|:--:|---|:--:|
+| R1 · curva | 3 | 1 | `…_l7t2_r1c_v1` | **2** = banco − 1 |
+| R1 · hechos de esa curva | 6 por curva | 3 | `…_l7t2_r1h_<curva>_v1` | **4** (nunca 3 = K) |
+| R2 · años | 8 | 3 | `…_l7t2_r2_v1` | **5** |
+| R3 · obras | 8 | 3 | `…_l7t2_r3_v1` | **5** |
+
+**La pregunta de la autora, respondida en el diseño.** Antes de construir nada preguntó
+*"¿pero cómo garantizamos variedad en la ronda 1?"*, y tenía razón en sospechar: con una
+sola curva, la del cacao, **todos los hechos empujan hacia abajo** y el chico aprende
+"arrastra abajo y acierto". Tres respuestas, y las tres están en el código:
+
+1. **Tres curvas**, no solo la del cacao: el quintal de cacao, el sombrero de paja de la
+   Sierra Sur y lo que alcanza el sueldo del trabajador.
+2. Dentro de cada curva, el banco trae **hechos que suben y hechos que bajan** (el auge
+   agroexportador, el crecimiento del sombrero en los veinte y en los cuarenta, el Banco
+   Central, el Código del Trabajo).
+3. Entran **3 de 6** hechos por partida ⇒ 20 combinaciones por curva, **60 ejercicios**.
+
+## 6.4 Imágenes
+
+**8 archivos `assets/j7t2-*.jpg`, todos 1:1** (prompts entregados el 2026-11-24, los genera
+la autora), uno por obra: `huasipungo`, `nuestro-pan`, `cruces-agua`, `hoguera`,
+`sangurimas`, `mitas`, `indio`, `plata-bronce`. Estilo común: mural indigenista de los
+años treinta, figuras de lejos o de espaldas, sin texto.
+
+Opcional: `j7t2-billete.jpg` en **16:9**, textura de billete antiguo para el fondo de la
+R2 (todavía sin montar).
+
+**El tema se juega igual sin ellas**: `J12Img` cae a un emoji.
+
+## 6.5 Verificado (2026-11-24)
+
+- `e2e-l7t2.js` — partida perfecta **3/3 · 9 ⭐** (3 + 3 + 3) y fallada **0/3 · 0 ⭐**, con
+  revelado en las tres rondas, el BORRAR de la R1 y 6 recargas sin repetir. 0 errores de
+  consola.
+- `espacios-l7t2.js` — lienzo entero, 5 viewports, en reposo, **en pleno arrastre**, con la
+  barra a tope, con los hilos cruzados y con el revelado puesto: nada superpuesto.
+- `arrastre-l7t2.js` — el nudo se queda donde lo sueltas agarrándolo por arriba, por el
+  centro y por abajo; el hilo se tiende, se cambia, no admite dos autores en una obra, no
+  engancha si sueltas fuera, y el respaldo por toque sigue vivo.
+- `variedad-l7t2.js [partidas]` — **12 partidas: la curva 3/3 · curva + 3 años 12/12 distintos · R2 12/12 · R3 11/12, y 0 repeticiones en partidas seguidas en las cuatro medidas.**

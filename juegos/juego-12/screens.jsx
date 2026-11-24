@@ -145,6 +145,8 @@ const LIBROS = [
   ] },
   { id: "libro-7", label: "Libro 7", temas: [
     { id: "l7-t1", label: "La Revolución Liberal", desc: "Alfaro, el Estado laico y el ferrocarril" },
+    { id: "l7-t2", label: "Insurgencia y velasquismo", desc: "La crisis del cacao, la Revolución Juliana y el arte de los treinta" },
+    { id: "l7-t3", label: "Transformación agraria", desc: "La guerra de 1941, el boom bananero y la reforma agraria" },
   ] },
 ];
 

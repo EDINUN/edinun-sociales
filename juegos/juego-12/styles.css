@@ -525,3 +525,31 @@ body {
     line-height: 1.4;
   }
 }
+
+/* === SIN SELECCIÓN DE TEXTO EN EL JUEGO ===================================
+   Al hacer DOBLE CLIC sobre una ficha, el navegador seleccionaba su texto y la
+   pintaba de azul (el color de selección del sistema). La autora lo cazó el
+   2026-11-24 apilando cajas de banano: dos toques seguidos en la misma caja y
+   se quedaba azul. No era un estado del juego.
+
+   Se apaga la selección en TODO el cuerpo, que aquí es un tablero que se toca,
+   no un texto que se lee. Y se quita el destello gris de los toques en móvil.
+
+   ⚠ Los campos de texto se excluyen: en el Home hay que poder escribir y
+   corregir el nombre, y ahí seleccionar sí tiene sentido.
+   ⚠ El informe imprimible también: se abre en su propia ventana, con sus
+   propios estilos, así que esto no lo toca.
+   ========================================================================= */
+body, .ed-body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+input, textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
