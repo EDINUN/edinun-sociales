@@ -2373,7 +2373,7 @@ function L6T3R1Niebla({ onSolve, verifyRef, onClear, listo }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, height: "100%", width: "100%", paddingBottom: 10, userSelect: "none", WebkitUserSelect: "none" }}>
       <div style={{ pointerEvents: "none", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,0.6)", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--ed-font-display)", fontWeight: 800, fontSize: 19, color: "#fff" }}>¿Quiénes no tenían voz antes del liberalismo?</span>
-        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son dos de las cuatro.</div>
+        <div style={{ fontFamily: "var(--ed-font-ui)", fontWeight: 700, fontSize: 11.5, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>Son dos.</div>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 16px", width: 440, justifyContent: "center", flexShrink: 0 }}>
         {b.gente.map(figura)}
