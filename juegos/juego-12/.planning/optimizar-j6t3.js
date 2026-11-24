@@ -128,7 +128,16 @@ const ANCHO = 330, ALTO = 440, CALIDAD = 0.86;
       octx.fillStyle = pared;
       octx.fillRect(0, 0, ANCHO, ALTO);
       const k = ALTO / (cy1 - cy0);                  // píxeles de salida por píxel fuente
-      octx.drawImage(img, 0, 0, W, H, (0 - cx0) * k, (0 - cy0) * k, W * k, H * k);
+      const dx = (0 - cx0) * k, dy = (0 - cy0) * k, dw = W * k, dh = H * k;
+      // ⚠ El relleno NO puede ser un color plano: el fondo de las láminas es un degradado
+      // con viñeta, así que un tono sacado de la esquina se nota como un marco (la autora
+      // lo vio en la alumna). Se ESTIRA el propio borde de la lámina hacia afuera, que es
+      // lo que hace cualquier editor, y la unión no se ve.
+      if (dx > 0) octx.drawImage(img, 0, 0, 2, H, 0, dy, Math.ceil(dx) + 1, dh);
+      if (dx + dw < ANCHO) octx.drawImage(img, W - 2, 0, 2, H, Math.floor(dx + dw) - 1, dy, ANCHO - (dx + dw) + 2, dh);
+      if (dy > 0) octx.drawImage(img, 0, 0, W, 2, dx, 0, dw, Math.ceil(dy) + 1);
+      if (dy + dh < ALTO) octx.drawImage(img, 0, H - 2, W, 2, dx, Math.floor(dy + dh) - 1, dw, ALTO - (dy + dh) + 2);
+      octx.drawImage(img, 0, 0, W, H, dx, dy, dw, dh);
       return { url: o.toDataURL("image/jpeg", q), fig: [x0, y0, x1, y1], recorte: [Math.round(cx0), Math.round(cy0), Math.round(cx1), Math.round(cy1)] };
     }, [dataUrl, ANCHO, ALTO, CALIDAD]);
     if (!out) { console.log(f.padEnd(24) + "  ✗ no se encontró la figura: se deja igual"); continue; }
