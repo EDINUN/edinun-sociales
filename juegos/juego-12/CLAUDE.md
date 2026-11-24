@@ -745,7 +745,8 @@ figura pequeña y descentrada; `.planning/optimizar-j6t3.js` las deja en **330×
 ```bash
 node juegos/juego-12/.planning/e2e-l6t3.js        # perfecta 8 ⭐ · fallada 1 ⭐
 node juegos/juego-12/.planning/variedad-l6t3.js   # 8 partidas seguidas
-node juegos/juego-12/.planning/centros-j6t3.js    # encuadre de las 12 fotos
+node juegos/juego-12/.planning/centros-j6t3.js    # encuadre de las 12 fotos (números)
+node juegos/juego-12/.planning/tira-j6t3.js <png>  # ...y las 12 en fila, con su eje marcado
 node juegos/juego-12/.planning/espacios-todo.js   # solapes: los TRES temas
 node juegos/juego-12/.planning/espacios-extra.js  # peores casos + Libro 7
 node juegos/juego-12/.planning/shot-l6t3.js <carpeta>
